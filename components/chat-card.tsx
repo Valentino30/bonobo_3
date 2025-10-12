@@ -1,21 +1,30 @@
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
-import { StyleSheet, TouchableOpacity } from 'react-native'
+import { type StoredChat } from '@/utils/chat-storage'
+import { Alert, StyleSheet, TouchableOpacity } from 'react-native'
 
 interface ChatCardProps {
-  chat: {
-    id: string
-    text: string
-    timestamp: Date
-    participants?: string[]
-    messageCount?: number
-  }
+  chat: StoredChat
   onAnalyze: (chatId: string) => void
+  onDelete?: (chatId: string) => void
 }
 
-export function ChatCard({ chat, onAnalyze }: ChatCardProps) {
+export function ChatCard({ chat, onAnalyze, onDelete }: ChatCardProps) {
   const handleAnalyze = () => {
     onAnalyze(chat.id)
+  }
+
+  const handleDelete = () => {
+    if (!onDelete) return
+
+    Alert.alert('Delete Chat', 'Are you sure you want to delete this chat? This action cannot be undone.', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => onDelete(chat.id),
+      },
+    ])
   }
 
   return (
@@ -42,9 +51,16 @@ export function ChatCard({ chat, onAnalyze }: ChatCardProps) {
         </ThemedView>
       </ThemedView>
 
-      <TouchableOpacity style={styles.analyzeButton} onPress={handleAnalyze}>
-        <ThemedText style={styles.analyzeButtonText}>🔍 Analyze Chat</ThemedText>
-      </TouchableOpacity>
+      <ThemedView style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.analyzeButton} onPress={handleAnalyze}>
+          <ThemedText style={styles.analyzeButtonText}>🔍 Analyze Chat</ThemedText>
+        </TouchableOpacity>
+        {onDelete && (
+          <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+            <ThemedText style={styles.deleteButtonText}>🗑️ Delete</ThemedText>
+          </TouchableOpacity>
+        )}
+      </ThemedView>
     </ThemedView>
   )
 }
@@ -125,10 +141,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 8,
     alignItems: 'center',
+    flex: 1,
+    marginRight: 8,
   },
   analyzeButtonText: {
     color: '#FFFFFF',
     fontWeight: '600',
     fontSize: 16,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  deleteButton: {
+    backgroundColor: '#DC3545',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    minWidth: 80,
+  },
+  deleteButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 14,
   },
 })

@@ -1,23 +1,17 @@
 import { ChatCard } from '@/components/chat-card'
 import { EmptyState } from '@/components/empty-state'
+import { type StoredChat } from '@/utils/chat-storage'
 import { ScrollView, StyleSheet } from 'react-native'
 
-interface Chat {
-  id: string
-  text: string
-  timestamp: Date
-  participants?: string[]
-  messageCount?: number
-}
-
 interface ChatListProps {
-  chats: Chat[]
+  chats: StoredChat[]
   hasShareData: boolean
   showPlatform: string
   manualInput: string
   setManualInput: (text: string) => void
   onManualImport: () => void
   onAnalyzeChat: (chatId: string) => void
+  onDeleteChat?: (chatId: string) => void
   onClearShareData?: () => void
 }
 
@@ -29,12 +23,13 @@ export function ChatList({
   setManualInput,
   onManualImport,
   onAnalyzeChat,
+  onDeleteChat,
   onClearShareData,
 }: ChatListProps) {
   return (
     <ScrollView style={styles.chatList} showsVerticalScrollIndicator={false}>
       {chats.length > 0 ? (
-        chats.map((chat) => <ChatCard key={chat.id} chat={chat} onAnalyze={onAnalyzeChat} />)
+        chats.map((chat) => <ChatCard key={chat.id} chat={chat} onAnalyze={onAnalyzeChat} onDelete={onDeleteChat} />)
       ) : (
         <EmptyState
           hasShareData={hasShareData}
