@@ -1,54 +1,47 @@
 import { ShareIntentData } from '@/types/share-intent'
-import * as Linking from 'expo-linking'
+import { useShareIntent as useExpoShareIntent } from 'expo-share-intent'
 import { useEffect, useState } from 'react'
-import { Platform } from 'react-native'
 
 export function useShareIntent() {
   const [shareData, setShareData] = useState<ShareIntentData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
+  const { hasShareIntent, shareIntent, resetShareIntent, error } = useExpoShareIntent({
+    debug: true,
+    resetOnBackground: true,
+  })
+
   useEffect(() => {
-    const handleInitialIntent = async () => {
-      if (Platform.OS === 'android') {
-        try {
-          // Check if the app was opened with a URL that contains share data
-          const initialURL = await Linking.getInitialURL()
+    const handleShareIntent = () => {
+      if (hasShareIntent && shareIntent) {
+        console.log('Share intent received:', shareIntent)
 
-          if (initialURL) {
-            // Parse the URL for share data
-            console.log('Initial URL:', initialURL)
-            // For now, we'll just log this - in a real implementation,
-            // you'd parse the URL or use a native module to get intent data
-          }
-
-          console.log('Checking for share intent...')
-
-          // Placeholder for share intent data
-          // In a real implementation, this would get data from the native side
-        } catch (error) {
-          console.error('Error handling initial intent:', error)
+        // Convert expo-share-intent format to our format
+        const convertedData: ShareIntentData = {
+          text: shareIntent.text || '',
+          type: shareIntent.type || '',
+          webUrl: shareIntent.webUrl || '',
+          files: shareIntent.files?.map((file) => file.path || file.fileName || '') || [],
         }
+
+        setShareData(convertedData)
       }
       setIsLoading(false)
     }
 
-    const handleURL = (event: { url: string }) => {
-      console.log('Received URL:', event.url)
-      // Handle deep links that might contain share data
+    handleShareIntent()
+  }, [hasShareIntent, shareIntent])
+
+  useEffect(() => {
+    if (error) {
+      console.error('Share intent error:', error)
+      setIsLoading(false)
     }
-
-    // Listen for URL events
-    const subscription = Linking.addEventListener('url', handleURL)
-
-    handleInitialIntent()
-
-    return () => {
-      subscription?.remove()
-    }
-  }, [])
+  }, [error])
 
   const clearShareData = () => {
     setShareData(null)
+    resetShareIntent()
   }
 
   return {
