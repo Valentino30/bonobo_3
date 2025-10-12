@@ -6,7 +6,7 @@ import { useShareIntent } from '@/hooks/use-share-intent'
 import { type StoredChat } from '@/utils/chat-storage'
 import { parseWhatsAppChat } from '@/utils/whatsapp-parser'
 import { extractWhatsAppZip } from '@/utils/zip-extractor'
-import { Link, useLocalSearchParams } from 'expo-router'
+import { Link, useLocalSearchParams, useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { Alert, Platform, StyleSheet, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -17,6 +17,7 @@ export default function ChatsScreen() {
   const { chats, addChat: persistAddChat, deleteChat } = usePersistedChats()
   const [manualInput, setManualInput] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
+  const router = useRouter()
 
   // Determine which platform to show instructions for
   const showPlatform = device || Platform.OS
@@ -199,20 +200,8 @@ export default function ChatsScreen() {
   }
 
   const handleAnalyzeChat = (chatId: string) => {
-    // TODO: Navigate to analysis screen or show analysis modal
-    const chat = chats.find((c) => c.id === chatId)
-    if (chat) {
-      Alert.alert(
-        'Analyze Chat',
-        `This will analyze the chat between ${chat.participants?.join(' & ') || 'participants'} with ${
-          chat.messageCount
-        } messages.`,
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Analyze', onPress: () => console.log('Analyzing chat:', chatId) },
-        ]
-      )
-    }
+    // Use string interpolation for dynamic route
+    router.push(`/analysis/${chatId}` as any)
   }
 
   return (
