@@ -2,6 +2,7 @@ import { ChatList } from '@/components/chat-list'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { useShareIntent } from '@/hooks/use-share-intent'
+import { parseWhatsAppChat } from '@/utils/whatsapp-parser'
 import { Link, useLocalSearchParams } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { Alert, Platform, StyleSheet, TouchableOpacity } from 'react-native'
@@ -11,6 +12,8 @@ interface Chat {
   id: string
   text: string
   timestamp: Date
+  participants?: string[]
+  messageCount?: number
 }
 
 export default function ChatsScreen() {
@@ -24,30 +27,72 @@ export default function ChatsScreen() {
 
   useEffect(() => {
     if (hasShareData && shareData?.text) {
+      // Parse the WhatsApp chat to extract participants and message count
+      const parsedData = parseWhatsAppChat(shareData.text)
+
       // Process the shared WhatsApp chat
       const newChat: Chat = {
         id: Date.now().toString(),
         text: shareData.text,
         timestamp: new Date(),
+        participants: parsedData.participants,
+        messageCount: parsedData.messageCount,
       }
       setChats((prev) => [newChat, ...prev])
 
-      // Show confirmation
-      Alert.alert('Chat Imported', 'WhatsApp chat has been successfully imported!', [
-        { text: 'OK', onPress: clearShareData },
-      ])
+      // Show confirmation with more details
+      const participantNames =
+        parsedData.participants.length > 0 ? parsedData.participants.join(' & ') : 'Unknown participants'
+
+      Alert.alert(
+        'Chat Imported Successfully!',
+        `Chat between ${participantNames} with ${parsedData.messageCount} messages has been imported.`,
+        [{ text: 'OK', onPress: clearShareData }]
+      )
     }
   }, [hasShareData, shareData, clearShareData])
 
   const handleManualImport = () => {
     if (manualInput.trim()) {
+      // Parse the manually entered WhatsApp chat
+      const parsedData = parseWhatsAppChat(manualInput.trim())
+
       const newChat: Chat = {
         id: Date.now().toString(),
         text: manualInput.trim(),
         timestamp: new Date(),
+        participants: parsedData.participants,
+        messageCount: parsedData.messageCount,
       }
       setChats((prev) => [newChat, ...prev])
       setManualInput('')
+
+      // Show confirmation with details
+      const participantNames =
+        parsedData.participants.length > 0 ? parsedData.participants.join(' & ') : 'Unknown participants'
+
+      Alert.alert(
+        'Chat Imported Successfully!',
+        `Chat between ${participantNames} with ${parsedData.messageCount} messages has been imported.`,
+        [{ text: 'OK' }]
+      )
+    }
+  }
+
+  const handleAnalyzeChat = (chatId: string) => {
+    // TODO: Navigate to analysis screen or show analysis modal
+    const chat = chats.find((c) => c.id === chatId)
+    if (chat) {
+      Alert.alert(
+        'Analyze Chat',
+        `This will analyze the chat between ${chat.participants?.join(' & ') || 'participants'} with ${
+          chat.messageCount
+        } messages.`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Analyze', onPress: () => console.log('Analyzing chat:', chatId) },
+        ]
+      )
     }
   }
 
@@ -63,6 +108,7 @@ export default function ChatsScreen() {
           manualInput={manualInput}
           setManualInput={setManualInput}
           onManualImport={handleManualImport}
+          onAnalyzeChat={handleAnalyzeChat}
         />
 
         <Link href="/" asChild>

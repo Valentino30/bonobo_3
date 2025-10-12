@@ -1,4 +1,4 @@
-import { ChatItem } from '@/components/chat-item'
+import { ChatCard } from '@/components/chat-card'
 import { EmptyState } from '@/components/empty-state'
 import { ScrollView, StyleSheet } from 'react-native'
 
@@ -6,6 +6,8 @@ interface Chat {
   id: string
   text: string
   timestamp: Date
+  participants?: string[]
+  messageCount?: number
 }
 
 interface ChatListProps {
@@ -15,6 +17,7 @@ interface ChatListProps {
   manualInput: string
   setManualInput: (text: string) => void
   onManualImport: () => void
+  onAnalyzeChat: (chatId: string) => void
 }
 
 export function ChatList({
@@ -24,11 +27,12 @@ export function ChatList({
   manualInput,
   setManualInput,
   onManualImport,
+  onAnalyzeChat,
 }: ChatListProps) {
   return (
     <ScrollView style={styles.chatList} showsVerticalScrollIndicator={false}>
       {chats.length > 0 ? (
-        chats.map((chat) => <ChatItem key={chat.id} chat={chat} />)
+        chats.map((chat) => <ChatCard key={chat.id} chat={chat} onAnalyze={onAnalyzeChat} />)
       ) : (
         <EmptyState
           hasShareData={hasShareData}
