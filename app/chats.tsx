@@ -3,6 +3,7 @@ import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { useShareIntent } from '@/hooks/use-share-intent'
 import { parseWhatsAppChat } from '@/utils/whatsapp-parser'
+import { extractWhatsAppZip } from '@/utils/zip-extractor'
 import { Link, useLocalSearchParams } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { Alert, Platform, StyleSheet, TouchableOpacity } from 'react-native'
@@ -21,14 +22,39 @@ export default function ChatsScreen() {
   const { device } = useLocalSearchParams<{ device?: string }>()
   const [chats, setChats] = useState<Chat[]>([])
   const [manualInput, setManualInput] = useState('')
+  const [isProcessing, setIsProcessing] = useState(false)
 
   // Determine which platform to show instructions for
   const showPlatform = device || Platform.OS
 
+  // Add timeout for share intent processing
   useEffect(() => {
+    if (hasShareData && !shareData?.text) {
+      // If we have share intent but no text after 3 seconds, clear it
+      const timeout = setTimeout(() => {
+        console.log('Share intent timeout - clearing stale state')
+        clearShareData()
+      }, 3000)
+
+      return () => clearTimeout(timeout)
+    }
+  }, [hasShareData, shareData, clearShareData])
+
+  useEffect(() => {
+    console.log('Share intent state:', { hasShareData, shareData, isProcessing })
+
+    // Prevent processing if already in progress
+    if (isProcessing) {
+      console.log('Already processing, skipping...')
+      return
+    }
+
     if (hasShareData && shareData?.text) {
+      console.log('Processing share data:', shareData.text.substring(0, 100) + '...')
+
       // Parse the WhatsApp chat to extract participants and message count
       const parsedData = parseWhatsAppChat(shareData.text)
+      console.log('Parsed data:', parsedData)
 
       // Process the shared WhatsApp chat
       const newChat: Chat = {
@@ -49,8 +75,106 @@ export default function ChatsScreen() {
         `Chat between ${participantNames} with ${parsedData.messageCount} messages has been imported.`,
         [{ text: 'OK', onPress: clearShareData }]
       )
+    } else if (hasShareData && shareData?.files && shareData.files.length > 0) {
+      // Handle ZIP files from WhatsApp
+      console.log('ZIP file detected:', shareData.files![0])
+
+      setIsProcessing(true)
+
+      const processZipFile = async () => {
+        try {
+          const zipFilePath = shareData.files![0]
+          console.log('Attempting to extract ZIP file:', zipFilePath)
+
+          const extractedContent = await extractWhatsAppZip(zipFilePath)
+
+          if (extractedContent) {
+            console.log('Successfully extracted content from ZIP')
+
+            // Parse the extracted WhatsApp chat
+            const parsedData = parseWhatsAppChat(extractedContent)
+            console.log('Parsed ZIP data:', parsedData)
+
+            // Process the extracted WhatsApp chat
+            const newChat: Chat = {
+              id: Date.now().toString(),
+              text: extractedContent,
+              timestamp: new Date(),
+              participants: parsedData.participants,
+              messageCount: parsedData.messageCount,
+            }
+            setChats((prev) => [newChat, ...prev])
+
+            // Show confirmation
+            const participantNames =
+              parsedData.participants.length > 0 ? parsedData.participants.join(' & ') : 'Unknown participants'
+
+            Alert.alert(
+              'Chat Imported Successfully!',
+              `Chat between ${participantNames} with ${parsedData.messageCount} messages has been imported from ZIP file.`,
+              [
+                {
+                  text: 'OK',
+                  onPress: () => {
+                    clearShareData()
+                    setIsProcessing(false)
+                  },
+                },
+              ]
+            )
+          } else {
+            // Failed to extract content
+            Alert.alert(
+              'ZIP Extraction Failed',
+              'Could not extract chat content from the ZIP file. Please try exporting the chat as "Without Media" or use manual import.',
+              [
+                {
+                  text: 'OK',
+                  onPress: () => {
+                    clearShareData()
+                    setIsProcessing(false)
+                  },
+                },
+                {
+                  text: 'Try Manual Import',
+                  onPress: () => {
+                    clearShareData()
+                    setIsProcessing(false)
+                  },
+                },
+              ]
+            )
+          }
+        } catch (error) {
+          console.error('Error processing ZIP file:', error)
+          Alert.alert(
+            'ZIP Processing Error',
+            'An error occurred while processing the ZIP file. Please try again or use manual import.',
+            [
+              {
+                text: 'OK',
+                onPress: () => {
+                  clearShareData()
+                  setIsProcessing(false)
+                },
+              },
+            ]
+          )
+        }
+      }
+
+      // Process the ZIP file
+      processZipFile()
+    } else if (hasShareData && (!shareData || !shareData.text)) {
+      // Handle case where share intent is detected but no text data
+      console.log('Share intent detected but no text data:', shareData)
+      Alert.alert(
+        'Import Error',
+        'No text data was found in the shared content. Please try exporting the chat again or use manual import.',
+        [{ text: 'OK', onPress: clearShareData }]
+      )
     }
-  }, [hasShareData, shareData, clearShareData])
+  }, [hasShareData, shareData, isProcessing, clearShareData])
 
   const handleManualImport = () => {
     if (manualInput.trim()) {
@@ -109,6 +233,7 @@ export default function ChatsScreen() {
           setManualInput={setManualInput}
           onManualImport={handleManualImport}
           onAnalyzeChat={handleAnalyzeChat}
+          onClearShareData={clearShareData}
         />
 
         <Link href="/" asChild>

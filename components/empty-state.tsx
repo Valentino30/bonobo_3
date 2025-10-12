@@ -1,7 +1,7 @@
 import { InstructionContainer } from '@/components/instruction-container'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
-import { StyleSheet } from 'react-native'
+import { StyleSheet, TouchableOpacity } from 'react-native'
 
 interface EmptyStateProps {
   hasShareData: boolean
@@ -9,6 +9,7 @@ interface EmptyStateProps {
   manualInput: string
   setManualInput: (text: string) => void
   onManualImport: () => void
+  onClearShareData?: () => void
 }
 
 export function EmptyState({
@@ -17,6 +18,7 @@ export function EmptyState({
   manualInput,
   setManualInput,
   onManualImport,
+  onClearShareData,
 }: EmptyStateProps) {
   return (
     <ThemedView style={styles.emptyState}>
@@ -27,6 +29,13 @@ export function EmptyState({
       <ThemedText style={styles.emptySubtitle}>
         {hasShareData ? 'Please wait while we import your WhatsApp chat' : 'Share a WhatsApp chat to get started!'}
       </ThemedText>
+
+      {hasShareData && onClearShareData && (
+        <TouchableOpacity style={styles.cancelButton} onPress={onClearShareData}>
+          <ThemedText style={styles.cancelButtonText}>Cancel Import</ThemedText>
+        </TouchableOpacity>
+      )}
+
       {!hasShareData && (
         <InstructionContainer
           showPlatform={showPlatform}
@@ -70,5 +79,17 @@ const styles = StyleSheet.create({
     opacity: 0.7,
     marginBottom: 32,
     lineHeight: 22,
+  },
+  cancelButton: {
+    backgroundColor: '#FF6B6B',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginBottom: 20,
+  },
+  cancelButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 14,
   },
 })

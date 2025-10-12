@@ -13,10 +13,12 @@ export function parseWhatsAppChat(chatText: string): ParsedChatData {
   const messages: { timestamp: string; sender: string; message: string }[] = []
   const participantSet = new Set<string>()
 
-  // WhatsApp export format: "DD/MM/YYYY, HH:MM - Sender: Message"
-  // Alternative format: "[DD/MM/YYYY, HH:MM:SS] Sender: Message"
-  const messageRegex = /^(\d{1,2}\/\d{1,2}\/\d{4},?\s+\d{1,2}:\d{2}(?::\d{2})?)\s*[-\]]\s*([^:]+):\s*(.+)$/
-  const altRegex = /^\[(\d{1,2}\/\d{1,2}\/\d{4},?\s+\d{1,2}:\d{2}(?::\d{2})?)\]\s*([^:]+):\s*(.+)$/
+  // WhatsApp export format variations:
+  // "DD/MM/YYYY, HH:MM - Sender: Message" (European format)
+  // "M/DD/YY, HH:MM - Sender: Message" (US format)
+  // "[DD/MM/YYYY, HH:MM:SS] Sender: Message" (Alternative format)
+  const messageRegex = /^(\d{1,2}\/\d{1,2}\/(?:\d{4}|\d{2}),?\s+\d{1,2}:\d{2}(?::\d{2})?)\s*[-]\s*([^:]+):\s*(.+)$/
+  const altRegex = /^\[(\d{1,2}\/\d{1,2}\/(?:\d{4}|\d{2}),?\s+\d{1,2}:\d{2}(?::\d{2})?)\]\s*([^:]+):\s*(.+)$/
 
   for (const line of lines) {
     // Skip system messages and empty lines

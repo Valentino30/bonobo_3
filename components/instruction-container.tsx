@@ -42,7 +42,9 @@ export function InstructionContainer({
           <ThemedText style={styles.instructionStep}>3. Tap ⋮ → Export chat</ThemedText>
           <ThemedText style={styles.instructionStep}>4. Choose &quot;Without Media&quot;</ThemedText>
           <ThemedText style={styles.instructionStep}>5. Select &quot;Bonobo Chat&quot;</ThemedText>
-          <ThemedText style={styles.instructionNote}>Your chat will be automatically imported!</ThemedText>
+          <ThemedText style={styles.instructionNote}>
+            Your chat will be automatically imported! The app supports both text and ZIP file exports.
+          </ThemedText>
         </>
       )}
     </ThemedView>

@@ -18,6 +18,7 @@ interface ChatListProps {
   setManualInput: (text: string) => void
   onManualImport: () => void
   onAnalyzeChat: (chatId: string) => void
+  onClearShareData?: () => void
 }
 
 export function ChatList({
@@ -28,6 +29,7 @@ export function ChatList({
   setManualInput,
   onManualImport,
   onAnalyzeChat,
+  onClearShareData,
 }: ChatListProps) {
   return (
     <ScrollView style={styles.chatList} showsVerticalScrollIndicator={false}>
@@ -40,6 +42,7 @@ export function ChatList({
           manualInput={manualInput}
           setManualInput={setManualInput}
           onManualImport={onManualImport}
+          onClearShareData={onClearShareData}
         />
       )}
     </ScrollView>
