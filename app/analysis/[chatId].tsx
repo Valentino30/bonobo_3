@@ -6,9 +6,11 @@ import { ThemedView } from '@/components/themed-view'
 import { usePersistedChats } from '@/hooks/use-persisted-chats'
 import { Link, useLocalSearchParams, useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
-import { ActivityIndicator, ScrollView, StyleSheet, TouchableOpacity } from 'react-native'
+import { ActivityIndicator, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { analyzeChatData } from '../../utils/chat-analyzer'
+
+type TabType = 'overview' | 'insights'
 
 interface ChatAnalysisData {
   totalMessages: number
@@ -43,6 +45,7 @@ export default function ChatAnalysisScreen() {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [initialized, setInitialized] = useState(false)
+  const [activeTab, setActiveTab] = useState<TabType>('overview')
 
   useEffect(() => {
     console.log('Analysis screen - chatId:', chatId)
@@ -160,75 +163,104 @@ export default function ChatAnalysisScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Fixed Header */}
+      <View style={styles.header}>
+        <ThemedText type="title" style={styles.title}>
+          Chat Analysis
+        </ThemedText>
+
+        {/* Tab Navigation */}
+        <View style={styles.tabContainer}>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'overview' && styles.tabActive]}
+            onPress={() => setActiveTab('overview')}
+          >
+            <ThemedText style={[styles.tabText, activeTab === 'overview' && styles.tabTextActive]}>Overview</ThemedText>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'insights' && styles.tabActive]}
+            onPress={() => setActiveTab('insights')}
+          >
+            <ThemedText style={[styles.tabText, activeTab === 'insights' && styles.tabTextActive]}>Insights</ThemedText>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Scrollable Content */}
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <ThemedView style={styles.content}>
-          <ThemedText type="title" style={styles.title}>
-            Chat Analysis
-          </ThemedText>
+          {/* Tab Content */}
+          {activeTab === 'overview' ? (
+            <ThemedView style={styles.statsGrid}>
+              {/* Total Messages Card */}
+              <SimpleStatCard title="Total Messages" icon="💬" value={analysis.totalMessages} />
 
-          {/* Stats Grid */}
-          <ThemedView style={styles.statsGrid}>
-            {/* Total Messages Card */}
-            <SimpleStatCard title="Total Messages" icon="💬" value={analysis.totalMessages} />
+              {/* Messages per Participant Card */}
+              <ComparisonCard
+                title="Messages per Participant"
+                icon="👥"
+                participants={[
+                  {
+                    name: analysis.participant1.name,
+                    value: analysis.participant1.messageCount,
+                  },
+                  {
+                    name: analysis.participant2.name,
+                    value: analysis.participant2.messageCount,
+                  },
+                ]}
+              />
 
-            {/* Messages per Participant Card */}
-            <ComparisonCard
-              title="Messages per Participant"
-              icon="👥"
-              participants={[
-                {
-                  name: analysis.participant1.name,
-                  value: analysis.participant1.messageCount,
-                },
-                {
-                  name: analysis.participant2.name,
-                  value: analysis.participant2.messageCount,
-                },
-              ]}
-            />
+              {/* Response Time Card */}
+              <ComparisonCard
+                title="Average Response Time"
+                icon="⏱️"
+                participants={[
+                  {
+                    name: analysis.participant1.name,
+                    value:
+                      analysis.participant1.averageResponseTime < 1
+                        ? `${Math.round(analysis.participant1.averageResponseTime * 60)}m`
+                        : `${analysis.participant1.averageResponseTime.toFixed(1)}h`,
+                  },
+                  {
+                    name: analysis.participant2.name,
+                    value:
+                      analysis.participant2.averageResponseTime < 1
+                        ? `${Math.round(analysis.participant2.averageResponseTime * 60)}m`
+                        : `${analysis.participant2.averageResponseTime.toFixed(1)}h`,
+                  },
+                ]}
+              />
 
-            {/* Response Time Card */}
-            <ComparisonCard
-              title="Average Response Time"
-              icon="⏱️"
-              participants={[
-                {
-                  name: analysis.participant1.name,
-                  value:
-                    analysis.participant1.averageResponseTime < 1
-                      ? `${Math.round(analysis.participant1.averageResponseTime * 60)}m`
-                      : `${analysis.participant1.averageResponseTime.toFixed(1)}h`,
-                },
-                {
-                  name: analysis.participant2.name,
-                  value:
-                    analysis.participant2.averageResponseTime < 1
-                      ? `${Math.round(analysis.participant2.averageResponseTime * 60)}m`
-                      : `${analysis.participant2.averageResponseTime.toFixed(1)}h`,
-                },
-              ]}
-            />
-
-            {/* Interest Level Card */}
-            <ComparisonCard
-              title="Interest Level"
-              icon="❤️"
-              participants={[
-                {
-                  name: analysis.participant1.name,
-                  value: `${analysis.participant1.interestLevel}%`,
-                  progressValue: analysis.participant1.interestLevel,
-                  progressColor: '#0288D1',
-                },
-                {
-                  name: analysis.participant2.name,
-                  value: `${analysis.participant2.interestLevel}%`,
-                  progressValue: analysis.participant2.interestLevel,
-                  progressColor: '#C2185B',
-                },
-              ]}
-            />
-          </ThemedView>
+              {/* Interest Level Card */}
+              <ComparisonCard
+                title="Interest Level"
+                icon="❤️"
+                participants={[
+                  {
+                    name: analysis.participant1.name,
+                    value: `${analysis.participant1.interestLevel}%`,
+                    progressValue: analysis.participant1.interestLevel,
+                    progressColor: '#0288D1',
+                  },
+                  {
+                    name: analysis.participant2.name,
+                    value: `${analysis.participant2.interestLevel}%`,
+                    progressValue: analysis.participant2.interestLevel,
+                    progressColor: '#C2185B',
+                  },
+                ]}
+              />
+            </ThemedView>
+          ) : (
+            <ThemedView style={styles.insightsContainer}>
+              <ThemedText style={styles.comingSoonText}>AI Insights Coming Soon</ThemedText>
+              <ThemedText style={styles.comingSoonSubtext}>
+                Deep analysis and insights will be displayed here
+              </ThemedText>
+            </ThemedView>
+          )}
 
           <TouchableOpacity style={styles.button} onPress={() => router.back()}>
             <ThemedText style={styles.buttonText}>Back to Chats</ThemedText>
@@ -244,22 +276,78 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FAFAFA',
   },
+  header: {
+    backgroundColor: '#FAFAFA',
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 12,
+  },
   scrollView: {
     flex: 1,
   },
   content: {
     padding: 20,
+    paddingTop: 0,
   },
   title: {
-    marginBottom: 24,
+    marginBottom: 16,
     textAlign: 'center',
     fontSize: 24,
     fontWeight: '600',
     color: '#1A1A1A',
     letterSpacing: -0.5,
   },
+  tabContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    padding: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+    alignItems: 'center',
+  },
+  tabActive: {
+    backgroundColor: '#6B8E5A',
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#999999',
+    letterSpacing: 0.3,
+  },
+  tabTextActive: {
+    color: '#FFFFFF',
+  },
   statsGrid: {
     marginTop: 12,
+  },
+  insightsContainer: {
+    marginTop: 40,
+    alignItems: 'center',
+    paddingVertical: 60,
+  },
+  comingSoonText: {
+    fontSize: 18,
+    fontWeight: '500',
+    color: '#1A1A1A',
+    marginBottom: 8,
+    letterSpacing: 0.2,
+  },
+  comingSoonSubtext: {
+    fontSize: 14,
+    fontWeight: '300',
+    color: '#999999',
+    textAlign: 'center',
+    letterSpacing: 0.1,
   },
   button: {
     backgroundColor: '#6B8E5A',
