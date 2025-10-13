@@ -8,6 +8,7 @@ import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { usePersistedChats } from '@/hooks/use-persisted-chats'
 import { PaymentService } from '@/utils/payment-service'
+import { StripeService } from '@/utils/stripe-service'
 import { Link, useLocalSearchParams, useRouter } from 'expo-router'
 import { useEffect, useRef, useState } from 'react'
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
@@ -54,14 +55,8 @@ export default function ChatAnalysisScreen() {
   const [initialized, setInitialized] = useState(false)
   const [activeTab, setActiveTab] = useState<TabType>('overview')
   const [showPaywall, setShowPaywall] = useState(false)
-  const [hasAccess, setHasAccess] = useState(false)
   const [unlockedInsights, setUnlockedInsights] = useState<Set<string>>(new Set())
   const [loadingInsight, setLoadingInsight] = useState<string | null>(null)
-
-  // Check user access on mount
-  useEffect(() => {
-    PaymentService.hasAccess().then(setHasAccess)
-  }, [])
 
   // Handle tab change - insights tab is always accessible to see locked cards
   const handleTabChange = async (tab: TabType) => {
@@ -110,26 +105,25 @@ export default function ChatAnalysisScreen() {
   // Handle purchase
   const handlePurchase = async (planId: string) => {
     try {
-      // TODO: Implement actual Stripe payment here
-      // For now, just grant access (for testing)
-      Alert.alert(
-        'Purchase Simulation',
-        `This would normally process payment for ${planId}. For now, granting access for testing.`,
-        [
-          {
-            text: 'OK',
-            onPress: async () => {
-              await PaymentService.grantAccess(planId)
-              setHasAccess(true)
-              setShowPaywall(false)
-              setActiveTab('insights')
-            },
-          },
-        ]
-      )
+      // Initialize Stripe payment - this will show the payment sheet
+      const result = await StripeService.initializePayment(planId)
+
+      if (result.success) {
+        // Payment successful - grant access
+        await PaymentService.grantAccess(planId)
+        setShowPaywall(false)
+        setActiveTab('insights')
+        Alert.alert('🎉 Payment Successful!', 'You now have access to AI insights')
+      } else {
+        // Payment failed or cancelled
+        if (result.error) {
+          Alert.alert('Payment Failed', result.error)
+        }
+        // User cancelled - no alert needed
+      }
     } catch (error) {
       console.error('Purchase error:', error)
-      throw error
+      Alert.alert('Error', 'Failed to process payment. Please try again.')
     }
   }
 

@@ -145,4 +145,10 @@ export class PaymentService {
       console.error('Error clearing entitlement:', error)
     }
   }
+
+  // Get plan details by ID
+  static getPlanDetails(planId: string): typeof PAYMENT_PLANS[keyof typeof PAYMENT_PLANS] | null {
+    const plan = Object.values(PAYMENT_PLANS).find((p) => p.id === planId)
+    return plan || null
+  }
 }

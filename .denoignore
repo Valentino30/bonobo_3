@@ -1,0 +1,3 @@
+# Deno should only lint/check files in supabase/functions
+
+- !supabase/functions
