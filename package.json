@@ -10,6 +10,7 @@
     "lint": "expo lint"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "expo": "~54.0.13",
     "expo-dev-client": "~6.0.15",
     "expo-file-system": "^19.0.17",
