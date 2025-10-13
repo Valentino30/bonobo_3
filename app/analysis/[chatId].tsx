@@ -1,13 +1,16 @@
 import { AnalysisLoading } from '@/components/analysis-loading'
 import { ComparisonCard } from '@/components/comparison-card'
 import { InsightCard } from '@/components/insight-card'
+import { LockedInsightCard } from '@/components/locked-insight-card'
+import { Paywall } from '@/components/paywall'
 import { SimpleStatCard } from '@/components/simple-stat-card'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { usePersistedChats } from '@/hooks/use-persisted-chats'
+import { PaymentService } from '@/utils/payment-service'
 import { Link, useLocalSearchParams, useRouter } from 'expo-router'
-import { useEffect, useState } from 'react'
-import { ActivityIndicator, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { useEffect, useRef, useState } from 'react'
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { analyzeChat, type AIInsights } from '../../utils/ai-service'
 import { analyzeChatData } from '../../utils/chat-analyzer'
@@ -39,6 +42,7 @@ export default function ChatAnalysisScreen() {
   const { chatId } = useLocalSearchParams<{ chatId: string }>()
   const { chats, isLoading: chatsLoading, updateChatAnalysis } = usePersistedChats()
   const router = useRouter()
+  const previousChatIdRef = useRef<string | null>(null)
 
   const chat = chats.find((c) => c.id === chatId)
 
@@ -49,6 +53,85 @@ export default function ChatAnalysisScreen() {
   const [error, setError] = useState<string | null>(null)
   const [initialized, setInitialized] = useState(false)
   const [activeTab, setActiveTab] = useState<TabType>('overview')
+  const [showPaywall, setShowPaywall] = useState(false)
+  const [hasAccess, setHasAccess] = useState(false)
+  const [unlockedInsights, setUnlockedInsights] = useState<Set<string>>(new Set())
+  const [loadingInsight, setLoadingInsight] = useState<string | null>(null)
+
+  // Check user access on mount
+  useEffect(() => {
+    PaymentService.hasAccess().then(setHasAccess)
+  }, [])
+
+  // Handle tab change - insights tab is always accessible to see locked cards
+  const handleTabChange = async (tab: TabType) => {
+    setActiveTab(tab)
+  }
+
+  // Handle unlock insight - check access and show paywall or unlock
+  const handleUnlockInsight = async (insightId: string) => {
+    const access = await PaymentService.hasAccess()
+
+    if (!access) {
+      // No access - show paywall
+      setShowPaywall(true)
+      return
+    }
+
+    // Has access - unlock this specific insight
+    if (unlockedInsights.has(insightId)) {
+      // Already unlocked, do nothing
+      return
+    }
+
+    // Unlock the insight (generate AI data for this specific insight)
+    setLoadingInsight(insightId)
+    try {
+      // If we don't have any AI insights yet, generate them all
+      if (!aiInsights && chat) {
+        const insights = await analyzeChat(chat.text)
+        setAiInsights(insights)
+        // Cache the insights
+        if (analysis) {
+          await updateChatAnalysis(chatId, analysis, insights)
+        }
+      }
+
+      // Mark this insight as unlocked
+      setUnlockedInsights((prev) => new Set([...prev, insightId]))
+    } catch (err) {
+      console.error('Error unlocking insight:', err)
+      Alert.alert('Error', 'Failed to unlock insight. Please try again.')
+    } finally {
+      setLoadingInsight(null)
+    }
+  }
+
+  // Handle purchase
+  const handlePurchase = async (planId: string) => {
+    try {
+      // TODO: Implement actual Stripe payment here
+      // For now, just grant access (for testing)
+      Alert.alert(
+        'Purchase Simulation',
+        `This would normally process payment for ${planId}. For now, granting access for testing.`,
+        [
+          {
+            text: 'OK',
+            onPress: async () => {
+              await PaymentService.grantAccess(planId)
+              setHasAccess(true)
+              setShowPaywall(false)
+              setActiveTab('insights')
+            },
+          },
+        ]
+      )
+    } catch (error) {
+      console.error('Purchase error:', error)
+      throw error
+    }
+  }
 
   useEffect(() => {
     console.log('Analysis screen - chatId:', chatId)
@@ -56,6 +139,14 @@ export default function ChatAnalysisScreen() {
     console.log('Analysis screen - chats loading:', chatsLoading)
     console.log('Analysis screen - chat found:', !!chat)
     console.log('Analysis screen - cached analysis:', !!chat?.analysis)
+
+    // Reset unlocked insights AND AI insights ONLY when chatId changes
+    if (previousChatIdRef.current !== chatId) {
+      console.log('ChatId changed, resetting insights')
+      setUnlockedInsights(new Set())
+      setAiInsights(null)
+      previousChatIdRef.current = chatId
+    }
 
     // Don't do anything if chats are still loading
     if (chatsLoading) {
@@ -80,77 +171,39 @@ export default function ChatAnalysisScreen() {
     // Reset error state when chat is found
     setError(null)
 
-    // Check if we have cached analysis - if so, use it
-    if (chat.analysis && chat.aiInsights) {
-      console.log('Using cached analysis and AI insights, skipping analysis')
-      console.log('Chat ID:', chatId)
-      console.log('Has cached AI insights:', !!chat.aiInsights)
-      if (chat.aiInsights) {
-        console.log('Red flags count:', chat.aiInsights.redFlags.count)
-        console.log('Green flags count:', chat.aiInsights.greenFlags.count)
-      }
+    // Check if we have cached basic analysis
+    if (chat.analysis) {
+      console.log('Using cached basic analysis')
       setAnalysis(chat.analysis)
-      setAiInsights(chat.aiInsights)
+
+      // DON'T load cached AI insights - user must unlock them each session
+      // This ensures insights are never shown without proper unlock flow
+
       setIsAnalyzing(false)
       return
     }
 
-    // If we have analysis but no AI insights, we need to run AI analysis only
-    if (chat.analysis && !chat.aiInsights) {
-      console.log('Have basic analysis but missing AI insights - running AI analysis only')
-      setAnalysis(chat.analysis)
-      setIsAnalyzing(true)
+    // If we don't have basic analysis, run it (but NOT AI analysis yet)
+    console.log('No cached analysis found, performing basic analysis only')
+    setIsAnalyzing(true)
 
-      const performAIAnalysis = async () => {
-        try {
-          const insights = await analyzeChat(chat.text)
-          setAiInsights(insights)
-          await updateChatAnalysis(chatId, chat.analysis!, insights)
-          console.log('AI insights added to existing analysis')
-        } catch (err) {
-          console.error('AI analysis error:', err)
-          setError('Failed to get AI insights')
-        } finally {
-          setIsAnalyzing(false)
-        }
-      }
-
-      performAIAnalysis()
-      return
-    }
-
-    console.log('No cached analysis found, running full analysis')
-    console.log('Chat ID for new analysis:', chatId)
-    const performAnalysis = async () => {
+    const performBasicAnalysis = async () => {
       try {
-        setIsAnalyzing(true)
+        const basicAnalysis = await analyzeChatData(chat.text)
+        setAnalysis(basicAnalysis)
 
-        // Start both the analysis and a minimum 4-second timer, plus AI insights
-        const [result, insights] = await Promise.all([
-          analyzeChatData(chat.text),
-          analyzeChat(chat.text),
-          new Promise((resolve) => setTimeout(resolve, 4000)), // Minimum 4 seconds (1s per step)
-        ])
-
-        setAnalysis(result)
-        setAiInsights(insights)
-
-        console.log('Analysis complete for chat:', chatId)
-        console.log('AI Insights - Red flags:', insights.redFlags.count)
-        console.log('AI Insights - Green flags:', insights.greenFlags.count)
-        console.log('AI Insights - Red flag items:', insights.redFlags.items)
-
-        // Cache the analysis result and AI insights
-        await updateChatAnalysis(chatId, result, insights)
+        // Save only basic analysis (no AI insights yet)
+        await updateChatAnalysis(chatId, basicAnalysis)
+        console.log('Basic analysis complete and cached')
       } catch (err) {
         console.error('Analysis error:', err)
-        setError('Failed to analyze chat data')
+        setError(err instanceof Error ? err.message : 'Failed to analyze chat')
       } finally {
         setIsAnalyzing(false)
       }
     }
 
-    performAnalysis()
+    performBasicAnalysis()
   }, [chat, chatId, chats, chatsLoading, updateChatAnalysis])
 
   // Show loading if chats are still loading OR we haven't initialized yet
@@ -204,7 +257,7 @@ export default function ChatAnalysisScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       {/* Fixed Header */}
       <View style={styles.header}>
         <ThemedText type="title" style={styles.title}>
@@ -215,22 +268,31 @@ export default function ChatAnalysisScreen() {
         <View style={styles.tabContainer}>
           <TouchableOpacity
             style={[styles.tab, activeTab === 'overview' && styles.tabActive]}
-            onPress={() => setActiveTab('overview')}
+            onPress={() => handleTabChange('overview')}
           >
             <ThemedText style={[styles.tabText, activeTab === 'overview' && styles.tabTextActive]}>Overview</ThemedText>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.tab, activeTab === 'insights' && styles.tabActive]}
-            onPress={() => setActiveTab('insights')}
+            onPress={() => handleTabChange('insights')}
           >
             <ThemedText style={[styles.tabText, activeTab === 'insights' && styles.tabTextActive]}>Insights</ThemedText>
           </TouchableOpacity>
         </View>
       </View>
 
+      {/* Paywall Modal */}
+      <Paywall visible={showPaywall} onClose={() => setShowPaywall(false)} onPurchase={handlePurchase} />
+
       {/* Scrollable Content */}
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <ThemedView style={styles.content}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={true}
+        bounces={true}
+        alwaysBounceVertical={true}
+      >
+        <View style={styles.content}>
           {/* Tab Content */}
           {activeTab === 'overview' ? (
             <View style={styles.statsGrid}>
@@ -297,83 +359,162 @@ export default function ChatAnalysisScreen() {
             </View>
           ) : (
             <View style={styles.insightsContainer}>
-              {aiInsights ? (
-                <>
-                  <InsightCard
-                    icon="🚩"
-                    title="Red Flags"
-                    description={aiInsights.redFlags.description}
-                    items={aiInsights.redFlags.items}
-                    badge={{ text: `${aiInsights.redFlags.count} Found`, color: '#6B8E5A' }}
-                  />
-
-                  <InsightCard
-                    icon="✅"
-                    title="Green Flags"
-                    description={aiInsights.greenFlags.description}
-                    items={aiInsights.greenFlags.items}
-                    badge={{ text: `${aiInsights.greenFlags.count} Found`, color: '#6B8E5A' }}
-                  />
-
-                  <InsightCard
-                    icon="🔗"
-                    title="Attachment Style"
-                    description={aiInsights.attachmentStyle.description}
-                    items={aiInsights.attachmentStyle.items}
-                    badge={{ text: aiInsights.attachmentStyle.type, color: '#6B8E5A' }}
-                  />
-
-                  <InsightCard
-                    icon="⚖️"
-                    title="Reciprocity Score"
-                    description={aiInsights.reciprocityScore.description}
-                    items={aiInsights.reciprocityScore.items}
-                    badge={{
-                      text: `${aiInsights.reciprocityScore.percentage}% ${aiInsights.reciprocityScore.rating}`,
-                      color: '#6B8E5A',
-                    }}
-                  />
-
-                  <InsightCard
-                    icon="💐"
-                    title="Compliments"
-                    description={aiInsights.compliments.description}
-                    items={aiInsights.compliments.breakdown}
-                    badge={{ text: `${aiInsights.compliments.count} Found`, color: '#6B8E5A' }}
-                  />
-
-                  <InsightCard
-                    icon="⚠️"
-                    title="Criticism"
-                    description={aiInsights.criticism.description}
-                    items={aiInsights.criticism.breakdown}
-                    badge={{ text: `${aiInsights.criticism.count} Found`, color: '#6B8E5A' }}
-                  />
-
-                  <InsightCard
-                    icon="💯"
-                    title="Compatibility Score"
-                    description={aiInsights.compatibilityScore.description}
-                    items={aiInsights.compatibilityScore.items}
-                    badge={{
-                      text: `${aiInsights.compatibilityScore.percentage}% ${aiInsights.compatibilityScore.rating}`,
-                      color: '#6B8E5A',
-                    }}
-                  />
-
-                  <InsightCard
-                    icon="💡"
-                    title="Relationship Tips"
-                    description={aiInsights.relationshipTips.description}
-                    items={aiInsights.relationshipTips.tips}
-                    badge={{ text: `${aiInsights.relationshipTips.count} Found`, color: '#6B8E5A' }}
-                  />
-                </>
+              {/* Red Flags */}
+              {unlockedInsights.has('redFlags') && aiInsights ? (
+                <InsightCard
+                  icon="🚩"
+                  title="Red Flags"
+                  description={aiInsights.redFlags.description}
+                  items={aiInsights.redFlags.items}
+                  badge={{ text: `${aiInsights.redFlags.count} Found`, color: '#6B8E5A' }}
+                />
               ) : (
-                <View style={styles.loadingContainer}>
-                  <ActivityIndicator size="large" color="#6B8E5A" />
-                  <ThemedText style={styles.loadingText}>Loading AI insights...</ThemedText>
-                </View>
+                <LockedInsightCard
+                  icon="🚩"
+                  title="Red Flags"
+                  badge={{ text: 'AI Insight', color: '#6B8E5A' }}
+                  onUnlock={() => handleUnlockInsight('redFlags')}
+                  isLoading={loadingInsight === 'redFlags'}
+                />
+              )}
+
+              {/* Green Flags */}
+              {unlockedInsights.has('greenFlags') && aiInsights ? (
+                <InsightCard
+                  icon="✅"
+                  title="Green Flags"
+                  description={aiInsights.greenFlags.description}
+                  items={aiInsights.greenFlags.items}
+                  badge={{ text: `${aiInsights.greenFlags.count} Found`, color: '#6B8E5A' }}
+                />
+              ) : (
+                <LockedInsightCard
+                  icon="✅"
+                  title="Green Flags"
+                  badge={{ text: 'AI Insight', color: '#6B8E5A' }}
+                  onUnlock={() => handleUnlockInsight('greenFlags')}
+                  isLoading={loadingInsight === 'greenFlags'}
+                />
+              )}
+
+              {/* Attachment Style */}
+              {unlockedInsights.has('attachmentStyle') && aiInsights ? (
+                <InsightCard
+                  icon="🔗"
+                  title="Attachment Style"
+                  description={aiInsights.attachmentStyle.description}
+                  items={aiInsights.attachmentStyle.items}
+                  badge={{ text: aiInsights.attachmentStyle.type, color: '#6B8E5A' }}
+                />
+              ) : (
+                <LockedInsightCard
+                  icon="🔗"
+                  title="Attachment Style"
+                  badge={{ text: 'AI Insight', color: '#6B8E5A' }}
+                  onUnlock={() => handleUnlockInsight('attachmentStyle')}
+                  isLoading={loadingInsight === 'attachmentStyle'}
+                />
+              )}
+
+              {/* Reciprocity Score */}
+              {unlockedInsights.has('reciprocityScore') && aiInsights ? (
+                <InsightCard
+                  icon="⚖️"
+                  title="Reciprocity Score"
+                  description={aiInsights.reciprocityScore.description}
+                  items={aiInsights.reciprocityScore.items}
+                  badge={{
+                    text: `${aiInsights.reciprocityScore.percentage}% ${aiInsights.reciprocityScore.rating}`,
+                    color: '#6B8E5A',
+                  }}
+                />
+              ) : (
+                <LockedInsightCard
+                  icon="⚖️"
+                  title="Reciprocity Score"
+                  badge={{ text: 'AI Insight', color: '#6B8E5A' }}
+                  onUnlock={() => handleUnlockInsight('reciprocityScore')}
+                  isLoading={loadingInsight === 'reciprocityScore'}
+                />
+              )}
+
+              {/* Compliments */}
+              {unlockedInsights.has('compliments') && aiInsights ? (
+                <InsightCard
+                  icon="💐"
+                  title="Compliments"
+                  description={aiInsights.compliments.description}
+                  items={aiInsights.compliments.breakdown}
+                  badge={{ text: `${aiInsights.compliments.count} Found`, color: '#6B8E5A' }}
+                />
+              ) : (
+                <LockedInsightCard
+                  icon="💐"
+                  title="Compliments"
+                  badge={{ text: 'AI Insight', color: '#6B8E5A' }}
+                  onUnlock={() => handleUnlockInsight('compliments')}
+                  isLoading={loadingInsight === 'compliments'}
+                />
+              )}
+
+              {/* Criticism */}
+              {unlockedInsights.has('criticism') && aiInsights ? (
+                <InsightCard
+                  icon="⚠️"
+                  title="Criticism"
+                  description={aiInsights.criticism.description}
+                  items={aiInsights.criticism.breakdown}
+                  badge={{ text: `${aiInsights.criticism.count} Found`, color: '#6B8E5A' }}
+                />
+              ) : (
+                <LockedInsightCard
+                  icon="⚠️"
+                  title="Criticism"
+                  badge={{ text: 'AI Insight', color: '#6B8E5A' }}
+                  onUnlock={() => handleUnlockInsight('criticism')}
+                  isLoading={loadingInsight === 'criticism'}
+                />
+              )}
+
+              {/* Compatibility Score */}
+              {unlockedInsights.has('compatibilityScore') && aiInsights ? (
+                <InsightCard
+                  icon="💯"
+                  title="Compatibility Score"
+                  description={aiInsights.compatibilityScore.description}
+                  items={aiInsights.compatibilityScore.items}
+                  badge={{
+                    text: `${aiInsights.compatibilityScore.percentage}% ${aiInsights.compatibilityScore.rating}`,
+                    color: '#6B8E5A',
+                  }}
+                />
+              ) : (
+                <LockedInsightCard
+                  icon="💯"
+                  title="Compatibility Score"
+                  badge={{ text: 'AI Insight', color: '#6B8E5A' }}
+                  onUnlock={() => handleUnlockInsight('compatibilityScore')}
+                  isLoading={loadingInsight === 'compatibilityScore'}
+                />
+              )}
+
+              {/* Relationship Tips */}
+              {unlockedInsights.has('relationshipTips') && aiInsights ? (
+                <InsightCard
+                  icon="💡"
+                  title="Relationship Tips"
+                  description={aiInsights.relationshipTips.description}
+                  items={aiInsights.relationshipTips.tips}
+                  badge={{ text: `${aiInsights.relationshipTips.count} Found`, color: '#6B8E5A' }}
+                />
+              ) : (
+                <LockedInsightCard
+                  icon="💡"
+                  title="Relationship Tips"
+                  badge={{ text: 'AI Insight', color: '#6B8E5A' }}
+                  onUnlock={() => handleUnlockInsight('relationshipTips')}
+                  isLoading={loadingInsight === 'relationshipTips'}
+                />
               )}
             </View>
           )}
@@ -381,7 +522,7 @@ export default function ChatAnalysisScreen() {
           <TouchableOpacity style={styles.button} onPress={() => router.back()}>
             <ThemedText style={styles.buttonText}>Back to Chats</ThemedText>
           </TouchableOpacity>
-        </ThemedView>
+        </View>
       </ScrollView>
     </SafeAreaView>
   )
@@ -401,9 +542,14 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 40,
+  },
   content: {
     padding: 20,
     paddingTop: 0,
+    backgroundColor: '#FAFAFA',
   },
   title: {
     marginBottom: 16,
