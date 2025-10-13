@@ -218,7 +218,7 @@ export default function ChatAnalysisScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#FAFAFA',
   },
   scrollView: {
     flex: 1,
@@ -229,13 +229,17 @@ const styles = StyleSheet.create({
   title: {
     marginBottom: 24,
     textAlign: 'center',
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#1A1A1A',
+    letterSpacing: -0.5,
   },
   statsGrid: {
     marginTop: 12,
   },
   button: {
     backgroundColor: '#6B8E5A',
-    paddingVertical: 12,
+    paddingVertical: 14,
     paddingHorizontal: 16,
     borderRadius: 8,
     alignItems: 'center',
@@ -243,17 +247,22 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#FFFFFF',
-    fontWeight: '600',
-    fontSize: 16,
+    fontWeight: '500',
+    fontSize: 14,
+    letterSpacing: 0.3,
   },
   loadingText: {
     textAlign: 'center',
     marginTop: 16,
-    opacity: 0.7,
+    color: '#666666',
+    fontSize: 14,
+    letterSpacing: 0.1,
   },
   errorText: {
     textAlign: 'center',
-    color: '#DC3545',
+    color: '#FF6B6B',
     marginVertical: 16,
+    fontSize: 14,
+    letterSpacing: 0.1,
   },
 })

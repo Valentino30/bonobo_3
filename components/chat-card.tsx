@@ -1,7 +1,7 @@
 import { ThemedText } from '@/components/themed-text'
-import { ThemedView } from '@/components/themed-view'
 import { type StoredChat } from '@/utils/chat-storage'
-import { Alert, StyleSheet, TouchableOpacity } from 'react-native'
+import { useState } from 'react'
+import { Modal, StyleSheet, TouchableOpacity, View } from 'react-native'
 
 interface ChatCardProps {
   chat: StoredChat
@@ -10,160 +10,170 @@ interface ChatCardProps {
 }
 
 export function ChatCard({ chat, onAnalyze, onDelete }: ChatCardProps) {
+  const [showMenu, setShowMenu] = useState(false)
+
   const handleAnalyze = () => {
     onAnalyze(chat.id)
   }
 
   const handleDelete = () => {
-    if (!onDelete) return
+    setShowMenu(false)
+    if (onDelete) {
+      onDelete(chat.id)
+    }
+  }
 
-    Alert.alert('Delete Chat', 'Are you sure you want to delete this chat? This action cannot be undone.', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: () => onDelete(chat.id),
-      },
-    ])
+  // Get initial for avatar from first participant
+  const getInitial = () => {
+    if (!chat.participants || chat.participants.length === 0) {
+      return '?'
+    }
+
+    const firstParticipant = chat.participants[0]
+    if (!firstParticipant || firstParticipant.trim().length === 0) {
+      return '?'
+    }
+
+    return firstParticipant.trim()[0].toUpperCase()
   }
 
   return (
-    <ThemedView style={styles.chatCard}>
-      <ThemedView style={styles.cardHeader}>
-        <ThemedView style={styles.participantsContainer}>
-          <ThemedText style={styles.participantsLabel}>Participants:</ThemedText>
-          <ThemedText style={styles.participantsText}>
+    <>
+      <TouchableOpacity style={styles.chatCard} onPress={handleAnalyze} activeOpacity={0.7}>
+        <View style={styles.avatar}>
+          <ThemedText style={styles.avatarText}>{getInitial()}</ThemedText>
+        </View>
+        <View style={styles.contentContainer}>
+          <ThemedText style={styles.participantName}>
             {chat.participants?.join(' & ') || 'Unknown participants'}
           </ThemedText>
-        </ThemedView>
-        <ThemedText style={styles.timestamp}>{chat.timestamp.toLocaleDateString()}</ThemedText>
-      </ThemedView>
-
-      <ThemedView style={styles.cardStats}>
-        <ThemedView style={styles.statItem}>
-          <ThemedText style={styles.statNumber}>{chat.messageCount || 0}</ThemedText>
-          <ThemedText style={styles.statLabel}>Messages</ThemedText>
-        </ThemedView>
-        <ThemedView style={styles.statDivider} />
-        <ThemedView style={styles.statItem}>
-          <ThemedText style={styles.statNumber}>💬</ThemedText>
-          <ThemedText style={styles.statLabel}>WhatsApp</ThemedText>
-        </ThemedView>
-      </ThemedView>
-
-      <ThemedView style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.analyzeButton} onPress={handleAnalyze}>
-          <ThemedText style={styles.analyzeButtonText}>🔍 Analyze Chat</ThemedText>
-        </TouchableOpacity>
+          <ThemedText style={styles.messageCount}>{chat.messageCount || 0} messages</ThemedText>
+        </View>
         {onDelete && (
-          <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-            <ThemedText style={styles.deleteButtonText}>🗑️ Delete</ThemedText>
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={(e) => {
+              e.stopPropagation()
+              setShowMenu(true)
+            }}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <ThemedText style={styles.menuIcon}>⋯</ThemedText>
           </TouchableOpacity>
         )}
-      </ThemedView>
-    </ThemedView>
+      </TouchableOpacity>
+
+      <Modal visible={showMenu} transparent animationType="fade" onRequestClose={() => setShowMenu(false)}>
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowMenu(false)}>
+          <View style={styles.bottomDrawer}>
+            <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+              <ThemedText style={styles.deleteButtonText}>Delete Person</ThemedText>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.cancelButton} onPress={() => setShowMenu(false)}>
+              <ThemedText style={styles.cancelButtonText}>Cancel</ThemedText>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    </>
   )
 }
 
 const styles = StyleSheet.create({
   chatCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 16,
-    marginVertical: 8,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
+    marginVertical: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 1,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-  participantsContainer: {
-    flex: 1,
-    marginRight: 8,
-  },
-  participantsLabel: {
-    fontSize: 12,
-    opacity: 0.6,
-    marginBottom: 2,
-  },
-  participantsText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#6B8E5A',
-  },
-  timestamp: {
-    fontSize: 12,
-    opacity: 0.6,
-  },
-  cardStats: {
-    flexDirection: 'row',
+  avatar: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#7BA1D7',
+    justifyContent: 'center',
     alignItems: 'center',
-    justifyContent: 'space-around',
-    paddingVertical: 12,
-    marginBottom: 12,
-    backgroundColor: '#F8F9FA',
-    borderRadius: 8,
+    marginRight: 16,
   },
-  statItem: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  statNumber: {
+  avatarText: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#6B8E5A',
-    marginBottom: 2,
-  },
-  statLabel: {
-    fontSize: 12,
-    opacity: 0.7,
-  },
-  statDivider: {
-    width: 1,
-    height: 30,
-    backgroundColor: '#E0E0E0',
-    marginHorizontal: 16,
-  },
-  analyzeButton: {
-    backgroundColor: '#6B8E5A',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    flex: 1,
-    marginRight: 8,
-  },
-  analyzeButtonText: {
-    color: '#FFFFFF',
     fontWeight: '600',
-    fontSize: 16,
+    color: '#FFFFFF',
+    letterSpacing: 0.5,
   },
-  buttonContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  contentContainer: {
+    flex: 1,
+  },
+  participantName: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1A1A1A',
+    marginBottom: 4,
+    letterSpacing: -0.2,
+  },
+  messageCount: {
+    fontSize: 14,
+    color: '#999999',
+    fontWeight: '400',
+  },
+  menuButton: {
+    padding: 8,
+  },
+  menuIcon: {
+    fontSize: 24,
+    color: '#999999',
+    fontWeight: 'bold',
+    letterSpacing: 2,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  bottomDrawer: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 40,
   },
   deleteButton: {
-    backgroundColor: '#DC3545',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
+    backgroundColor: '#E57373',
+    paddingVertical: 18,
+    borderRadius: 12,
     alignItems: 'center',
-    minWidth: 80,
+    marginBottom: 12,
   },
   deleteButtonText: {
+    fontSize: 16,
+    fontWeight: '500',
     color: '#FFFFFF',
-    fontWeight: '600',
-    fontSize: 14,
+    letterSpacing: 0.2,
+  },
+  cancelButton: {
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 18,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#666666',
+    letterSpacing: 0.2,
   },
 })

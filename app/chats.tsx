@@ -234,6 +234,7 @@ export default function ChatsScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+    backgroundColor: '#FAFAFA',
   },
   container: {
     flex: 1,
@@ -242,13 +243,15 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 20,
     paddingHorizontal: 24,
-    paddingVertical: 12,
+    paddingVertical: 14,
     backgroundColor: '#6B8E5A',
     borderRadius: 8,
     alignSelf: 'center',
   },
   buttonText: {
-    color: '#F7F9F5',
-    fontWeight: '600',
+    color: '#FFFFFF',
+    fontWeight: '500',
+    fontSize: 14,
+    letterSpacing: 0.3,
   },
 })

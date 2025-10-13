@@ -48,11 +48,34 @@ function parseMessages(chatText: string): MessageData[] {
   for (const line of lines) {
     if (line.trim() === '') continue
 
+    // Skip system messages
+    if (
+      line.includes('Messages and calls are end-to-end encrypted') ||
+      line.includes('changed the subject') ||
+      line.includes('left') ||
+      line.includes('joined') ||
+      line.includes('created group')
+    ) {
+      continue
+    }
+
     let matched = false
     for (const pattern of patterns) {
       const match = line.match(pattern)
       if (match) {
         const [, dateStr, timeStr, sender, content] = match
+        const cleanSender = sender.trim()
+
+        // Skip system messages by sender name patterns and filtered content
+        if (
+          cleanSender.includes('WhatsApp') ||
+          cleanSender.includes('System') ||
+          content.includes('<Media omitted>') ||
+          content.includes('This message was deleted')
+        ) {
+          matched = true
+          break
+        }
 
         try {
           const timestamp = parseTimestamp(dateStr, timeStr)
@@ -60,7 +83,7 @@ function parseMessages(chatText: string): MessageData[] {
 
           messages.push({
             timestamp,
-            sender: sender.trim(),
+            sender: cleanSender,
             content: content.trim(),
             type: messageType,
           })
