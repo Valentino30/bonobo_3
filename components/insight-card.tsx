@@ -17,24 +17,25 @@ interface InsightCardProps {
 export function InsightCard({ title, icon, value, description, items, badge, color = '#6B8E5A' }: InsightCardProps) {
   return (
     <View style={styles.card}>
-      <View style={styles.header}>
-        {icon && (
-          <View style={styles.iconContainer}>
-            <ThemedText style={styles.icon}>{icon}</ThemedText>
-          </View>
-        )}
-        <ThemedText style={styles.title}>{title}</ThemedText>
-        {badge && (
-          <View style={[styles.badge, { backgroundColor: `${badge.color}20` }]}>
-            <ThemedText style={[styles.badgeText, { color: badge.color }]}>{badge.text}</ThemedText>
-          </View>
-        )}
+      {/* Header Section with Divider */}
+      <View style={styles.headerSection}>
+        <View style={styles.header}>
+          {icon && <ThemedText style={styles.icon}>{icon}</ThemedText>}
+          <ThemedText style={styles.title}>{title}</ThemedText>
+          {badge && (
+            <View style={[styles.badge, { backgroundColor: `${badge.color}20` }]}>
+              <ThemedText style={[styles.badgeText, { color: badge.color }]}>{badge.text}</ThemedText>
+            </View>
+          )}
+        </View>
+        <View style={styles.divider} />
       </View>
 
+      {/* Content Section */}
       <View style={styles.content}>
         <ThemedText style={[styles.value, { color }]}>{value}</ThemedText>
         {description && <ThemedText style={styles.description}>{description}</ThemedText>}
-
+        
         {items && items.length > 0 && (
           <View style={styles.itemsList}>
             {items.map((item, index) => (
@@ -48,36 +49,36 @@ export function InsightCard({ title, icon, value, description, items, badge, col
       </View>
     </View>
   )
-}
-
-const styles = StyleSheet.create({
+}const styles = StyleSheet.create({
   card: {
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
-    padding: 16,
     marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 3,
     elevation: 2,
+    overflow: 'hidden',
+  },
+  headerSection: {
+    backgroundColor: '#FAFAFA',
+    paddingHorizontal: 16,
+    paddingTop: 14,
+    paddingBottom: 12,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
-  },
-  iconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: '#F5F5F5',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
+    gap: 10,
   },
   icon: {
-    fontSize: 18,
+    fontSize: 20,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#E8E8E8',
+    marginTop: 12,
   },
   title: {
     fontSize: 14,
@@ -100,7 +101,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   content: {
-    marginTop: 8,
+    padding: 16,
   },
   value: {
     fontSize: 24,

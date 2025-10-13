@@ -257,6 +257,7 @@ export default function ChatAnalysisScreen() {
           ) : (
             <ThemedView style={styles.insightsContainer}>
               <InsightCard
+                icon="🚩"
                 title="Red Flags"
                 value={3}
                 description="Potential concerns identified in the conversation patterns"
@@ -269,6 +270,7 @@ export default function ChatAnalysisScreen() {
               />
 
               <InsightCard
+                icon="✅"
                 title="Green Flags"
                 value={8}
                 description="Positive indicators of healthy communication"
@@ -282,6 +284,7 @@ export default function ChatAnalysisScreen() {
               />
 
               <InsightCard
+                icon="🔗"
                 title="Attachment Style"
                 value="Secure"
                 description="Communication patterns suggest a balanced attachment approach"
@@ -293,6 +296,7 @@ export default function ChatAnalysisScreen() {
               />
 
               <InsightCard
+                icon="⚖️"
                 title="Reciprocity Score"
                 value="85%"
                 description="Balance of give-and-take in conversation dynamics"
@@ -300,6 +304,7 @@ export default function ChatAnalysisScreen() {
               />
 
               <InsightCard
+                icon="💐"
                 title="Compliments"
                 value={24}
                 description="Frequency of positive affirmations and appreciation"
@@ -307,6 +312,7 @@ export default function ChatAnalysisScreen() {
               />
 
               <InsightCard
+                icon="⚠️"
                 title="Criticism"
                 value={2}
                 description="Instances of critical or negative feedback"
@@ -315,6 +321,7 @@ export default function ChatAnalysisScreen() {
               />
 
               <InsightCard
+                icon="💯"
                 title="Compatibility Score"
                 value="82%"
                 description="Overall alignment in communication style and emotional connection"
@@ -322,6 +329,7 @@ export default function ChatAnalysisScreen() {
               />
 
               <InsightCard
+                icon="💡"
                 title="Relationship Tips"
                 value="4 Tips"
                 description="Personalized recommendations based on conversation analysis"
