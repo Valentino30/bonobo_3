@@ -192,7 +192,7 @@ export default function ChatAnalysisScreen() {
         <ThemedView style={styles.content}>
           {/* Tab Content */}
           {activeTab === 'overview' ? (
-            <ThemedView style={styles.statsGrid}>
+            <View style={styles.statsGrid}>
               {/* Total Messages Card */}
               <SimpleStatCard title="Total Messages" icon="💬" value={analysis.totalMessages} />
 
@@ -253,26 +253,24 @@ export default function ChatAnalysisScreen() {
                   },
                 ]}
               />
-            </ThemedView>
+            </View>
           ) : (
-            <ThemedView style={styles.insightsContainer}>
+            <View style={styles.insightsContainer}>
               <InsightCard
                 icon="🚩"
                 title="Red Flags"
-                value={3}
                 description="Potential concerns identified in the conversation patterns"
                 items={[
                   'Delayed responses during important discussions',
                   'Inconsistent communication frequency',
                   'Occasional dismissive language detected',
                 ]}
-                badge={{ text: 'Low', color: '#F4B942' }}
+                badge={{ text: '3 Found', color: '#6B8E5A' }}
               />
 
               <InsightCard
                 icon="✅"
                 title="Green Flags"
-                value={8}
                 description="Positive indicators of healthy communication"
                 items={[
                   'Regular check-ins and thoughtful questions',
@@ -280,58 +278,54 @@ export default function ChatAnalysisScreen() {
                   'Consistent emotional support expressions',
                   'Respectful disagreement handling',
                 ]}
-                badge={{ text: 'High', color: '#6B8E5A' }}
+                badge={{ text: '8 Found', color: '#6B8E5A' }}
               />
 
               <InsightCard
                 icon="🔗"
                 title="Attachment Style"
-                value="Secure"
                 description="Communication patterns suggest a balanced attachment approach"
                 items={[
                   'Comfortable with emotional expression',
                   'Maintains healthy boundaries',
                   'Responsive to partner needs',
                 ]}
+                badge={{ text: 'Secure', color: '#6B8E5A' }}
               />
 
               <InsightCard
                 icon="⚖️"
                 title="Reciprocity Score"
-                value="85%"
                 description="Balance of give-and-take in conversation dynamics"
-                badge={{ text: 'Excellent', color: '#6B8E5A' }}
+                badge={{ text: '85% Excellent', color: '#6B8E5A' }}
               />
 
               <InsightCard
                 icon="💐"
                 title="Compliments"
-                value={24}
                 description="Frequency of positive affirmations and appreciation"
                 items={['Appearance compliments: 8', 'Character compliments: 12', 'Achievement recognition: 4']}
+                badge={{ text: '24 Found', color: '#6B8E5A' }}
               />
 
               <InsightCard
                 icon="⚠️"
                 title="Criticism"
-                value={2}
                 description="Instances of critical or negative feedback"
                 items={['Constructive feedback: 2', 'Harsh criticism: 0']}
-                badge={{ text: 'Healthy', color: '#6B8E5A' }}
+                badge={{ text: '2 Found', color: '#6B8E5A' }}
               />
 
               <InsightCard
                 icon="💯"
                 title="Compatibility Score"
-                value="82%"
                 description="Overall alignment in communication style and emotional connection"
-                badge={{ text: 'Very High', color: '#6B8E5A' }}
+                badge={{ text: '82% Great', color: '#6B8E5A' }}
               />
 
               <InsightCard
                 icon="💡"
                 title="Relationship Tips"
-                value="4 Tips"
                 description="Personalized recommendations based on conversation analysis"
                 items={[
                   'Schedule regular quality time without distractions',
@@ -339,8 +333,9 @@ export default function ChatAnalysisScreen() {
                   'Express appreciation more frequently',
                   'Address minor conflicts before they escalate',
                 ]}
+                badge={{ text: '4 Found', color: '#6B8E5A' }}
               />
-            </ThemedView>
+            </View>
           )}
 
           <TouchableOpacity style={styles.button} onPress={() => router.back()}>

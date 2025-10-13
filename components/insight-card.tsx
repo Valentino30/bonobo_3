@@ -1,10 +1,9 @@
-import { ThemedText } from '@/components/themed-text'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 
 interface InsightCardProps {
   title: string
   icon?: string
-  value: string | number
+  value?: string | number
   description?: string
   items?: string[]
   badge?: {
@@ -20,11 +19,11 @@ export function InsightCard({ title, icon, value, description, items, badge, col
       {/* Header Section with Divider */}
       <View style={styles.headerSection}>
         <View style={styles.header}>
-          {icon && <ThemedText style={styles.icon}>{icon}</ThemedText>}
-          <ThemedText style={styles.title}>{title}</ThemedText>
+          {icon && <Text style={styles.icon}>{icon}</Text>}
+          <Text style={styles.title}>{title}</Text>
           {badge && (
             <View style={[styles.badge, { backgroundColor: `${badge.color}20` }]}>
-              <ThemedText style={[styles.badgeText, { color: badge.color }]}>{badge.text}</ThemedText>
+              <Text style={[styles.badgeText, { color: badge.color }]}>{badge.text}</Text>
             </View>
           )}
         </View>
@@ -33,15 +32,15 @@ export function InsightCard({ title, icon, value, description, items, badge, col
 
       {/* Content Section */}
       <View style={styles.content}>
-        <ThemedText style={[styles.value, { color }]}>{value}</ThemedText>
-        {description && <ThemedText style={styles.description}>{description}</ThemedText>}
-        
+        {value && <Text style={[styles.value, { color }]}>{value}</Text>}
+        {description && <Text style={styles.description}>{description}</Text>}
+
         {items && items.length > 0 && (
           <View style={styles.itemsList}>
             {items.map((item, index) => (
               <View key={index} style={styles.itemRow}>
                 <View style={[styles.bullet, { backgroundColor: color }]} />
-                <ThemedText style={styles.itemText}>{item}</ThemedText>
+                <Text style={styles.itemText}>{item}</Text>
               </View>
             ))}
           </View>
@@ -49,7 +48,8 @@ export function InsightCard({ title, icon, value, description, items, badge, col
       </View>
     </View>
   )
-}const styles = StyleSheet.create({
+}
+const styles = StyleSheet.create({
   card: {
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
@@ -62,7 +62,6 @@ export function InsightCard({ title, icon, value, description, items, badge, col
     overflow: 'hidden',
   },
   headerSection: {
-    backgroundColor: '#FAFAFA',
     paddingHorizontal: 16,
     paddingTop: 14,
     paddingBottom: 12,
