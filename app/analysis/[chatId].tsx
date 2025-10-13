@@ -81,14 +81,46 @@ export default function ChatAnalysisScreen() {
     setError(null)
 
     // Check if we have cached analysis - if so, use it
-    if (chat.analysis) {
-      console.log('Using cached analysis, skipping analysis')
+    if (chat.analysis && chat.aiInsights) {
+      console.log('Using cached analysis and AI insights, skipping analysis')
+      console.log('Chat ID:', chatId)
+      console.log('Has cached AI insights:', !!chat.aiInsights)
+      if (chat.aiInsights) {
+        console.log('Red flags count:', chat.aiInsights.redFlags.count)
+        console.log('Green flags count:', chat.aiInsights.greenFlags.count)
+      }
       setAnalysis(chat.analysis)
+      setAiInsights(chat.aiInsights)
       setIsAnalyzing(false)
       return
     }
 
-    console.log('No cached analysis found, running analysis')
+    // If we have analysis but no AI insights, we need to run AI analysis only
+    if (chat.analysis && !chat.aiInsights) {
+      console.log('Have basic analysis but missing AI insights - running AI analysis only')
+      setAnalysis(chat.analysis)
+      setIsAnalyzing(true)
+
+      const performAIAnalysis = async () => {
+        try {
+          const insights = await analyzeChat(chat.text)
+          setAiInsights(insights)
+          await updateChatAnalysis(chatId, chat.analysis!, insights)
+          console.log('AI insights added to existing analysis')
+        } catch (err) {
+          console.error('AI analysis error:', err)
+          setError('Failed to get AI insights')
+        } finally {
+          setIsAnalyzing(false)
+        }
+      }
+
+      performAIAnalysis()
+      return
+    }
+
+    console.log('No cached analysis found, running full analysis')
+    console.log('Chat ID for new analysis:', chatId)
     const performAnalysis = async () => {
       try {
         setIsAnalyzing(true)
@@ -103,8 +135,13 @@ export default function ChatAnalysisScreen() {
         setAnalysis(result)
         setAiInsights(insights)
 
-        // Cache the analysis result
-        await updateChatAnalysis(chatId, result)
+        console.log('Analysis complete for chat:', chatId)
+        console.log('AI Insights - Red flags:', insights.redFlags.count)
+        console.log('AI Insights - Green flags:', insights.greenFlags.count)
+        console.log('AI Insights - Red flag items:', insights.redFlags.items)
+
+        // Cache the analysis result and AI insights
+        await updateChatAnalysis(chatId, result, insights)
       } catch (err) {
         console.error('Analysis error:', err)
         setError('Failed to analyze chat data')

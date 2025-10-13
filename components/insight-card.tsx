@@ -33,16 +33,25 @@ export function InsightCard({ title, icon, value, description, items, badge, col
       {/* Content Section */}
       <View style={styles.content}>
         {value && <Text style={[styles.value, { color }]}>{value}</Text>}
-        {description && <Text style={styles.description}>{description}</Text>}
+        {description && (
+          <Text style={styles.description}>
+            {typeof description === 'string' ? description : JSON.stringify(description)}
+          </Text>
+        )}
 
         {items && items.length > 0 && (
           <View style={styles.itemsList}>
-            {items.map((item, index) => (
-              <View key={index} style={styles.itemRow}>
-                <View style={[styles.bullet, { backgroundColor: color }]} />
-                <Text style={styles.itemText}>{item}</Text>
-              </View>
-            ))}
+            {items.map((item, index) => {
+              // Handle both string items and object items
+              const itemText = typeof item === 'string' ? item : JSON.stringify(item)
+
+              return (
+                <View key={index} style={styles.itemRow}>
+                  <View style={[styles.bullet, { backgroundColor: color }]} />
+                  <Text style={styles.itemText}>{itemText}</Text>
+                </View>
+              )
+            })}
           </View>
         )}
       </View>

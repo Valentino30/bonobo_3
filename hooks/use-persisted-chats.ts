@@ -1,4 +1,5 @@
-import { ChatAnalysisData, ChatStorage, StoredChat } from '@/utils/chat-storage'
+import type { AIInsights } from '@/utils/ai-service'
+import { ChatStorage, type ChatAnalysisData, type StoredChat } from '@/utils/chat-storage'
 import { useEffect, useState } from 'react'
 
 export function usePersistedChats() {
@@ -83,13 +84,13 @@ export function usePersistedChats() {
     }
   }
 
-  const updateChatAnalysis = async (chatId: string, analysis: ChatAnalysisData) => {
+  const updateChatAnalysis = async (chatId: string, analysis: ChatAnalysisData, aiInsights?: AIInsights) => {
     try {
       // Update local state immediately
-      setChats((prev) => prev.map((chat) => (chat.id === chatId ? { ...chat, analysis } : chat)))
+      setChats((prev) => prev.map((chat) => (chat.id === chatId ? { ...chat, analysis, aiInsights } : chat)))
 
       // Persist to storage
-      await ChatStorage.updateChatAnalysis(chatId, analysis)
+      await ChatStorage.updateChatAnalysis(chatId, analysis, aiInsights)
     } catch (error) {
       console.error('Error updating chat analysis:', error)
     }
