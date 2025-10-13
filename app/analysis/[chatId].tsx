@@ -1,3 +1,4 @@
+import { AnalysisLoading } from '@/components/analysis-loading'
 import { ComparisonCard } from '@/components/comparison-card'
 import { SimpleStatCard } from '@/components/simple-stat-card'
 import { ThemedText } from '@/components/themed-text'
@@ -68,7 +69,13 @@ export default function ChatAnalysisScreen() {
     const performAnalysis = async () => {
       try {
         setIsAnalyzing(true)
-        const result = await analyzeChatData(chat.text)
+
+        // Start both the analysis and a minimum 4-second timer
+        const [result] = await Promise.all([
+          analyzeChatData(chat.text),
+          new Promise((resolve) => setTimeout(resolve, 4000)), // Minimum 4 seconds (1s per step)
+        ])
+
         setAnalysis(result)
       } catch (err) {
         console.error('Analysis error:', err)
@@ -112,10 +119,7 @@ export default function ChatAnalysisScreen() {
   if (isAnalyzing) {
     return (
       <SafeAreaView style={styles.container}>
-        <ThemedView style={styles.content}>
-          <ActivityIndicator size="large" color="#6B8E5A" />
-          <ThemedText style={styles.loadingText}>Analyzing chat data...</ThemedText>
-        </ThemedView>
+        <AnalysisLoading />
       </SafeAreaView>
     )
   }
