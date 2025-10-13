@@ -207,7 +207,9 @@ export default function ChatsScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ThemedView style={styles.container}>
-        <ThemedText type="title">Chats</ThemedText>
+        <ThemedText type="title" style={styles.title}>
+          My Chats
+        </ThemedText>
 
         <ChatList
           chats={chats}
@@ -238,10 +240,17 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    padding: 20,
+    paddingTop: 20,
+  },
+  title: {
+    paddingHorizontal: 20,
+    marginBottom: 16,
+    lineHeight: 40,
   },
   button: {
     marginTop: 20,
+    marginBottom: 20,
+    marginHorizontal: 20,
     paddingHorizontal: 24,
     paddingVertical: 14,
     backgroundColor: '#6B8E5A',

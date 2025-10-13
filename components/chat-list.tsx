@@ -27,7 +27,11 @@ export function ChatList({
   onClearShareData,
 }: ChatListProps) {
   return (
-    <ScrollView style={styles.chatList} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={styles.chatList}
+      contentContainerStyle={styles.chatListContent}
+      showsVerticalScrollIndicator={false}
+    >
       {chats.length > 0 ? (
         chats.map((chat) => <ChatCard key={chat.id} chat={chat} onAnalyze={onAnalyzeChat} onDelete={onDeleteChat} />)
       ) : (
@@ -48,5 +52,9 @@ const styles = StyleSheet.create({
   chatList: {
     flex: 1,
     width: '100%',
+  },
+  chatListContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 100,
   },
 })
