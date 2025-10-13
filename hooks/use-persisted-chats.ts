@@ -1,4 +1,4 @@
-import { ChatStorage, StoredChat } from '@/utils/chat-storage'
+import { ChatAnalysisData, ChatStorage, StoredChat } from '@/utils/chat-storage'
 import { useEffect, useState } from 'react'
 
 export function usePersistedChats() {
@@ -83,6 +83,18 @@ export function usePersistedChats() {
     }
   }
 
+  const updateChatAnalysis = async (chatId: string, analysis: ChatAnalysisData) => {
+    try {
+      // Update local state immediately
+      setChats((prev) => prev.map((chat) => (chat.id === chatId ? { ...chat, analysis } : chat)))
+
+      // Persist to storage
+      await ChatStorage.updateChatAnalysis(chatId, analysis)
+    } catch (error) {
+      console.error('Error updating chat analysis:', error)
+    }
+  }
+
   return {
     chats,
     isLoading,
@@ -90,5 +102,6 @@ export function usePersistedChats() {
     deleteChat,
     clearAllChats,
     refreshChats,
+    updateChatAnalysis,
   }
 }

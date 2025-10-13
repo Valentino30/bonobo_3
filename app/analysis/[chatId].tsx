@@ -33,24 +33,32 @@ interface ChatAnalysisData {
 
 export default function ChatAnalysisScreen() {
   const { chatId } = useLocalSearchParams<{ chatId: string }>()
-  const { chats } = usePersistedChats()
+  const { chats, isLoading: chatsLoading, updateChatAnalysis } = usePersistedChats()
   const router = useRouter()
-  const [analysis, setAnalysis] = useState<ChatAnalysisData | null>(null)
-  const [isAnalyzing, setIsAnalyzing] = useState(true)
-  const [error, setError] = useState<string | null>(null)
 
   const chat = chats.find((c) => c.id === chatId)
+
+  // Initialize states - delay initialization until we know chats are loaded
+  const [analysis, setAnalysis] = useState<ChatAnalysisData | null>(null)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [initialized, setInitialized] = useState(false)
 
   useEffect(() => {
     console.log('Analysis screen - chatId:', chatId)
     console.log('Analysis screen - chats count:', chats.length)
+    console.log('Analysis screen - chats loading:', chatsLoading)
     console.log('Analysis screen - chat found:', !!chat)
+    console.log('Analysis screen - cached analysis:', !!chat?.analysis)
 
-    // Don't set error if chats are still loading (empty array)
-    if (!chat && chats.length === 0) {
+    // Don't do anything if chats are still loading
+    if (chatsLoading) {
       console.log('Chats still loading, waiting...')
       return
     }
+
+    // Mark as initialized once chats are loaded
+    setInitialized(true)
 
     if (!chat) {
       console.log('Chat not found for ID:', chatId)
@@ -66,6 +74,15 @@ export default function ChatAnalysisScreen() {
     // Reset error state when chat is found
     setError(null)
 
+    // Check if we have cached analysis - if so, use it
+    if (chat.analysis) {
+      console.log('Using cached analysis, skipping analysis')
+      setAnalysis(chat.analysis)
+      setIsAnalyzing(false)
+      return
+    }
+
+    console.log('No cached analysis found, running analysis')
     const performAnalysis = async () => {
       try {
         setIsAnalyzing(true)
@@ -77,6 +94,9 @@ export default function ChatAnalysisScreen() {
         ])
 
         setAnalysis(result)
+
+        // Cache the analysis result
+        await updateChatAnalysis(chatId, result)
       } catch (err) {
         console.error('Analysis error:', err)
         setError('Failed to analyze chat data')
@@ -86,10 +106,10 @@ export default function ChatAnalysisScreen() {
     }
 
     performAnalysis()
-  }, [chat, chatId, chats])
+  }, [chat, chatId, chats, chatsLoading, updateChatAnalysis])
 
-  // Show loading if chats are still loading or we're analyzing
-  if (!chat && chats.length === 0) {
+  // Show loading if chats are still loading OR we haven't initialized yet
+  if (chatsLoading || !initialized) {
     return (
       <SafeAreaView style={styles.container}>
         <ThemedView style={styles.content}>

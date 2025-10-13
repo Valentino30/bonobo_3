@@ -1,11 +1,33 @@
 import * as SecureStore from 'expo-secure-store'
 
+export interface ChatAnalysisData {
+  totalMessages: number
+  participant1: {
+    name: string
+    messageCount: number
+    averageResponseTime: number
+    interestLevel: number
+  }
+  participant2: {
+    name: string
+    messageCount: number
+    averageResponseTime: number
+    interestLevel: number
+  }
+  dateRange: { start: Date; end: Date }
+  conversationHealth: {
+    balanceScore: number
+    engagementScore: number
+  }
+}
+
 export interface StoredChat {
   id: string
   text: string
   timestamp: Date
   participants?: string[]
   messageCount?: number
+  analysis?: ChatAnalysisData // Cached analysis results
 }
 
 const CHATS_STORAGE_KEY = 'bonobo_chats'
@@ -76,6 +98,17 @@ export class ChatStorage {
     } catch (error) {
       console.error('Error getting chat count:', error)
       return 0
+    }
+  }
+
+  static async updateChatAnalysis(chatId: string, analysis: ChatAnalysisData): Promise<void> {
+    try {
+      const existingChats = await this.loadChats()
+      const updatedChats = existingChats.map((chat) => (chat.id === chatId ? { ...chat, analysis } : chat))
+      await this.saveChats(updatedChats)
+      console.log('Chat analysis saved to storage successfully')
+    } catch (error) {
+      console.error('Error updating chat analysis:', error)
     }
   }
 }
