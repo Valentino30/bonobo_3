@@ -302,7 +302,7 @@ export default function ChatAnalysisScreen() {
                   <InsightCard
                     icon="🚩"
                     title="Red Flags"
-                    description="Potential concerns identified in the conversation patterns"
+                    description={aiInsights.redFlags.description}
                     items={aiInsights.redFlags.items}
                     badge={{ text: `${aiInsights.redFlags.count} Found`, color: '#6B8E5A' }}
                   />
@@ -310,7 +310,7 @@ export default function ChatAnalysisScreen() {
                   <InsightCard
                     icon="✅"
                     title="Green Flags"
-                    description="Positive indicators of healthy communication"
+                    description={aiInsights.greenFlags.description}
                     items={aiInsights.greenFlags.items}
                     badge={{ text: `${aiInsights.greenFlags.count} Found`, color: '#6B8E5A' }}
                   />
@@ -326,7 +326,8 @@ export default function ChatAnalysisScreen() {
                   <InsightCard
                     icon="⚖️"
                     title="Reciprocity Score"
-                    description="Balance of give-and-take in conversation dynamics"
+                    description={aiInsights.reciprocityScore.description}
+                    items={aiInsights.reciprocityScore.items}
                     badge={{
                       text: `${aiInsights.reciprocityScore.percentage}% ${aiInsights.reciprocityScore.rating}`,
                       color: '#6B8E5A',
@@ -336,7 +337,7 @@ export default function ChatAnalysisScreen() {
                   <InsightCard
                     icon="💐"
                     title="Compliments"
-                    description="Frequency of positive affirmations and appreciation"
+                    description={aiInsights.compliments.description}
                     items={aiInsights.compliments.breakdown}
                     badge={{ text: `${aiInsights.compliments.count} Found`, color: '#6B8E5A' }}
                   />
@@ -344,7 +345,7 @@ export default function ChatAnalysisScreen() {
                   <InsightCard
                     icon="⚠️"
                     title="Criticism"
-                    description="Instances of critical or negative feedback"
+                    description={aiInsights.criticism.description}
                     items={aiInsights.criticism.breakdown}
                     badge={{ text: `${aiInsights.criticism.count} Found`, color: '#6B8E5A' }}
                   />
@@ -352,7 +353,8 @@ export default function ChatAnalysisScreen() {
                   <InsightCard
                     icon="💯"
                     title="Compatibility Score"
-                    description="Overall alignment in communication style and emotional connection"
+                    description={aiInsights.compatibilityScore.description}
+                    items={aiInsights.compatibilityScore.items}
                     badge={{
                       text: `${aiInsights.compatibilityScore.percentage}% ${aiInsights.compatibilityScore.rating}`,
                       color: '#6B8E5A',
@@ -362,7 +364,7 @@ export default function ChatAnalysisScreen() {
                   <InsightCard
                     icon="💡"
                     title="Relationship Tips"
-                    description="Personalized recommendations based on conversation analysis"
+                    description={aiInsights.relationshipTips.description}
                     items={aiInsights.relationshipTips.tips}
                     badge={{ text: `${aiInsights.relationshipTips.count} Found`, color: '#6B8E5A' }}
                   />

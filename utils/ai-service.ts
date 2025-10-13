@@ -6,10 +6,12 @@ const genAI = new GoogleGenerativeAI(process.env.EXPO_PUBLIC_GEMINI_API_KEY || '
 export interface AIInsights {
   redFlags: {
     count: number
+    description: string
     items: string[]
   }
   greenFlags: {
     count: number
+    description: string
     items: string[]
   }
   attachmentStyle: {
@@ -20,21 +22,28 @@ export interface AIInsights {
   reciprocityScore: {
     percentage: number
     rating: string
+    description: string
+    items: string[]
   }
   compliments: {
     count: number
+    description: string
     breakdown: string[]
   }
   criticism: {
     count: number
+    description: string
     breakdown: string[]
   }
   compatibilityScore: {
     percentage: number
     rating: string
+    description: string
+    items: string[]
   }
   relationshipTips: {
     count: number
+    description: string
     tips: string[]
   }
 }
@@ -70,35 +79,44 @@ Provide a detailed analysis with the following structure (respond ONLY with vali
 {
   "redFlags": {
     "count": <number>,
-    "items": [<array of SIMPLE STRING observations, max 4, e.g. "Delayed responses during important discussions">]
+    "description": "<AI-generated SIMPLE STRING summary of concerns, e.g. 'Communication patterns show some areas that need attention'>",
+    "items": [<array of 3-4 SIMPLE STRING specific examples, e.g. "Delayed responses during important discussions">]
   },
   "greenFlags": {
     "count": <number>,
-    "items": [<array of SIMPLE STRING observations, max 4, e.g. "Regular check-ins and thoughtful questions">]
+    "description": "<AI-generated SIMPLE STRING summary of positives, e.g. 'Strong foundation of healthy communication habits'>",
+    "items": [<array of 3-4 SIMPLE STRING specific examples, e.g. "Regular check-ins and thoughtful questions">]
   },
   "attachmentStyle": {
     "type": "<Secure/Anxious/Avoidant/Fearful>",
-    "description": "<brief SIMPLE STRING description>",
+    "description": "<AI-generated SIMPLE STRING explanation of the attachment style based on this chat>",
     "items": [<array of 3 SIMPLE STRING supporting observations>]
   },
   "reciprocityScore": {
     "percentage": <0-100>,
-    "rating": "<Poor/Fair/Good/Excellent>"
+    "rating": "<Poor/Fair/Good/Excellent>",
+    "description": "<AI-generated SIMPLE STRING summary of give-and-take balance>",
+    "items": [<array of 3 SIMPLE STRING specific examples about balance>]
   },
   "compliments": {
     "count": <total number>,
-    "breakdown": [<array of SIMPLE STRINGS like "Appearance compliments: 8", "Character compliments: 12">]
+    "description": "<AI-generated SIMPLE STRING summary of compliment patterns>",
+    "breakdown": [<array of 3-4 SIMPLE STRINGS like "Appearance compliments: 8", "Character compliments: 12">]
   },
   "criticism": {
     "count": <total number>,
-    "breakdown": [<array of SIMPLE STRINGS like "Constructive feedback: 2", "Harsh criticism: 0">]
+    "description": "<AI-generated SIMPLE STRING summary of criticism patterns>",
+    "breakdown": [<array of 3-4 SIMPLE STRINGS like "Constructive feedback: 2", "Harsh criticism: 0">]
   },
   "compatibilityScore": {
     "percentage": <0-100>,
-    "rating": "<Low/Moderate/High/Very High/Excellent>"
+    "rating": "<Low/Moderate/High/Very High/Excellent>",
+    "description": "<AI-generated SIMPLE STRING summary of compatibility>",
+    "items": [<array of 3 SIMPLE STRING specific observations about compatibility>]
   },
   "relationshipTips": {
     "count": <number>,
+    "description": "<AI-generated SIMPLE STRING intro to the tips>",
     "tips": [<array of 4 SIMPLE STRING actionable tips>]
   }
 }
@@ -158,10 +176,12 @@ Focus on communication patterns, emotional dynamics, and relationship health ind
       ...rawInsights,
       redFlags: {
         ...rawInsights.redFlags,
+        description: normalizeDescription(rawInsights.redFlags.description),
         items: normalizeArray(rawInsights.redFlags.items),
       },
       greenFlags: {
         ...rawInsights.greenFlags,
+        description: normalizeDescription(rawInsights.greenFlags.description),
         items: normalizeArray(rawInsights.greenFlags.items),
       },
       attachmentStyle: {
@@ -169,16 +189,29 @@ Focus on communication patterns, emotional dynamics, and relationship health ind
         description: normalizeDescription(rawInsights.attachmentStyle.description),
         items: normalizeArray(rawInsights.attachmentStyle.items),
       },
+      reciprocityScore: {
+        ...rawInsights.reciprocityScore,
+        description: normalizeDescription(rawInsights.reciprocityScore.description),
+        items: normalizeArray(rawInsights.reciprocityScore.items),
+      },
       compliments: {
         ...rawInsights.compliments,
+        description: normalizeDescription(rawInsights.compliments.description),
         breakdown: normalizeArray(rawInsights.compliments.breakdown),
       },
       criticism: {
         ...rawInsights.criticism,
+        description: normalizeDescription(rawInsights.criticism.description),
         breakdown: normalizeArray(rawInsights.criticism.breakdown),
+      },
+      compatibilityScore: {
+        ...rawInsights.compatibilityScore,
+        description: normalizeDescription(rawInsights.compatibilityScore.description),
+        items: normalizeArray(rawInsights.compatibilityScore.items),
       },
       relationshipTips: {
         ...rawInsights.relationshipTips,
+        description: normalizeDescription(rawInsights.relationshipTips.description),
         tips: normalizeArray(rawInsights.relationshipTips.tips),
       },
     }

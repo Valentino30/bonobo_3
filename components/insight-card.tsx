@@ -40,7 +40,7 @@ export function InsightCard({ title, icon, value, description, items, badge, col
         )}
 
         {items && items.length > 0 && (
-          <View style={styles.itemsList}>
+          <View style={[styles.itemsList, !description && styles.itemsListNoDescription]}>
             {items.map((item, index) => {
               // Handle both string items and object items
               const itemText = typeof item === 'string' ? item : JSON.stringify(item)
@@ -123,8 +123,12 @@ const styles = StyleSheet.create({
     color: '#666666',
     lineHeight: 20,
     letterSpacing: 0.1,
+    marginBottom: 12,
   },
   itemsList: {
+    marginTop: 0,
+  },
+  itemsListNoDescription: {
     marginTop: 12,
   },
   itemRow: {
