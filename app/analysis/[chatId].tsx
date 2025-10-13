@@ -1,3 +1,5 @@
+import { ComparisonCard } from '@/components/comparison-card'
+import { SimpleStatCard } from '@/components/simple-stat-card'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { usePersistedChats } from '@/hooks/use-persisted-chats'
@@ -136,62 +138,72 @@ export default function ChatAnalysisScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <ThemedView style={styles.content}>
-          <ThemedText type="title">Chat Analysis</ThemedText>
+          <ThemedText type="title" style={styles.title}>
+            Chat Analysis
+          </ThemedText>
 
-          {/* Total Messages Card */}
-          <ThemedView style={styles.statCard}>
-            <ThemedText style={styles.statNumber}>{analysis.totalMessages}</ThemedText>
-            <ThemedText style={styles.statLabel}>Total Messages</ThemedText>
-          </ThemedView>
+          {/* Stats Grid */}
+          <ThemedView style={styles.statsGrid}>
+            {/* Total Messages Card */}
+            <SimpleStatCard title="Total Messages" icon="💬" value={analysis.totalMessages} />
 
-          {/* Participant 1 Messages Card */}
-          <ThemedView style={styles.statCard}>
-            <ThemedText style={styles.statNumber}>{analysis.participant1.messageCount}</ThemedText>
-            <ThemedText style={styles.statLabel}>Messages from {analysis.participant1.name}</ThemedText>
-          </ThemedView>
+            {/* Messages per Participant Card */}
+            <ComparisonCard
+              title="Messages per Participant"
+              icon="👥"
+              participants={[
+                {
+                  name: analysis.participant1.name,
+                  value: analysis.participant1.messageCount,
+                },
+                {
+                  name: analysis.participant2.name,
+                  value: analysis.participant2.messageCount,
+                },
+              ]}
+            />
 
-          {/* Participant 2 Messages Card */}
-          <ThemedView style={styles.statCard}>
-            <ThemedText style={styles.statNumber}>{analysis.participant2.messageCount}</ThemedText>
-            <ThemedText style={styles.statLabel}>Messages from {analysis.participant2.name}</ThemedText>
-          </ThemedView>
+            {/* Response Time Card */}
+            <ComparisonCard
+              title="Average Response Time"
+              icon="⏱️"
+              participants={[
+                {
+                  name: analysis.participant1.name,
+                  value:
+                    analysis.participant1.averageResponseTime < 1
+                      ? `${Math.round(analysis.participant1.averageResponseTime * 60)}m`
+                      : `${analysis.participant1.averageResponseTime.toFixed(1)}h`,
+                },
+                {
+                  name: analysis.participant2.name,
+                  value:
+                    analysis.participant2.averageResponseTime < 1
+                      ? `${Math.round(analysis.participant2.averageResponseTime * 60)}m`
+                      : `${analysis.participant2.averageResponseTime.toFixed(1)}h`,
+                },
+              ]}
+            />
 
-          {/* Participant 1 Response Time Card */}
-          <ThemedView style={styles.statCard}>
-            <ThemedText style={styles.statNumber}>
-              {analysis.participant1.averageResponseTime < 1
-                ? `${Math.round(analysis.participant1.averageResponseTime * 60)}m`
-                : `${analysis.participant1.averageResponseTime.toFixed(1)}h`}
-            </ThemedText>
-            <ThemedText style={styles.statLabel}>Avg Response Time - {analysis.participant1.name}</ThemedText>
-          </ThemedView>
-
-          {/* Participant 2 Response Time Card */}
-          <ThemedView style={styles.statCard}>
-            <ThemedText style={styles.statNumber}>
-              {analysis.participant2.averageResponseTime < 1
-                ? `${Math.round(analysis.participant2.averageResponseTime * 60)}m`
-                : `${analysis.participant2.averageResponseTime.toFixed(1)}h`}
-            </ThemedText>
-            <ThemedText style={styles.statLabel}>Avg Response Time - {analysis.participant2.name}</ThemedText>
-          </ThemedView>
-
-          {/* Participant 1 Interest Level Card */}
-          <ThemedView style={styles.statCard}>
-            <ThemedText style={styles.statNumber}>{analysis.participant1.interestLevel}%</ThemedText>
-            <ThemedText style={styles.statLabel}>Interest Level - {analysis.participant1.name}</ThemedText>
-            <ThemedView style={styles.progressBar}>
-              <ThemedView style={[styles.progressFill, { width: `${analysis.participant1.interestLevel}%` }]} />
-            </ThemedView>
-          </ThemedView>
-
-          {/* Participant 2 Interest Level Card */}
-          <ThemedView style={styles.statCard}>
-            <ThemedText style={styles.statNumber}>{analysis.participant2.interestLevel}%</ThemedText>
-            <ThemedText style={styles.statLabel}>Interest Level - {analysis.participant2.name}</ThemedText>
-            <ThemedView style={styles.progressBar}>
-              <ThemedView style={[styles.progressFill, { width: `${analysis.participant2.interestLevel}%` }]} />
-            </ThemedView>
+            {/* Interest Level Card */}
+            <ComparisonCard
+              title="Interest Level"
+              icon="❤️"
+              participants={[
+                {
+                  name: analysis.participant1.name,
+                  value: `${analysis.participant1.interestLevel}%`,
+                  progressValue: analysis.participant1.interestLevel,
+                  progressColor: '#0288D1',
+                },
+                {
+                  name: analysis.participant2.name,
+                  value: `${analysis.participant2.interestLevel}%`,
+                  progressValue: analysis.participant2.interestLevel,
+                  progressColor: '#C2185B',
+                },
+              ]}
+            />
           </ThemedView>
 
           <TouchableOpacity style={styles.button} onPress={() => router.back()}>
@@ -214,53 +226,12 @@ const styles = StyleSheet.create({
   content: {
     padding: 20,
   },
-  section: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 16,
-    marginVertical: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+  title: {
+    marginBottom: 24,
+    textAlign: 'center',
   },
   statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
     marginTop: 12,
-  },
-  statCard: {
-    backgroundColor: '#F8F9FA',
-    borderRadius: 8,
-    padding: 16,
-    alignItems: 'center',
-    minWidth: '48%',
-    marginBottom: 8,
-  },
-  statNumber: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#6B8E5A',
-  },
-  statLabel: {
-    fontSize: 12,
-    opacity: 0.7,
-    textAlign: 'center',
-    marginTop: 4,
-  },
-  progressBar: {
-    height: 6,
-    backgroundColor: '#E5E5E5',
-    borderRadius: 3,
-    marginTop: 8,
-    width: '100%',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#6B8E5A',
-    borderRadius: 3,
   },
   button: {
     backgroundColor: '#6B8E5A',
