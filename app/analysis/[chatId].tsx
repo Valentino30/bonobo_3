@@ -1,5 +1,6 @@
 import { AnalysisLoading } from '@/components/analysis-loading'
 import { ComparisonCard } from '@/components/comparison-card'
+import { InsightCard } from '@/components/insight-card'
 import { SimpleStatCard } from '@/components/simple-stat-card'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
@@ -255,10 +256,82 @@ export default function ChatAnalysisScreen() {
             </ThemedView>
           ) : (
             <ThemedView style={styles.insightsContainer}>
-              <ThemedText style={styles.comingSoonText}>AI Insights Coming Soon</ThemedText>
-              <ThemedText style={styles.comingSoonSubtext}>
-                Deep analysis and insights will be displayed here
-              </ThemedText>
+              <InsightCard
+                title="Red Flags"
+                value={3}
+                description="Potential concerns identified in the conversation patterns"
+                items={[
+                  'Delayed responses during important discussions',
+                  'Inconsistent communication frequency',
+                  'Occasional dismissive language detected',
+                ]}
+                badge={{ text: 'Low', color: '#F4B942' }}
+              />
+
+              <InsightCard
+                title="Green Flags"
+                value={8}
+                description="Positive indicators of healthy communication"
+                items={[
+                  'Regular check-ins and thoughtful questions',
+                  'Active listening with follow-up responses',
+                  'Consistent emotional support expressions',
+                  'Respectful disagreement handling',
+                ]}
+                badge={{ text: 'High', color: '#6B8E5A' }}
+              />
+
+              <InsightCard
+                title="Attachment Style"
+                value="Secure"
+                description="Communication patterns suggest a balanced attachment approach"
+                items={[
+                  'Comfortable with emotional expression',
+                  'Maintains healthy boundaries',
+                  'Responsive to partner needs',
+                ]}
+              />
+
+              <InsightCard
+                title="Reciprocity Score"
+                value="85%"
+                description="Balance of give-and-take in conversation dynamics"
+                badge={{ text: 'Excellent', color: '#6B8E5A' }}
+              />
+
+              <InsightCard
+                title="Compliments"
+                value={24}
+                description="Frequency of positive affirmations and appreciation"
+                items={['Appearance compliments: 8', 'Character compliments: 12', 'Achievement recognition: 4']}
+              />
+
+              <InsightCard
+                title="Criticism"
+                value={2}
+                description="Instances of critical or negative feedback"
+                items={['Constructive feedback: 2', 'Harsh criticism: 0']}
+                badge={{ text: 'Healthy', color: '#6B8E5A' }}
+              />
+
+              <InsightCard
+                title="Compatibility Score"
+                value="82%"
+                description="Overall alignment in communication style and emotional connection"
+                badge={{ text: 'Very High', color: '#6B8E5A' }}
+              />
+
+              <InsightCard
+                title="Relationship Tips"
+                value="4 Tips"
+                description="Personalized recommendations based on conversation analysis"
+                items={[
+                  'Schedule regular quality time without distractions',
+                  'Practice active listening during serious topics',
+                  'Express appreciation more frequently',
+                  'Address minor conflicts before they escalate',
+                ]}
+              />
             </ThemedView>
           )}
 
@@ -331,23 +404,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   insightsContainer: {
-    marginTop: 40,
-    alignItems: 'center',
-    paddingVertical: 60,
-  },
-  comingSoonText: {
-    fontSize: 18,
-    fontWeight: '500',
-    color: '#1A1A1A',
-    marginBottom: 8,
-    letterSpacing: 0.2,
-  },
-  comingSoonSubtext: {
-    fontSize: 14,
-    fontWeight: '300',
-    color: '#999999',
-    textAlign: 'center',
-    letterSpacing: 0.1,
+    marginTop: 12,
   },
   button: {
     backgroundColor: '#6B8E5A',
