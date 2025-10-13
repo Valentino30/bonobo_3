@@ -9,6 +9,7 @@ import { Link, useLocalSearchParams, useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { ActivityIndicator, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { analyzeChat, type AIInsights } from '../../utils/ai-service'
 import { analyzeChatData } from '../../utils/chat-analyzer'
 
 type TabType = 'overview' | 'insights'
@@ -43,6 +44,7 @@ export default function ChatAnalysisScreen() {
 
   // Initialize states - delay initialization until we know chats are loaded
   const [analysis, setAnalysis] = useState<ChatAnalysisData | null>(null)
+  const [aiInsights, setAiInsights] = useState<AIInsights | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [initialized, setInitialized] = useState(false)
@@ -91,13 +93,15 @@ export default function ChatAnalysisScreen() {
       try {
         setIsAnalyzing(true)
 
-        // Start both the analysis and a minimum 4-second timer
-        const [result] = await Promise.all([
+        // Start both the analysis and a minimum 4-second timer, plus AI insights
+        const [result, insights] = await Promise.all([
           analyzeChatData(chat.text),
+          analyzeChat(chat.text),
           new Promise((resolve) => setTimeout(resolve, 4000)), // Minimum 4 seconds (1s per step)
         ])
 
         setAnalysis(result)
+        setAiInsights(insights)
 
         // Cache the analysis result
         await updateChatAnalysis(chatId, result)
@@ -256,85 +260,82 @@ export default function ChatAnalysisScreen() {
             </View>
           ) : (
             <View style={styles.insightsContainer}>
-              <InsightCard
-                icon="🚩"
-                title="Red Flags"
-                description="Potential concerns identified in the conversation patterns"
-                items={[
-                  'Delayed responses during important discussions',
-                  'Inconsistent communication frequency',
-                  'Occasional dismissive language detected',
-                ]}
-                badge={{ text: '3 Found', color: '#6B8E5A' }}
-              />
+              {aiInsights ? (
+                <>
+                  <InsightCard
+                    icon="🚩"
+                    title="Red Flags"
+                    description="Potential concerns identified in the conversation patterns"
+                    items={aiInsights.redFlags.items}
+                    badge={{ text: `${aiInsights.redFlags.count} Found`, color: '#6B8E5A' }}
+                  />
 
-              <InsightCard
-                icon="✅"
-                title="Green Flags"
-                description="Positive indicators of healthy communication"
-                items={[
-                  'Regular check-ins and thoughtful questions',
-                  'Active listening with follow-up responses',
-                  'Consistent emotional support expressions',
-                  'Respectful disagreement handling',
-                ]}
-                badge={{ text: '8 Found', color: '#6B8E5A' }}
-              />
+                  <InsightCard
+                    icon="✅"
+                    title="Green Flags"
+                    description="Positive indicators of healthy communication"
+                    items={aiInsights.greenFlags.items}
+                    badge={{ text: `${aiInsights.greenFlags.count} Found`, color: '#6B8E5A' }}
+                  />
 
-              <InsightCard
-                icon="🔗"
-                title="Attachment Style"
-                description="Communication patterns suggest a balanced attachment approach"
-                items={[
-                  'Comfortable with emotional expression',
-                  'Maintains healthy boundaries',
-                  'Responsive to partner needs',
-                ]}
-                badge={{ text: 'Secure', color: '#6B8E5A' }}
-              />
+                  <InsightCard
+                    icon="🔗"
+                    title="Attachment Style"
+                    description={aiInsights.attachmentStyle.description}
+                    items={aiInsights.attachmentStyle.items}
+                    badge={{ text: aiInsights.attachmentStyle.type, color: '#6B8E5A' }}
+                  />
 
-              <InsightCard
-                icon="⚖️"
-                title="Reciprocity Score"
-                description="Balance of give-and-take in conversation dynamics"
-                badge={{ text: '85% Excellent', color: '#6B8E5A' }}
-              />
+                  <InsightCard
+                    icon="⚖️"
+                    title="Reciprocity Score"
+                    description="Balance of give-and-take in conversation dynamics"
+                    badge={{
+                      text: `${aiInsights.reciprocityScore.percentage}% ${aiInsights.reciprocityScore.rating}`,
+                      color: '#6B8E5A',
+                    }}
+                  />
 
-              <InsightCard
-                icon="💐"
-                title="Compliments"
-                description="Frequency of positive affirmations and appreciation"
-                items={['Appearance compliments: 8', 'Character compliments: 12', 'Achievement recognition: 4']}
-                badge={{ text: '24 Found', color: '#6B8E5A' }}
-              />
+                  <InsightCard
+                    icon="💐"
+                    title="Compliments"
+                    description="Frequency of positive affirmations and appreciation"
+                    items={aiInsights.compliments.breakdown}
+                    badge={{ text: `${aiInsights.compliments.count} Found`, color: '#6B8E5A' }}
+                  />
 
-              <InsightCard
-                icon="⚠️"
-                title="Criticism"
-                description="Instances of critical or negative feedback"
-                items={['Constructive feedback: 2', 'Harsh criticism: 0']}
-                badge={{ text: '2 Found', color: '#6B8E5A' }}
-              />
+                  <InsightCard
+                    icon="⚠️"
+                    title="Criticism"
+                    description="Instances of critical or negative feedback"
+                    items={aiInsights.criticism.breakdown}
+                    badge={{ text: `${aiInsights.criticism.count} Found`, color: '#6B8E5A' }}
+                  />
 
-              <InsightCard
-                icon="💯"
-                title="Compatibility Score"
-                description="Overall alignment in communication style and emotional connection"
-                badge={{ text: '82% Great', color: '#6B8E5A' }}
-              />
+                  <InsightCard
+                    icon="💯"
+                    title="Compatibility Score"
+                    description="Overall alignment in communication style and emotional connection"
+                    badge={{
+                      text: `${aiInsights.compatibilityScore.percentage}% ${aiInsights.compatibilityScore.rating}`,
+                      color: '#6B8E5A',
+                    }}
+                  />
 
-              <InsightCard
-                icon="💡"
-                title="Relationship Tips"
-                description="Personalized recommendations based on conversation analysis"
-                items={[
-                  'Schedule regular quality time without distractions',
-                  'Practice active listening during serious topics',
-                  'Express appreciation more frequently',
-                  'Address minor conflicts before they escalate',
-                ]}
-                badge={{ text: '4 Found', color: '#6B8E5A' }}
-              />
+                  <InsightCard
+                    icon="💡"
+                    title="Relationship Tips"
+                    description="Personalized recommendations based on conversation analysis"
+                    items={aiInsights.relationshipTips.tips}
+                    badge={{ text: `${aiInsights.relationshipTips.count} Found`, color: '#6B8E5A' }}
+                  />
+                </>
+              ) : (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="large" color="#6B8E5A" />
+                  <ThemedText style={styles.loadingText}>Loading AI insights...</ThemedText>
+                </View>
+              )}
             </View>
           )}
 
@@ -422,6 +423,11 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     fontSize: 14,
     letterSpacing: 0.3,
+  },
+  loadingContainer: {
+    paddingVertical: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   loadingText: {
     textAlign: 'center',
