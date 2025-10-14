@@ -41,7 +41,6 @@ interface ChatAnalysisData {
 
 export default function ChatAnalysisScreen() {
   const analysisRef = useRef<ChatAnalysisData | null>(null)
-  const [showAnalysisLoading, setShowAnalysisLoading] = useState(false)
   const { chatId } = useLocalSearchParams<{ chatId: string }>()
   const { chats, isLoading: chatsLoading, updateChatAnalysis } = usePersistedChats()
   const router = useRouter()
@@ -53,9 +52,8 @@ export default function ChatAnalysisScreen() {
   const [analysis, setAnalysis] = useState<ChatAnalysisData | null>(null)
   const [aiInsights, setAiInsights] = useState<AIInsights | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
-  // Removed unused analysisAnimationDone state
+  const [showLoadingAnimation, setShowLoadingAnimation] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  // Removed unused initialized state
   const [activeTab, setActiveTab] = useState<TabType>('overview')
   const [showPaywall, setShowPaywall] = useState(false)
   const [unlockedInsights, setUnlockedInsights] = useState<Set<string>>(new Set())
@@ -199,9 +197,9 @@ export default function ChatAnalysisScreen() {
       setUnlockedInsights(new Set())
       setAiInsights(null)
       setAnalysis(null)
-      setShowAnalysisLoading(false)
       setIsAnalyzing(false)
       setError(null)
+      setShowLoadingAnimation(true)
       previousChatIdRef.current = chatId
     }
 
@@ -231,8 +229,8 @@ export default function ChatAnalysisScreen() {
       return
     }
 
-    // Check if we have cached analysis
-    if (chat.analysis) {
+    // Check if we have cached analysis - load it immediately to prevent flashing
+    if (chat.analysis && !analysis) {
       console.log('Using cached basic analysis')
       setAnalysis(chat.analysis)
 
@@ -249,7 +247,6 @@ export default function ChatAnalysisScreen() {
     // If we don't have basic analysis and we're not already analyzing, run it
     if (!isAnalyzing) {
       console.log('No cached analysis found, performing basic analysis only')
-      setShowAnalysisLoading(true)
       setIsAnalyzing(true)
 
       const performBasicAnalysis = async () => {
@@ -263,7 +260,6 @@ export default function ChatAnalysisScreen() {
         } catch (err) {
           console.error('Analysis error:', err)
           setError(err instanceof Error ? err.message : 'Failed to analyze chat')
-          setShowAnalysisLoading(false)
           setIsAnalyzing(false)
         }
         // Do not set isAnalyzing=false or setAnalysis here; wait for animation
@@ -273,17 +269,20 @@ export default function ChatAnalysisScreen() {
     }
   }, [chat, chatId, chats, chatsLoading, updateChatAnalysis, analysis, isAnalyzing])
 
-  // Show AnalysisLoading if we're analyzing OR if we don't have analysis/chat yet
-  // This ensures we show loading immediately instead of flashing the error screen
-  if (showAnalysisLoading || chatsLoading || (isAnalyzing && !analysis) || (!analysis && chat && !chat.analysis)) {
-    console.log('Showing AnalysisLoading: showAnalysisLoading =', showAnalysisLoading, 'chatsLoading =', chatsLoading, 'isAnalyzing =', isAnalyzing, 'hasAnalysis =', !!analysis)
+  // Always show AnalysisLoading when:
+  // 1. Chats are still loading from Supabase, OR
+  // 2. We don't have the analysis loaded yet, OR
+  // 3. showLoadingAnimation is true (set on navigation)
+  if (chatsLoading || !analysis || showLoadingAnimation) {
+    console.log('Showing AnalysisLoading: chatsLoading =', chatsLoading, 'analysis =', !!analysis, 'showLoadingAnimation =', showLoadingAnimation)
     return (
       <SafeAreaView style={styles.container}>
         <AnalysisLoading
           key={chatId}
           onComplete={() => {
-            setShowAnalysisLoading(false)
+            console.log('AnalysisLoading complete')
             setIsAnalyzing(false)
+            setShowLoadingAnimation(false)
             if (analysisRef.current) {
               setAnalysis(analysisRef.current)
               analysisRef.current = null

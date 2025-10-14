@@ -18,11 +18,6 @@ const STEPS = [
     subtitle: 'Preparing your results',
     icon: 'lightbulb-on-outline' as const,
   },
-  {
-    title: 'Building Report',
-    subtitle: 'Finalizing insights',
-    icon: 'file-document' as const,
-  },
 ]
 
 export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
@@ -31,19 +26,19 @@ export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
   const [pulseAnim] = useState(new Animated.Value(1))
   const [progressAnim] = useState(new Animated.Value(0))
 
-  // Pulse animation for the icon
+  // Pulse animation for the icon - smooth and steady
   useEffect(() => {
     const pulse = Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, {
-          toValue: 1.15,
-          duration: 800,
+          toValue: 1.12,
+          duration: 1000,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
         Animated.timing(pulseAnim, {
           toValue: 1,
-          duration: 800,
+          duration: 1000,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
@@ -54,32 +49,34 @@ export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Progress animation
+  // Progress animation - matches step duration for smooth transition
   useEffect(() => {
     Animated.timing(progressAnim, {
       toValue: (currentStep + 1) / STEPS.length,
-      duration: 500,
+      duration: 1000,
       easing: Easing.out(Easing.ease),
       useNativeDriver: false,
     }).start()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStep])
 
-  // Step advancement
+  // Step advancement - each step shows for exactly 2000ms
   useEffect(() => {
+    const STEP_DURATION = 2000
+
     if (currentStep < STEPS.length - 1) {
       console.log('AnalysisLoading: advancing to step', currentStep + 1)
       const timeout = setTimeout(() => {
         setCurrentStep(currentStep + 1)
-      }, 1500)
+      }, STEP_DURATION)
       return () => clearTimeout(timeout)
     } else {
-      // Call onComplete after last step is shown
+      // Call onComplete after last step is shown for the same duration
       console.log('AnalysisLoading: completed all steps, calling onComplete')
       if (onComplete) {
         const completeTimeout = setTimeout(() => {
           onComplete()
-        }, 1000)
+        }, STEP_DURATION)
         return () => clearTimeout(completeTimeout)
       }
     }
@@ -119,7 +116,7 @@ export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
       {/* Bottom Tip */}
       <View style={styles.tipContainer}>
         <MaterialCommunityIcons name="lightbulb-on-outline" size={18} color="#6B8E5A" />
-        <Text style={styles.tipText}>This usually takes 5-10 seconds</Text>
+        <Text style={styles.tipText}>Analyzing your conversation...</Text>
       </View>
     </View>
   )
