@@ -57,6 +57,33 @@ export default function ChatAnalysisScreen() {
   const [showPaywall, setShowPaywall] = useState(false)
   const [unlockedInsights, setUnlockedInsights] = useState<Set<string>>(new Set())
   const [loadingInsight, setLoadingInsight] = useState<string | null>(null)
+  const [hasAccessToChat, setHasAccessToChat] = useState(false)
+
+  // Load unlocked insights from cached chat data
+  useEffect(() => {
+    if (chat?.unlockedInsights) {
+      setUnlockedInsights(new Set(chat.unlockedInsights))
+    }
+  }, [chat])
+
+  // Check if user has access to this chat
+  useEffect(() => {
+    const checkAccess = async () => {
+      if (!chatId) return
+
+      const access = await PaymentService.hasAccess(chatId)
+      setHasAccessToChat(access)
+    }
+
+    checkAccess()
+  }, [chatId])
+
+  // Helper to check if an insight should be shown as unlocked
+  const isInsightUnlocked = (insightId: string): boolean => {
+    const unlocked = unlockedInsights.has(insightId)
+    console.log(`Checking if ${insightId} is unlocked:`, unlocked, 'All unlocked:', Array.from(unlockedInsights))
+    return unlocked
+  }
 
   // Handle tab change - insights tab is always accessible to see locked cards
   const handleTabChange = async (tab: TabType) => {
@@ -65,10 +92,15 @@ export default function ChatAnalysisScreen() {
 
   // Handle unlock insight - check access and show paywall or unlock
   const handleUnlockInsight = async (insightId: string) => {
+    console.log('🔓 handleUnlockInsight called for:', insightId)
+    console.log('Current unlockedInsights:', Array.from(unlockedInsights))
+
     const access = await PaymentService.hasAccess(chatId)
+    console.log('Access check result:', access)
 
     if (!access) {
       // No access - show paywall
+      console.log('❌ No access - showing paywall')
       setShowPaywall(true)
       return
     }
@@ -76,29 +108,45 @@ export default function ChatAnalysisScreen() {
     // Has access - unlock this specific insight
     if (unlockedInsights.has(insightId)) {
       // Already unlocked, do nothing
+      console.log('✅ Insight already unlocked')
       return
     }
 
+    console.log('🔄 Starting unlock process...')
     // Unlock the insight (generate AI data for this specific insight)
     setLoadingInsight(insightId)
     try {
       // If we don't have any AI insights yet, generate them all
+      let insights = aiInsights
       if (!aiInsights && chat) {
-        const insights = await analyzeChat(chat.text)
+        console.log('📊 Generating AI insights...')
+        insights = await analyzeChat(chat.text)
         setAiInsights(insights)
-        // Cache the insights
-        if (analysis) {
-          await updateChatAnalysis(chatId, analysis, insights)
-        }
+        console.log('✅ AI insights generated')
 
-        // Assign this one-time purchase to this specific chat
-        await PaymentService.useAnalysis(chatId)
+        // Assign this one-time purchase to this specific chat (only on first unlock)
+        console.log('🔗 Assigning entitlement to chat...')
+        await PaymentService.assignAnalysisToChat(chatId)
+        console.log('✅ Entitlement assigned')
       }
 
-      // Mark this insight as unlocked
-      setUnlockedInsights((prev) => new Set([...prev, insightId]))
+      // Mark this insight as unlocked and persist it
+      const newUnlockedInsights = new Set([...unlockedInsights, insightId])
+      console.log('New unlockedInsights:', Array.from(newUnlockedInsights))
+      setUnlockedInsights(newUnlockedInsights)
+
+      // Save to storage
+      if (analysis) {
+        console.log('💾 Saving to storage...')
+        await updateChatAnalysis(chatId, analysis, insights || undefined, Array.from(newUnlockedInsights))
+        console.log('✅ Saved to storage')
+      } else {
+        console.warn('⚠️ No analysis to save!')
+      }
+
+      console.log('🎉 Unlock complete!')
     } catch (err) {
-      console.error('Error unlocking insight:', err)
+      console.error('❌ Error unlocking insight:', err)
       Alert.alert('Error', 'Failed to unlock insight. Please try again.')
     } finally {
       setLoadingInsight(null)
@@ -174,8 +222,11 @@ export default function ChatAnalysisScreen() {
       console.log('Using cached basic analysis')
       setAnalysis(chat.analysis)
 
-      // DON'T load cached AI insights - user must unlock them each session
-      // This ensures insights are never shown without proper unlock flow
+      // Load cached AI insights if they exist (user has already unlocked some)
+      if (chat.aiInsights) {
+        console.log('Loading cached AI insights')
+        setAiInsights(chat.aiInsights)
+      }
 
       setIsAnalyzing(false)
       return
@@ -358,7 +409,7 @@ export default function ChatAnalysisScreen() {
           ) : (
             <View style={styles.insightsContainer}>
               {/* Red Flags */}
-              {unlockedInsights.has('redFlags') && aiInsights ? (
+              {isInsightUnlocked('redFlags') && aiInsights ? (
                 <InsightCard
                   icon="🚩"
                   title="Red Flags"
@@ -370,14 +421,14 @@ export default function ChatAnalysisScreen() {
                 <LockedInsightCard
                   icon="🚩"
                   title="Red Flags"
-                  badge={{ text: 'AI Insight', color: '#6B8E5A' }}
                   onUnlock={() => handleUnlockInsight('redFlags')}
                   isLoading={loadingInsight === 'redFlags'}
+                  unlockText="What are the warning signs?"
                 />
               )}
 
               {/* Green Flags */}
-              {unlockedInsights.has('greenFlags') && aiInsights ? (
+              {isInsightUnlocked('greenFlags') && aiInsights ? (
                 <InsightCard
                   icon="✅"
                   title="Green Flags"
@@ -389,14 +440,14 @@ export default function ChatAnalysisScreen() {
                 <LockedInsightCard
                   icon="✅"
                   title="Green Flags"
-                  badge={{ text: 'AI Insight', color: '#6B8E5A' }}
                   onUnlock={() => handleUnlockInsight('greenFlags')}
                   isLoading={loadingInsight === 'greenFlags'}
+                  unlockText="What are the positive signs?"
                 />
               )}
 
               {/* Attachment Style */}
-              {unlockedInsights.has('attachmentStyle') && aiInsights ? (
+              {isInsightUnlocked('attachmentStyle') && aiInsights ? (
                 <InsightCard
                   icon="🔗"
                   title="Attachment Style"
@@ -408,14 +459,14 @@ export default function ChatAnalysisScreen() {
                 <LockedInsightCard
                   icon="🔗"
                   title="Attachment Style"
-                  badge={{ text: 'AI Insight', color: '#6B8E5A' }}
                   onUnlock={() => handleUnlockInsight('attachmentStyle')}
                   isLoading={loadingInsight === 'attachmentStyle'}
+                  unlockText="What's the attachment pattern?"
                 />
               )}
 
               {/* Reciprocity Score */}
-              {unlockedInsights.has('reciprocityScore') && aiInsights ? (
+              {isInsightUnlocked('reciprocityScore') && aiInsights ? (
                 <InsightCard
                   icon="⚖️"
                   title="Reciprocity Score"
@@ -430,14 +481,14 @@ export default function ChatAnalysisScreen() {
                 <LockedInsightCard
                   icon="⚖️"
                   title="Reciprocity Score"
-                  badge={{ text: 'AI Insight', color: '#6B8E5A' }}
                   onUnlock={() => handleUnlockInsight('reciprocityScore')}
                   isLoading={loadingInsight === 'reciprocityScore'}
+                  unlockText="How balanced is this relationship?"
                 />
               )}
 
               {/* Compliments */}
-              {unlockedInsights.has('compliments') && aiInsights ? (
+              {isInsightUnlocked('compliments') && aiInsights ? (
                 <InsightCard
                   icon="💐"
                   title="Compliments"
@@ -449,14 +500,14 @@ export default function ChatAnalysisScreen() {
                 <LockedInsightCard
                   icon="💐"
                   title="Compliments"
-                  badge={{ text: 'AI Insight', color: '#6B8E5A' }}
                   onUnlock={() => handleUnlockInsight('compliments')}
                   isLoading={loadingInsight === 'compliments'}
+                  unlockText="How often do they compliment?"
                 />
               )}
 
               {/* Criticism */}
-              {unlockedInsights.has('criticism') && aiInsights ? (
+              {isInsightUnlocked('criticism') && aiInsights ? (
                 <InsightCard
                   icon="⚠️"
                   title="Criticism"
@@ -468,14 +519,14 @@ export default function ChatAnalysisScreen() {
                 <LockedInsightCard
                   icon="⚠️"
                   title="Criticism"
-                  badge={{ text: 'AI Insight', color: '#6B8E5A' }}
                   onUnlock={() => handleUnlockInsight('criticism')}
                   isLoading={loadingInsight === 'criticism'}
+                  unlockText="Are there critical moments?"
                 />
               )}
 
               {/* Compatibility Score */}
-              {unlockedInsights.has('compatibilityScore') && aiInsights ? (
+              {isInsightUnlocked('compatibilityScore') && aiInsights ? (
                 <InsightCard
                   icon="💯"
                   title="Compatibility Score"
@@ -490,14 +541,14 @@ export default function ChatAnalysisScreen() {
                 <LockedInsightCard
                   icon="💯"
                   title="Compatibility Score"
-                  badge={{ text: 'AI Insight', color: '#6B8E5A' }}
                   onUnlock={() => handleUnlockInsight('compatibilityScore')}
                   isLoading={loadingInsight === 'compatibilityScore'}
+                  unlockText="How compatible are you?"
                 />
               )}
 
               {/* Relationship Tips */}
-              {unlockedInsights.has('relationshipTips') && aiInsights ? (
+              {isInsightUnlocked('relationshipTips') && aiInsights ? (
                 <InsightCard
                   icon="💡"
                   title="Relationship Tips"
@@ -509,9 +560,9 @@ export default function ChatAnalysisScreen() {
                 <LockedInsightCard
                   icon="💡"
                   title="Relationship Tips"
-                  badge={{ text: 'AI Insight', color: '#6B8E5A' }}
                   onUnlock={() => handleUnlockInsight('relationshipTips')}
                   isLoading={loadingInsight === 'relationshipTips'}
+                  unlockText="What can you improve?"
                 />
               )}
             </View>

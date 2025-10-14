@@ -155,6 +155,12 @@ Focus on communication patterns, emotional dynamics, and relationship health ind
       cleanText = jsonMatch[0]
     }
     
+    // Remove any invisible/control characters except newlines, spaces, tabs
+    cleanText = cleanText.replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\x9F]/g, '')
+    
+    // Remove any zero-width characters
+    cleanText = cleanText.replace(/[\u200B-\u200D\uFEFF]/g, '')
+    
     console.log('Attempting to parse JSON, length:', cleanText.length)
 
     let rawInsights: AIInsights
@@ -164,7 +170,16 @@ Focus on communication patterns, emotional dynamics, and relationship health ind
       console.error('JSON Parse error:', parseError)
       console.error('Problematic text (first 500 chars):', cleanText.substring(0, 500))
       console.error('Problematic text (last 500 chars):', cleanText.substring(Math.max(0, cleanText.length - 500)))
-      throw new Error(`Invalid JSON response from AI: ${parseError instanceof Error ? parseError.message : 'Parse failed'}`)
+      
+      // Try one more time with even more aggressive cleaning
+      try {
+        // Remove all non-printable characters except standard whitespace
+        const ultraClean = cleanText.replace(/[^\x20-\x7E\n\r\t]/g, '')
+        rawInsights = JSON.parse(ultraClean)
+        console.log('✅ Parsed with ultra-clean method')
+      } catch {
+        throw new Error(`Invalid JSON response from AI: ${parseError instanceof Error ? parseError.message : 'Parse failed'}`)
+      }
     }
 
     // Normalize arrays to ensure they only contain strings

@@ -84,13 +84,17 @@ export function usePersistedChats() {
     }
   }
 
-  const updateChatAnalysis = async (chatId: string, analysis: ChatAnalysisData, aiInsights?: AIInsights) => {
+  const updateChatAnalysis = async (chatId: string, analysis: ChatAnalysisData, aiInsights?: AIInsights, unlockedInsights?: string[]) => {
     try {
       // Update local state immediately
-      setChats((prev) => prev.map((chat) => (chat.id === chatId ? { ...chat, analysis, aiInsights } : chat)))
+      setChats((prev) => prev.map((chat) => 
+        chat.id === chatId 
+          ? { ...chat, analysis, aiInsights, unlockedInsights: unlockedInsights ?? chat.unlockedInsights } 
+          : chat
+      ))
 
       // Persist to storage
-      await ChatStorage.updateChatAnalysis(chatId, analysis, aiInsights)
+      await ChatStorage.updateChatAnalysis(chatId, analysis, aiInsights, unlockedInsights)
     } catch (error) {
       console.error('Error updating chat analysis:', error)
     }

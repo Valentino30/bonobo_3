@@ -30,6 +30,7 @@ export interface StoredChat {
   messageCount?: number
   analysis?: ChatAnalysisData // Cached analysis results
   aiInsights?: AIInsights // Cached AI insights
+  unlockedInsights?: string[] // List of unlocked insight IDs
 }
 
 const CHATS_STORAGE_KEY = 'bonobo_chats'
@@ -103,10 +104,14 @@ export class ChatStorage {
     }
   }
 
-  static async updateChatAnalysis(chatId: string, analysis: ChatAnalysisData, aiInsights?: AIInsights): Promise<void> {
+  static async updateChatAnalysis(chatId: string, analysis: ChatAnalysisData, aiInsights?: AIInsights, unlockedInsights?: string[]): Promise<void> {
     try {
       const existingChats = await this.loadChats()
-      const updatedChats = existingChats.map((chat) => (chat.id === chatId ? { ...chat, analysis, aiInsights } : chat))
+      const updatedChats = existingChats.map((chat) => 
+        chat.id === chatId 
+          ? { ...chat, analysis, aiInsights, unlockedInsights: unlockedInsights ?? chat.unlockedInsights } 
+          : chat
+      )
       await this.saveChats(updatedChats)
       console.log('Chat analysis and AI insights saved to storage successfully')
     } catch (error) {

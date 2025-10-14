@@ -122,8 +122,8 @@ export class PaymentService {
     }
   }
 
-  // Use one analysis (for one-time purchase) - assigns it to a specific chat
-  static async useAnalysis(chatId: string): Promise<void> {
+  // Assign one-time purchase to a specific chat
+  static async assignAnalysisToChat(chatId: string): Promise<void> {
     try {
       const deviceId = await getDeviceId()
 
