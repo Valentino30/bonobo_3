@@ -1,13 +1,27 @@
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { useRouter } from 'expo-router'
-import { Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { Alert, Linking, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 export default function ImportGuideScreen() {
-  const router = useRouter()
   const isIOS = Platform.OS === 'ios'
+
+  const handleOpenWhatsApp = async () => {
+    try {
+      // Try to open WhatsApp directly
+      const url = Platform.OS === 'ios' ? 'whatsapp://' : 'whatsapp://send'
+      await Linking.openURL(url)
+    } catch (error) {
+      // If WhatsApp is not installed or cannot be opened
+      console.error('Error opening WhatsApp:', error)
+      Alert.alert(
+        'WhatsApp Not Found',
+        'WhatsApp is not installed on your device. Please install it from the app store first.',
+        [{ text: 'OK' }]
+      )
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -120,12 +134,9 @@ export default function ImportGuideScreen() {
 
           {/* CTA Button */}
           <View style={styles.ctaButtonContainer}>
-            <TouchableOpacity
-              style={styles.ctaButton}
-              onPress={() => router.push('/chats' as any)}
-              activeOpacity={0.85}
-            >
-              <ThemedText style={styles.ctaButtonText}>Got It!</ThemedText>
+            <TouchableOpacity style={styles.ctaButton} onPress={handleOpenWhatsApp} activeOpacity={0.85}>
+              <MaterialCommunityIcons name="whatsapp" size={20} color="#FFFFFF" />
+              <ThemedText style={styles.ctaButtonText}>Open WhatsApp</ThemedText>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -289,15 +300,18 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   ctaButton: {
+    flexDirection: 'row',
     backgroundColor: '#6B8E5A',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
+    justifyContent: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+    gap: 10,
   },
   ctaButtonText: {
     fontSize: 16,
