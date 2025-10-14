@@ -10,6 +10,10 @@ export function usePersistedChats() {
   useEffect(() => {
     const loadChats = async () => {
       try {
+        // Try to migrate old local storage data first
+        await ChatStorage.migrateFromLocalStorage()
+        
+        // Load from Supabase
         const storedChats = await ChatStorage.loadChats()
         setChats(storedChats)
       } catch (error) {

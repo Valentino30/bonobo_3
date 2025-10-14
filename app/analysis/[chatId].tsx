@@ -72,6 +72,17 @@ export default function ChatAnalysisScreen() {
     return unlocked
   }
 
+  // Helper to get frequency label from count
+  const getFrequencyLabel = (count: number): string => {
+    if (count === 0) return 'None'
+    if (count === 1) return 'Rare'
+    if (count <= 3) return 'Few'
+    if (count <= 7) return 'Occasional'
+    if (count <= 15) return 'Moderate'
+    if (count <= 25) return 'Frequent'
+    return 'Very Frequent'
+  }
+
   // Handle tab change - insights tab is always accessible to see locked cards
   const handleTabChange = async (tab: TabType) => {
     setActiveTab(tab)
@@ -111,10 +122,16 @@ export default function ChatAnalysisScreen() {
         setAiInsights(insights)
         console.log('✅ AI insights generated')
 
-        // Assign this one-time purchase to this specific chat (only on first unlock)
-        console.log('🔗 Assigning entitlement to chat...')
-        await PaymentService.assignAnalysisToChat(chatId)
-        console.log('✅ Entitlement assigned')
+        // Assign this one-time purchase to this specific chat (only on first unlock and only for one-time purchases)
+        // Skip this for subscriptions
+        const hasSubscription = await PaymentService.hasActiveSubscription()
+        if (!hasSubscription) {
+          console.log('🔗 Assigning one-time entitlement to chat...')
+          await PaymentService.assignAnalysisToChat(chatId)
+          console.log('✅ Entitlement assigned')
+        } else {
+          console.log('ℹ️ Subscription active - no need to assign to chat')
+        }
       }
 
       // Mark this insight as unlocked and persist it
@@ -480,8 +497,8 @@ export default function ChatAnalysisScreen() {
                   icon="💐"
                   title="Compliments"
                   description={aiInsights.compliments.description}
-                  items={aiInsights.compliments.breakdown}
-                  badge={{ text: `${aiInsights.compliments.count} Found`, color: '#6B8E5A' }}
+                  items={aiInsights.compliments.items}
+                  badge={{ text: getFrequencyLabel(aiInsights.compliments.count), color: '#6B8E5A' }}
                 />
               ) : (
                 <LockedInsightCard
@@ -499,8 +516,8 @@ export default function ChatAnalysisScreen() {
                   icon="⚠️"
                   title="Criticism"
                   description={aiInsights.criticism.description}
-                  items={aiInsights.criticism.breakdown}
-                  badge={{ text: `${aiInsights.criticism.count} Found`, color: '#6B8E5A' }}
+                  items={aiInsights.criticism.items}
+                  badge={{ text: getFrequencyLabel(aiInsights.criticism.count), color: '#6B8E5A' }}
                 />
               ) : (
                 <LockedInsightCard

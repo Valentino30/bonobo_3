@@ -44,7 +44,7 @@ export function ChatCard({ chat, onAnalyze, onDelete }: ChatCardProps) {
           <ThemedText style={styles.avatarText}>{getInitial()}</ThemedText>
         </View>
         <View style={styles.contentContainer}>
-          <ThemedText style={styles.participantName}>
+          <ThemedText style={styles.participantName} numberOfLines={1}>
             {chat.participants?.join(' & ') || 'Unknown participants'}
           </ThemedText>
           <ThemedText style={styles.messageCount}>{chat.messageCount || 0} messages</ThemedText>
@@ -67,7 +67,7 @@ export function ChatCard({ chat, onAnalyze, onDelete }: ChatCardProps) {
         <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowMenu(false)}>
           <View style={styles.bottomDrawer}>
             <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-              <ThemedText style={styles.deleteButtonText}>Delete Person</ThemedText>
+              <ThemedText style={styles.deleteButtonText}>Delete Chat</ThemedText>
             </TouchableOpacity>
             <TouchableOpacity style={styles.cancelButton} onPress={() => setShowMenu(false)}>
               <ThemedText style={styles.cancelButtonText}>Cancel</ThemedText>

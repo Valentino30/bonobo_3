@@ -139,7 +139,7 @@ export class PaymentService {
         .limit(1)
 
       if (error || !entitlements || entitlements.length === 0) {
-        console.error('No active one-time entitlement found')
+        console.log('No unassigned one-time entitlement found (might have subscription)')
         return
       }
 
@@ -160,6 +160,40 @@ export class PaymentService {
       }
     } catch (error) {
       console.error('Error using analysis:', error)
+    }
+  }
+
+  // Check if user has an active subscription (not one-time)
+  static async hasActiveSubscription(): Promise<boolean> {
+    try {
+      const deviceId = await getDeviceId()
+
+      const { data: entitlements, error } = await supabase
+        .from('user_entitlements')
+        .select('*')
+        .eq('device_id', deviceId)
+        .eq('status', 'active')
+        .neq('plan_id', 'one-time')
+
+      if (error) {
+        console.error('Error checking subscription:', error)
+        return false
+      }
+
+      // Check if any subscription is still valid
+      for (const entitlement of entitlements || []) {
+        if (entitlement.expires_at) {
+          const expiryDate = new Date(entitlement.expires_at)
+          if (new Date() < expiryDate) {
+            return true
+          }
+        }
+      }
+
+      return false
+    } catch (error) {
+      console.error('Error checking subscription:', error)
+      return false
     }
   }
 

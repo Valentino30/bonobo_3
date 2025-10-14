@@ -1,5 +1,6 @@
-import * as SecureStore from 'expo-secure-store'
 import type { AIInsights } from './ai-service'
+import { getDeviceId } from './device-id'
+import { supabase } from './supabase'
 
 export interface ChatAnalysisData {
   totalMessages: number
@@ -33,71 +34,133 @@ export interface StoredChat {
   unlockedInsights?: string[] // List of unlocked insight IDs
 }
 
-const CHATS_STORAGE_KEY = 'bonobo_chats'
-
 export class ChatStorage {
   static async loadChats(): Promise<StoredChat[]> {
     try {
-      const chatsJson = await SecureStore.getItemAsync(CHATS_STORAGE_KEY)
-      if (chatsJson) {
-        const chats = JSON.parse(chatsJson)
-        // Convert timestamp strings back to Date objects
-        return chats.map((chat: any) => ({
-          ...chat,
-          timestamp: new Date(chat.timestamp),
-        }))
+      const deviceId = await getDeviceId()
+      
+      const { data, error } = await supabase
+        .from('chats')
+        .select('*')
+        .eq('device_id', deviceId)
+        .order('timestamp', { ascending: false })
+
+      if (error) {
+        console.error('Error loading chats from Supabase:', error)
+        return []
       }
-      return []
+
+      // Convert database format to StoredChat format
+      return (data || []).map((row: any) => ({
+        id: row.id,
+        text: row.chat_text,
+        timestamp: new Date(row.timestamp),
+        participants: row.participants || [],
+        messageCount: row.message_count,
+        analysis: row.analysis,
+        aiInsights: row.ai_insights,
+        unlockedInsights: row.unlocked_insights || [],
+      }))
     } catch (error) {
-      console.error('Error loading chats from storage:', error)
+      console.error('Error loading chats from Supabase:', error)
       return []
     }
   }
 
   static async saveChats(chats: StoredChat[]): Promise<void> {
-    try {
-      const chatsJson = JSON.stringify(chats)
-      await SecureStore.setItemAsync(CHATS_STORAGE_KEY, chatsJson)
-      console.log('Chats saved to storage successfully')
-    } catch (error) {
-      console.error('Error saving chats to storage:', error)
-    }
+    // This method is kept for backward compatibility but not used with Supabase
+    // Individual operations (addChat, updateChat, etc.) are used instead
+    console.warn('saveChats is deprecated with Supabase - use individual operations')
   }
 
   static async addChat(chat: StoredChat): Promise<void> {
     try {
-      const existingChats = await this.loadChats()
-      const updatedChats = [chat, ...existingChats]
-      await this.saveChats(updatedChats)
+      const deviceId = await getDeviceId()
+
+      const { error } = await supabase
+        .from('chats')
+        .insert({
+          id: chat.id,
+          device_id: deviceId,
+          chat_text: chat.text,
+          timestamp: chat.timestamp.toISOString(),
+          participants: chat.participants || [],
+          message_count: chat.messageCount,
+          analysis: chat.analysis || null,
+          ai_insights: chat.aiInsights || null,
+          unlocked_insights: chat.unlockedInsights || [],
+        })
+
+      if (error) {
+        console.error('Error adding chat to Supabase:', error)
+        throw error
+      }
+
+      console.log('Chat added to Supabase successfully')
     } catch (error) {
-      console.error('Error adding chat to storage:', error)
+      console.error('Error adding chat to Supabase:', error)
+      throw error
     }
   }
 
   static async deleteChat(chatId: string): Promise<void> {
     try {
-      const existingChats = await this.loadChats()
-      const updatedChats = existingChats.filter((chat) => chat.id !== chatId)
-      await this.saveChats(updatedChats)
-      console.log('Chat deleted from storage successfully')
+      const deviceId = await getDeviceId()
+
+      const { error } = await supabase
+        .from('chats')
+        .delete()
+        .eq('id', chatId)
+        .eq('device_id', deviceId)
+
+      if (error) {
+        console.error('Error deleting chat from Supabase:', error)
+        throw error
+      }
+
+      console.log('Chat deleted from Supabase successfully')
     } catch (error) {
-      console.error('Error deleting chat from storage:', error)
+      console.error('Error deleting chat from Supabase:', error)
+      throw error
     }
   }
 
   static async clearAllChats(): Promise<void> {
     try {
-      await SecureStore.deleteItemAsync(CHATS_STORAGE_KEY)
-      console.log('All chats cleared from storage')
+      const deviceId = await getDeviceId()
+
+      const { error } = await supabase
+        .from('chats')
+        .delete()
+        .eq('device_id', deviceId)
+
+      if (error) {
+        console.error('Error clearing chats from Supabase:', error)
+        throw error
+      }
+
+      console.log('All chats cleared from Supabase')
     } catch (error) {
-      console.error('Error clearing chats from storage:', error)
+      console.error('Error clearing chats from Supabase:', error)
+      throw error
     }
   }
 
   static async getChatCount(): Promise<number> {
     try {
-      const chats = await this.loadChats()
-      return chats.length
+      const deviceId = await getDeviceId()
+
+      const { count, error } = await supabase
+        .from('chats')
+        .select('*', { count: 'exact', head: true })
+        .eq('device_id', deviceId)
+
+      if (error) {
+        console.error('Error getting chat count from Supabase:', error)
+        return 0
+      }
+
+      return count || 0
     } catch (error) {
       console.error('Error getting chat count:', error)
       return 0
@@ -106,16 +169,82 @@ export class ChatStorage {
 
   static async updateChatAnalysis(chatId: string, analysis: ChatAnalysisData, aiInsights?: AIInsights, unlockedInsights?: string[]): Promise<void> {
     try {
-      const existingChats = await this.loadChats()
-      const updatedChats = existingChats.map((chat) => 
-        chat.id === chatId 
-          ? { ...chat, analysis, aiInsights, unlockedInsights: unlockedInsights ?? chat.unlockedInsights } 
-          : chat
-      )
-      await this.saveChats(updatedChats)
-      console.log('Chat analysis and AI insights saved to storage successfully')
+      const deviceId = await getDeviceId()
+
+      const updateData: any = {
+        analysis,
+        updated_at: new Date().toISOString(),
+      }
+
+      if (aiInsights !== undefined) {
+        updateData.ai_insights = aiInsights
+      }
+
+      if (unlockedInsights !== undefined) {
+        updateData.unlocked_insights = unlockedInsights
+      }
+
+      const { error } = await supabase
+        .from('chats')
+        .update(updateData)
+        .eq('id', chatId)
+        .eq('device_id', deviceId)
+
+      if (error) {
+        console.error('Error updating chat analysis in Supabase:', error)
+        throw error
+      }
+
+      console.log('Chat analysis and AI insights saved to Supabase successfully')
     } catch (error) {
       console.error('Error updating chat analysis:', error)
+      throw error
+    }
+  }
+
+  // Migration utility: Clear old SecureStore data
+  static async clearOldLocalStorage(): Promise<void> {
+    try {
+      const SecureStore = await import('expo-secure-store')
+      await SecureStore.deleteItemAsync('bonobo_chats')
+      console.log('Old local storage cleared')
+    } catch (error) {
+      console.error('Error clearing old local storage:', error)
+    }
+  }
+
+  // Migration utility: Load from old SecureStore format
+  static async migrateFromLocalStorage(): Promise<void> {
+    try {
+      const SecureStore = await import('expo-secure-store')
+      const chatsJson = await SecureStore.getItemAsync('bonobo_chats')
+      
+      if (!chatsJson) {
+        console.log('No local storage data to migrate')
+        return
+      }
+
+      const oldChats = JSON.parse(chatsJson)
+      console.log(`Found ${oldChats.length} chats in local storage, migrating...`)
+
+      for (const chat of oldChats) {
+        try {
+          await this.addChat({
+            ...chat,
+            timestamp: new Date(chat.timestamp),
+          })
+          console.log(`Migrated chat ${chat.id}`)
+        } catch (error) {
+          console.error(`Error migrating chat ${chat.id}:`, error)
+        }
+      }
+
+      // Clear old storage after successful migration
+      await this.clearOldLocalStorage()
+      console.log('Migration complete!')
+    } catch (error) {
+      console.error('Error during migration:', error)
     }
   }
 }
+

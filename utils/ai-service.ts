@@ -28,12 +28,12 @@ export interface AIInsights {
   compliments: {
     count: number
     description: string
-    breakdown: string[]
+    items: string[]
   }
   criticism: {
     count: number
     description: string
-    breakdown: string[]
+    items: string[]
   }
   compatibilityScore: {
     percentage: number
@@ -101,12 +101,12 @@ Provide a detailed analysis with the following structure (respond ONLY with vali
   "compliments": {
     "count": <total number>,
     "description": "<AI-generated SIMPLE STRING summary of compliment patterns>",
-    "breakdown": [<array of 3-4 SIMPLE STRINGS like "Appearance compliments: 8", "Character compliments: 12">]
+    "items": [<array of 3-4 SIMPLE STRING specific examples, e.g. "You look amazing in that outfit", "I love how thoughtful you are">]
   },
   "criticism": {
     "count": <total number>,
     "description": "<AI-generated SIMPLE STRING summary of criticism patterns>",
-    "breakdown": [<array of 3-4 SIMPLE STRINGS like "Constructive feedback: 2", "Harsh criticism: 0">]
+    "items": [<array of 3-4 SIMPLE STRING specific examples or quotes from the chat showing criticism, e.g. "You never listen to me", "That was a bit harsh">]
   },
   "compatibilityScore": {
     "percentage": <0-100>,
@@ -121,7 +121,7 @@ Provide a detailed analysis with the following structure (respond ONLY with vali
   }
 }
 
-IMPORTANT: All "items", "breakdown", and "tips" arrays must contain ONLY simple text strings, NOT objects. Each item should be a complete sentence or phrase as a string.
+IMPORTANT: All "items", "tips" arrays must contain ONLY simple text strings, NOT objects. Each item should be a complete sentence or phrase as a string. For compliments and criticism, provide actual examples or quotes from the conversation.
 
 Focus on communication patterns, emotional dynamics, and relationship health indicators.`
 
@@ -238,12 +238,12 @@ Focus on communication patterns, emotional dynamics, and relationship health ind
       compliments: {
         ...rawInsights.compliments,
         description: normalizeDescription(rawInsights.compliments.description),
-        breakdown: normalizeArray(rawInsights.compliments.breakdown),
+        items: normalizeArray((rawInsights.compliments as any).items || (rawInsights.compliments as any).breakdown),
       },
       criticism: {
         ...rawInsights.criticism,
         description: normalizeDescription(rawInsights.criticism.description),
-        breakdown: normalizeArray(rawInsights.criticism.breakdown),
+        items: normalizeArray((rawInsights.criticism as any).items || (rawInsights.criticism as any).breakdown),
       },
       compatibilityScore: {
         ...rawInsights.compatibilityScore,
