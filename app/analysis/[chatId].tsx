@@ -1,5 +1,6 @@
 import { AnalysisLoading } from '@/components/analysis-loading'
 import { ComparisonCard } from '@/components/comparison-card'
+import { useCustomAlert } from '@/components/custom-alert'
 import { InsightCard } from '@/components/insight-card'
 import { LockedInsightCard } from '@/components/locked-insight-card'
 import { Paywall } from '@/components/paywall'
@@ -11,7 +12,7 @@ import { PaymentService } from '@/utils/payment-service'
 import { StripeService } from '@/utils/stripe-service'
 import { Link, useLocalSearchParams, useRouter } from 'expo-router'
 import { useEffect, useRef, useState } from 'react'
-import { Alert, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { analyzeChat, type AIInsights } from '../../utils/ai-service'
 import { analyzeChatData } from '../../utils/chat-analyzer'
@@ -45,6 +46,7 @@ export default function ChatAnalysisScreen() {
   const { chats, isLoading: chatsLoading, updateChatAnalysis } = usePersistedChats()
   const router = useRouter()
   const previousChatIdRef = useRef<string | null>(null)
+  const { showAlert, AlertComponent } = useCustomAlert()
 
   const chat = chats.find((c) => c.id === chatId)
 
@@ -152,7 +154,7 @@ export default function ChatAnalysisScreen() {
       console.log('🎉 Unlock complete!')
     } catch (err) {
       console.error('❌ Error unlocking insight:', err)
-      Alert.alert('Error', 'Failed to unlock insight. Please try again.')
+      showAlert('Error', 'Failed to unlock insight. Please try again.')
     } finally {
       setLoadingInsight(null)
     }
@@ -170,17 +172,17 @@ export default function ChatAnalysisScreen() {
 
         setShowPaywall(false)
         setActiveTab('insights')
-        Alert.alert('🎉 Payment Successful!', 'You now have access to AI insights')
+        showAlert('🎉 Payment Successful!', 'You now have access to AI insights')
       } else {
         // Payment failed or cancelled
         if (result.error) {
-          Alert.alert('Payment Failed', result.error)
+          showAlert('Payment Failed', result.error)
         }
         // User cancelled - no alert needed
       }
     } catch (error) {
       console.error('Purchase error:', error)
-      Alert.alert('Error', 'Failed to process payment. Please try again.')
+      showAlert('Error', 'Failed to process payment. Please try again.')
     }
   }
 
@@ -354,6 +356,9 @@ export default function ChatAnalysisScreen() {
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Custom Alert */}
+      <AlertComponent />
 
       {/* Paywall Modal */}
       <Paywall visible={showPaywall} onClose={() => setShowPaywall(false)} onPurchase={handlePurchase} />

@@ -1,4 +1,5 @@
 import { ChatList } from '@/components/chat-list'
+import { useCustomAlert } from '@/components/custom-alert'
 import { LoadingScreen } from '@/components/loading-screen'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
@@ -10,7 +11,7 @@ import { extractWhatsAppZip } from '@/utils/zip-extractor'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { Link, useLocalSearchParams, useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
-import { Alert, Platform, StyleSheet, TouchableOpacity } from 'react-native'
+import { Platform, StyleSheet, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 export default function ChatsScreen() {
@@ -20,6 +21,7 @@ export default function ChatsScreen() {
   const [manualInput, setManualInput] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
   const router = useRouter()
+  const { showAlert, AlertComponent } = useCustomAlert()
 
   // Determine which platform to show instructions for
   const showPlatform = device || Platform.OS
@@ -70,7 +72,7 @@ export default function ChatsScreen() {
         const participantNames =
           parsedData.participants.length > 0 ? parsedData.participants.join(' & ') : 'Unknown participants'
 
-        Alert.alert(
+        showAlert(
           'Chat Imported Successfully!',
           `Chat between ${participantNames} with ${parsedData.messageCount} messages has been imported.`,
           [{ text: 'OK', onPress: clearShareData }]
@@ -108,7 +110,7 @@ export default function ChatsScreen() {
             const participantNames =
               parsedData.participants.length > 0 ? parsedData.participants.join(' & ') : 'Unknown participants'
 
-            Alert.alert(
+            showAlert(
               'Chat Imported Successfully!',
               `Chat between ${participantNames} with ${parsedData.messageCount} messages has been imported from ZIP file.`,
               [
@@ -123,7 +125,7 @@ export default function ChatsScreen() {
             )
           } else {
             // Failed to extract content
-            Alert.alert(
+            showAlert(
               'ZIP Extraction Failed',
               'Could not extract chat content from the ZIP file. Please try exporting the chat as "Without Media" or use manual import.',
               [
@@ -146,7 +148,7 @@ export default function ChatsScreen() {
           }
         } catch (error) {
           console.error('Error processing ZIP file:', error)
-          Alert.alert(
+          showAlert(
             'ZIP Processing Error',
             'An error occurred while processing the ZIP file. Please try again or use manual import.',
             [
@@ -163,7 +165,7 @@ export default function ChatsScreen() {
       } else if (hasShareData && (!shareData || !shareData.text)) {
         // Handle case where share intent is detected but no text data
         console.log('Share intent detected but no text data:', shareData)
-        Alert.alert(
+        showAlert(
           'Import Error',
           'No text data was found in the shared content. Please try exporting the chat again or use manual import.',
           [{ text: 'OK', onPress: clearShareData }]
@@ -172,7 +174,7 @@ export default function ChatsScreen() {
     }
 
     processShareData()
-  }, [hasShareData, shareData, isProcessing, clearShareData, persistAddChat, setIsProcessing])
+  }, [hasShareData, shareData, isProcessing, clearShareData, persistAddChat, setIsProcessing, showAlert])
 
   const handleManualImport = async () => {
     if (manualInput.trim()) {
@@ -193,7 +195,7 @@ export default function ChatsScreen() {
       const participantNames =
         parsedData.participants.length > 0 ? parsedData.participants.join(' & ') : 'Unknown participants'
 
-      Alert.alert(
+      showAlert(
         'Chat Imported Successfully!',
         `Chat between ${participantNames} with ${parsedData.messageCount} messages has been imported.`,
         [{ text: 'OK' }]
@@ -226,6 +228,9 @@ export default function ChatsScreen() {
         <ThemedText type="title" style={styles.title}>
           My Chats
         </ThemedText>
+
+        {/* Custom Alert */}
+        <AlertComponent />
 
         <ChatList
           chats={chats}

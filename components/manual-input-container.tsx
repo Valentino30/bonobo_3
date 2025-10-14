@@ -1,6 +1,6 @@
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
-import { Alert, StyleSheet, TextInput, TouchableOpacity } from 'react-native'
+import { StyleSheet, TextInput, TouchableOpacity } from 'react-native'
 
 interface ManualInputContainerProps {
   manualInput: string
@@ -12,7 +12,7 @@ export function ManualInputContainer({ manualInput, setManualInput, onImport }: 
   const handleImport = () => {
     if (manualInput.trim()) {
       onImport()
-      Alert.alert('Chat Imported', 'Your WhatsApp chat has been successfully imported!', [{ text: 'OK' }])
+      // Alert is handled by parent component (chats.tsx)
     }
   }
 

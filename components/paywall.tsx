@@ -1,7 +1,7 @@
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { PAYMENT_PLANS } from '@/utils/payment-service'
-import { Alert, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 
 interface PaywallProps {
   visible: boolean
@@ -11,12 +11,9 @@ interface PaywallProps {
 
 export function Paywall({ visible, onClose, onPurchase }: PaywallProps) {
   const handlePurchase = async (planId: string) => {
-    try {
-      await onPurchase(planId)
-      onClose()
-    } catch {
-      Alert.alert('Purchase Failed', 'There was an error processing your payment. Please try again.')
-    }
+    // Error handling is done by the parent component
+    await onPurchase(planId)
+    onClose()
   }
 
   return (
