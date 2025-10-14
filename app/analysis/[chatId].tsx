@@ -1,7 +1,6 @@
 import { AnalysisLoading } from '@/components/analysis-loading'
 import { ComparisonCard } from '@/components/comparison-card'
 import { InsightCard } from '@/components/insight-card'
-import { LoadingScreen } from '@/components/loading-screen'
 import { LockedInsightCard } from '@/components/locked-insight-card'
 import { Paywall } from '@/components/paywall'
 import { SimpleStatCard } from '@/components/simple-stat-card'
@@ -41,6 +40,8 @@ interface ChatAnalysisData {
 }
 
 export default function ChatAnalysisScreen() {
+  const analysisRef = useRef<ChatAnalysisData | null>(null)
+  const [showAnalysisLoading, setShowAnalysisLoading] = useState(false)
   const { chatId } = useLocalSearchParams<{ chatId: string }>()
   const { chats, isLoading: chatsLoading, updateChatAnalysis } = usePersistedChats()
   const router = useRouter()
@@ -52,8 +53,9 @@ export default function ChatAnalysisScreen() {
   const [analysis, setAnalysis] = useState<ChatAnalysisData | null>(null)
   const [aiInsights, setAiInsights] = useState<AIInsights | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
+  // Removed unused analysisAnimationDone state
   const [error, setError] = useState<string | null>(null)
-  const [initialized, setInitialized] = useState(false)
+  // Removed unused initialized state
   const [activeTab, setActiveTab] = useState<TabType>('overview')
   const [showPaywall, setShowPaywall] = useState(false)
   const [unlockedInsights, setUnlockedInsights] = useState<Set<string>>(new Set())
@@ -191,11 +193,15 @@ export default function ChatAnalysisScreen() {
     console.log('Analysis screen - chat found:', !!chat)
     console.log('Analysis screen - cached analysis:', !!chat?.analysis)
 
-    // Reset unlocked insights AND AI insights ONLY when chatId changes
+    // Reset state ONLY when chatId changes
     if (previousChatIdRef.current !== chatId) {
-      console.log('ChatId changed, resetting insights')
+      console.log('ChatId changed, resetting all state')
       setUnlockedInsights(new Set())
       setAiInsights(null)
+      setAnalysis(null)
+      setShowAnalysisLoading(false)
+      setIsAnalyzing(false)
+      setError(null)
       previousChatIdRef.current = chatId
     }
 
@@ -204,9 +210,6 @@ export default function ChatAnalysisScreen() {
       console.log('Chats still loading, waiting...')
       return
     }
-
-    // Mark as initialized once chats are loaded
-    setInitialized(true)
 
     if (!chat) {
       console.log('Chat not found for ID:', chatId)
@@ -222,7 +225,13 @@ export default function ChatAnalysisScreen() {
     // Reset error state when chat is found
     setError(null)
 
-    // Check if we have cached basic analysis
+    // If we already have analysis loaded, don't do anything
+    if (analysis) {
+      console.log('Analysis already loaded, skipping')
+      return
+    }
+
+    // Check if we have cached analysis
     if (chat.analysis) {
       console.log('Using cached basic analysis')
       setAnalysis(chat.analysis)
@@ -237,39 +246,55 @@ export default function ChatAnalysisScreen() {
       return
     }
 
-    // If we don't have basic analysis, run it (but NOT AI analysis yet)
-    console.log('No cached analysis found, performing basic analysis only')
-    setIsAnalyzing(true)
+    // If we don't have basic analysis and we're not already analyzing, run it
+    if (!isAnalyzing) {
+      console.log('No cached analysis found, performing basic analysis only')
+      setShowAnalysisLoading(true)
+      setIsAnalyzing(true)
 
-    const performBasicAnalysis = async () => {
-      try {
-        const basicAnalysis = await analyzeChatData(chat.text)
-        setAnalysis(basicAnalysis)
+      const performBasicAnalysis = async () => {
+        try {
+          const basicAnalysis = await analyzeChatData(chat.text)
+          analysisRef.current = basicAnalysis
 
-        // Save only basic analysis (no AI insights yet)
-        await updateChatAnalysis(chatId, basicAnalysis)
-        console.log('Basic analysis complete and cached')
-      } catch (err) {
-        console.error('Analysis error:', err)
-        setError(err instanceof Error ? err.message : 'Failed to analyze chat')
-      } finally {
-        setIsAnalyzing(false)
+          // Save only basic analysis (no AI insights yet)
+          await updateChatAnalysis(chatId, basicAnalysis)
+          console.log('Basic analysis complete and cached')
+        } catch (err) {
+          console.error('Analysis error:', err)
+          setError(err instanceof Error ? err.message : 'Failed to analyze chat')
+          setShowAnalysisLoading(false)
+          setIsAnalyzing(false)
+        }
+        // Do not set isAnalyzing=false or setAnalysis here; wait for animation
       }
+
+      performBasicAnalysis()
     }
+  }, [chat, chatId, chats, chatsLoading, updateChatAnalysis, analysis, isAnalyzing])
 
-    performBasicAnalysis()
-  }, [chat, chatId, chats, chatsLoading, updateChatAnalysis])
-
-  // Show loading if chats are still loading OR we haven't initialized yet
-  if (chatsLoading || !initialized) {
+  // Show AnalysisLoading if we're analyzing OR if we don't have analysis/chat yet
+  // This ensures we show loading immediately instead of flashing the error screen
+  if (showAnalysisLoading || chatsLoading || (isAnalyzing && !analysis) || (!analysis && chat && !chat.analysis)) {
+    console.log('Showing AnalysisLoading: showAnalysisLoading =', showAnalysisLoading, 'chatsLoading =', chatsLoading, 'isAnalyzing =', isAnalyzing, 'hasAnalysis =', !!analysis)
     return (
       <SafeAreaView style={styles.container}>
-        <LoadingScreen icon="database-sync" title="Loading Analysis" subtitle="Fetching your data..." />
+        <AnalysisLoading
+          key={chatId}
+          onComplete={() => {
+            setShowAnalysisLoading(false)
+            setIsAnalyzing(false)
+            if (analysisRef.current) {
+              setAnalysis(analysisRef.current)
+              analysisRef.current = null
+            }
+          }}
+        />
       </SafeAreaView>
     )
   }
 
-  if (!chat) {
+  if (!chat && !chatsLoading) {
     return (
       <SafeAreaView style={styles.container}>
         <ThemedView style={styles.content}>
@@ -285,26 +310,25 @@ export default function ChatAnalysisScreen() {
     )
   }
 
-  if (isAnalyzing) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <AnalysisLoading />
-      </SafeAreaView>
-    )
-  }
-
-  if (error || !analysis) {
+  // Only show error screen if there's an actual error AND we're not analyzing
+  if (error && !isAnalyzing) {
     return (
       <SafeAreaView style={styles.container}>
         <ThemedView style={styles.content}>
           <ThemedText type="title">Analysis Error</ThemedText>
-          <ThemedText style={styles.errorText}>{error || 'Failed to analyze chat'}</ThemedText>
+          <ThemedText style={styles.errorText}>{error}</ThemedText>
           <TouchableOpacity style={styles.button} onPress={() => router.back()}>
             <ThemedText style={styles.buttonText}>Go Back</ThemedText>
           </TouchableOpacity>
         </ThemedView>
       </SafeAreaView>
     )
+  }
+
+  // If we don't have analysis yet, we should be showing the loading screen (handled above)
+  // This shouldn't render, but just in case
+  if (!analysis) {
+    return null
   }
 
   return (

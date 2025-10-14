@@ -14,14 +14,20 @@ const STEPS = [
     icon: 'chart-line' as const,
   },
   {
+    title: 'Generating Insights',
+    subtitle: 'Preparing your results',
+    icon: 'lightbulb-on-outline' as const,
+  },
+  {
     title: 'Building Report',
     subtitle: 'Finalizing insights',
     icon: 'file-document' as const,
   },
 ]
 
-export function AnalysisLoading() {
+export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
   const [currentStep, setCurrentStep] = useState(0)
+  console.log('AnalysisLoading: currentStep', currentStep)
   const [pulseAnim] = useState(new Animated.Value(1))
   const [progressAnim] = useState(new Animated.Value(0))
 
@@ -61,16 +67,23 @@ export function AnalysisLoading() {
 
   // Step advancement
   useEffect(() => {
-    if (currentStep >= STEPS.length - 1) {
-      return
+    if (currentStep < STEPS.length - 1) {
+      console.log('AnalysisLoading: advancing to step', currentStep + 1)
+      const timeout = setTimeout(() => {
+        setCurrentStep(currentStep + 1)
+      }, 1500)
+      return () => clearTimeout(timeout)
+    } else {
+      // Call onComplete after last step is shown
+      console.log('AnalysisLoading: completed all steps, calling onComplete')
+      if (onComplete) {
+        const completeTimeout = setTimeout(() => {
+          onComplete()
+        }, 1000)
+        return () => clearTimeout(completeTimeout)
+      }
     }
-
-    const timeout = setTimeout(() => {
-      setCurrentStep(currentStep + 1)
-    }, 1500)
-
-    return () => clearTimeout(timeout)
-  }, [currentStep])
+  }, [currentStep, onComplete])
 
   const progressWidth = progressAnim.interpolate({
     inputRange: [0, 1],
