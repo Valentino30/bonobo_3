@@ -1,7 +1,8 @@
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { ActivityIndicator, StyleSheet } from 'react-native'
+import { useEffect, useState } from 'react'
+import { Animated, Easing, StyleSheet } from 'react-native'
 
 interface LoadingScreenProps {
   icon?: keyof typeof MaterialCommunityIcons.glyphMap
@@ -10,15 +11,37 @@ interface LoadingScreenProps {
 }
 
 export function LoadingScreen({ icon = 'database-search', title, subtitle }: LoadingScreenProps) {
+  const [pulseAnim] = useState(new Animated.Value(1))
+
+  useEffect(() => {
+    const pulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.15,
+          duration: 800,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 800,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ])
+    )
+    pulse.start()
+    return () => pulse.stop()
+  }, [pulseAnim])
+
   return (
     <ThemedView style={styles.loadingContainer}>
       <ThemedView style={styles.loadingCard}>
-        <ThemedView style={styles.loadingIconContainer}>
+        <Animated.View style={[styles.loadingIconContainer, { transform: [{ scale: pulseAnim }] }]}>
           <MaterialCommunityIcons name={icon} size={48} color="#6B8E5A" />
-        </ThemedView>
+        </Animated.View>
         <ThemedText style={styles.loadingTitle}>{title}</ThemedText>
         <ThemedText style={styles.loadingSubtitle}>{subtitle}</ThemedText>
-        <ActivityIndicator size="large" color="#6B8E5A" style={styles.loadingSpinner} />
       </ThemedView>
     </ThemedView>
   )
@@ -72,8 +95,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     letterSpacing: 0.2,
     marginBottom: 24,
-  },
-  loadingSpinner: {
-    marginTop: 8,
   },
 })
