@@ -1,5 +1,5 @@
-import { supabase } from './supabase'
 import { getDeviceId } from './device-id'
+import { supabase } from './supabase'
 
 // Payment plans
 export const PAYMENT_PLANS = {
@@ -41,10 +41,11 @@ interface UserEntitlement {
 }
 
 export class PaymentService {
-  // Check if user has access to AI insights
-  static async hasAccess(): Promise<boolean> {
+  // Check if user has access to AI insights for a specific chat
+  static async hasAccess(chatId?: string): Promise<boolean> {
     try {
       const deviceId = await getDeviceId()
+      console.log('Checking access for device:', deviceId, 'chatId:', chatId)
       
       // Query active entitlements for this device
       const { data: entitlements, error } = await supabase
@@ -52,23 +53,50 @@ export class PaymentService {
         .select('*')
         .eq('device_id', deviceId)
         .eq('status', 'active')
-        .order('created_at', { ascending: false })
+        .order('created_at', { ascending: false})
 
       if (error) {
         console.error('Error checking access:', error)
+        console.error('Error details:', JSON.stringify(error))
         return false
       }
 
+      console.log('Found entitlements:', entitlements?.length ?? 0)
+      
       if (!entitlements || entitlements.length === 0) {
+        console.log('❌ No entitlements found')
         return false
       }
 
       // Check each entitlement
       for (const entitlement of entitlements) {
+        console.log('Checking entitlement:', {
+          id: entitlement.id,
+          plan_id: entitlement.plan_id,
+          chat_id: entitlement.chat_id,
+          status: entitlement.status,
+          expires_at: entitlement.expires_at
+        })
+        
         // Check one-time purchase
         if (entitlement.plan_id === 'one-time') {
-          if ((entitlement.remaining_analyses ?? 0) > 0) {
-            return true
+          // If chatId is provided, check if this one-time purchase is for this chat
+          if (chatId) {
+            // If chat_id is null (not yet used), user has access
+            // If chat_id matches, user has access
+            // If chat_id doesn't match, user doesn't have access
+            if (entitlement.chat_id === null || entitlement.chat_id === chatId) {
+              console.log('✅ Access granted for one-time purchase')
+              return true
+            } else {
+              console.log('❌ One-time purchase used for different chat:', entitlement.chat_id)
+            }
+          } else {
+            // No chatId provided, just check if there's an unused one
+            if (entitlement.chat_id === null) {
+              console.log('✅ Access granted - unused one-time purchase')
+              return true
+            }
           }
         }
 
@@ -89,24 +117,24 @@ export class PaymentService {
 
       return false
     } catch (error) {
-      console.error('Error checking access:', error)
+      console.error('Error checking access (catch):', error)
       return false
     }
   }
 
-  // Use one analysis (for one-time purchase)
-  static async useAnalysis(): Promise<void> {
+  // Use one analysis (for one-time purchase) - assigns it to a specific chat
+  static async useAnalysis(chatId: string): Promise<void> {
     try {
       const deviceId = await getDeviceId()
 
-      // Get active one-time purchase
+      // Get active one-time purchase without a chat_id assigned
       const { data: entitlements, error } = await supabase
         .from('user_entitlements')
         .select('*')
         .eq('device_id', deviceId)
         .eq('plan_id', 'one-time')
         .eq('status', 'active')
-        .gt('remaining_analyses', 0)
+        .is('chat_id', null)
         .order('created_at', { ascending: false })
         .limit(1)
 
@@ -116,21 +144,19 @@ export class PaymentService {
       }
 
       const entitlement = entitlements[0]
-      const newRemaining = (entitlement.remaining_analyses ?? 0) - 1
 
-      // Update remaining analyses
+      // Assign this entitlement to the chat
       const { error: updateError } = await supabase
         .from('user_entitlements')
         .update({ 
-          remaining_analyses: newRemaining,
-          status: newRemaining <= 0 ? 'used' : 'active'
+          chat_id: chatId,
         })
         .eq('id', entitlement.id)
 
       if (updateError) {
-        console.error('Error updating remaining analyses:', updateError)
+        console.error('Error assigning chat to entitlement:', updateError)
       } else {
-        console.log('✅ Analysis used, remaining:', newRemaining)
+        console.log('✅ Entitlement assigned to chat:', chatId)
       }
     } catch (error) {
       console.error('Error using analysis:', error)
@@ -187,6 +213,30 @@ export class PaymentService {
       }
     } catch (error) {
       console.error('Error clearing entitlement:', error)
+    }
+  }
+
+  // Reset entitlements for testing - reactivates 'used' entitlements
+  static async resetEntitlementsForTesting(): Promise<void> {
+    try {
+      const deviceId = await getDeviceId()
+      
+      const { error } = await supabase
+        .from('user_entitlements')
+        .update({ 
+          status: 'active',
+          chat_id: null,
+        })
+        .eq('device_id', deviceId)
+        .in('status', ['used', 'cancelled'])
+
+      if (error) {
+        console.error('Error resetting entitlements:', error)
+      } else {
+        console.log('🔄 Entitlements reset to active')
+      }
+    } catch (error) {
+      console.error('Error resetting entitlements:', error)
     }
   }
 

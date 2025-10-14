@@ -65,7 +65,7 @@ export default function ChatAnalysisScreen() {
 
   // Handle unlock insight - check access and show paywall or unlock
   const handleUnlockInsight = async (insightId: string) => {
-    const access = await PaymentService.hasAccess()
+    const access = await PaymentService.hasAccess(chatId)
 
     if (!access) {
       // No access - show paywall
@@ -90,13 +90,13 @@ export default function ChatAnalysisScreen() {
         if (analysis) {
           await updateChatAnalysis(chatId, analysis, insights)
         }
+
+        // Assign this one-time purchase to this specific chat
+        await PaymentService.useAnalysis(chatId)
       }
 
       // Mark this insight as unlocked
       setUnlockedInsights((prev) => new Set([...prev, insightId]))
-
-      // Use one analysis credit (for one-time purchases)
-      await PaymentService.useAnalysis()
     } catch (err) {
       console.error('Error unlocking insight:', err)
       Alert.alert('Error', 'Failed to unlock insight. Please try again.')
@@ -114,6 +114,7 @@ export default function ChatAnalysisScreen() {
       if (result.success) {
         // Payment successful - entitlement is now in database
         // No need to call grantAccess() - it's handled by the Edge Function
+
         setShowPaywall(false)
         setActiveTab('insights')
         Alert.alert('🎉 Payment Successful!', 'You now have access to AI insights')

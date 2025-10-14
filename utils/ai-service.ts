@@ -139,7 +139,33 @@ Focus on communication patterns, emotional dynamics, and relationship health ind
       throw new Error('No response from AI')
     }
 
-    const rawInsights: AIInsights = JSON.parse(text)
+    // Clean the text to extract JSON
+    let cleanText = text.trim()
+    
+    // Remove markdown code blocks if present
+    if (cleanText.startsWith('```json')) {
+      cleanText = cleanText.replace(/^```json\s*/, '').replace(/```\s*$/, '')
+    } else if (cleanText.startsWith('```')) {
+      cleanText = cleanText.replace(/^```\s*/, '').replace(/```\s*$/, '')
+    }
+    
+    // Try to find JSON object if text contains other content
+    const jsonMatch = cleanText.match(/\{[\s\S]*\}/)
+    if (jsonMatch) {
+      cleanText = jsonMatch[0]
+    }
+    
+    console.log('Attempting to parse JSON, length:', cleanText.length)
+
+    let rawInsights: AIInsights
+    try {
+      rawInsights = JSON.parse(cleanText)
+    } catch (parseError) {
+      console.error('JSON Parse error:', parseError)
+      console.error('Problematic text (first 500 chars):', cleanText.substring(0, 500))
+      console.error('Problematic text (last 500 chars):', cleanText.substring(Math.max(0, cleanText.length - 500)))
+      throw new Error(`Invalid JSON response from AI: ${parseError instanceof Error ? parseError.message : 'Parse failed'}`)
+    }
 
     // Normalize arrays to ensure they only contain strings
     const normalizeArray = (arr: any[]): string[] => {
