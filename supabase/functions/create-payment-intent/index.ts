@@ -6,12 +6,21 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 // @ts-ignore: Deno-specific imports
 import Stripe from 'https://esm.sh/stripe@14.21.0?target=deno'
+// @ts-ignore: Deno-specific imports
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3'
 
 // @ts-ignore: Deno global
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
   apiVersion: '2024-11-20.acacia',
   httpClient: Stripe.createFetchHttpClient(),
 })
+
+// Initialize Supabase client
+// @ts-ignore: Deno global
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+// @ts-ignore: Deno global
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -22,6 +31,7 @@ interface RequestBody {
   amount: number
   currency: string
   planId: string
+  deviceId: string
 }
 
 serve(async (req: Request) => {
@@ -32,11 +42,11 @@ serve(async (req: Request) => {
 
   try {
     const body = (await req.json()) as RequestBody
-    const { amount, currency, planId } = body
+    const { amount, currency, planId, deviceId } = body
 
     // Validate request body
-    if (!amount || !currency || !planId) {
-      throw new Error('Missing required fields: amount, currency, planId')
+    if (!amount || !currency || !planId || !deviceId) {
+      throw new Error('Missing required fields: amount, currency, planId, deviceId')
     }
 
     if (amount < 50) {
@@ -69,11 +79,51 @@ serve(async (req: Request) => {
 
     console.log('Payment intent created:', paymentIntent.id)
 
+    // Calculate expiration date based on plan
+    let expiresAt = null
+    let remainingAnalyses = 0
+    
+    if (planId === 'one-time') {
+      remainingAnalyses = 1
+    } else if (planId === 'weekly') {
+      const weekFromNow = new Date()
+      weekFromNow.setDate(weekFromNow.getDate() + 7)
+      expiresAt = weekFromNow.toISOString()
+    } else if (planId === 'monthly') {
+      const monthFromNow = new Date()
+      monthFromNow.setMonth(monthFromNow.getMonth() + 1)
+      expiresAt = monthFromNow.toISOString()
+    }
+
+    // Save entitlement to database
+    const { data: entitlement, error: dbError } = await supabase
+      .from('user_entitlements')
+      .insert({
+        device_id: deviceId,
+        plan_id: planId,
+        stripe_payment_intent_id: paymentIntent.id,
+        stripe_customer_id: customer.id,
+        status: 'active',
+        purchased_at: new Date().toISOString(),
+        expires_at: expiresAt,
+        remaining_analyses: remainingAnalyses,
+      })
+      .select()
+      .single()
+
+    if (dbError) {
+      console.error('Database error:', dbError)
+      throw new Error(`Failed to save entitlement: ${dbError.message}`)
+    }
+
+    console.log('Entitlement saved to database:', entitlement?.id)
+
     return new Response(
       JSON.stringify({
         paymentIntent: paymentIntent.client_secret,
         ephemeralKey: ephemeralKey.secret,
         customer: customer.id,
+        entitlementId: entitlement?.id,
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

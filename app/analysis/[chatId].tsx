@@ -94,6 +94,9 @@ export default function ChatAnalysisScreen() {
 
       // Mark this insight as unlocked
       setUnlockedInsights((prev) => new Set([...prev, insightId]))
+
+      // Use one analysis credit (for one-time purchases)
+      await PaymentService.useAnalysis()
     } catch (err) {
       console.error('Error unlocking insight:', err)
       Alert.alert('Error', 'Failed to unlock insight. Please try again.')
@@ -109,8 +112,8 @@ export default function ChatAnalysisScreen() {
       const result = await StripeService.initializePayment(planId)
 
       if (result.success) {
-        // Payment successful - grant access
-        await PaymentService.grantAccess(planId)
+        // Payment successful - entitlement is now in database
+        // No need to call grantAccess() - it's handled by the Edge Function
         setShowPaywall(false)
         setActiveTab('insights')
         Alert.alert('🎉 Payment Successful!', 'You now have access to AI insights')

@@ -1,6 +1,7 @@
 import { initPaymentSheet, presentPaymentSheet } from '@stripe/stripe-react-native'
 import { PAYMENT_PLANS } from './payment-service'
 import { supabase } from './supabase'
+import { getDeviceId } from './device-id'
 
 export interface StripePaymentResult {
   success: boolean
@@ -21,12 +22,16 @@ export class StripeService {
 
       console.log('Creating payment intent for plan:', plan.name, plan.price)
 
+      // Get device ID for user identification
+      const deviceId = await getDeviceId()
+
       // Call Supabase Edge Function to create payment intent
       const { data, error } = await supabase.functions.invoke('create-payment-intent', {
         body: {
           amount: Math.round(plan.price * 100), // Convert to cents
           currency: plan.currency.toLowerCase(),
           planId: plan.id,
+          deviceId,
         },
       })
 
