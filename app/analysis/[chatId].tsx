@@ -57,7 +57,6 @@ export default function ChatAnalysisScreen() {
   const [showPaywall, setShowPaywall] = useState(false)
   const [unlockedInsights, setUnlockedInsights] = useState<Set<string>>(new Set())
   const [loadingInsight, setLoadingInsight] = useState<string | null>(null)
-  const [hasAccessToChat, setHasAccessToChat] = useState(false)
 
   // Load unlocked insights from cached chat data
   useEffect(() => {
@@ -65,18 +64,6 @@ export default function ChatAnalysisScreen() {
       setUnlockedInsights(new Set(chat.unlockedInsights))
     }
   }, [chat])
-
-  // Check if user has access to this chat
-  useEffect(() => {
-    const checkAccess = async () => {
-      if (!chatId) return
-
-      const access = await PaymentService.hasAccess(chatId)
-      setHasAccessToChat(access)
-    }
-
-    checkAccess()
-  }, [chatId])
 
   // Helper to check if an insight should be shown as unlocked
   const isInsightUnlocked = (insightId: string): boolean => {
