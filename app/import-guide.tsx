@@ -1,26 +1,16 @@
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { Alert, Linking, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { useRouter } from 'expo-router'
+import { Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 export default function ImportGuideScreen() {
   const isIOS = Platform.OS === 'ios'
+  const router = useRouter()
 
-  const handleOpenWhatsApp = async () => {
-    try {
-      // Try to open WhatsApp directly
-      const url = Platform.OS === 'ios' ? 'whatsapp://' : 'whatsapp://send'
-      await Linking.openURL(url)
-    } catch (error) {
-      // If WhatsApp is not installed or cannot be opened
-      console.error('Error opening WhatsApp:', error)
-      Alert.alert(
-        'WhatsApp Not Found',
-        'WhatsApp is not installed on your device. Please install it from the app store first.',
-        [{ text: 'OK' }]
-      )
-    }
+  const handleGotIt = () => {
+    router.back()
   }
 
   return (
@@ -134,9 +124,9 @@ export default function ImportGuideScreen() {
 
           {/* CTA Button */}
           <View style={styles.ctaButtonContainer}>
-            <TouchableOpacity style={styles.ctaButton} onPress={handleOpenWhatsApp} activeOpacity={0.85}>
-              <MaterialCommunityIcons name="whatsapp" size={20} color="#FFFFFF" />
-              <ThemedText style={styles.ctaButtonText}>Open WhatsApp</ThemedText>
+            <TouchableOpacity style={styles.ctaButton} onPress={handleGotIt} activeOpacity={0.85}>
+              <ThemedText style={styles.ctaButtonText}>GOT IT</ThemedText>
+              <MaterialCommunityIcons name="thumb-up" size={20} color="#FFFFFF" />
             </TouchableOpacity>
           </View>
         </ScrollView>

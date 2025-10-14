@@ -2,6 +2,10 @@ import { DefaultTheme, ThemeProvider } from '@react-navigation/native'
 import { StripeProvider } from '@stripe/stripe-react-native'
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
+import { LogBox } from 'react-native'
+
+// Ignore Stripe keep awake warning (known development mode issue)
+LogBox.ignoreLogs(['No task registered for key StripeKeepJsAwakeTask', 'Unable to activate keep awake'])
 
 const STRIPE_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY || ''
 

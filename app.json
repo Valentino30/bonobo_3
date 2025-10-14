@@ -26,17 +26,7 @@
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.valentino30.bonobo3",
-      "versionCode": 1,
-      "intentFilters": [
-        {
-          "action": "VIEW",
-          "data": [
-            {
-              "scheme": "whatsapp"
-            }
-          ]
-        }
-      ]
+      "versionCode": 1
     },
     "web": {
       "output": "static",
