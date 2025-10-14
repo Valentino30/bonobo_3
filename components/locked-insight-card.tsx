@@ -49,7 +49,7 @@ export function LockedInsightCard({ title, icon, badge, onUnlock, isLoading, unl
             disabled={isLoading}
             activeOpacity={0.85}
           >
-            <Text style={styles.unlockButtonText}>{isLoading ? 'GENERATING...' : 'UNLOCK WITH AI'}</Text>
+            <Text style={styles.unlockButtonText}>{isLoading ? 'UNLOCKING...' : 'UNLOCK WITH AI'}</Text>
             <MaterialCommunityIcons name="auto-fix" size={18} color="#FFFFFF" />
           </TouchableOpacity>
         </View>

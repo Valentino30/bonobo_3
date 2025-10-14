@@ -60,9 +60,9 @@ export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStep])
 
-  // Step advancement - each step shows for exactly 2000ms
+  // Step advancement - each step shows for exactly 1000ms
   useEffect(() => {
-    const STEP_DURATION = 2000
+    const STEP_DURATION = 1000
 
     if (currentStep < STEPS.length - 1) {
       console.log('AnalysisLoading: advancing to step', currentStep + 1)
