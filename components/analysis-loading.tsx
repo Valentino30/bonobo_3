@@ -1,85 +1,112 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useEffect, useState } from 'react'
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native'
+import { Animated, Easing, StyleSheet, Text, View } from 'react-native'
 
 const STEPS = [
   {
-    title: 'ANALYZING CHAT',
-    subtitle: 'Processing messages',
+    title: 'Reading Messages',
+    subtitle: 'Parsing conversation data',
+    icon: 'message-text' as const,
   },
   {
-    title: 'EXTRACTING STATS',
-    subtitle: 'Calculating metrics',
+    title: 'Calculating Stats',
+    subtitle: 'Analyzing patterns',
+    icon: 'chart-line' as const,
   },
   {
-    title: 'FINDING PATTERNS',
-    subtitle: 'Analyzing behavior',
-  },
-  {
-    title: 'FINALIZING',
-    subtitle: 'Preparing report',
+    title: 'Building Report',
+    subtitle: 'Finalizing insights',
+    icon: 'file-document' as const,
   },
 ]
 
 export function AnalysisLoading() {
   const [currentStep, setCurrentStep] = useState(0)
+  const [pulseAnim] = useState(new Animated.Value(1))
+  const [progressAnim] = useState(new Animated.Value(0))
 
+  // Pulse animation for the icon
   useEffect(() => {
-    // Don't advance if we're already on the last step
+    const pulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.15,
+          duration: 800,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 800,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ])
+    )
+    pulse.start()
+    return () => pulse.stop()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Progress animation
+  useEffect(() => {
+    Animated.timing(progressAnim, {
+      toValue: (currentStep + 1) / STEPS.length,
+      duration: 500,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: false,
+    }).start()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStep])
+
+  // Step advancement
+  useEffect(() => {
     if (currentStep >= STEPS.length - 1) {
       return
     }
 
-    // Use setTimeout to advance to the next step after 1 second
     const timeout = setTimeout(() => {
       setCurrentStep(currentStep + 1)
-    }, 1000)
+    }, 1500)
 
     return () => clearTimeout(timeout)
   }, [currentStep])
 
+  const progressWidth = progressAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0%', '100%'],
+  })
+
   return (
     <View style={styles.container}>
-      {/* Current Step Info */}
-      <View style={styles.stepNumberContainer}>
-        <Text style={styles.stepNumber}>
-          STEP {currentStep + 1} OF {STEPS.length}
-        </Text>
-      </View>
+      {/* Main Content Card */}
+      <View style={styles.card}>
+        {/* Animated Icon */}
+        <Animated.View style={[styles.iconContainer, { transform: [{ scale: pulseAnim }] }]}>
+          <MaterialCommunityIcons name={STEPS[currentStep].icon} size={56} color="#6B8E5A" />
+        </Animated.View>
 
-      {/* Progress Steps */}
-      <View style={styles.progressContainer}>
-        {STEPS.map((step, index) => (
-          <View key={index} style={styles.stepItem}>
-            <View style={[styles.stepDot, index <= currentStep && styles.stepDotActive]} />
-            {index < STEPS.length - 1 && (
-              <View style={[styles.stepLine, index < currentStep && styles.stepLineActive]} />
-            )}
-          </View>
-        ))}
-      </View>
-
-      {/* Loading Spinner */}
-      <View style={styles.spinnerContainer}>
-        <ActivityIndicator size="large" color="#6B8E5A" />
-      </View>
-
-      {/* Title and Subtitle */}
-      <View style={styles.textContainer}>
-        <Text style={styles.title}>{STEPS[currentStep].title}</Text>
-        <Text style={styles.subtitle}>{STEPS[currentStep].subtitle}</Text>
-      </View>
-
-      {/* Privacy Notice */}
-      <View style={styles.privacySection}>
-        <View style={styles.privacyHeader}>
-          <MaterialCommunityIcons name="shield-check" size={20} color="#6B8E5A" />
-          <Text style={styles.privacyTitle}>Your Privacy Matters</Text>
+        {/* Title and Subtitle */}
+        <View style={styles.textContainer}>
+          <Text style={styles.title}>{STEPS[currentStep].title}</Text>
+          <Text style={styles.subtitle}>{STEPS[currentStep].subtitle}</Text>
         </View>
-        <Text style={styles.privacyText}>
-          All chat data is stored securely on your device. We never upload your conversations to our servers. AI
-          analysis is performed using encrypted requests.
-        </Text>
+
+        {/* Progress Bar */}
+        <View style={styles.progressBarContainer}>
+          <View style={styles.progressBarBackground}>
+            <Animated.View style={[styles.progressBarFill, { width: progressWidth }]} />
+          </View>
+          <Text style={styles.progressText}>
+            {currentStep + 1} of {STEPS.length}
+          </Text>
+        </View>
+      </View>
+
+      {/* Bottom Tip */}
+      <View style={styles.tipContainer}>
+        <MaterialCommunityIcons name="lightbulb-on-outline" size={18} color="#6B8E5A" />
+        <Text style={styles.tipText}>This usually takes 5-10 seconds</Text>
       </View>
     </View>
   )
@@ -90,102 +117,93 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
     backgroundColor: '#FAFAFA',
   },
-  stepNumberContainer: {
-    marginBottom: 24,
-    alignItems: 'center',
-  },
-  stepNumber: {
-    fontSize: 11,
-    fontWeight: '500',
-    color: '#6B8E5A',
-    letterSpacing: 1.2,
-  },
-  progressContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 48,
+  card: {
     width: '100%',
-  },
-  stepItem: {
-    flexDirection: 'row',
+    maxWidth: 400,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 32,
     alignItems: 'center',
-    maxWidth: 60,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
   },
-  stepDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#E0E0E0',
-    borderWidth: 1.5,
-    borderColor: '#E0E0E0',
-  },
-  stepDotActive: {
-    backgroundColor: '#6B8E5A',
-    borderColor: '#6B8E5A',
-  },
-  stepLine: {
-    flex: 1,
-    height: 1.5,
-    backgroundColor: '#E0E0E0',
-    marginHorizontal: 4,
-  },
-  stepLineActive: {
-    backgroundColor: '#6B8E5A',
-  },
-  spinnerContainer: {
-    marginBottom: 32,
+  iconContainer: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: '#F5F9F3',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+    borderWidth: 2,
+    borderColor: '#D5E3CE',
   },
   textContainer: {
     alignItems: 'center',
-    width: '100%',
-    maxWidth: 300,
-    paddingHorizontal: 20,
+    marginBottom: 32,
   },
   title: {
-    fontSize: 18,
-    fontWeight: '500',
+    fontSize: 20,
+    fontWeight: '600',
     color: '#1A1A1A',
     marginBottom: 6,
     textAlign: 'center',
-    letterSpacing: 0.5,
+    letterSpacing: 0.3,
   },
   subtitle: {
-    fontSize: 13,
-    fontWeight: '300',
+    fontSize: 14,
+    fontWeight: '400',
     color: '#999999',
     textAlign: 'center',
     letterSpacing: 0.2,
   },
-  privacySection: {
-    marginTop: 40,
-    marginHorizontal: 20,
-    padding: 16,
-    backgroundColor: '#F5F9F3',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#D5E3CE',
-    maxWidth: 400,
+  progressBarContainer: {
+    width: '100%',
+    alignItems: 'center',
+    gap: 10,
   },
-  privacyHeader: {
+  progressBarBackground: {
+    width: '100%',
+    height: 6,
+    backgroundColor: '#F0F0F0',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: '#6B8E5A',
+    borderRadius: 3,
+  },
+  progressText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#6B8E5A',
+    letterSpacing: 0.5,
+  },
+  tipContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
-    justifyContent: 'center',
+    gap: 8,
+    marginTop: 24,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: '#F5F9F3',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#D5E3CE',
   },
-  privacyTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#6B8E5A',
-    marginLeft: 6,
-  },
-  privacyText: {
-    fontSize: 12,
-    lineHeight: 18,
+  tipText: {
+    fontSize: 13,
+    fontWeight: '500',
     color: '#5C6B63',
-    textAlign: 'center',
+    letterSpacing: 0.2,
   },
 })
