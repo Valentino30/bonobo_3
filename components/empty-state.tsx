@@ -1,6 +1,8 @@
 import { InstructionContainer } from '@/components/instruction-container'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { useRouter } from 'expo-router'
 import { StyleSheet, TouchableOpacity } from 'react-native'
 
 interface EmptyStateProps {
@@ -20,6 +22,8 @@ export function EmptyState({
   onManualImport,
   onClearShareData,
 }: EmptyStateProps) {
+  const router = useRouter()
+
   return (
     <ThemedView style={styles.emptyState}>
       <ThemedView style={styles.emptyIconContainer}>
@@ -37,12 +41,24 @@ export function EmptyState({
       )}
 
       {!hasShareData && (
-        <InstructionContainer
-          showPlatform={showPlatform}
-          manualInput={manualInput}
-          setManualInput={setManualInput}
-          onManualImport={onManualImport}
-        />
+        <>
+          {/* How to Import Button */}
+          <TouchableOpacity
+            style={styles.howToButton}
+            onPress={() => router.push('/import-guide' as any)}
+            activeOpacity={0.85}
+          >
+            <MaterialCommunityIcons name="help-circle-outline" size={20} color="#6B8E5A" />
+            <ThemedText style={styles.howToButtonText}>How to Import from WhatsApp</ThemedText>
+          </TouchableOpacity>
+
+          <InstructionContainer
+            showPlatform={showPlatform}
+            manualInput={manualInput}
+            setManualInput={setManualInput}
+            onManualImport={onManualImport}
+          />
+        </>
       )}
     </ThemedView>
   )
@@ -100,5 +116,23 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     fontSize: 14,
     letterSpacing: 0.3,
+  },
+  howToButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F9F3',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: '#D5E3CE',
+    gap: 8,
+  },
+  howToButtonText: {
+    color: '#6B8E5A',
+    fontWeight: '600',
+    fontSize: 14,
+    letterSpacing: 0.2,
   },
 })

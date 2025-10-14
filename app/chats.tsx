@@ -6,6 +6,7 @@ import { useShareIntent } from '@/hooks/use-share-intent'
 import { type StoredChat } from '@/utils/chat-storage'
 import { parseWhatsAppChat } from '@/utils/whatsapp-parser'
 import { extractWhatsAppZip } from '@/utils/zip-extractor'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { Link, useLocalSearchParams, useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { Alert, Platform, StyleSheet, TouchableOpacity } from 'react-native'
@@ -223,9 +224,10 @@ export default function ChatsScreen() {
           onClearShareData={clearShareData}
         />
 
-        <Link href="/" asChild>
-          <TouchableOpacity style={styles.button}>
-            <ThemedText style={styles.buttonText}>Back to Home</ThemedText>
+        <Link href={'/import-guide' as any} asChild>
+          <TouchableOpacity style={styles.importButton}>
+            <MaterialCommunityIcons name="whatsapp" size={20} color="#FFFFFF" />
+            <ThemedText style={styles.importButtonText}>Import Chat</ThemedText>
           </TouchableOpacity>
         </Link>
       </ThemedView>
@@ -262,5 +264,30 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     fontSize: 14,
     letterSpacing: 0.3,
+  },
+  importButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+    marginBottom: 20,
+    marginHorizontal: 20,
+    paddingVertical: 16,
+    backgroundColor: '#6B8E5A',
+    borderRadius: 12,
+    width: '90%',
+    alignSelf: 'center',
+    gap: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  importButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 16,
+    letterSpacing: 0.5,
   },
 })

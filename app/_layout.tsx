@@ -12,9 +12,10 @@ export default function RootLayout() {
         <Stack>
           <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="chats" options={{ headerShown: false }} />
+          <Stack.Screen name="import-guide" options={{ headerShown: false }} />
           <Stack.Screen name="analysis/[chatId]" options={{ headerShown: false }} />
         </Stack>
-        <StatusBar style="auto" />
+        <StatusBar style="dark" />
       </ThemeProvider>
     </StripeProvider>
   )
