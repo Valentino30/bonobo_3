@@ -1,6 +1,7 @@
 import { AnalysisLoading } from '@/components/analysis-loading'
 import { ComparisonCard } from '@/components/comparison-card'
 import { InsightCard } from '@/components/insight-card'
+import { LoadingScreen } from '@/components/loading-screen'
 import { LockedInsightCard } from '@/components/locked-insight-card'
 import { Paywall } from '@/components/paywall'
 import { SimpleStatCard } from '@/components/simple-stat-card'
@@ -9,10 +10,9 @@ import { ThemedView } from '@/components/themed-view'
 import { usePersistedChats } from '@/hooks/use-persisted-chats'
 import { PaymentService } from '@/utils/payment-service'
 import { StripeService } from '@/utils/stripe-service'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { Link, useLocalSearchParams, useRouter } from 'expo-router'
 import { useEffect, useRef, useState } from 'react'
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { Alert, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { analyzeChat, type AIInsights } from '../../utils/ai-service'
 import { analyzeChatData } from '../../utils/chat-analyzer'
@@ -264,16 +264,7 @@ export default function ChatAnalysisScreen() {
   if (chatsLoading || !initialized) {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.initialLoadingContainer}>
-          <View style={styles.loadingCard}>
-            <View style={styles.loadingIconContainer}>
-              <MaterialCommunityIcons name="database-sync" size={48} color="#6B8E5A" />
-            </View>
-            <ThemedText style={styles.loadingTitle}>Loading Chat</ThemedText>
-            <ThemedText style={styles.loadingSubtitle}>Fetching your data...</ThemedText>
-            <ActivityIndicator size="large" color="#6B8E5A" style={styles.loadingSpinner} />
-          </View>
-        </View>
+        <LoadingScreen icon="database-sync" title="Loading Analysis" subtitle="Fetching your data..." />
       </SafeAreaView>
     )
   }
@@ -673,58 +664,6 @@ const styles = StyleSheet.create({
     paddingVertical: 60,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  initialLoadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-    backgroundColor: '#FAFAFA',
-  },
-  loadingCard: {
-    width: '100%',
-    maxWidth: 400,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 40,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
-    borderWidth: 1,
-    borderColor: '#F0F0F0',
-  },
-  loadingIconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#F5F9F3',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
-    borderWidth: 2,
-    borderColor: '#D5E3CE',
-  },
-  loadingTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1A1A1A',
-    marginBottom: 8,
-    textAlign: 'center',
-    letterSpacing: 0.3,
-  },
-  loadingSubtitle: {
-    fontSize: 14,
-    fontWeight: '400',
-    color: '#999999',
-    textAlign: 'center',
-    letterSpacing: 0.2,
-    marginBottom: 24,
-  },
-  loadingSpinner: {
-    marginTop: 8,
   },
   loadingText: {
     textAlign: 'center',

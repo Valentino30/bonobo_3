@@ -1,4 +1,5 @@
 import { ChatList } from '@/components/chat-list'
+import { LoadingScreen } from '@/components/loading-screen'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { usePersistedChats } from '@/hooks/use-persisted-chats'
@@ -15,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 export default function ChatsScreen() {
   const { shareData, hasShareData, clearShareData } = useShareIntent()
   const { device } = useLocalSearchParams<{ device?: string }>()
-  const { chats, addChat: persistAddChat, deleteChat } = usePersistedChats()
+  const { chats, addChat: persistAddChat, deleteChat, isLoading } = usePersistedChats()
   const [manualInput, setManualInput] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
   const router = useRouter()
@@ -203,6 +204,20 @@ export default function ChatsScreen() {
   const handleAnalyzeChat = (chatId: string) => {
     // Use string interpolation for dynamic route
     router.push(`/analysis/${chatId}` as any)
+  }
+
+  // Show loading screen while chats are being loaded
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <ThemedView style={styles.container}>
+          <ThemedText type="title" style={styles.title}>
+            My Chats
+          </ThemedText>
+          <LoadingScreen icon="database-search" title="Loading Chats" subtitle="Fetching your conversations..." />
+        </ThemedView>
+      </SafeAreaView>
+    )
   }
 
   return (
