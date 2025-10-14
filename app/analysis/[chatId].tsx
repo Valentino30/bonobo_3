@@ -14,6 +14,7 @@ import { Link, useLocalSearchParams, useRouter } from 'expo-router'
 import { useEffect, useRef, useState } from 'react'
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { analyzeChat, type AIInsights } from '../../utils/ai-service'
 import { analyzeChatData } from '../../utils/chat-analyzer'
 
@@ -346,13 +347,29 @@ export default function ChatAnalysisScreen() {
             style={[styles.tab, activeTab === 'overview' && styles.tabActive]}
             onPress={() => handleTabChange('overview')}
           >
-            <ThemedText style={[styles.tabText, activeTab === 'overview' && styles.tabTextActive]}>Overview</ThemedText>
+            <View style={styles.tabContent}>
+              <MaterialCommunityIcons
+                name="chart-box-outline"
+                size={16}
+                color={activeTab === 'overview' ? '#FFFFFF' : '#999999'}
+                style={styles.tabIcon}
+              />
+              <ThemedText style={[styles.tabText, activeTab === 'overview' && styles.tabTextActive]}>Overview</ThemedText>
+            </View>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.tab, activeTab === 'insights' && styles.tabActive]}
             onPress={() => handleTabChange('insights')}
           >
-            <ThemedText style={[styles.tabText, activeTab === 'insights' && styles.tabTextActive]}>Insights</ThemedText>
+            <View style={styles.tabContent}>
+              <MaterialCommunityIcons
+                name="auto-fix"
+                size={16}
+                color={activeTab === 'insights' ? '#FFFFFF' : '#999999'}
+                style={styles.tabIcon}
+              />
+              <ThemedText style={[styles.tabText, activeTab === 'insights' && styles.tabTextActive]}>Insights</ThemedText>
+            </View>
           </TouchableOpacity>
         </View>
       </View>
@@ -658,6 +675,15 @@ const styles = StyleSheet.create({
   },
   tabActive: {
     backgroundColor: '#6B8E5A',
+  },
+  tabContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  tabIcon: {
+    marginRight: 2,
   },
   tabText: {
     fontSize: 14,
