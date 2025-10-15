@@ -158,7 +158,10 @@ export default function ChatAnalysisScreen() {
       console.log('🎉 Unlock complete!')
     } catch (err) {
       console.error('❌ Error Unlocking Insight:', err)
-      showAlert('Failed to Unlock Insight', 'Don\'t worry, this can happen sometimes due to the AI being overloaded. Simply try again in a few seconds.')
+      showAlert(
+        'Failed to Unlock Insight',
+        "Don't worry, this can happen sometimes due to the AI being overloaded. Simply try again in a few seconds."
+      )
     } finally {
       setLoadingInsight(null)
     }
@@ -655,10 +658,6 @@ export default function ChatAnalysisScreen() {
               )}
             </View>
           )}
-
-          <TouchableOpacity style={styles.button} onPress={() => router.back()}>
-            <ThemedText style={styles.buttonText}>Back to Chats</ThemedText>
-          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
