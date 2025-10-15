@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInput,
-  Alert,
   ActivityIndicator,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -13,12 +12,20 @@ import { useRouter } from 'expo-router'
 import { ThemedText } from '@/components/themed-text'
 import { AuthService } from '@/utils/auth-service'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { useCustomAlert } from '@/components/custom-alert'
 
 export default function ProfileScreen() {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const { showAlert, AlertComponent } = useCustomAlert()
+
+  // Login state
+  const [loginEmail, setLoginEmail] = useState('')
+  const [loginPassword, setLoginPassword] = useState('')
+  const [showLoginPassword, setShowLoginPassword] = useState(false)
+  const [isLoggingIn, setIsLoggingIn] = useState(false)
 
   // Password change state
   const [showPasswordChange, setShowPasswordChange] = useState(false)
@@ -37,12 +44,9 @@ export default function ProfileScreen() {
     const user = await AuthService.getCurrentUser()
 
     if (!user || !user.email) {
-      // Not authenticated - redirect to chats
-      Alert.alert(
-        'Not Authenticated',
-        'Please create an account after making a purchase to access your profile.',
-        [{ text: 'OK', onPress: () => router.replace('/chats') }]
-      )
+      // Not authenticated - show login screen
+      setIsAuthenticated(false)
+      setIsLoading(false)
       return
     }
 
@@ -51,19 +55,39 @@ export default function ProfileScreen() {
     setIsLoading(false)
   }
 
+  const handleLogin = async () => {
+    if (!loginEmail || !loginPassword) {
+      showAlert('Missing Information', 'Please enter your email and password', [{ text: 'OK' }])
+      return
+    }
+
+    setIsLoggingIn(true)
+
+    const result = await AuthService.signInWithEmail(loginEmail, loginPassword)
+
+    setIsLoggingIn(false)
+
+    if (result.success) {
+      // Successfully logged in - redirect to chats and force reload
+      router.replace('/chats?reload=true')
+    } else {
+      showAlert('Login Failed', result.error || 'Failed to login', [{ text: 'OK' }])
+    }
+  }
+
   const handleChangePassword = async () => {
     if (!newPassword || !confirmPassword) {
-      Alert.alert('Error', 'Please fill in all password fields')
+      showAlert('Missing Information', 'Please fill in all password fields', [{ text: 'OK' }])
       return
     }
 
     if (newPassword.length < 8) {
-      Alert.alert('Error', 'Password must be at least 8 characters')
+      showAlert('Password Too Short', 'Password must be at least 8 characters', [{ text: 'OK' }])
       return
     }
 
     if (newPassword !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match')
+      showAlert('Password Mismatch', 'Passwords do not match', [{ text: 'OK' }])
       return
     }
 
@@ -74,29 +98,27 @@ export default function ProfileScreen() {
     setIsChangingPassword(false)
 
     if (result.success) {
-      Alert.alert('Success', 'Your password has been updated successfully')
+      showAlert('Password Updated', 'Your password has been updated successfully', [{ text: 'Great!' }])
       setShowPasswordChange(false)
       setNewPassword('')
       setConfirmPassword('')
     } else {
-      Alert.alert('Error', result.error || 'Failed to update password')
+      showAlert('Update Failed', result.error || 'Failed to update password', [{ text: 'OK' }])
     }
   }
 
   const handleLogout = () => {
-    Alert.alert('Logout', 'Are you sure you want to logout?', [
-      { text: 'Cancel', style: 'cancel' },
+    showAlert('Logout', 'Are you sure you want to logout?', [
+      { text: 'Cancel' },
       {
         text: 'Logout',
-        style: 'destructive',
         onPress: async () => {
           const result = await AuthService.signOut()
           if (result.success) {
-            Alert.alert('Logged Out', 'You have been logged out successfully', [
-              { text: 'OK', onPress: () => router.replace('/chats') },
-            ])
+            // Redirect to chats and force reload (will show empty state since user logged out)
+            router.replace('/chats?reload=true')
           } else {
-            Alert.alert('Error', result.error || 'Failed to logout')
+            showAlert('Error', result.error || 'Failed to logout', [{ text: 'OK' }])
           }
         },
       },
@@ -104,42 +126,42 @@ export default function ProfileScreen() {
   }
 
   const handleDeleteAccount = () => {
-    Alert.alert(
+    showAlert(
       'Delete Account',
       'This will permanently delete your account and ALL associated data including chats, purchases, and insights. This action CANNOT be undone.',
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: 'Cancel' },
         {
           text: 'Delete',
-          style: 'destructive',
           onPress: () => {
-            // Second confirmation
-            Alert.alert(
-              'Are You Absolutely Sure?',
-              'This is your last chance to cancel. All your data will be permanently deleted.',
-              [
-                { text: 'Cancel', style: 'cancel' },
-                {
-                  text: 'Delete Everything',
-                  style: 'destructive',
-                  onPress: async () => {
-                    setIsLoading(true)
-                    const result = await AuthService.deleteAccount()
-                    setIsLoading(false)
+            // Add delay before showing second confirmation to allow first alert to close
+            setTimeout(() => {
+              showAlert(
+                'Are You Absolutely Sure?',
+                'This is your last chance to cancel. All your data will be permanently deleted.',
+                [
+                  { text: 'Cancel' },
+                  {
+                    text: 'Delete Everything',
+                    onPress: async () => {
+                      setIsLoading(true)
+                      const result = await AuthService.deleteAccount()
+                      setIsLoading(false)
 
-                    if (result.success) {
-                      Alert.alert(
-                        'Account Deleted',
-                        'Your account and all data have been permanently deleted.',
-                        [{ text: 'OK', onPress: () => router.replace('/chats') }]
-                      )
-                    } else {
-                      Alert.alert('Error', result.error || 'Failed to delete account')
-                    }
+                      if (result.success) {
+                        showAlert(
+                          'Account Deleted',
+                          'Your account and all data have been permanently deleted.',
+                          [{ text: 'OK', onPress: () => router.replace('/chats?reload=true') }]
+                        )
+                      } else {
+                        showAlert('Error', result.error || 'Failed to delete account', [{ text: 'OK' }])
+                      }
+                    },
                   },
-                },
-              ]
-            )
+                ]
+              )
+            }, 300)
           },
         },
       ]
@@ -151,66 +173,161 @@ export default function ProfileScreen() {
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#6B8E5A" />
-          <ThemedText style={styles.loadingText}>Loading profile...</ThemedText>
         </View>
       </SafeAreaView>
     )
   }
 
   if (!isAuthenticated) {
-    return null // Will redirect via useEffect
+    // Show login screen
+    return (
+      <SafeAreaView style={styles.container}>
+        <AlertComponent />
+
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Header with Back Button */}
+          <View style={styles.header}>
+            <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+              <MaterialCommunityIcons name="chevron-left" size={24} color="#6B8E5A" />
+            </TouchableOpacity>
+            <ThemedText type="title" style={styles.title}>
+              Login
+            </ThemedText>
+          </View>
+
+          {/* Login Form */}
+          <View style={styles.section}>
+            <View style={styles.loginCard}>
+              <View style={styles.loginHeader}>
+                <MaterialCommunityIcons name="login-variant" size={18} color="#6B8E5A" />
+                <ThemedText style={styles.loginHeaderText}>Welcome Back</ThemedText>
+              </View>
+
+              <View style={styles.loginForm}>
+                {/* Email Input */}
+                <View style={styles.inputGroup}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Email address"
+                    placeholderTextColor="#CCCCCC"
+                    value={loginEmail}
+                    onChangeText={setLoginEmail}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    keyboardType="email-address"
+                  />
+                </View>
+
+                {/* Password Input */}
+                <View style={styles.inputGroup}>
+                  <View style={styles.passwordContainer}>
+                    <TextInput
+                      style={styles.passwordInput}
+                      placeholder="Password"
+                      placeholderTextColor="#CCCCCC"
+                      value={loginPassword}
+                      onChangeText={setLoginPassword}
+                      secureTextEntry={!showLoginPassword}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                    />
+                    <TouchableOpacity
+                      style={styles.showPasswordButton}
+                      onPress={() => setShowLoginPassword(!showLoginPassword)}
+                    >
+                      <MaterialCommunityIcons
+                        name={showLoginPassword ? 'eye-off-outline' : 'eye-outline'}
+                        size={18}
+                        color="#999999"
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                {/* Login Button */}
+                <TouchableOpacity
+                  style={[styles.button, styles.buttonPrimary, isLoggingIn && styles.buttonDisabled]}
+                  onPress={handleLogin}
+                  disabled={isLoggingIn}
+                >
+                  {isLoggingIn ? (
+                    <ActivityIndicator color="#FFFFFF" size="small" />
+                  ) : (
+                    <ThemedText style={styles.buttonText}>Login</ThemedText>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+
+          {/* Info Text */}
+          <View style={styles.section}>
+            <ThemedText style={styles.infoText}>
+              Don&apos;t have an account? Create one after making a purchase to save your insights.
+            </ThemedText>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    )
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container}>
+      <AlertComponent />
+
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
+        {/* Header with Back Button */}
         <View style={styles.header}>
-          <View style={styles.profileIcon}>
-            <MaterialCommunityIcons name="account-circle" size={80} color="#6B8E5A" />
-          </View>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+            <MaterialCommunityIcons name="chevron-left" size={24} color="#6B8E5A" />
+          </TouchableOpacity>
           <ThemedText type="title" style={styles.title}>
-            Your Profile
+            My Profile
           </ThemedText>
         </View>
 
         {/* Email Section */}
         <View style={styles.section}>
-          <ThemedText style={styles.sectionTitle}>Account Information</ThemedText>
           <View style={styles.card}>
-            <View style={styles.infoRow}>
-              <MaterialCommunityIcons name="email" size={20} color="#666666" />
-              <View style={styles.infoContent}>
-                <ThemedText style={styles.infoLabel}>Email Address</ThemedText>
-                <ThemedText style={styles.infoValue}>{email}</ThemedText>
-              </View>
+            <View style={styles.cardHeader}>
+              <MaterialCommunityIcons name="email-outline" size={20} color="#6B8E5A" />
+              <ThemedText style={styles.cardLabel}>Email</ThemedText>
             </View>
+            <ThemedText style={styles.cardValue}>{email}</ThemedText>
           </View>
         </View>
 
         {/* Password Change Section */}
         <View style={styles.section}>
-          <ThemedText style={styles.sectionTitle}>Security</ThemedText>
           {!showPasswordChange ? (
-            <TouchableOpacity style={styles.button} onPress={() => setShowPasswordChange(true)}>
-              <MaterialCommunityIcons name="lock-reset" size={20} color="#FFFFFF" style={styles.buttonIcon} />
-              <ThemedText style={styles.buttonText}>Change Password</ThemedText>
+            <TouchableOpacity style={styles.actionButton} onPress={() => setShowPasswordChange(true)}>
+              <MaterialCommunityIcons name="lock-outline" size={20} color="#6B8E5A" />
+              <ThemedText style={styles.actionButtonText}>Change Password</ThemedText>
+              <MaterialCommunityIcons name="chevron-right" size={20} color="#CCCCCC" />
             </TouchableOpacity>
           ) : (
-            <View style={styles.card}>
+            <View style={styles.passwordCard}>
+              <View style={styles.passwordHeader}>
+                <MaterialCommunityIcons name="lock-outline" size={18} color="#6B8E5A" />
+                <ThemedText style={styles.passwordHeaderText}>Update Password</ThemedText>
+              </View>
+
               <View style={styles.passwordForm}>
                 {/* New Password */}
                 <View style={styles.inputGroup}>
-                  <ThemedText style={styles.label}>New Password</ThemedText>
                   <View style={styles.passwordContainer}>
                     <TextInput
                       style={styles.passwordInput}
-                      placeholder="Minimum 8 characters"
-                      placeholderTextColor="#999999"
+                      placeholder="New password (min. 8 characters)"
+                      placeholderTextColor="#CCCCCC"
                       value={newPassword}
                       onChangeText={setNewPassword}
                       secureTextEntry={!showPassword}
@@ -222,9 +339,9 @@ export default function ProfileScreen() {
                       onPress={() => setShowPassword(!showPassword)}
                     >
                       <MaterialCommunityIcons
-                        name={showPassword ? 'eye-off' : 'eye'}
-                        size={20}
-                        color="#666666"
+                        name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                        size={18}
+                        color="#999999"
                       />
                     </TouchableOpacity>
                   </View>
@@ -232,11 +349,10 @@ export default function ProfileScreen() {
 
                 {/* Confirm Password */}
                 <View style={styles.inputGroup}>
-                  <ThemedText style={styles.label}>Confirm New Password</ThemedText>
                   <TextInput
                     style={styles.input}
-                    placeholder="Re-enter your new password"
-                    placeholderTextColor="#999999"
+                    placeholder="Confirm new password"
+                    placeholderTextColor="#CCCCCC"
                     value={confirmPassword}
                     onChangeText={setConfirmPassword}
                     secureTextEntry={!showPassword}
@@ -256,7 +372,7 @@ export default function ProfileScreen() {
                     }}
                     disabled={isChangingPassword}
                   >
-                    <ThemedText style={[styles.buttonText, styles.buttonTextSecondary]}>Cancel</ThemedText>
+                    <ThemedText style={styles.buttonTextSecondary}>Cancel</ThemedText>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[styles.button, styles.buttonPrimary, isChangingPassword && styles.buttonDisabled]}
@@ -264,9 +380,9 @@ export default function ProfileScreen() {
                     disabled={isChangingPassword}
                   >
                     {isChangingPassword ? (
-                      <ActivityIndicator color="#FFFFFF" />
+                      <ActivityIndicator color="#FFFFFF" size="small" />
                     ) : (
-                      <ThemedText style={styles.buttonText}>Update Password</ThemedText>
+                      <ThemedText style={styles.buttonText}>Update</ThemedText>
                     )}
                   </TouchableOpacity>
                 </View>
@@ -275,38 +391,30 @@ export default function ProfileScreen() {
           )}
         </View>
 
-        {/* Logout Section */}
+        {/* Logout Button */}
         <View style={styles.section}>
-          <TouchableOpacity style={[styles.button, styles.buttonLogout]} onPress={handleLogout}>
-            <MaterialCommunityIcons name="logout" size={20} color="#FFFFFF" style={styles.buttonIcon} />
-            <ThemedText style={styles.buttonText}>Logout</ThemedText>
+          <TouchableOpacity style={styles.actionButton} onPress={handleLogout}>
+            <MaterialCommunityIcons name="logout-variant" size={20} color="#6B8E5A" />
+            <ThemedText style={styles.actionButtonText}>Logout</ThemedText>
+            <MaterialCommunityIcons name="chevron-right" size={20} color="#CCCCCC" />
           </TouchableOpacity>
         </View>
 
         {/* Delete Account Section */}
         <View style={styles.section}>
-          <ThemedText style={styles.sectionTitle}>Danger Zone</ThemedText>
           <View style={styles.dangerCard}>
-            <View style={styles.dangerInfo}>
-              <MaterialCommunityIcons name="alert-circle" size={24} color="#D32F2F" />
-              <View style={styles.dangerTextContainer}>
-                <ThemedText style={styles.dangerTitle}>Delete Account</ThemedText>
-                <ThemedText style={styles.dangerDescription}>
-                  Permanently delete your account and all associated data. This action cannot be undone.
-                </ThemedText>
-              </View>
+            <View style={styles.dangerHeader}>
+              <MaterialCommunityIcons name="alert-circle-outline" size={20} color="#C62828" />
+              <ThemedText style={styles.dangerTitle}>Danger Zone</ThemedText>
             </View>
+            <ThemedText style={styles.dangerDescription}>
+              Permanently delete your account and all data. This cannot be undone.
+            </ThemedText>
             <TouchableOpacity style={styles.buttonDanger} onPress={handleDeleteAccount}>
-              <MaterialCommunityIcons name="delete-forever" size={20} color="#FFFFFF" style={styles.buttonIcon} />
-              <ThemedText style={styles.buttonText}>Delete My Account</ThemedText>
+              <ThemedText style={styles.buttonDangerText}>Delete Account</ThemedText>
             </TouchableOpacity>
           </View>
         </View>
-
-        {/* Back Button */}
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <ThemedText style={styles.backButtonText}>Back to Chats</ThemedText>
-        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   )
@@ -327,106 +435,113 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
-  },
-  loadingText: {
-    marginTop: 16,
-    color: '#666666',
   },
   header: {
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 32,
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    paddingBottom: 32,
+    gap: 8,
   },
-  profileIcon: {
-    marginBottom: 16,
+  backButton: {
+    padding: 0,
   },
   title: {
-    fontSize: 28,
-    fontWeight: '700',
-    textAlign: 'center',
+    fontSize: 32,
+    fontWeight: '300',
+    color: '#1A1A1A',
+    letterSpacing: -0.5,
+    lineHeight: 40,
   },
   section: {
-    paddingHorizontal: 20,
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#666666',
-    marginBottom: 12,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    paddingHorizontal: 24,
+    marginBottom: 16,
   },
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#E8E8E8',
   },
-  infoRow: {
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  cardLabel: {
+    fontSize: 13,
+    color: '#999999',
+    fontWeight: '500',
+    letterSpacing: 0.5,
+  },
+  cardValue: {
+    fontSize: 16,
+    fontWeight: '400',
+    color: '#1A1A1A',
+  },
+  actionButton: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 20,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+    borderWidth: 1,
+    borderColor: '#E8E8E8',
   },
-  infoContent: {
+  actionButtonText: {
     flex: 1,
-  },
-  infoLabel: {
-    fontSize: 12,
-    color: '#999999',
-    marginBottom: 4,
-  },
-  infoValue: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '400',
     color: '#1A1A1A',
   },
-  button: {
-    backgroundColor: '#6B8E5A',
-    borderRadius: 12,
-    padding: 16,
+  loginCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: '#E8E8E8',
+  },
+  loginHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     gap: 8,
+    marginBottom: 24,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F5F5F5',
   },
-  buttonIcon: {
-    marginRight: 4,
-  },
-  buttonText: {
-    color: '#FFFFFF',
+  loginHeaderText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '400',
+    color: '#1A1A1A',
   },
-  buttonSecondary: {
-    backgroundColor: '#E0E0E0',
+  loginForm: {
+    gap: 16,
   },
-  buttonTextSecondary: {
-    color: '#666666',
+  passwordCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: '#E8E8E8',
   },
-  buttonPrimary: {
-    flex: 1,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  buttonLogout: {
-    backgroundColor: '#757575',
-  },
-  buttonDanger: {
-    backgroundColor: '#D32F2F',
-    borderRadius: 12,
-    padding: 16,
+  passwordHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     gap: 8,
-    marginTop: 12,
+    marginBottom: 24,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F5F5F5',
+  },
+  passwordHeaderText: {
+    fontSize: 16,
+    fontWeight: '400',
+    color: '#1A1A1A',
   },
   passwordForm: {
     gap: 16,
@@ -434,31 +549,28 @@ const styles = StyleSheet.create({
   inputGroup: {
     gap: 8,
   },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333333',
-  },
   input: {
-    backgroundColor: '#F8F8F8',
+    backgroundColor: '#FAFAFA',
     borderRadius: 12,
     padding: 16,
-    fontSize: 16,
+    fontSize: 15,
+    color: '#1A1A1A',
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: '#E8E8E8',
   },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8F8F8',
+    backgroundColor: '#FAFAFA',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: '#E8E8E8',
   },
   passwordInput: {
     flex: 1,
     padding: 16,
-    fontSize: 16,
+    fontSize: 15,
+    color: '#1A1A1A',
   },
   showPasswordButton: {
     padding: 16,
@@ -466,40 +578,75 @@ const styles = StyleSheet.create({
   passwordButtons: {
     flexDirection: 'row',
     gap: 12,
+    marginTop: 8,
   },
-  dangerCard: {
-    backgroundColor: '#FFEBEE',
+  button: {
+    flex: 1,
     borderRadius: 12,
     padding: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonPrimary: {
+    backgroundColor: '#6B8E5A',
+  },
+  buttonSecondary: {
+    backgroundColor: '#F0F0F0',
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  buttonTextSecondary: {
+    color: '#666666',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  buttonDisabled: {
+    opacity: 0.5,
+  },
+  dangerCard: {
+    backgroundColor: '#FFF8F8',
+    borderRadius: 16,
+    padding: 20,
     borderWidth: 1,
-    borderColor: '#FFCDD2',
+    borderColor: '#FFE0E0',
   },
-  dangerInfo: {
+  dangerHeader: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 12,
-  },
-  dangerTextContainer: {
-    flex: 1,
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
   },
   dangerTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
-    color: '#D32F2F',
-    marginBottom: 4,
+    color: '#C62828',
   },
   dangerDescription: {
     fontSize: 14,
     color: '#666666',
     lineHeight: 20,
+    marginBottom: 16,
   },
-  backButton: {
+  buttonDanger: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: '#C62828',
+    borderRadius: 12,
+    padding: 16,
     alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
   },
-  backButtonText: {
+  buttonDangerText: {
+    color: '#C62828',
     fontSize: 16,
+    fontWeight: '500',
+  },
+  infoText: {
+    fontSize: 14,
     color: '#999999',
+    textAlign: 'center',
+    lineHeight: 20,
   },
 })
