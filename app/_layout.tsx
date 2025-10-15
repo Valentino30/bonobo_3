@@ -18,6 +18,7 @@ export default function RootLayout() {
           <Stack.Screen name="chats" options={{ headerShown: false }} />
           <Stack.Screen name="import-guide" options={{ headerShown: false }} />
           <Stack.Screen name="analysis/[chatId]" options={{ headerShown: false }} />
+          <Stack.Screen name="profile" options={{ headerShown: false }} />
         </Stack>
         <StatusBar style="dark" />
       </ThemeProvider>
