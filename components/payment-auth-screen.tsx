@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   View,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
@@ -113,17 +115,21 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View style={styles.overlay}>
-        <ThemedView style={styles.container}>
-          {/* Custom Alert */}
-          <AlertComponent />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.keyboardAvoidingView}
+        >
+          <ThemedView style={styles.container}>
+            {/* Custom Alert */}
+            <AlertComponent />
 
-          <ScrollView
-            style={styles.scrollView}
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-            bounces={true}
-            keyboardShouldPersistTaps="handled"
-          >
+            <ScrollView
+              style={styles.scrollView}
+              contentContainerStyle={styles.scrollContent}
+              showsVerticalScrollIndicator={false}
+              bounces={true}
+              keyboardShouldPersistTaps="handled"
+            >
             {/* Header */}
             <View style={styles.header}>
               <Text style={styles.emoji}>🔐</Text>
@@ -235,7 +241,8 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
               )}
             </TouchableOpacity>
           </ScrollView>
-        </ThemedView>
+          </ThemedView>
+        </KeyboardAvoidingView>
       </View>
     </Modal>
   )
@@ -246,6 +253,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'flex-end',
+  },
+  keyboardAvoidingView: {
+    width: '100%',
   },
   container: {
     backgroundColor: '#FFFFFF',
