@@ -26,7 +26,7 @@ export function ComparisonCard({ title, icon, participants }: ComparisonCardProp
       <View style={styles.participantRow}>
         {participants.map((participant, index) => (
           <View key={index} style={styles.participantItem}>
-            <ThemedText style={styles.participantName}>{participant.name}</ThemedText>
+            <ThemedText style={styles.participantName} numberOfLines={1}>{participant.name}</ThemedText>
             <ThemedText style={styles.participantNumber}>{participant.value}</ThemedText>
             {participant.progressValue !== undefined && (
               <View style={styles.progressBar}>
