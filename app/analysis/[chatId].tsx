@@ -355,9 +355,14 @@ export default function ChatAnalysisScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Fixed Header */}
       <View style={styles.header}>
-        <ThemedText type="title" style={styles.title}>
-          Chat Analysis
-        </ThemedText>
+        <View style={styles.headerTop}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+            <MaterialCommunityIcons name="chevron-left" size={24} color="#6B8E5A" />
+          </TouchableOpacity>
+          <ThemedText type="title" style={styles.title}>
+            Chat Analysis
+          </ThemedText>
+        </View>
 
         {/* Tab Navigation */}
         <View style={styles.tabContainer}>
@@ -656,9 +661,18 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: '#FAFAFA',
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingTop: 20,
     paddingBottom: 12,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 16,
+  },
+  backButton: {
+    padding: 0,
   },
   scrollView: {
     flex: 1,
@@ -673,10 +687,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FAFAFA',
   },
   title: {
-    marginBottom: 16,
-    textAlign: 'center',
-    fontSize: 24,
-    fontWeight: '600',
+    fontSize: 32,
+    fontWeight: '300',
     color: '#1A1A1A',
     letterSpacing: -0.5,
   },
