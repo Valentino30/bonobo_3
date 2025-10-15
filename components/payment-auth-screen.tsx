@@ -8,12 +8,12 @@ import {
   TouchableOpacity,
   View,
   ActivityIndicator,
-  Alert,
 } from 'react-native'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { AuthService } from '@/utils/auth-service'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { useCustomAlert } from '@/components/custom-alert'
 
 interface PaymentAuthScreenProps {
   visible: boolean
@@ -28,6 +28,7 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { showAlert, AlertComponent } = useCustomAlert()
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -75,23 +76,31 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
         return
       }
 
-      // Success! Show confirmation
-      Alert.alert(
-        'Account Created',
-        'Your account has been successfully created and your purchases have been linked to it.',
-        [
-          {
-            text: 'Continue',
-            onPress: () => {
-              // Clear form
-              setEmail('')
-              setPassword('')
-              setConfirmPassword('')
-              onSuccess()
-            },
-          },
-        ]
-      )
+      // Success! Log the result
+      console.log('✅ Account creation result:', {
+        success: result.success,
+        hasUser: !!result.user,
+        hasSession: !!result.session,
+        userId: result.user?.id,
+        userEmail: result.user?.email,
+      })
+
+      // Clear form and close modal first
+      setEmail('')
+      setPassword('')
+      setConfirmPassword('')
+
+      // Call onSuccess to close modal and navigate back
+      onSuccess()
+
+      // Show confirmation with custom alert after navigation
+      setTimeout(() => {
+        showAlert(
+          'Account Created Successfully!',
+          'Your account has been created and your purchases have been securely linked to it.',
+          [{ text: 'Great!' }]
+        )
+      }, 500)
     } catch (error) {
       console.error('Account creation error:', error)
       setError('An unexpected error occurred')
@@ -105,6 +114,9 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View style={styles.overlay}>
         <ThemedView style={styles.container}>
+          {/* Custom Alert */}
+          <AlertComponent />
+
           <ScrollView
             style={styles.scrollView}
             contentContainerStyle={styles.scrollContent}
