@@ -1,9 +1,8 @@
-import { InstructionContainer } from '@/components/instruction-container'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { useRouter } from 'expo-router'
-import { StyleSheet, TouchableOpacity } from 'react-native'
+import { useEffect, useRef } from 'react'
+import { Animated, StyleSheet } from 'react-native'
 
 interface EmptyStateProps {
   hasShareData: boolean
@@ -22,43 +21,46 @@ export function EmptyState({
   onManualImport,
   onClearShareData,
 }: EmptyStateProps) {
-  const router = useRouter()
+  const bounceAnim = useRef(new Animated.Value(0)).current
+
+  // Bouncing animation for the arrow
+  useEffect(() => {
+    if (!hasShareData) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(bounceAnim, {
+            toValue: -10,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+          Animated.timing(bounceAnim, {
+            toValue: 0,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start()
+    }
+  }, [hasShareData, bounceAnim])
 
   return (
     <ThemedView style={styles.emptyState}>
       <ThemedView style={styles.emptyIconContainer}>
-        <ThemedText style={styles.emptyIcon}>💬</ThemedText>
+        <ThemedText style={styles.emptyIcon}>🤗</ThemedText>
       </ThemedView>
-      <ThemedText style={styles.emptyTitle}>{hasShareData ? 'Processing shared chat...' : 'No chats yet'}</ThemedText>
+      <ThemedText style={styles.emptyTitle}>
+        {hasShareData ? 'Loading chat...' : 'Welcome to Bonobo!'}
+      </ThemedText>
       <ThemedText style={styles.emptySubtitle}>
-        {hasShareData ? 'Please wait while we import your WhatsApp chat' : 'Share a WhatsApp chat to get started!'}
+        {hasShareData
+          ? 'Please wait while we import your WhatsApp chat'
+          : "We're here to help you improve your relationships through AI-powered insights."}
       </ThemedText>
 
-      {hasShareData && onClearShareData && (
-        <TouchableOpacity style={styles.cancelButton} onPress={onClearShareData}>
-          <ThemedText style={styles.cancelButtonText}>Cancel Import</ThemedText>
-        </TouchableOpacity>
-      )}
-
       {!hasShareData && (
-        <>
-          {/* How to Import Button */}
-          <TouchableOpacity
-            style={styles.howToButton}
-            onPress={() => router.push('/import-guide' as any)}
-            activeOpacity={0.85}
-          >
-            <MaterialCommunityIcons name="help-circle-outline" size={20} color="#6B8E5A" />
-            <ThemedText style={styles.howToButtonText}>How to Import from WhatsApp</ThemedText>
-          </TouchableOpacity>
-
-          <InstructionContainer
-            showPlatform={showPlatform}
-            manualInput={manualInput}
-            setManualInput={setManualInput}
-            onManualImport={onManualImport}
-          />
-        </>
+        <Animated.View style={[styles.arrowContainer, { transform: [{ translateY: bounceAnim }] }]}>
+          <MaterialCommunityIcons name="arrow-down" size={48} color="#6B8E5A" />
+        </Animated.View>
       )}
     </ThemedView>
   )
@@ -69,38 +71,44 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 32,
+    paddingTop: 100,
+    paddingBottom: 140,
   },
   emptyIconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     backgroundColor: '#FAFAFA',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 32,
     borderWidth: 1,
     borderColor: '#F0F0F0',
+    overflow: 'visible',
   },
   emptyIcon: {
-    fontSize: 36,
-    opacity: 0.7,
+    fontSize: 56,
+    opacity: 0.9,
+    lineHeight: 64,
   },
   emptyTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 28,
+    fontWeight: '700',
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: 16,
     color: '#1A1A1A',
-    letterSpacing: -0.2,
+    letterSpacing: -0.5,
+    paddingHorizontal: 10,
   },
   emptySubtitle: {
-    fontSize: 14,
+    fontSize: 17,
     textAlign: 'center',
     color: '#666666',
-    marginBottom: 32,
-    lineHeight: 20,
-    letterSpacing: 0.1,
+    marginBottom: 40,
+    lineHeight: 24,
+    letterSpacing: 0.2,
+    paddingHorizontal: 10,
   },
   cancelButton: {
     backgroundColor: '#FFFFFF',
@@ -117,22 +125,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     letterSpacing: 0.3,
   },
-  howToButton: {
-    flexDirection: 'row',
+  arrowContainer: {
+    marginTop: 20,
     alignItems: 'center',
-    backgroundColor: '#F5F9F3',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    marginBottom: 24,
-    borderWidth: 1,
-    borderColor: '#D5E3CE',
-    gap: 8,
-  },
-  howToButtonText: {
-    color: '#6B8E5A',
-    fontWeight: '600',
-    fontSize: 14,
-    letterSpacing: 0.2,
+    opacity: 0.8,
   },
 })

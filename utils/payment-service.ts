@@ -45,15 +45,26 @@ export class PaymentService {
   static async hasAccess(chatId?: string): Promise<boolean> {
     try {
       const deviceId = await getDeviceId()
-      console.log('Checking access for device:', deviceId, 'chatId:', chatId)
-      
-      // Query active entitlements for this device
-      const { data: entitlements, error } = await supabase
+
+      // Get current user if authenticated
+      const { data: { user } } = await supabase.auth.getUser()
+
+      console.log('Checking access for device:', deviceId, 'user:', user?.id, 'chatId:', chatId)
+
+      let query = supabase
         .from('user_entitlements')
         .select('*')
-        .eq('device_id', deviceId)
         .eq('status', 'active')
-        .order('created_at', { ascending: false})
+
+      // If user is authenticated, check by user_id OR device_id
+      // Otherwise, check by device_id only
+      if (user) {
+        query = query.or(`user_id.eq.${user.id},device_id.eq.${deviceId}`)
+      } else {
+        query = query.eq('device_id', deviceId)
+      }
+
+      const { data: entitlements, error } = await query.order('created_at', { ascending: false })
 
       if (error) {
         console.error('Error checking access:', error)
@@ -127,14 +138,25 @@ export class PaymentService {
     try {
       const deviceId = await getDeviceId()
 
-      // Get active one-time purchase without a chat_id assigned
-      const { data: entitlements, error } = await supabase
+      // Get current user if authenticated
+      const { data: { user } } = await supabase.auth.getUser()
+
+      let query = supabase
         .from('user_entitlements')
         .select('*')
-        .eq('device_id', deviceId)
         .eq('plan_id', 'one-time')
         .eq('status', 'active')
         .is('chat_id', null)
+
+      // If user is authenticated, check by user_id OR device_id
+      // Otherwise, check by device_id only
+      if (user) {
+        query = query.or(`user_id.eq.${user.id},device_id.eq.${deviceId}`)
+      } else {
+        query = query.eq('device_id', deviceId)
+      }
+
+      const { data: entitlements, error } = await query
         .order('created_at', { ascending: false })
         .limit(1)
 
@@ -148,7 +170,7 @@ export class PaymentService {
       // Assign this entitlement to the chat
       const { error: updateError } = await supabase
         .from('user_entitlements')
-        .update({ 
+        .update({
           chat_id: chatId,
         })
         .eq('id', entitlement.id)
@@ -168,12 +190,24 @@ export class PaymentService {
     try {
       const deviceId = await getDeviceId()
 
-      const { data: entitlements, error } = await supabase
+      // Get current user if authenticated
+      const { data: { user } } = await supabase.auth.getUser()
+
+      let query = supabase
         .from('user_entitlements')
         .select('*')
-        .eq('device_id', deviceId)
         .eq('status', 'active')
         .neq('plan_id', 'one-time')
+
+      // If user is authenticated, check by user_id OR device_id
+      // Otherwise, check by device_id only
+      if (user) {
+        query = query.or(`user_id.eq.${user.id},device_id.eq.${deviceId}`)
+      } else {
+        query = query.eq('device_id', deviceId)
+      }
+
+      const { data: entitlements, error } = await query
 
       if (error) {
         console.error('Error checking subscription:', error)
@@ -202,11 +236,23 @@ export class PaymentService {
     try {
       const deviceId = await getDeviceId()
 
-      const { data: entitlements, error } = await supabase
+      // Get current user if authenticated
+      const { data: { user } } = await supabase.auth.getUser()
+
+      let query = supabase
         .from('user_entitlements')
         .select('*')
-        .eq('device_id', deviceId)
         .eq('status', 'active')
+
+      // If user is authenticated, check by user_id OR device_id
+      // Otherwise, check by device_id only
+      if (user) {
+        query = query.or(`user_id.eq.${user.id},device_id.eq.${deviceId}`)
+      } else {
+        query = query.eq('device_id', deviceId)
+      }
+
+      const { data: entitlements, error } = await query
         .order('created_at', { ascending: false })
         .limit(1)
 

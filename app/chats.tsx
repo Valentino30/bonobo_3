@@ -5,13 +5,14 @@ import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { usePersistedChats } from '@/hooks/use-persisted-chats'
 import { useShareIntent } from '@/hooks/use-share-intent'
+import { AuthService } from '@/utils/auth-service'
 import { type StoredChat } from '@/utils/chat-storage'
 import { parseWhatsAppChat } from '@/utils/whatsapp-parser'
 import { extractWhatsAppZip } from '@/utils/zip-extractor'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { Link, useLocalSearchParams, useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
-import { Platform, StyleSheet, TouchableOpacity } from 'react-native'
+import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 export default function ChatsScreen() {
@@ -20,11 +21,21 @@ export default function ChatsScreen() {
   const { chats, addChat: persistAddChat, deleteChat, isLoading } = usePersistedChats()
   const [manualInput, setManualInput] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const router = useRouter()
   const { showAlert, AlertComponent } = useCustomAlert()
 
   // Determine which platform to show instructions for
   const showPlatform = device || Platform.OS
+
+  // Check authentication status
+  useEffect(() => {
+    const checkAuth = async () => {
+      const authenticated = await AuthService.isAuthenticated()
+      setIsAuthenticated(authenticated)
+    }
+    checkAuth()
+  }, [])
 
   // Add timeout for share intent processing
   useEffect(() => {
@@ -213,9 +224,11 @@ export default function ChatsScreen() {
     return (
       <SafeAreaView style={styles.safeArea}>
         <ThemedView style={styles.container}>
-          <ThemedText type="title" style={styles.title}>
-            My Chats
-          </ThemedText>
+          <View style={styles.loadingHeader}>
+            <ThemedText type="title" style={styles.loadingTitle}>
+              Bonobo
+            </ThemedText>
+          </View>
           <LoadingScreen icon="database-search" title="Loading Chats" subtitle="Fetching your conversations..." />
         </ThemedView>
       </SafeAreaView>
@@ -225,9 +238,19 @@ export default function ChatsScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ThemedView style={styles.container}>
-        <ThemedText type="title" style={styles.title}>
-          My Chats
-        </ThemedText>
+        {/* Header with Profile Icon */}
+        <View style={styles.headerContainer}>
+          <ThemedText type="title" style={styles.title}>
+            Bonobo
+          </ThemedText>
+          {isAuthenticated && (
+            <Link href={'/profile' as any} asChild>
+              <TouchableOpacity style={styles.profileButton}>
+                <MaterialCommunityIcons name="account-circle" size={28} color="#6B8E5A" />
+              </TouchableOpacity>
+            </Link>
+          )}
+        </View>
 
         {/* Custom Alert */}
         <AlertComponent />
@@ -264,10 +287,26 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 20,
   },
-  title: {
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 20,
     marginBottom: 16,
+  },
+  title: {
     lineHeight: 40,
+    flex: 1,
+  },
+  loadingHeader: {
+    paddingHorizontal: 20,
+    marginBottom: 16,
+  },
+  loadingTitle: {
+    lineHeight: 40,
+  },
+  profileButton: {
+    padding: 8,
   },
   button: {
     marginTop: 20,

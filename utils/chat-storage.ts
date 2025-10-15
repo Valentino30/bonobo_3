@@ -38,12 +38,23 @@ export class ChatStorage {
   static async loadChats(): Promise<StoredChat[]> {
     try {
       const deviceId = await getDeviceId()
-      
-      const { data, error } = await supabase
+
+      // Get current user if authenticated
+      const { data: { user } } = await supabase.auth.getUser()
+
+      let query = supabase
         .from('chats')
         .select('*')
-        .eq('device_id', deviceId)
-        .order('timestamp', { ascending: false })
+
+      // If user is authenticated, fetch their chats (linked by user_id OR device_id)
+      // Otherwise, fetch by device_id only
+      if (user) {
+        query = query.or(`user_id.eq.${user.id},device_id.eq.${deviceId}`)
+      } else {
+        query = query.eq('device_id', deviceId)
+      }
+
+      const { data, error } = await query.order('timestamp', { ascending: false })
 
       if (error) {
         console.error('Error loading chats from Supabase:', error)
@@ -77,19 +88,29 @@ export class ChatStorage {
     try {
       const deviceId = await getDeviceId()
 
+      // Get current user if authenticated
+      const { data: { user } } = await supabase.auth.getUser()
+
+      const insertData: any = {
+        id: chat.id,
+        device_id: deviceId,
+        chat_text: chat.text,
+        timestamp: chat.timestamp.toISOString(),
+        participants: chat.participants || [],
+        message_count: chat.messageCount,
+        analysis: chat.analysis || null,
+        ai_insights: chat.aiInsights || null,
+        unlocked_insights: chat.unlockedInsights || [],
+      }
+
+      // If user is authenticated, link chat to user
+      if (user) {
+        insertData.user_id = user.id
+      }
+
       const { error } = await supabase
         .from('chats')
-        .insert({
-          id: chat.id,
-          device_id: deviceId,
-          chat_text: chat.text,
-          timestamp: chat.timestamp.toISOString(),
-          participants: chat.participants || [],
-          message_count: chat.messageCount,
-          analysis: chat.analysis || null,
-          ai_insights: chat.aiInsights || null,
-          unlocked_insights: chat.unlockedInsights || [],
-        })
+        .insert(insertData)
 
       if (error) {
         console.error('Error adding chat to Supabase:', error)

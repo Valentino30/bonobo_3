@@ -4,10 +4,12 @@ import { useCustomAlert } from '@/components/custom-alert'
 import { InsightCard } from '@/components/insight-card'
 import { LockedInsightCard } from '@/components/locked-insight-card'
 import { Paywall } from '@/components/paywall'
+import { PaymentAuthScreen } from '@/components/payment-auth-screen'
 import { SimpleStatCard } from '@/components/simple-stat-card'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { usePersistedChats } from '@/hooks/use-persisted-chats'
+import { AuthService } from '@/utils/auth-service'
 import { PaymentService } from '@/utils/payment-service'
 import { StripeService } from '@/utils/stripe-service'
 import { Link, useLocalSearchParams, useRouter } from 'expo-router'
@@ -59,6 +61,7 @@ export default function ChatAnalysisScreen() {
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<TabType>('overview')
   const [showPaywall, setShowPaywall] = useState(false)
+  const [showAuthScreen, setShowAuthScreen] = useState(false)
   const [unlockedInsights, setUnlockedInsights] = useState<Set<string>>(new Set())
   const [loadingInsight, setLoadingInsight] = useState<string | null>(null)
 
@@ -168,12 +171,20 @@ export default function ChatAnalysisScreen() {
       const result = await StripeService.initializePayment(planId)
 
       if (result.success) {
-        // Payment successful - entitlement is now in database
-        // No need to call grantAccess() - it's handled by the Edge Function
-
+        // Payment successful - close paywall and show auth screen if not authenticated
         setShowPaywall(false)
-        setActiveTab('insights')
-        showAlert('🎉 Payment Successful!', 'You now have access to AI insights')
+
+        // Check if user is authenticated
+        const isAuthenticated = await AuthService.isAuthenticated()
+
+        if (!isAuthenticated) {
+          // Show auth screen to secure the purchase
+          setShowAuthScreen(true)
+        } else {
+          // Already authenticated - just show success
+          setActiveTab('insights')
+          showAlert('🎉 Payment Successful!', 'You now have access to AI insights')
+        }
       } else {
         // Payment failed or cancelled
         if (result.error) {
@@ -185,6 +196,13 @@ export default function ChatAnalysisScreen() {
       console.error('Purchase error:', error)
       showAlert('Error', 'Failed to process payment. Please try again.')
     }
+  }
+
+  // Handle successful authentication
+  const handleAuthSuccess = () => {
+    setShowAuthScreen(false)
+    setActiveTab('insights')
+    showAlert('🎉 Account Created!', 'Your purchases are now secure and accessible from any device')
   }
 
   useEffect(() => {
@@ -379,6 +397,13 @@ export default function ChatAnalysisScreen() {
 
       {/* Paywall Modal */}
       <Paywall visible={showPaywall} onClose={() => setShowPaywall(false)} onPurchase={handlePurchase} />
+
+      {/* Auth Screen Modal */}
+      <PaymentAuthScreen
+        visible={showAuthScreen}
+        onClose={() => setShowAuthScreen(false)}
+        onSuccess={handleAuthSuccess}
+      />
 
       {/* Scrollable Content */}
       <ScrollView
