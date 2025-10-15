@@ -5,37 +5,39 @@ import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { usePersistedChats } from '@/hooks/use-persisted-chats'
 import { useShareIntent } from '@/hooks/use-share-intent'
-import { AuthService } from '@/utils/auth-service'
 import { type StoredChat } from '@/utils/chat-storage'
 import { parseWhatsAppChat } from '@/utils/whatsapp-parser'
 import { extractWhatsAppZip } from '@/utils/zip-extractor'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { Link, useLocalSearchParams, useRouter } from 'expo-router'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 export default function ChatsScreen() {
   const { shareData, hasShareData, clearShareData } = useShareIntent()
-  const { device } = useLocalSearchParams<{ device?: string }>()
-  const { chats, addChat: persistAddChat, deleteChat, isLoading } = usePersistedChats()
+  const { device, reload } = useLocalSearchParams<{ device?: string; reload?: string }>()
+  const { chats, addChat: persistAddChat, deleteChat, isLoading, refreshChats } = usePersistedChats()
   const [manualInput, setManualInput] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const router = useRouter()
   const { showAlert, AlertComponent } = useCustomAlert()
+  const hasReloadedRef = useRef(false)
 
   // Determine which platform to show instructions for
   const showPlatform = device || Platform.OS
 
-  // Check authentication status
+  // Reload chats when coming from login/logout - only once
   useEffect(() => {
-    const checkAuth = async () => {
-      const authenticated = await AuthService.isAuthenticated()
-      setIsAuthenticated(authenticated)
+    if (reload === 'true' && !hasReloadedRef.current) {
+      console.log('Reloading chats after auth change...')
+      hasReloadedRef.current = true
+      refreshChats()
+
+      // Clear the reload parameter from URL after reloading
+      router.replace('/chats')
     }
-    checkAuth()
-  }, [])
+  }, [reload, refreshChats, router])
 
   // Add timeout for share intent processing
   useEffect(() => {
@@ -243,13 +245,15 @@ export default function ChatsScreen() {
           <ThemedText type="title" style={styles.title}>
             Bonobo
           </ThemedText>
-          {isAuthenticated && (
-            <Link href={'/profile' as any} asChild>
-              <TouchableOpacity style={styles.profileButton}>
-                <MaterialCommunityIcons name="account-circle" size={28} color="#6B8E5A" />
-              </TouchableOpacity>
-            </Link>
-          )}
+          <Link href={'/profile' as any} asChild>
+            <TouchableOpacity style={styles.profileButton}>
+              <MaterialCommunityIcons
+                name="account"
+                size={28}
+                color="#6B8E5A"
+              />
+            </TouchableOpacity>
+          </Link>
         </View>
 
         {/* Custom Alert */}
