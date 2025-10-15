@@ -3,8 +3,8 @@ import { ComparisonCard } from '@/components/comparison-card'
 import { useCustomAlert } from '@/components/custom-alert'
 import { InsightCard } from '@/components/insight-card'
 import { LockedInsightCard } from '@/components/locked-insight-card'
-import { Paywall } from '@/components/paywall'
 import { PaymentAuthScreen } from '@/components/payment-auth-screen'
+import { Paywall } from '@/components/paywall'
 import { SimpleStatCard } from '@/components/simple-stat-card'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
@@ -12,11 +12,11 @@ import { usePersistedChats } from '@/hooks/use-persisted-chats'
 import { AuthService } from '@/utils/auth-service'
 import { PaymentService } from '@/utils/payment-service'
 import { StripeService } from '@/utils/stripe-service'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { Link, useLocalSearchParams, useRouter } from 'expo-router'
 import { useEffect, useRef, useState } from 'react'
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { analyzeChat, type AIInsights } from '../../utils/ai-service'
 import { analyzeChatData } from '../../utils/chat-analyzer'
 
@@ -157,8 +157,8 @@ export default function ChatAnalysisScreen() {
 
       console.log('🎉 Unlock complete!')
     } catch (err) {
-      console.error('❌ Error unlocking insight:', err)
-      showAlert('Error', 'Failed to unlock insight. Please try again.')
+      console.error('❌ Error Unlocking Insight:', err)
+      showAlert('Failed to Unlock Insight', 'Don\'t worry, this can happen sometimes due to the AI being overloaded. Simply try again in a few seconds.')
     } finally {
       setLoadingInsight(null)
     }
@@ -295,7 +295,14 @@ export default function ChatAnalysisScreen() {
   // 2. We don't have the analysis loaded yet, OR
   // 3. showLoadingAnimation is true (set on navigation)
   if (chatsLoading || !analysis || showLoadingAnimation) {
-    console.log('Showing AnalysisLoading: chatsLoading =', chatsLoading, 'analysis =', !!analysis, 'showLoadingAnimation =', showLoadingAnimation)
+    console.log(
+      'Showing AnalysisLoading: chatsLoading =',
+      chatsLoading,
+      'analysis =',
+      !!analysis,
+      'showLoadingAnimation =',
+      showLoadingAnimation
+    )
     return (
       <SafeAreaView style={styles.container}>
         <AnalysisLoading
@@ -377,7 +384,9 @@ export default function ChatAnalysisScreen() {
                 color={activeTab === 'overview' ? '#FFFFFF' : '#999999'}
                 style={styles.tabIcon}
               />
-              <ThemedText style={[styles.tabText, activeTab === 'overview' && styles.tabTextActive]}>Overview</ThemedText>
+              <ThemedText style={[styles.tabText, activeTab === 'overview' && styles.tabTextActive]}>
+                Overview
+              </ThemedText>
             </View>
           </TouchableOpacity>
           <TouchableOpacity
@@ -391,7 +400,9 @@ export default function ChatAnalysisScreen() {
                 color={activeTab === 'insights' ? '#FFFFFF' : '#999999'}
                 style={styles.tabIcon}
               />
-              <ThemedText style={[styles.tabText, activeTab === 'insights' && styles.tabTextActive]}>Insights</ThemedText>
+              <ThemedText style={[styles.tabText, activeTab === 'insights' && styles.tabTextActive]}>
+                Insights
+              </ThemedText>
             </View>
           </TouchableOpacity>
         </View>

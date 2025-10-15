@@ -10,7 +10,7 @@ import { parseWhatsAppChat } from '@/utils/whatsapp-parser'
 import { extractWhatsAppZip } from '@/utils/zip-extractor'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { Link, useLocalSearchParams, useRouter } from 'expo-router'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
@@ -125,10 +125,10 @@ export default function ChatsScreen() {
 
             showAlert(
               'Chat Imported Successfully!',
-              `Chat between ${participantNames} with ${parsedData.messageCount} messages has been imported from ZIP file.`,
+              `Chat between ${participantNames} with ${parsedData.messageCount} messages has been successfully imported.`,
               [
                 {
-                  text: 'OK',
+                  text: 'Great!',
                   onPress: () => {
                     clearShareData()
                     setIsProcessing(false)
@@ -247,11 +247,7 @@ export default function ChatsScreen() {
           </ThemedText>
           <Link href={'/profile' as any} asChild>
             <TouchableOpacity style={styles.profileButton}>
-              <MaterialCommunityIcons
-                name="account"
-                size={28}
-                color="#6B8E5A"
-              />
+              <MaterialCommunityIcons name="account" size={28} color="#6B8E5A" />
             </TouchableOpacity>
           </Link>
         </View>
