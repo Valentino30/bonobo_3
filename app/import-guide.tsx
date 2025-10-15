@@ -4,8 +4,10 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import { Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { useTheme } from '@/contexts/theme-context'
 
 export default function ImportGuideScreen() {
+  const theme = useTheme()
   const isIOS = Platform.OS === 'ios'
   const router = useRouter()
 
@@ -14,68 +16,68 @@ export default function ImportGuideScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <ThemedView style={styles.content}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.backgroundSuccessLight }]} edges={['top']}>
+      <ThemedView style={[styles.content, { backgroundColor: theme.colors.backgroundSuccessLight }]}>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           {/* Title */}
           <View style={styles.titleSection}>
-            <ThemedText style={styles.title}>How to Import</ThemedText>
-            <ThemedText style={styles.subtitle}>WhatsApp Chat Export Guide</ThemedText>
+            <ThemedText style={[styles.title, { color: theme.colors.darkOverlay }]}>How to Import</ThemedText>
+            <ThemedText style={[styles.subtitle, { color: theme.colors.primary }]}>WhatsApp Chat Export Guide</ThemedText>
           </View>
 
           {/* Introduction */}
           <View style={styles.section}>
-            <ThemedText style={styles.intro}>
+            <ThemedText style={[styles.intro, { color: theme.colors.primaryAccent }]}>
               Import your WhatsApp conversation to analyze your relationship dynamics and communication patterns.
             </ThemedText>
-            <View style={styles.supportedPlatforms}>
+            <View style={[styles.supportedPlatforms, { backgroundColor: theme.colors.backgroundSuccess }]}>
               <MaterialCommunityIcons name="whatsapp" size={20} color="#25D366" />
-              <ThemedText style={styles.supportedText}>Currently supporting WhatsApp only</ThemedText>
+              <ThemedText style={[styles.supportedText, { color: theme.colors.successDark }]}>Currently supporting WhatsApp only</ThemedText>
             </View>
           </View>
 
           {/* Platform Badge */}
           <View style={styles.platformBadgeContainer}>
-            <View style={styles.platformBadge}>
-              <MaterialCommunityIcons name={isIOS ? 'apple' : 'android'} size={16} color="#6B8E5A" />
-              <ThemedText style={styles.platformBadgeText}>Instructions for {isIOS ? 'iOS' : 'Android'}</ThemedText>
+            <View style={[styles.platformBadge, { backgroundColor: theme.colors.backgroundInfo, borderColor: theme.colors.primaryLighter }]}>
+              <MaterialCommunityIcons name={isIOS ? 'apple' : 'android'} size={16} color={theme.colors.primary} />
+              <ThemedText style={[styles.platformBadgeText, { color: theme.colors.primary }]}>Instructions for {isIOS ? 'iOS' : 'Android'}</ThemedText>
             </View>
           </View>
 
           {/* Steps */}
           <View style={styles.stepsContainer}>
-            <ThemedText style={styles.sectionTitle}>Follow these steps:</ThemedText>
+            <ThemedText style={[styles.sectionTitle, { color: theme.colors.darkOverlay }]}>Follow these steps:</ThemedText>
 
             {/* Step 1 */}
             <View style={styles.step}>
-              <View style={styles.stepNumber}>
-                <ThemedText style={styles.stepNumberText}>1</ThemedText>
+              <View style={[styles.stepNumber, { backgroundColor: theme.colors.primary }]}>
+                <ThemedText style={[styles.stepNumberText, { color: theme.colors.textWhite }]}>1</ThemedText>
               </View>
               <View style={styles.stepContent}>
-                <ThemedText style={styles.stepTitle}>Open WhatsApp</ThemedText>
-                <ThemedText style={styles.stepDescription}>Open the WhatsApp app</ThemedText>
+                <ThemedText style={[styles.stepTitle, { color: theme.colors.darkOverlay }]}>Open WhatsApp</ThemedText>
+                <ThemedText style={[styles.stepDescription, { color: theme.colors.primaryDark }]}>Open the WhatsApp app</ThemedText>
               </View>
             </View>
 
             {/* Step 2 */}
             <View style={styles.step}>
-              <View style={styles.stepNumber}>
-                <ThemedText style={styles.stepNumberText}>2</ThemedText>
+              <View style={[styles.stepNumber, { backgroundColor: theme.colors.primary }]}>
+                <ThemedText style={[styles.stepNumberText, { color: theme.colors.textWhite }]}>2</ThemedText>
               </View>
               <View style={styles.stepContent}>
-                <ThemedText style={styles.stepTitle}>Open Chat</ThemedText>
-                <ThemedText style={styles.stepDescription}>Enter the chat you want to analyze</ThemedText>
+                <ThemedText style={[styles.stepTitle, { color: theme.colors.darkOverlay }]}>Open Chat</ThemedText>
+                <ThemedText style={[styles.stepDescription, { color: theme.colors.primaryDark }]}>Enter the chat you want to analyze</ThemedText>
               </View>
             </View>
 
             {/* Step 3 */}
             <View style={styles.step}>
-              <View style={styles.stepNumber}>
-                <ThemedText style={styles.stepNumberText}>3</ThemedText>
+              <View style={[styles.stepNumber, { backgroundColor: theme.colors.primary }]}>
+                <ThemedText style={[styles.stepNumberText, { color: theme.colors.textWhite }]}>3</ThemedText>
               </View>
               <View style={styles.stepContent}>
-                <ThemedText style={styles.stepTitle}>Export Chat</ThemedText>
-                <ThemedText style={styles.stepDescription}>
+                <ThemedText style={[styles.stepTitle, { color: theme.colors.darkOverlay }]}>Export Chat</ThemedText>
+                <ThemedText style={[styles.stepDescription, { color: theme.colors.primaryDark }]}>
                   {isIOS
                     ? 'Tap on the contact or group name at the top of the chat, scroll all the way down and tap "Export Chat"'
                     : 'Tap the three dots (⋮) and select "More" → "Export Chat"'}
@@ -85,12 +87,12 @@ export default function ImportGuideScreen() {
 
             {/* Step 4 */}
             <View style={styles.step}>
-              <View style={styles.stepNumber}>
-                <ThemedText style={styles.stepNumberText}>4</ThemedText>
+              <View style={[styles.stepNumber, { backgroundColor: theme.colors.primary }]}>
+                <ThemedText style={[styles.stepNumberText, { color: theme.colors.textWhite }]}>4</ThemedText>
               </View>
               <View style={styles.stepContent}>
-                <ThemedText style={styles.stepTitle}>Without Media</ThemedText>
-                <ThemedText style={styles.stepDescription}>
+                <ThemedText style={[styles.stepTitle, { color: theme.colors.darkOverlay }]}>Without Media</ThemedText>
+                <ThemedText style={[styles.stepDescription, { color: theme.colors.primaryDark }]}>
                   Choose &quot;Without Media&quot; when prompted (media files are not needed for analysis)
                 </ThemedText>
               </View>
@@ -98,12 +100,12 @@ export default function ImportGuideScreen() {
 
             {/* Step 5 */}
             <View style={styles.step}>
-              <View style={styles.stepNumber}>
-                <ThemedText style={styles.stepNumberText}>5</ThemedText>
+              <View style={[styles.stepNumber, { backgroundColor: theme.colors.primary }]}>
+                <ThemedText style={[styles.stepNumberText, { color: theme.colors.textWhite }]}>5</ThemedText>
               </View>
               <View style={styles.stepContent}>
-                <ThemedText style={styles.stepTitle}>Share to Bonobo</ThemedText>
-                <ThemedText style={styles.stepDescription}>
+                <ThemedText style={[styles.stepTitle, { color: theme.colors.darkOverlay }]}>Share to Bonobo</ThemedText>
+                <ThemedText style={[styles.stepDescription, { color: theme.colors.primaryDark }]}>
                   Select &quot;Bonobo&quot; from the share menu to import the chat
                 </ThemedText>
               </View>
@@ -111,12 +113,12 @@ export default function ImportGuideScreen() {
           </View>
 
           {/* Privacy Notice */}
-          <View style={styles.privacySection}>
+          <View style={[styles.privacySection, { backgroundColor: theme.colors.backgroundInfo, borderColor: theme.colors.primaryLighter }]}>
             <View style={styles.privacyHeader}>
-              <MaterialCommunityIcons name="shield-check" size={24} color="#6B8E5A" />
-              <ThemedText style={styles.privacyTitle}>Your Privacy Matters</ThemedText>
+              <MaterialCommunityIcons name="shield-check" size={24} color={theme.colors.primary} />
+              <ThemedText style={[styles.privacyTitle, { color: theme.colors.primary }]}>Your Privacy Matters</ThemedText>
             </View>
-            <ThemedText style={styles.privacyText}>
+            <ThemedText style={[styles.privacyText, { color: theme.colors.primaryDark }]}>
               All chat data is stored securely on your device. We never upload your conversations to our servers. AI
               analysis is performed using encrypted requests.
             </ThemedText>
@@ -124,9 +126,9 @@ export default function ImportGuideScreen() {
 
           {/* CTA Button */}
           <View style={styles.ctaButtonContainer}>
-            <TouchableOpacity style={styles.ctaButton} onPress={handleGotIt} activeOpacity={0.85}>
-              <ThemedText style={styles.ctaButtonText}>GOT IT</ThemedText>
-              <MaterialCommunityIcons name="thumb-up" size={20} color="#FFFFFF" />
+            <TouchableOpacity style={[styles.ctaButton, { backgroundColor: theme.colors.primary, shadowColor: theme.colors.shadow }]} onPress={handleGotIt} activeOpacity={0.85}>
+              <ThemedText style={[styles.ctaButtonText, { color: theme.colors.textWhite }]}>GOT IT</ThemedText>
+              <MaterialCommunityIcons name="thumb-up" size={20} color={theme.colors.textWhite} />
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -138,11 +140,9 @@ export default function ImportGuideScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FBF6',
   },
   content: {
     flex: 1,
-    backgroundColor: '#F8FBF6',
   },
   scrollView: {
     flex: 1,
@@ -156,13 +156,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#2C3E50',
     marginBottom: 8,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
-    color: '#6B8E5A',
     fontWeight: '500',
     textAlign: 'center',
   },
@@ -174,7 +172,6 @@ const styles = StyleSheet.create({
   intro: {
     fontSize: 16,
     lineHeight: 24,
-    color: '#4A5D42',
     textAlign: 'center',
     marginBottom: 16,
   },
@@ -182,7 +179,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#E8F5E9',
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 20,
@@ -191,7 +187,6 @@ const styles = StyleSheet.create({
   },
   supportedText: {
     fontSize: 13,
-    color: '#2E7D32',
     fontWeight: '500',
   },
   platformBadgeContainer: {
@@ -201,18 +196,15 @@ const styles = StyleSheet.create({
   platformBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F9F3',
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#D5E3CE',
     alignSelf: 'center',
     gap: 6,
   },
   platformBadgeText: {
     fontSize: 13,
-    color: '#6B8E5A',
     fontWeight: '500',
   },
   stepsContainer: {
@@ -222,7 +214,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#2C3E50',
     marginBottom: 16,
   },
   step: {
@@ -234,7 +225,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#6B8E5A',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 16,
@@ -242,7 +232,6 @@ const styles = StyleSheet.create({
   stepNumberText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#FFFFFF',
   },
   stepContent: {
     flex: 1,
@@ -251,22 +240,18 @@ const styles = StyleSheet.create({
   stepTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#2C3E50',
     marginBottom: 4,
   },
   stepDescription: {
     fontSize: 14,
     lineHeight: 20,
-    color: '#5C6B63',
   },
   privacySection: {
     marginHorizontal: 24,
     marginTop: 16,
     padding: 16,
-    backgroundColor: '#F5F9F3',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#D5E3CE',
   },
   privacyHeader: {
     flexDirection: 'row',
@@ -276,13 +261,11 @@ const styles = StyleSheet.create({
   privacyTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#6B8E5A',
     marginLeft: 8,
   },
   privacyText: {
     fontSize: 14,
     lineHeight: 20,
-    color: '#5C6B63',
   },
   ctaButtonContainer: {
     paddingHorizontal: 24,
@@ -291,12 +274,10 @@ const styles = StyleSheet.create({
   },
   ctaButton: {
     flexDirection: 'row',
-    backgroundColor: '#6B8E5A',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -306,7 +287,6 @@ const styles = StyleSheet.create({
   ctaButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
     letterSpacing: 0.5,
   },
 })

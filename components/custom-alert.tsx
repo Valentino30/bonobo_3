@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTheme } from '@/contexts/theme-context'
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 
 interface AlertButton {
@@ -16,6 +17,8 @@ interface CustomAlertProps {
 }
 
 export function CustomAlert({ visible, title, message, buttons = [{ text: 'OK' }], onDismiss }: CustomAlertProps) {
+  const theme = useTheme()
+
   const handleButtonPress = (button: AlertButton) => {
     button.onPress?.()
     onDismiss?.()
@@ -24,41 +27,41 @@ export function CustomAlert({ visible, title, message, buttons = [{ text: 'OK' }
   const getButtonStyle = (buttonStyle?: string) => {
     switch (buttonStyle) {
       case 'cancel':
-        return styles.buttonCancel
+        return { backgroundColor: theme.colors.backgroundInput }
       case 'destructive':
-        return styles.buttonDestructive
+        return { backgroundColor: theme.colors.backgroundLight }
       default:
-        return styles.buttonDefault
+        return { backgroundColor: theme.colors.backgroundLight }
     }
   }
 
   const getButtonTextStyle = (buttonStyle?: string) => {
     switch (buttonStyle) {
       case 'cancel':
-        return styles.buttonTextCancel
+        return { color: theme.colors.textTertiary }
       case 'destructive':
-        return styles.buttonTextDestructive
+        return { color: theme.colors.warning }
       default:
-        return styles.buttonTextDefault
+        return { color: theme.colors.primary }
     }
   }
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onDismiss}>
-      <View style={styles.overlay}>
-        <View style={styles.alertContainer}>
+      <View style={[styles.overlay, { backgroundColor: theme.colors.backgroundOverlay }]}>
+        <View style={[styles.alertContainer, { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow }]}>
           {/* Alert Content */}
           <View style={styles.content}>
-            <Text style={styles.title}>{title}</Text>
-            {message && <Text style={styles.message}>{message}</Text>}
+            <Text style={[styles.title, { color: theme.colors.text }]}>{title}</Text>
+            {message && <Text style={[styles.message, { color: theme.colors.textSecondary }]}>{message}</Text>}
           </View>
 
           {/* Buttons */}
-          <View style={styles.buttonContainer}>
+          <View style={[styles.buttonContainer, { borderTopColor: theme.colors.backgroundSecondary }]}>
             {buttons.map((button, index) => (
               <TouchableOpacity
                 key={index}
-                style={[styles.button, getButtonStyle(button.style), buttons.length === 1 && styles.buttonSingle]}
+                style={[styles.button, getButtonStyle(button.style), buttons.length === 1 && styles.buttonSingle, index < buttons.length - 1 && { borderRightWidth: 1, borderRightColor: theme.colors.backgroundSecondary }]}
                 onPress={() => handleButtonPress(button)}
                 activeOpacity={0.8}
               >
@@ -115,17 +118,14 @@ export function useCustomAlert() {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
   alertContainer: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     width: '100%',
     maxWidth: 340,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.2,
     shadowRadius: 12,
@@ -139,14 +139,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#1A1A1A',
     letterSpacing: -0.3,
     textAlign: 'center',
     marginBottom: 8,
   },
   message: {
     fontSize: 14,
-    color: '#666666',
     letterSpacing: 0.1,
     lineHeight: 20,
     textAlign: 'center',
@@ -154,7 +152,6 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
   },
   button: {
     flex: 1,
@@ -166,31 +163,9 @@ const styles = StyleSheet.create({
   buttonSingle: {
     borderRightWidth: 0,
   },
-  buttonDefault: {
-    backgroundColor: '#FFFFFF',
-    borderRightWidth: 1,
-    borderRightColor: '#F0F0F0',
-  },
-  buttonCancel: {
-    backgroundColor: '#F8F8F8',
-    borderRightWidth: 1,
-    borderRightColor: '#F0F0F0',
-  },
-  buttonDestructive: {
-    backgroundColor: '#FFFFFF',
-  },
   buttonText: {
     fontSize: 15,
     fontWeight: '500',
     letterSpacing: 0.2,
-  },
-  buttonTextDefault: {
-    color: '#6B8E5A',
-  },
-  buttonTextCancel: {
-    color: '#999999',
-  },
-  buttonTextDestructive: {
-    color: '#FF6B6B',
   },
 })

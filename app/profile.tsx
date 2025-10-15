@@ -15,8 +15,10 @@ import { ThemedText } from '@/components/themed-text'
 import { AuthService } from '@/utils/auth-service'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useCustomAlert } from '@/components/custom-alert'
+import { useTheme } from '@/contexts/theme-context'
 
 export default function ProfileScreen() {
+  const theme = useTheme()
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(true)
@@ -172,9 +174,9 @@ export default function ProfileScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#6B8E5A" />
+          <ActivityIndicator size="large" color={theme.colors.primary} />
         </View>
       </SafeAreaView>
     )
@@ -183,7 +185,7 @@ export default function ProfileScreen() {
   if (!isAuthenticated) {
     // Show login screen
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <AlertComponent />
 
         <KeyboardAvoidingView
@@ -199,28 +201,28 @@ export default function ProfileScreen() {
           {/* Header with Back Button */}
           <View style={styles.header}>
             <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-              <MaterialCommunityIcons name="chevron-left" size={24} color="#6B8E5A" />
+              <MaterialCommunityIcons name="chevron-left" size={24} color={theme.colors.primary} />
             </TouchableOpacity>
-            <ThemedText type="title" style={styles.title}>
+            <ThemedText type="title" style={[styles.title, { color: theme.colors.text }]}>
               Login
             </ThemedText>
           </View>
 
           {/* Login Form */}
           <View style={styles.section}>
-            <View style={styles.loginCard}>
-              <View style={styles.loginHeader}>
-                <MaterialCommunityIcons name="login-variant" size={18} color="#6B8E5A" />
-                <ThemedText style={styles.loginHeaderText}>Welcome Back</ThemedText>
+            <View style={[styles.loginCard, { backgroundColor: theme.colors.backgroundLight, borderColor: theme.colors.border }]}>
+              <View style={[styles.loginHeader, { borderBottomColor: theme.colors.borderLight }]}>
+                <MaterialCommunityIcons name="login-variant" size={18} color={theme.colors.primary} />
+                <ThemedText style={[styles.loginHeaderText, { color: theme.colors.text }]}>Welcome Back</ThemedText>
               </View>
 
               <View style={styles.loginForm}>
                 {/* Email Input */}
                 <View style={styles.inputGroup}>
                   <TextInput
-                    style={styles.input}
+                    style={[styles.input, { backgroundColor: theme.colors.background, borderColor: theme.colors.border, color: theme.colors.text }]}
                     placeholder="Email address"
-                    placeholderTextColor="#CCCCCC"
+                    placeholderTextColor={theme.colors.textPlaceholder}
                     value={loginEmail}
                     onChangeText={setLoginEmail}
                     autoCapitalize="none"
@@ -231,11 +233,11 @@ export default function ProfileScreen() {
 
                 {/* Password Input */}
                 <View style={styles.inputGroup}>
-                  <View style={styles.passwordContainer}>
+                  <View style={[styles.passwordContainer, { backgroundColor: theme.colors.background, borderColor: theme.colors.border }]}>
                     <TextInput
-                      style={styles.passwordInput}
+                      style={[styles.passwordInput, { color: theme.colors.text }]}
                       placeholder="Password"
-                      placeholderTextColor="#CCCCCC"
+                      placeholderTextColor={theme.colors.textPlaceholder}
                       value={loginPassword}
                       onChangeText={setLoginPassword}
                       secureTextEntry={!showLoginPassword}
@@ -249,7 +251,7 @@ export default function ProfileScreen() {
                       <MaterialCommunityIcons
                         name={showLoginPassword ? 'eye-off-outline' : 'eye-outline'}
                         size={18}
-                        color="#999999"
+                        color={theme.colors.textTertiary}
                       />
                     </TouchableOpacity>
                   </View>
@@ -257,14 +259,14 @@ export default function ProfileScreen() {
 
                 {/* Login Button */}
                 <TouchableOpacity
-                  style={[styles.button, styles.buttonPrimary, isLoggingIn && styles.buttonDisabled]}
+                  style={[styles.button, { backgroundColor: theme.colors.primary }, isLoggingIn && styles.buttonDisabled]}
                   onPress={handleLogin}
                   disabled={isLoggingIn}
                 >
                   {isLoggingIn ? (
-                    <ActivityIndicator color="#FFFFFF" size="small" />
+                    <ActivityIndicator color={theme.colors.textWhite} size="small" />
                   ) : (
-                    <ThemedText style={styles.buttonText}>Login</ThemedText>
+                    <ThemedText style={[styles.buttonText, { color: theme.colors.textWhite }]}>Login</ThemedText>
                   )}
                 </TouchableOpacity>
               </View>
@@ -273,7 +275,7 @@ export default function ProfileScreen() {
 
           {/* Info Text */}
           <View style={styles.section}>
-            <ThemedText style={styles.infoText}>
+            <ThemedText style={[styles.infoText, { color: theme.colors.textTertiary }]}>
               Don&apos;t have an account? Create one after making a purchase to save your insights.
             </ThemedText>
           </View>
@@ -284,7 +286,7 @@ export default function ProfileScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <AlertComponent />
 
       <KeyboardAvoidingView
@@ -300,47 +302,47 @@ export default function ProfileScreen() {
         {/* Header with Back Button */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <MaterialCommunityIcons name="chevron-left" size={24} color="#6B8E5A" />
+            <MaterialCommunityIcons name="chevron-left" size={24} color={theme.colors.primary} />
           </TouchableOpacity>
-          <ThemedText type="title" style={styles.title}>
+          <ThemedText type="title" style={[styles.title, { color: theme.colors.text }]}>
             My Profile
           </ThemedText>
         </View>
 
         {/* Email Section */}
         <View style={styles.section}>
-          <View style={styles.card}>
+          <View style={[styles.card, { backgroundColor: theme.colors.backgroundLight, borderColor: theme.colors.border }]}>
             <View style={styles.cardHeader}>
-              <MaterialCommunityIcons name="email-outline" size={20} color="#6B8E5A" />
-              <ThemedText style={styles.cardLabel}>Email</ThemedText>
+              <MaterialCommunityIcons name="email-outline" size={20} color={theme.colors.primary} />
+              <ThemedText style={[styles.cardLabel, { color: theme.colors.textTertiary }]}>Email</ThemedText>
             </View>
-            <ThemedText style={styles.cardValue}>{email}</ThemedText>
+            <ThemedText style={[styles.cardValue, { color: theme.colors.text }]}>{email}</ThemedText>
           </View>
         </View>
 
         {/* Password Change Section */}
         <View style={styles.section}>
           {!showPasswordChange ? (
-            <TouchableOpacity style={styles.actionButton} onPress={() => setShowPasswordChange(true)}>
-              <MaterialCommunityIcons name="lock-outline" size={20} color="#6B8E5A" />
-              <ThemedText style={styles.actionButtonText}>Change Password</ThemedText>
-              <MaterialCommunityIcons name="chevron-right" size={20} color="#CCCCCC" />
+            <TouchableOpacity style={[styles.actionButton, { backgroundColor: theme.colors.backgroundLight, borderColor: theme.colors.border }]} onPress={() => setShowPasswordChange(true)}>
+              <MaterialCommunityIcons name="lock-outline" size={20} color={theme.colors.primary} />
+              <ThemedText style={[styles.actionButtonText, { color: theme.colors.text }]}>Change Password</ThemedText>
+              <MaterialCommunityIcons name="chevron-right" size={20} color={theme.colors.textPlaceholder} />
             </TouchableOpacity>
           ) : (
-            <View style={styles.passwordCard}>
-              <View style={styles.passwordHeader}>
-                <MaterialCommunityIcons name="lock-outline" size={18} color="#6B8E5A" />
-                <ThemedText style={styles.passwordHeaderText}>Update Password</ThemedText>
+            <View style={[styles.passwordCard, { backgroundColor: theme.colors.backgroundLight, borderColor: theme.colors.border }]}>
+              <View style={[styles.passwordHeader, { borderBottomColor: theme.colors.borderLight }]}>
+                <MaterialCommunityIcons name="lock-outline" size={18} color={theme.colors.primary} />
+                <ThemedText style={[styles.passwordHeaderText, { color: theme.colors.text }]}>Update Password</ThemedText>
               </View>
 
               <View style={styles.passwordForm}>
                 {/* New Password */}
                 <View style={styles.inputGroup}>
-                  <View style={styles.passwordContainer}>
+                  <View style={[styles.passwordContainer, { backgroundColor: theme.colors.background, borderColor: theme.colors.border }]}>
                     <TextInput
-                      style={styles.passwordInput}
+                      style={[styles.passwordInput, { color: theme.colors.text }]}
                       placeholder="New password (min. 8 characters)"
-                      placeholderTextColor="#CCCCCC"
+                      placeholderTextColor={theme.colors.textPlaceholder}
                       value={newPassword}
                       onChangeText={setNewPassword}
                       secureTextEntry={!showPassword}
@@ -354,7 +356,7 @@ export default function ProfileScreen() {
                       <MaterialCommunityIcons
                         name={showPassword ? 'eye-off-outline' : 'eye-outline'}
                         size={18}
-                        color="#999999"
+                        color={theme.colors.textTertiary}
                       />
                     </TouchableOpacity>
                   </View>
@@ -363,9 +365,9 @@ export default function ProfileScreen() {
                 {/* Confirm Password */}
                 <View style={styles.inputGroup}>
                   <TextInput
-                    style={styles.input}
+                    style={[styles.input, { backgroundColor: theme.colors.background, borderColor: theme.colors.border, color: theme.colors.text }]}
                     placeholder="Confirm new password"
-                    placeholderTextColor="#CCCCCC"
+                    placeholderTextColor={theme.colors.textPlaceholder}
                     value={confirmPassword}
                     onChangeText={setConfirmPassword}
                     secureTextEntry={!showPassword}
@@ -377,7 +379,7 @@ export default function ProfileScreen() {
                 {/* Buttons */}
                 <View style={styles.passwordButtons}>
                   <TouchableOpacity
-                    style={[styles.button, styles.buttonSecondary]}
+                    style={[styles.button, { backgroundColor: theme.colors.backgroundSecondary }]}
                     onPress={() => {
                       setShowPasswordChange(false)
                       setNewPassword('')
@@ -385,17 +387,17 @@ export default function ProfileScreen() {
                     }}
                     disabled={isChangingPassword}
                   >
-                    <ThemedText style={styles.buttonTextSecondary}>Cancel</ThemedText>
+                    <ThemedText style={[styles.buttonTextSecondary, { color: theme.colors.textSecondary }]}>Cancel</ThemedText>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={[styles.button, styles.buttonPrimary, isChangingPassword && styles.buttonDisabled]}
+                    style={[styles.button, { backgroundColor: theme.colors.primary }, isChangingPassword && styles.buttonDisabled]}
                     onPress={handleChangePassword}
                     disabled={isChangingPassword}
                   >
                     {isChangingPassword ? (
-                      <ActivityIndicator color="#FFFFFF" size="small" />
+                      <ActivityIndicator color={theme.colors.textWhite} size="small" />
                     ) : (
-                      <ThemedText style={styles.buttonText}>Update</ThemedText>
+                      <ThemedText style={[styles.buttonText, { color: theme.colors.textWhite }]}>Update</ThemedText>
                     )}
                   </TouchableOpacity>
                 </View>
@@ -406,25 +408,25 @@ export default function ProfileScreen() {
 
         {/* Logout Button */}
         <View style={styles.section}>
-          <TouchableOpacity style={styles.actionButton} onPress={handleLogout}>
-            <MaterialCommunityIcons name="logout-variant" size={20} color="#6B8E5A" />
-            <ThemedText style={styles.actionButtonText}>Logout</ThemedText>
-            <MaterialCommunityIcons name="chevron-right" size={20} color="#CCCCCC" />
+          <TouchableOpacity style={[styles.actionButton, { backgroundColor: theme.colors.backgroundLight, borderColor: theme.colors.border }]} onPress={handleLogout}>
+            <MaterialCommunityIcons name="logout-variant" size={20} color={theme.colors.primary} />
+            <ThemedText style={[styles.actionButtonText, { color: theme.colors.text }]}>Logout</ThemedText>
+            <MaterialCommunityIcons name="chevron-right" size={20} color={theme.colors.textPlaceholder} />
           </TouchableOpacity>
         </View>
 
         {/* Delete Account Section */}
         <View style={styles.section}>
-          <View style={styles.dangerCard}>
+          <View style={[styles.dangerCard, { backgroundColor: theme.colors.backgroundDanger, borderColor: theme.colors.borderDanger }]}>
             <View style={styles.dangerHeader}>
-              <MaterialCommunityIcons name="alert-circle-outline" size={20} color="#C62828" />
-              <ThemedText style={styles.dangerTitle}>Danger Zone</ThemedText>
+              <MaterialCommunityIcons name="alert-circle-outline" size={20} color={theme.colors.textDanger} />
+              <ThemedText style={[styles.dangerTitle, { color: theme.colors.textDanger }]}>Danger Zone</ThemedText>
             </View>
-            <ThemedText style={styles.dangerDescription}>
+            <ThemedText style={[styles.dangerDescription, { color: theme.colors.textSecondary }]}>
               Permanently delete your account and all data. This cannot be undone.
             </ThemedText>
-            <TouchableOpacity style={styles.buttonDanger} onPress={handleDeleteAccount}>
-              <ThemedText style={styles.buttonDangerText}>Delete Account</ThemedText>
+            <TouchableOpacity style={[styles.buttonDanger, { borderColor: theme.colors.textDanger }]} onPress={handleDeleteAccount}>
+              <ThemedText style={[styles.buttonDangerText, { color: theme.colors.textDanger }]}>Delete Account</ThemedText>
             </TouchableOpacity>
           </View>
         </View>
@@ -437,7 +439,6 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFAFA',
   },
   keyboardAvoidingView: {
     flex: 1,
@@ -467,7 +468,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: '300',
-    color: '#1A1A1A',
     letterSpacing: -0.5,
     lineHeight: 40,
   },
@@ -476,11 +476,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   card: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 20,
     borderWidth: 1,
-    borderColor: '#E8E8E8',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -490,37 +488,30 @@ const styles = StyleSheet.create({
   },
   cardLabel: {
     fontSize: 13,
-    color: '#999999',
     fontWeight: '500',
     letterSpacing: 0.5,
   },
   cardValue: {
     fontSize: 16,
     fontWeight: '400',
-    color: '#1A1A1A',
   },
   actionButton: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 20,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
     borderWidth: 1,
-    borderColor: '#E8E8E8',
   },
   actionButtonText: {
     flex: 1,
     fontSize: 16,
     fontWeight: '400',
-    color: '#1A1A1A',
   },
   loginCard: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 24,
     borderWidth: 1,
-    borderColor: '#E8E8E8',
   },
   loginHeader: {
     flexDirection: 'row',
@@ -529,22 +520,18 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#F5F5F5',
   },
   loginHeaderText: {
     fontSize: 16,
     fontWeight: '400',
-    color: '#1A1A1A',
   },
   loginForm: {
     gap: 16,
   },
   passwordCard: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 24,
     borderWidth: 1,
-    borderColor: '#E8E8E8',
   },
   passwordHeader: {
     flexDirection: 'row',
@@ -553,12 +540,10 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#F5F5F5',
   },
   passwordHeaderText: {
     fontSize: 16,
     fontWeight: '400',
-    color: '#1A1A1A',
   },
   passwordForm: {
     gap: 16,
@@ -567,27 +552,21 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   input: {
-    backgroundColor: '#FAFAFA',
     borderRadius: 12,
     padding: 16,
     fontSize: 15,
-    color: '#1A1A1A',
     borderWidth: 1,
-    borderColor: '#E8E8E8',
   },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FAFAFA',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E8E8E8',
   },
   passwordInput: {
     flex: 1,
     padding: 16,
     fontSize: 15,
-    color: '#1A1A1A',
   },
   showPasswordButton: {
     padding: 16,
@@ -604,19 +583,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  buttonPrimary: {
-    backgroundColor: '#6B8E5A',
-  },
-  buttonSecondary: {
-    backgroundColor: '#F0F0F0',
-  },
   buttonText: {
-    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '500',
   },
   buttonTextSecondary: {
-    color: '#666666',
     fontSize: 16,
     fontWeight: '500',
   },
@@ -624,11 +595,9 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   dangerCard: {
-    backgroundColor: '#FFF8F8',
     borderRadius: 16,
     padding: 20,
     borderWidth: 1,
-    borderColor: '#FFE0E0',
   },
   dangerHeader: {
     flexDirection: 'row',
@@ -639,30 +608,25 @@ const styles = StyleSheet.create({
   dangerTitle: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#C62828',
   },
   dangerDescription: {
     fontSize: 14,
-    color: '#666666',
     lineHeight: 20,
     marginBottom: 16,
   },
   buttonDanger: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: '#C62828',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
   },
   buttonDangerText: {
-    color: '#C62828',
     fontSize: 16,
     fontWeight: '500',
   },
   infoText: {
     fontSize: 14,
-    color: '#999999',
     textAlign: 'center',
     lineHeight: 20,
   },

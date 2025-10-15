@@ -13,6 +13,7 @@ import {
 } from 'react-native'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
+import { useTheme } from '@/contexts/theme-context'
 import { AuthService } from '@/utils/auth-service'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useCustomAlert } from '@/components/custom-alert'
@@ -24,6 +25,7 @@ interface PaymentAuthScreenProps {
 }
 
 export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthScreenProps) {
+  const theme = useTheme()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -114,12 +116,12 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <View style={styles.overlay}>
+      <View style={[styles.overlay, { backgroundColor: theme.colors.backgroundOverlay }]}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.keyboardAvoidingView}
         >
-          <ThemedView style={styles.container}>
+          <ThemedView style={[styles.container, { backgroundColor: theme.colors.backgroundLight }]}>
             {/* Custom Alert */}
             <AlertComponent />
 
@@ -136,15 +138,15 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
               <ThemedText type="title" style={styles.title}>
                 Secure Your Purchase
               </ThemedText>
-              <ThemedText style={styles.subtitle}>
+              <ThemedText style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
                 Create an account to access your insights from any device and keep your purchases safe
               </ThemedText>
             </View>
 
             {/* Error Message */}
             {error && (
-              <View style={styles.errorContainer}>
-                <Text style={styles.errorText}>{error}</Text>
+              <View style={[styles.errorContainer, { backgroundColor: theme.colors.backgroundError }]}>
+                <Text style={[styles.errorText, { color: theme.colors.textDanger }]}>{error}</Text>
               </View>
             )}
 
@@ -152,11 +154,11 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
             <View style={styles.formContainer}>
               {/* Email Input */}
               <View style={styles.inputGroup}>
-                <ThemedText style={styles.label}>Email Address</ThemedText>
+                <ThemedText style={[styles.label, { color: theme.colors.textDark }]}>Email Address</ThemedText>
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, { backgroundColor: theme.colors.backgroundInput, borderColor: theme.colors.borderInput, color: theme.colors.text }]}
                   placeholder="your@email.com"
-                  placeholderTextColor="#999999"
+                  placeholderTextColor={theme.colors.textTertiary}
                   value={email}
                   onChangeText={(text) => {
                     setEmail(text.trim())
@@ -171,12 +173,12 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
 
               {/* Password Input */}
               <View style={styles.inputGroup}>
-                <ThemedText style={styles.label}>Password</ThemedText>
-                <View style={styles.passwordContainer}>
+                <ThemedText style={[styles.label, { color: theme.colors.textDark }]}>Password</ThemedText>
+                <View style={[styles.passwordContainer, { backgroundColor: theme.colors.backgroundInput, borderColor: theme.colors.borderInput }]}>
                   <TextInput
-                    style={styles.passwordInput}
+                    style={[styles.passwordInput, { color: theme.colors.text }]}
                     placeholder="Minimum 8 characters"
-                    placeholderTextColor="#999999"
+                    placeholderTextColor={theme.colors.textTertiary}
                     value={password}
                     onChangeText={(text) => {
                       setPassword(text)
@@ -194,7 +196,7 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
                     <MaterialCommunityIcons
                       name={showPassword ? 'eye-off-outline' : 'eye-outline'}
                       size={20}
-                      color="#6B8E5A"
+                      color={theme.colors.primary}
                     />
                   </TouchableOpacity>
                 </View>
@@ -202,11 +204,11 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
 
               {/* Confirm Password Input */}
               <View style={styles.inputGroup}>
-                <ThemedText style={styles.label}>Confirm Password</ThemedText>
+                <ThemedText style={[styles.label, { color: theme.colors.textDark }]}>Confirm Password</ThemedText>
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, { backgroundColor: theme.colors.backgroundInput, borderColor: theme.colors.borderInput, color: theme.colors.text }]}
                   placeholder="Re-enter your password"
-                  placeholderTextColor="#999999"
+                  placeholderTextColor={theme.colors.textTertiary}
                   value={confirmPassword}
                   onChangeText={(text) => {
                     setConfirmPassword(text)
@@ -221,23 +223,23 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
             </View>
 
             {/* Privacy Notice */}
-            <View style={styles.privacyNotice}>
+            <View style={[styles.privacyNotice, { backgroundColor: theme.colors.backgroundSuccess }]}>
               <Text style={styles.lockIcon}>🔒</Text>
-              <ThemedText style={styles.privacyText}>
+              <ThemedText style={[styles.privacyText, { color: theme.colors.textSuccess }]}>
                 Your data is private and secure. We only use your email to help you access your account.
               </ThemedText>
             </View>
 
             {/* Create Account Button */}
             <TouchableOpacity
-              style={[styles.createButton, isLoading && styles.createButtonDisabled]}
+              style={[styles.createButton, { backgroundColor: theme.colors.primary }, isLoading && styles.createButtonDisabled]}
               onPress={handleCreateAccount}
               disabled={isLoading}
             >
               {isLoading ? (
-                <ActivityIndicator color="#FFFFFF" />
+                <ActivityIndicator color={theme.colors.textWhite} />
               ) : (
-                <Text style={styles.createButtonText}>Create Account & Continue</Text>
+                <Text style={[styles.createButtonText, { color: theme.colors.textWhite }]}>Create Account & Continue</Text>
               )}
             </TouchableOpacity>
           </ScrollView>
@@ -251,14 +253,12 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'flex-end',
   },
   keyboardAvoidingView: {
     width: '100%',
   },
   container: {
-    backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: '95%',
@@ -287,19 +287,16 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 16,
-    color: '#666666',
     textAlign: 'center',
     paddingHorizontal: 20,
     lineHeight: 22,
   },
   errorContainer: {
-    backgroundColor: '#FFEBEE',
     borderRadius: 8,
     padding: 12,
     marginBottom: 16,
   },
   errorText: {
-    color: '#C62828',
     fontSize: 14,
     textAlign: 'center',
   },
@@ -313,37 +310,29 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333333',
   },
   input: {
-    backgroundColor: '#F8F8F8',
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
-    color: '#1A1A1A',
   },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8F8F8',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
   },
   passwordInput: {
     flex: 1,
     padding: 16,
     fontSize: 16,
-    color: '#1A1A1A',
   },
   showPasswordButton: {
     padding: 16,
   },
   privacyNotice: {
     flexDirection: 'row',
-    backgroundColor: '#E8F5E9',
     borderRadius: 12,
     padding: 12,
     marginBottom: 24,
@@ -355,12 +344,10 @@ const styles = StyleSheet.create({
   },
   privacyText: {
     fontSize: 12,
-    color: '#2E7D32',
     flex: 1,
     lineHeight: 16,
   },
   createButton: {
-    backgroundColor: '#6B8E5A',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
@@ -370,7 +357,6 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   createButtonText: {
-    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
   },

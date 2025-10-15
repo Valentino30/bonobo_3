@@ -50,7 +50,6 @@ export function ChatList({
 
 const styles = StyleSheet.create({
   chatList: {
-    flex: 1,
     width: '100%',
   },
   chatListContent: {

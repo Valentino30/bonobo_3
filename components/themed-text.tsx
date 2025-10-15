@@ -1,4 +1,5 @@
 import { Colors } from '@/constants/theme'
+import { useTheme } from '@/contexts/theme-context'
 import { useColorScheme } from '@/hooks/use-color-scheme'
 import { StyleSheet, Text, type TextProps } from 'react-native'
 
@@ -9,18 +10,19 @@ export type ThemedTextProps = TextProps & {
 }
 
 export function ThemedText({ style, lightColor, darkColor, type = 'default', ...rest }: ThemedTextProps) {
-  const theme = useColorScheme()
+  const colorScheme = useColorScheme()
+  const theme = useTheme()
   const color = lightColor
 
   return (
     <Text
       style={[
-        { color: color ?? Colors[theme].text },
+        { color: color ?? Colors[colorScheme].text },
         type === 'default' ? styles.default : undefined,
         type === 'title' ? styles.title : undefined,
         type === 'defaultSemiBold' ? styles.defaultSemiBold : undefined,
         type === 'subtitle' ? styles.subtitle : undefined,
-        type === 'link' ? styles.link : undefined,
+        type === 'link' ? { ...styles.link, color: theme.colors.primary } : undefined,
         style,
       ]}
       {...rest}
@@ -50,6 +52,5 @@ const styles = StyleSheet.create({
   link: {
     lineHeight: 30,
     fontSize: 16,
-    color: '#6B8E5A',
   },
 })

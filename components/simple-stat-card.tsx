@@ -1,6 +1,7 @@
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { StyleSheet, View } from 'react-native'
+import { useTheme } from '@/contexts/theme-context'
 
 interface SimpleStatCardProps {
   title: string
@@ -9,32 +10,31 @@ interface SimpleStatCardProps {
 }
 
 export function SimpleStatCard({ title, icon, value }: SimpleStatCardProps) {
+  const theme = useTheme()
+
   return (
-    <ThemedView style={styles.statCard}>
+    <ThemedView style={[styles.statCard, { backgroundColor: theme.colors.backgroundLight, borderColor: theme.colors.borderLight, shadowColor: theme.colors.shadow }]}>
       <View style={styles.titleRow}>
-        <ThemedText style={styles.cardTitle}>{title}</ThemedText>
+        <ThemedText style={[styles.cardTitle, { color: theme.colors.textSecondary }]}>{title}</ThemedText>
         <ThemedText style={styles.iconText}>{icon}</ThemedText>
       </View>
-      <View style={styles.divider} />
-      <ThemedText style={styles.singleValueNumber}>{value}</ThemedText>
+      <View style={[styles.divider, { backgroundColor: theme.colors.backgroundSecondary }]} />
+      <ThemedText style={[styles.singleValueNumber, { color: theme.colors.text }]}>{value}</ThemedText>
     </ThemedView>
   )
 }
 
 const styles = StyleSheet.create({
   statCard: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 20,
     width: '100%',
     marginBottom: 12,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
     borderWidth: 1,
-    borderColor: '#F5F5F5',
   },
   titleRow: {
     flexDirection: 'row',
@@ -45,7 +45,6 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#666666',
     letterSpacing: 0.3,
     textTransform: 'uppercase',
   },
@@ -55,13 +54,11 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#F0F0F0',
     marginBottom: 20,
   },
   singleValueNumber: {
     fontSize: 40,
     fontWeight: '300',
-    color: '#1A1A1A',
     textAlign: 'center',
     letterSpacing: -0.5,
     lineHeight: 48,

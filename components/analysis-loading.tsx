@@ -1,4 +1,5 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { useTheme } from '@/contexts/theme-context'
 import { useEffect, useState } from 'react'
 import { Animated, Easing, StyleSheet, Text, View } from 'react-native'
 
@@ -21,6 +22,7 @@ const STEPS = [
 ]
 
 export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
+  const theme = useTheme()
   const [currentStep, setCurrentStep] = useState(0)
   console.log('AnalysisLoading: currentStep', currentStep)
   const [pulseAnim] = useState(new Animated.Value(1))
@@ -88,35 +90,35 @@ export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
   })
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       {/* Main Content Card */}
-      <View style={styles.card}>
+      <View style={[styles.card, { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow, borderColor: theme.colors.backgroundSecondary }]}>
         {/* Animated Icon */}
-        <Animated.View style={[styles.iconContainer, { transform: [{ scale: pulseAnim }] }]}>
-          <MaterialCommunityIcons name={STEPS[currentStep].icon} size={56} color="#6B8E5A" />
+        <Animated.View style={[styles.iconContainer, { backgroundColor: theme.colors.backgroundInfo, borderColor: theme.colors.primaryLighter, transform: [{ scale: pulseAnim }] }]}>
+          <MaterialCommunityIcons name={STEPS[currentStep].icon} size={56} color={theme.colors.primary} />
         </Animated.View>
 
         {/* Title and Subtitle */}
         <View style={styles.textContainer}>
-          <Text style={styles.title}>{STEPS[currentStep].title}</Text>
-          <Text style={styles.subtitle}>{STEPS[currentStep].subtitle}</Text>
+          <Text style={[styles.title, { color: theme.colors.text }]}>{STEPS[currentStep].title}</Text>
+          <Text style={[styles.subtitle, { color: theme.colors.textTertiary }]}>{STEPS[currentStep].subtitle}</Text>
         </View>
 
         {/* Progress Bar */}
         <View style={styles.progressBarContainer}>
-          <View style={styles.progressBarBackground}>
-            <Animated.View style={[styles.progressBarFill, { width: progressWidth }]} />
+          <View style={[styles.progressBarBackground, { backgroundColor: theme.colors.backgroundSecondary }]}>
+            <Animated.View style={[styles.progressBarFill, { backgroundColor: theme.colors.primary, width: progressWidth }]} />
           </View>
-          <Text style={styles.progressText}>
+          <Text style={[styles.progressText, { color: theme.colors.primary }]}>
             {currentStep + 1} of {STEPS.length}
           </Text>
         </View>
       </View>
 
       {/* Bottom Tip */}
-      <View style={styles.tipContainer}>
-        <MaterialCommunityIcons name="lightbulb-on-outline" size={18} color="#6B8E5A" />
-        <Text style={styles.tipText}>Analyzing your conversation...</Text>
+      <View style={[styles.tipContainer, { backgroundColor: theme.colors.backgroundInfo, borderColor: theme.colors.primaryLighter }]}>
+        <MaterialCommunityIcons name="lightbulb-on-outline" size={18} color={theme.colors.primary} />
+        <Text style={[styles.tipText, { color: theme.colors.primaryDark }]}>Analyzing your conversation...</Text>
       </View>
     </View>
   )
@@ -128,33 +130,27 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 24,
-    backgroundColor: '#FAFAFA',
   },
   card: {
     width: '100%',
     maxWidth: 400,
-    backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 32,
     alignItems: 'center',
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
     shadowRadius: 12,
     elevation: 4,
     borderWidth: 1,
-    borderColor: '#F0F0F0',
   },
   iconContainer: {
     width: 96,
     height: 96,
     borderRadius: 48,
-    backgroundColor: '#F5F9F3',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 24,
     borderWidth: 2,
-    borderColor: '#D5E3CE',
   },
   textContainer: {
     alignItems: 'center',
@@ -163,7 +159,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#1A1A1A',
     marginBottom: 6,
     textAlign: 'center',
     letterSpacing: 0.3,
@@ -171,7 +166,6 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 14,
     fontWeight: '400',
-    color: '#999999',
     textAlign: 'center',
     letterSpacing: 0.2,
   },
@@ -183,19 +177,16 @@ const styles = StyleSheet.create({
   progressBarBackground: {
     width: '100%',
     height: 6,
-    backgroundColor: '#F0F0F0',
     borderRadius: 3,
     overflow: 'hidden',
   },
   progressBarFill: {
     height: '100%',
-    backgroundColor: '#6B8E5A',
     borderRadius: 3,
   },
   progressText: {
     fontSize: 12,
     fontWeight: '500',
-    color: '#6B8E5A',
     letterSpacing: 0.5,
   },
   tipContainer: {
@@ -205,15 +196,12 @@ const styles = StyleSheet.create({
     marginTop: 24,
     paddingHorizontal: 16,
     paddingVertical: 10,
-    backgroundColor: '#F5F9F3',
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#D5E3CE',
   },
   tipText: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#5C6B63',
     letterSpacing: 0.2,
   },
 })

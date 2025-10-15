@@ -1,3 +1,4 @@
+import { useTheme } from '@/contexts/theme-context'
 import { StyleSheet, Text, View } from 'react-native'
 
 interface InsightCardProps {
@@ -13,28 +14,31 @@ interface InsightCardProps {
   color?: string
 }
 
-export function InsightCard({ title, icon, value, description, items, badge, color = '#6B8E5A' }: InsightCardProps) {
+export function InsightCard({ title, icon, value, description, items, badge, color }: InsightCardProps) {
+  const theme = useTheme()
+  const itemColor = color || theme.colors.primary
+
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow }]}>
       {/* Header Section with Divider */}
       <View style={styles.headerSection}>
         <View style={styles.header}>
           {icon && <Text style={styles.icon}>{icon}</Text>}
-          <Text style={styles.title}>{title}</Text>
+          <Text style={[styles.title, { color: theme.colors.text }]}>{title}</Text>
           {badge && (
             <View style={[styles.badge, { backgroundColor: `${badge.color}20` }]}>
               <Text style={[styles.badgeText, { color: badge.color }]}>{badge.text}</Text>
             </View>
           )}
         </View>
-        <View style={styles.divider} />
+        <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
       </View>
 
       {/* Content Section */}
       <View style={styles.content}>
-        {value && <Text style={[styles.value, { color }]}>{value}</Text>}
+        {value && <Text style={[styles.value, { color: itemColor }]}>{value}</Text>}
         {description && (
-          <Text style={styles.description}>
+          <Text style={[styles.description, { color: theme.colors.textSecondary }]}>
             {typeof description === 'string' ? description : JSON.stringify(description)}
           </Text>
         )}
@@ -47,8 +51,8 @@ export function InsightCard({ title, icon, value, description, items, badge, col
 
               return (
                 <View key={index} style={styles.itemRow}>
-                  <View style={[styles.bullet, { backgroundColor: color }]} />
-                  <Text style={styles.itemText}>{itemText}</Text>
+                  <View style={[styles.bullet, { backgroundColor: itemColor }]} />
+                  <Text style={[styles.itemText, { color: theme.colors.textSecondary }]}>{itemText}</Text>
                 </View>
               )
             })}
@@ -60,10 +64,8 @@ export function InsightCard({ title, icon, value, description, items, badge, col
 }
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     marginBottom: 16,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 3,
@@ -85,13 +87,11 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#E8E8E8',
     marginTop: 12,
   },
   title: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#1A1A1A',
     letterSpacing: 0.3,
     textTransform: 'uppercase',
     flex: 1,
@@ -120,7 +120,6 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 14,
     fontWeight: '300',
-    color: '#666666',
     lineHeight: 20,
     letterSpacing: 0.1,
     marginBottom: 12,
@@ -147,7 +146,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     fontWeight: '300',
-    color: '#666666',
     lineHeight: 20,
     letterSpacing: 0.1,
   },

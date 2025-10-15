@@ -8,6 +8,7 @@ import { Paywall } from '@/components/paywall'
 import { SimpleStatCard } from '@/components/simple-stat-card'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
+import { useTheme } from '@/contexts/theme-context'
 import { usePersistedChats } from '@/hooks/use-persisted-chats'
 import { AuthService } from '@/utils/auth-service'
 import { PaymentService } from '@/utils/payment-service'
@@ -44,6 +45,7 @@ interface ChatAnalysisData {
 }
 
 export default function ChatAnalysisScreen() {
+  const theme = useTheme()
   const analysisRef = useRef<ChatAnalysisData | null>(null)
   const { chatId } = useLocalSearchParams<{ chatId: string }>()
   const { chats, isLoading: chatsLoading, updateChatAnalysis } = usePersistedChats()
@@ -307,7 +309,7 @@ export default function ChatAnalysisScreen() {
       showLoadingAnimation
     )
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <AnalysisLoading
           key={chatId}
           onComplete={() => {
@@ -326,13 +328,13 @@ export default function ChatAnalysisScreen() {
 
   if (!chat && !chatsLoading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <ThemedView style={styles.content}>
           <ThemedText type="title">Chat Not Found</ThemedText>
-          <ThemedText style={styles.errorText}>The requested chat could not be found.</ThemedText>
+          <ThemedText style={[styles.errorText, { color: theme.colors.warning }]}>The requested chat could not be found.</ThemedText>
           <Link href="/chats" asChild>
-            <TouchableOpacity style={styles.button}>
-              <ThemedText style={styles.buttonText}>Back to Chats</ThemedText>
+            <TouchableOpacity style={[styles.button, { backgroundColor: theme.colors.primary }]}>
+              <ThemedText style={[styles.buttonText, { color: theme.colors.textWhite }]}>Back to Chats</ThemedText>
             </TouchableOpacity>
           </Link>
         </ThemedView>
@@ -343,12 +345,12 @@ export default function ChatAnalysisScreen() {
   // Only show error screen if there's an actual error AND we're not analyzing
   if (error && !isAnalyzing) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <ThemedView style={styles.content}>
           <ThemedText type="title">Analysis Error</ThemedText>
-          <ThemedText style={styles.errorText}>{error}</ThemedText>
-          <TouchableOpacity style={styles.button} onPress={() => router.back()}>
-            <ThemedText style={styles.buttonText}>Go Back</ThemedText>
+          <ThemedText style={[styles.errorText, { color: theme.colors.warning }]}>{error}</ThemedText>
+          <TouchableOpacity style={[styles.button, { backgroundColor: theme.colors.primary }]} onPress={() => router.back()}>
+            <ThemedText style={[styles.buttonText, { color: theme.colors.textWhite }]}>Go Back</ThemedText>
           </TouchableOpacity>
         </ThemedView>
       </SafeAreaView>
@@ -362,48 +364,48 @@ export default function ChatAnalysisScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]} edges={['top']}>
       {/* Fixed Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: theme.colors.background }]}>
         <View style={styles.headerTop}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <MaterialCommunityIcons name="chevron-left" size={24} color="#6B8E5A" />
+            <MaterialCommunityIcons name="chevron-left" size={24} color={theme.colors.primary} />
           </TouchableOpacity>
-          <ThemedText type="title" style={styles.title}>
+          <ThemedText type="title" style={[styles.title, { color: theme.colors.text }]}>
             Chat Analysis
           </ThemedText>
         </View>
 
         {/* Tab Navigation */}
-        <View style={styles.tabContainer}>
+        <View style={[styles.tabContainer, { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow }]}>
           <TouchableOpacity
-            style={[styles.tab, activeTab === 'overview' && styles.tabActive]}
+            style={[styles.tab, activeTab === 'overview' && { backgroundColor: theme.colors.primary, borderRadius: 6 }]}
             onPress={() => handleTabChange('overview')}
           >
             <View style={styles.tabContent}>
               <MaterialCommunityIcons
                 name="chart-box-outline"
                 size={16}
-                color={activeTab === 'overview' ? '#FFFFFF' : '#999999'}
+                color={activeTab === 'overview' ? theme.colors.textWhite : theme.colors.textTertiary}
                 style={styles.tabIcon}
               />
-              <ThemedText style={[styles.tabText, activeTab === 'overview' && styles.tabTextActive]}>
+              <ThemedText style={[styles.tabText, { color: activeTab === 'overview' ? theme.colors.textWhite : theme.colors.textTertiary }]}>
                 Overview
               </ThemedText>
             </View>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.tab, activeTab === 'insights' && styles.tabActive]}
+            style={[styles.tab, activeTab === 'insights' && { backgroundColor: theme.colors.primary, borderRadius: 6 }]}
             onPress={() => handleTabChange('insights')}
           >
             <View style={styles.tabContent}>
               <MaterialCommunityIcons
                 name="auto-fix"
                 size={16}
-                color={activeTab === 'insights' ? '#FFFFFF' : '#999999'}
+                color={activeTab === 'insights' ? theme.colors.textWhite : theme.colors.textTertiary}
                 style={styles.tabIcon}
               />
-              <ThemedText style={[styles.tabText, activeTab === 'insights' && styles.tabTextActive]}>
+              <ThemedText style={[styles.tabText, { color: activeTab === 'insights' ? theme.colors.textWhite : theme.colors.textTertiary }]}>
                 Insights
               </ThemedText>
             </View>
@@ -432,7 +434,7 @@ export default function ChatAnalysisScreen() {
         bounces={true}
         alwaysBounceVertical={true}
       >
-        <View style={styles.content}>
+        <View style={[styles.content, { backgroundColor: theme.colors.background }]}>
           {/* Tab Content */}
           {activeTab === 'overview' ? (
             <View style={styles.statsGrid}>
@@ -486,13 +488,13 @@ export default function ChatAnalysisScreen() {
                     name: analysis.participant1.name,
                     value: `${analysis.participant1.interestLevel}%`,
                     progressValue: analysis.participant1.interestLevel,
-                    progressColor: '#0288D1',
+                    progressColor: theme.colors.info,
                   },
                   {
                     name: analysis.participant2.name,
                     value: `${analysis.participant2.interestLevel}%`,
                     progressValue: analysis.participant2.interestLevel,
-                    progressColor: '#C2185B',
+                    progressColor: theme.colors.error,
                   },
                 ]}
               />
@@ -506,7 +508,7 @@ export default function ChatAnalysisScreen() {
                   title="Red Flags"
                   description={aiInsights.redFlags.description}
                   items={aiInsights.redFlags.items}
-                  badge={{ text: `${aiInsights.redFlags.count} Found`, color: '#6B8E5A' }}
+                  badge={{ text: `${aiInsights.redFlags.count} Found`, color: theme.colors.primary }}
                 />
               ) : (
                 <LockedInsightCard
@@ -525,7 +527,7 @@ export default function ChatAnalysisScreen() {
                   title="Green Flags"
                   description={aiInsights.greenFlags.description}
                   items={aiInsights.greenFlags.items}
-                  badge={{ text: `${aiInsights.greenFlags.count} Found`, color: '#6B8E5A' }}
+                  badge={{ text: `${aiInsights.greenFlags.count} Found`, color: theme.colors.primary }}
                 />
               ) : (
                 <LockedInsightCard
@@ -544,7 +546,7 @@ export default function ChatAnalysisScreen() {
                   title="Attachment Style"
                   description={aiInsights.attachmentStyle.description}
                   items={aiInsights.attachmentStyle.items}
-                  badge={{ text: aiInsights.attachmentStyle.type, color: '#6B8E5A' }}
+                  badge={{ text: aiInsights.attachmentStyle.type, color: theme.colors.primary }}
                 />
               ) : (
                 <LockedInsightCard
@@ -565,7 +567,7 @@ export default function ChatAnalysisScreen() {
                   items={aiInsights.reciprocityScore.items}
                   badge={{
                     text: `${aiInsights.reciprocityScore.percentage}% ${aiInsights.reciprocityScore.rating}`,
-                    color: '#6B8E5A',
+                    color: theme.colors.primary,
                   }}
                 />
               ) : (
@@ -585,7 +587,7 @@ export default function ChatAnalysisScreen() {
                   title="Compliments"
                   description={aiInsights.compliments.description}
                   items={aiInsights.compliments.items}
-                  badge={{ text: getFrequencyLabel(aiInsights.compliments.count), color: '#6B8E5A' }}
+                  badge={{ text: getFrequencyLabel(aiInsights.compliments.count), color: theme.colors.primary }}
                 />
               ) : (
                 <LockedInsightCard
@@ -604,7 +606,7 @@ export default function ChatAnalysisScreen() {
                   title="Criticism"
                   description={aiInsights.criticism.description}
                   items={aiInsights.criticism.items}
-                  badge={{ text: getFrequencyLabel(aiInsights.criticism.count), color: '#6B8E5A' }}
+                  badge={{ text: getFrequencyLabel(aiInsights.criticism.count), color: theme.colors.primary }}
                 />
               ) : (
                 <LockedInsightCard
@@ -625,7 +627,7 @@ export default function ChatAnalysisScreen() {
                   items={aiInsights.compatibilityScore.items}
                   badge={{
                     text: `${aiInsights.compatibilityScore.percentage}% ${aiInsights.compatibilityScore.rating}`,
-                    color: '#6B8E5A',
+                    color: theme.colors.primary,
                   }}
                 />
               ) : (
@@ -645,7 +647,7 @@ export default function ChatAnalysisScreen() {
                   title="Relationship Tips"
                   description={aiInsights.relationshipTips.description}
                   items={aiInsights.relationshipTips.tips}
-                  badge={{ text: `${aiInsights.relationshipTips.count} Found`, color: '#6B8E5A' }}
+                  badge={{ text: `${aiInsights.relationshipTips.count} Found`, color: theme.colors.primary }}
                 />
               ) : (
                 <LockedInsightCard
@@ -667,10 +669,8 @@ export default function ChatAnalysisScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFAFA',
   },
   header: {
-    backgroundColor: '#FAFAFA',
     paddingHorizontal: 16,
     paddingTop: 20,
     paddingBottom: 12,
@@ -694,20 +694,16 @@ const styles = StyleSheet.create({
   content: {
     padding: 20,
     paddingTop: 0,
-    backgroundColor: '#FAFAFA',
   },
   title: {
     fontSize: 32,
     fontWeight: '300',
-    color: '#1A1A1A',
     letterSpacing: -0.5,
   },
   tabContainer: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
     borderRadius: 8,
     padding: 4,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
@@ -717,11 +713,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     paddingHorizontal: 16,
-    borderRadius: 6,
     alignItems: 'center',
-  },
-  tabActive: {
-    backgroundColor: '#6B8E5A',
   },
   tabContent: {
     flexDirection: 'row',
@@ -735,11 +727,7 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#999999',
     letterSpacing: 0.3,
-  },
-  tabTextActive: {
-    color: '#FFFFFF',
   },
   statsGrid: {
     marginTop: 12,
@@ -748,7 +736,6 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   button: {
-    backgroundColor: '#6B8E5A',
     paddingVertical: 14,
     paddingHorizontal: 16,
     borderRadius: 8,
@@ -756,7 +743,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   buttonText: {
-    color: '#FFFFFF',
     fontWeight: '500',
     fontSize: 14,
     letterSpacing: 0.3,
@@ -769,13 +755,11 @@ const styles = StyleSheet.create({
   loadingText: {
     textAlign: 'center',
     marginTop: 16,
-    color: '#666666',
     fontSize: 14,
     letterSpacing: 0.1,
   },
   errorText: {
     textAlign: 'center',
-    color: '#FF6B6B',
     marginVertical: 16,
     fontSize: 14,
     letterSpacing: 0.1,

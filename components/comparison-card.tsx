@@ -1,6 +1,7 @@
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { StyleSheet, View } from 'react-native'
+import { useTheme } from '@/contexts/theme-context'
 
 interface ParticipantData {
   name: string
@@ -16,26 +17,28 @@ interface ComparisonCardProps {
 }
 
 export function ComparisonCard({ title, icon, participants }: ComparisonCardProps) {
+  const theme = useTheme()
+
   return (
-    <ThemedView style={styles.statCard}>
+    <ThemedView style={[styles.statCard, { backgroundColor: theme.colors.backgroundLight, borderColor: theme.colors.borderLight, shadowColor: theme.colors.shadow }]}>
       <View style={styles.titleRow}>
-        <ThemedText style={styles.cardTitle}>{title}</ThemedText>
+        <ThemedText style={[styles.cardTitle, { color: theme.colors.textSecondary }]}>{title}</ThemedText>
         <ThemedText style={styles.iconText}>{icon}</ThemedText>
       </View>
-      <View style={styles.divider} />
+      <View style={[styles.divider, { backgroundColor: theme.colors.backgroundSecondary }]} />
       <View style={styles.participantRow}>
         {participants.map((participant, index) => (
           <View key={index} style={styles.participantItem}>
-            <ThemedText style={styles.participantName} numberOfLines={1}>{participant.name}</ThemedText>
-            <ThemedText style={styles.participantNumber}>{participant.value}</ThemedText>
+            <ThemedText style={[styles.participantName, { color: theme.colors.textTertiary }]} numberOfLines={1}>{participant.name}</ThemedText>
+            <ThemedText style={[styles.participantNumber, { color: theme.colors.text }]}>{participant.value}</ThemedText>
             {participant.progressValue !== undefined && (
-              <View style={styles.progressBar}>
+              <View style={[styles.progressBar, { backgroundColor: theme.colors.borderLight }]}>
                 <View
                   style={[
                     styles.progressFill,
                     {
                       width: `${participant.progressValue}%`,
-                      backgroundColor: participant.progressColor || '#4A90E2',
+                      backgroundColor: participant.progressColor || theme.colors.info,
                     },
                   ]}
                 />
@@ -50,18 +53,15 @@ export function ComparisonCard({ title, icon, participants }: ComparisonCardProp
 
 const styles = StyleSheet.create({
   statCard: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 20,
     width: '100%',
     marginBottom: 12,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
     borderWidth: 1,
-    borderColor: '#F5F5F5',
   },
   titleRow: {
     flexDirection: 'row',
@@ -72,7 +72,6 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#666666',
     letterSpacing: 0.3,
     textTransform: 'uppercase',
   },
@@ -82,7 +81,6 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#F0F0F0',
     marginBottom: 20,
   },
   participantRow: {
@@ -97,7 +95,6 @@ const styles = StyleSheet.create({
   participantName: {
     fontSize: 11,
     fontWeight: '500',
-    color: '#999999',
     marginBottom: 10,
     textAlign: 'center',
     letterSpacing: 0.5,
@@ -106,13 +103,11 @@ const styles = StyleSheet.create({
   participantNumber: {
     fontSize: 32,
     fontWeight: '300',
-    color: '#1A1A1A',
     marginBottom: 8,
     letterSpacing: -0.5,
   },
   progressBar: {
     height: 6,
-    backgroundColor: '#F5F5F5',
     borderRadius: 3,
     marginTop: 8,
     width: '100%',

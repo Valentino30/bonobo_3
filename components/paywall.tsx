@@ -1,5 +1,6 @@
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
+import { useTheme } from '@/contexts/theme-context'
 import { PAYMENT_PLANS } from '@/utils/payment-service'
 import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 
@@ -10,6 +11,8 @@ interface PaywallProps {
 }
 
 export function Paywall({ visible, onClose, onPurchase }: PaywallProps) {
+  const theme = useTheme()
+
   const handlePurchase = async (planId: string) => {
     // Error handling is done by the parent component
     await onPurchase(planId)
@@ -18,8 +21,8 @@ export function Paywall({ visible, onClose, onPurchase }: PaywallProps) {
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <View style={styles.overlay}>
-        <ThemedView style={styles.container}>
+      <View style={[styles.overlay, { backgroundColor: theme.colors.backgroundOverlay }]}>
+        <ThemedView style={[styles.container, { backgroundColor: theme.colors.backgroundLight }]}>
           <ScrollView
             style={styles.scrollView}
             contentContainerStyle={styles.scrollContent}
@@ -32,67 +35,67 @@ export function Paywall({ visible, onClose, onPurchase }: PaywallProps) {
               <ThemedText type="title" style={styles.title}>
                 Unlock AI Insights
               </ThemedText>
-              <ThemedText style={styles.subtitle}>Get deep relationship analysis powered by advanced AI</ThemedText>
+              <ThemedText style={[styles.subtitle, { color: theme.colors.textSecondary }]}>Get deep relationship analysis powered by advanced AI</ThemedText>
             </View>
 
             {/* Plans */}
             <View style={styles.plansContainer}>
               {/* One-Time */}
-              <TouchableOpacity style={styles.planCard} onPress={() => handlePurchase(PAYMENT_PLANS.ONE_TIME.id)}>
+              <TouchableOpacity style={[styles.planCard, { backgroundColor: theme.colors.backgroundInput }]} onPress={() => handlePurchase(PAYMENT_PLANS.ONE_TIME.id)}>
                 <View style={styles.planHeader}>
                   <ThemedText style={styles.planName}>{PAYMENT_PLANS.ONE_TIME.name}</ThemedText>
-                  <Text style={styles.planPrice}>${PAYMENT_PLANS.ONE_TIME.price}</Text>
+                  <Text style={[styles.planPrice, { color: theme.colors.primary }]}>${PAYMENT_PLANS.ONE_TIME.price}</Text>
                 </View>
-                <ThemedText style={styles.planDescription}>{PAYMENT_PLANS.ONE_TIME.description}</ThemedText>
+                <ThemedText style={[styles.planDescription, { color: theme.colors.textSecondary }]}>{PAYMENT_PLANS.ONE_TIME.description}</ThemedText>
               </TouchableOpacity>
 
               {/* Weekly - Popular */}
               <TouchableOpacity
-                style={[styles.planCard, styles.popularPlan]}
+                style={[styles.planCard, styles.popularPlan, { backgroundColor: theme.colors.backgroundSuccess, borderColor: theme.colors.primary }]}
                 onPress={() => handlePurchase(PAYMENT_PLANS.WEEKLY.id)}
               >
-                <View style={styles.popularBadge}>
-                  <Text style={styles.popularText}>POPULAR</Text>
+                <View style={[styles.popularBadge, { backgroundColor: theme.colors.primary }]}>
+                  <Text style={[styles.popularText, { color: theme.colors.textWhite }]}>POPULAR</Text>
                 </View>
                 <View style={styles.planHeader}>
                   <ThemedText style={styles.planName}>{PAYMENT_PLANS.WEEKLY.name}</ThemedText>
-                  <Text style={styles.planPrice}>${PAYMENT_PLANS.WEEKLY.price}</Text>
+                  <Text style={[styles.planPrice, { color: theme.colors.primary }]}>${PAYMENT_PLANS.WEEKLY.price}</Text>
                 </View>
-                <ThemedText style={styles.planDescription}>{PAYMENT_PLANS.WEEKLY.description}</ThemedText>
-                <ThemedText style={styles.planSavings}>Best value per day!</ThemedText>
+                <ThemedText style={[styles.planDescription, { color: theme.colors.textSecondary }]}>{PAYMENT_PLANS.WEEKLY.description}</ThemedText>
+                <ThemedText style={[styles.planSavings, { color: theme.colors.primary }]}>Best value per day!</ThemedText>
               </TouchableOpacity>
 
               {/* Monthly */}
-              <TouchableOpacity style={styles.planCard} onPress={() => handlePurchase(PAYMENT_PLANS.MONTHLY.id)}>
+              <TouchableOpacity style={[styles.planCard, { backgroundColor: theme.colors.backgroundInput }]} onPress={() => handlePurchase(PAYMENT_PLANS.MONTHLY.id)}>
                 <View style={styles.planHeader}>
                   <ThemedText style={styles.planName}>{PAYMENT_PLANS.MONTHLY.name}</ThemedText>
-                  <Text style={styles.planPrice}>${PAYMENT_PLANS.MONTHLY.price}</Text>
+                  <Text style={[styles.planPrice, { color: theme.colors.primary }]}>${PAYMENT_PLANS.MONTHLY.price}</Text>
                 </View>
-                <ThemedText style={styles.planDescription}>{PAYMENT_PLANS.MONTHLY.description}</ThemedText>
-                <ThemedText style={styles.planSavings}>Maximum flexibility!</ThemedText>
+                <ThemedText style={[styles.planDescription, { color: theme.colors.textSecondary }]}>{PAYMENT_PLANS.MONTHLY.description}</ThemedText>
+                <ThemedText style={[styles.planSavings, { color: theme.colors.primary }]}>Maximum flexibility!</ThemedText>
               </TouchableOpacity>
             </View>
 
             {/* Features */}
-            <View style={styles.featuresContainer}>
+            <View style={[styles.featuresContainer, { backgroundColor: theme.colors.backgroundInput }]}>
               <ThemedText style={styles.featuresTitle}>What you&apos;ll get:</ThemedText>
               <View style={styles.feature}>
                 <Text style={styles.featureIcon}>✨</Text>
-                <ThemedText style={styles.featureText}>AI-powered relationship insights</ThemedText>
+                <ThemedText style={[styles.featureText, { color: theme.colors.textSecondary }]}>AI-powered relationship insights</ThemedText>
               </View>
               <View style={styles.feature}>
                 <Text style={styles.featureIcon}>🎯</Text>
-                <ThemedText style={styles.featureText}>Personalized compatibility analysis</ThemedText>
+                <ThemedText style={[styles.featureText, { color: theme.colors.textSecondary }]}>Personalized compatibility analysis</ThemedText>
               </View>
               <View style={styles.feature}>
                 <Text style={styles.featureIcon}>💡</Text>
-                <ThemedText style={styles.featureText}>Actionable relationship tips</ThemedText>
+                <ThemedText style={[styles.featureText, { color: theme.colors.textSecondary }]}>Actionable relationship tips</ThemedText>
               </View>
             </View>
 
             {/* Close Button */}
             <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-              <ThemedText style={styles.closeButtonText}>Maybe Later</ThemedText>
+              <ThemedText style={[styles.closeButtonText, { color: theme.colors.textTertiary }]}>Maybe Later</ThemedText>
             </TouchableOpacity>
           </ScrollView>
         </ThemedView>
@@ -104,11 +107,9 @@ export function Paywall({ visible, onClose, onPurchase }: PaywallProps) {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'flex-end',
   },
   container: {
-    backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: '90%',
@@ -137,7 +138,6 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 16,
-    color: '#666666',
     textAlign: 'center',
     paddingHorizontal: 20,
   },
@@ -146,28 +146,23 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   planCard: {
-    backgroundColor: '#F8F8F8',
     borderRadius: 16,
     padding: 20,
     borderWidth: 2,
     borderColor: 'transparent',
   },
   popularPlan: {
-    backgroundColor: '#E8F5E9',
-    borderColor: '#6B8E5A',
     position: 'relative',
   },
   popularBadge: {
     position: 'absolute',
     top: -10,
     right: 20,
-    backgroundColor: '#6B8E5A',
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,
   },
   popularText: {
-    color: '#FFFFFF',
     fontSize: 10,
     fontWeight: '700',
     letterSpacing: 1,
@@ -185,20 +180,16 @@ const styles = StyleSheet.create({
   planPrice: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#6B8E5A',
   },
   planDescription: {
     fontSize: 14,
-    color: '#666666',
     marginBottom: 4,
   },
   planSavings: {
     fontSize: 12,
-    color: '#6B8E5A',
     fontWeight: '500',
   },
   featuresContainer: {
-    backgroundColor: '#F8F8F8',
     borderRadius: 12,
     padding: 16,
     marginBottom: 24,
@@ -219,7 +210,6 @@ const styles = StyleSheet.create({
   },
   featureText: {
     fontSize: 14,
-    color: '#666666',
   },
   closeButton: {
     alignItems: 'center',
@@ -227,6 +217,5 @@ const styles = StyleSheet.create({
   },
   closeButtonText: {
     fontSize: 16,
-    color: '#999999',
   },
 })

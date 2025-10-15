@@ -3,6 +3,7 @@ import { useCustomAlert } from '@/components/custom-alert'
 import { LoadingScreen } from '@/components/loading-screen'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
+import { useTheme } from '@/contexts/theme-context'
 import { usePersistedChats } from '@/hooks/use-persisted-chats'
 import { useShareIntent } from '@/hooks/use-share-intent'
 import { type StoredChat } from '@/utils/chat-storage'
@@ -15,6 +16,7 @@ import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 export default function ChatsScreen() {
+  const theme = useTheme()
   const { shareData, hasShareData, clearShareData } = useShareIntent()
   const { device, reload } = useLocalSearchParams<{ device?: string; reload?: string }>()
   const { chats, addChat: persistAddChat, deleteChat, isLoading, refreshChats } = usePersistedChats()
@@ -224,7 +226,7 @@ export default function ChatsScreen() {
   // Show loading screen while chats are being loaded
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background }]}>
         <ThemedView style={styles.container}>
           <View style={styles.loadingHeader}>
             <ThemedText type="title" style={styles.loadingTitle}>
@@ -238,7 +240,7 @@ export default function ChatsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background }]}>
       <ThemedView style={styles.container}>
         {/* Header with Profile Icon */}
         <View style={styles.headerContainer}>
@@ -247,7 +249,7 @@ export default function ChatsScreen() {
           </ThemedText>
           <Link href={'/profile' as any} asChild>
             <TouchableOpacity style={styles.profileButton}>
-              <MaterialCommunityIcons name="account" size={28} color="#6B8E5A" />
+              <MaterialCommunityIcons name="account" size={28} color={theme.colors.primary} />
             </TouchableOpacity>
           </Link>
         </View>
@@ -268,9 +270,11 @@ export default function ChatsScreen() {
         />
 
         <Link href={'/import-guide' as any} asChild>
-          <TouchableOpacity style={styles.importButton}>
-            <MaterialCommunityIcons name="whatsapp" size={20} color="#FFFFFF" />
-            <ThemedText style={styles.importButtonText}>Import Chat</ThemedText>
+          <TouchableOpacity
+            style={[styles.importButton, { backgroundColor: theme.colors.primary, shadowColor: theme.colors.shadow }]}
+          >
+            <MaterialCommunityIcons name="whatsapp" size={20} color={theme.colors.textWhite} />
+            <ThemedText style={[styles.importButtonText, { color: theme.colors.textWhite }]}>Import Chat</ThemedText>
           </TouchableOpacity>
         </Link>
       </ThemedView>
@@ -281,7 +285,6 @@ export default function ChatsScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FAFAFA',
   },
   container: {
     flex: 1,
@@ -314,12 +317,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     paddingHorizontal: 24,
     paddingVertical: 14,
-    backgroundColor: '#6B8E5A',
     borderRadius: 8,
     alignSelf: 'center',
   },
   buttonText: {
-    color: '#FFFFFF',
     fontWeight: '500',
     fontSize: 14,
     letterSpacing: 0.3,
@@ -332,19 +333,16 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     marginHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: '#6B8E5A',
     borderRadius: 12,
     width: '90%',
     alignSelf: 'center',
     gap: 10,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
   importButtonText: {
-    color: '#FFFFFF',
     fontWeight: '600',
     fontSize: 16,
     letterSpacing: 0.5,
