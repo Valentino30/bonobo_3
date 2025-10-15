@@ -128,11 +128,23 @@ export class ChatStorage {
     try {
       const deviceId = await getDeviceId()
 
-      const { error } = await supabase
+      // Get current user if authenticated
+      const { data: { user } } = await supabase.auth.getUser()
+
+      let query = supabase
         .from('chats')
         .delete()
         .eq('id', chatId)
-        .eq('device_id', deviceId)
+
+      // If user is authenticated, delete chats that match user_id OR device_id
+      // Otherwise, only delete chats matching device_id
+      if (user) {
+        query = query.or(`user_id.eq.${user.id},device_id.eq.${deviceId}`)
+      } else {
+        query = query.eq('device_id', deviceId)
+      }
+
+      const { error } = await query
 
       if (error) {
         console.error('Error deleting chat from Supabase:', error)
@@ -150,10 +162,22 @@ export class ChatStorage {
     try {
       const deviceId = await getDeviceId()
 
-      const { error } = await supabase
+      // Get current user if authenticated
+      const { data: { user } } = await supabase.auth.getUser()
+
+      let query = supabase
         .from('chats')
         .delete()
-        .eq('device_id', deviceId)
+
+      // If user is authenticated, delete chats that match user_id OR device_id
+      // Otherwise, only delete chats matching device_id
+      if (user) {
+        query = query.or(`user_id.eq.${user.id},device_id.eq.${deviceId}`)
+      } else {
+        query = query.eq('device_id', deviceId)
+      }
+
+      const { error } = await query
 
       if (error) {
         console.error('Error clearing chats from Supabase:', error)
@@ -171,10 +195,22 @@ export class ChatStorage {
     try {
       const deviceId = await getDeviceId()
 
-      const { count, error } = await supabase
+      // Get current user if authenticated
+      const { data: { user } } = await supabase.auth.getUser()
+
+      let query = supabase
         .from('chats')
         .select('*', { count: 'exact', head: true })
-        .eq('device_id', deviceId)
+
+      // If user is authenticated, count chats that match user_id OR device_id
+      // Otherwise, only count chats matching device_id
+      if (user) {
+        query = query.or(`user_id.eq.${user.id},device_id.eq.${deviceId}`)
+      } else {
+        query = query.eq('device_id', deviceId)
+      }
+
+      const { count, error } = await query
 
       if (error) {
         console.error('Error getting chat count from Supabase:', error)
@@ -192,6 +228,9 @@ export class ChatStorage {
     try {
       const deviceId = await getDeviceId()
 
+      // Get current user if authenticated
+      const { data: { user } } = await supabase.auth.getUser()
+
       const updateData: any = {
         analysis,
         updated_at: new Date().toISOString(),
@@ -205,11 +244,20 @@ export class ChatStorage {
         updateData.unlocked_insights = unlockedInsights
       }
 
-      const { error } = await supabase
+      let query = supabase
         .from('chats')
         .update(updateData)
         .eq('id', chatId)
-        .eq('device_id', deviceId)
+
+      // If user is authenticated, update chats that match user_id OR device_id
+      // Otherwise, only update chats matching device_id
+      if (user) {
+        query = query.or(`user_id.eq.${user.id},device_id.eq.${deviceId}`)
+      } else {
+        query = query.eq('device_id', deviceId)
+      }
+
+      const { error } = await query
 
       if (error) {
         console.error('Error updating chat analysis in Supabase:', error)
