@@ -49,7 +49,7 @@ export function EmptyState({
         <ThemedText style={styles.emptyIcon}>🤗</ThemedText>
       </ThemedView>
       <ThemedText style={styles.emptyTitle}>
-        {hasShareData ? 'Loading chat...' : 'Welcome to Bonobo!'}
+        {hasShareData ? 'Loading Your Chat' : 'Welcome to Bonobo!'}
       </ThemedText>
       <ThemedText style={styles.emptySubtitle}>
         {hasShareData
