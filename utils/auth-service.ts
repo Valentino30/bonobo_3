@@ -46,10 +46,28 @@ export class AuthService {
         }
       }
 
-      console.log('✅ User signed up successfully:', data.user.id)
+      console.log('✅ User signed up successfully:', {
+        userId: data.user.id,
+        email: data.user.email,
+        emailConfirmedAt: data.user.email_confirmed_at,
+        hasSession: !!data.session,
+        sessionAccessToken: data.session?.access_token ? 'has token' : 'no token',
+      })
+
+      // Check if email confirmation is required
+      if (!data.session) {
+        console.warn('⚠️ No session created - email confirmation may be required')
+        console.warn('Check your Supabase dashboard: Authentication > Settings > "Enable email confirmations"')
+      }
 
       // Migrate device data to the new user
-      await this.migrateDeviceDataToUser(data.user.id)
+      const migrationSuccess = await this.migrateDeviceDataToUser(data.user.id)
+
+      // Note: Migration failure doesn't fail the signup since account is already created
+      // User can still use the app, they just won't have their old data migrated
+      if (!migrationSuccess) {
+        console.warn('⚠️ Account created but data migration had issues')
+      }
 
       return {
         success: true,
@@ -234,8 +252,15 @@ export class AuthService {
   static async isAuthenticated(): Promise<boolean> {
     try {
       const { data: { user } } = await supabase.auth.getUser()
+      console.log('🔐 isAuthenticated check:', {
+        hasUser: !!user,
+        hasEmail: !!user?.email,
+        emailConfirmedAt: user?.email_confirmed_at,
+        userId: user?.id
+      })
       return !!user && !!user.email
     } catch (error) {
+      console.error('🔐 isAuthenticated error:', error)
       return false
     }
   }
@@ -243,12 +268,13 @@ export class AuthService {
   /**
    * Migrate device data to authenticated user
    * This links all chats and entitlements from the device to the user account
+   * Returns true if migration succeeded, false otherwise
    */
-  private static async migrateDeviceDataToUser(userId: string): Promise<void> {
+  private static async migrateDeviceDataToUser(userId: string): Promise<boolean> {
     try {
       const deviceId = await getDeviceId()
 
-      console.log('Migrating device data to user:', { deviceId, userId })
+      console.log('🔄 Starting data migration:', { deviceId, userId })
 
       // Call the Supabase RPC function to migrate data
       const { data, error } = await supabase.rpc('migrate_device_data_to_user', {
@@ -257,13 +283,34 @@ export class AuthService {
       })
 
       if (error) {
-        console.error('Data migration error:', error)
-        return
+        console.error('❌ Data migration RPC error:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+        })
+
+        // Check if it's a function not found error
+        if (error.message?.includes('function') || error.code === '42883') {
+          console.error('⚠️ Migration function not found in database. Please run the migration SQL.')
+          console.error('Migration file: supabase/migrations/20241015000000_add_auth_support.sql')
+        }
+
+        return false
       }
 
       console.log('✅ Data migrated successfully:', data)
+      return true
     } catch (error) {
-      console.error('Data migration error (catch):', error)
+      console.error('❌ Data migration exception:', error)
+      if (error instanceof Error) {
+        console.error('Error details:', {
+          name: error.name,
+          message: error.message,
+          stack: error.stack,
+        })
+      }
+      return false
     }
   }
 
