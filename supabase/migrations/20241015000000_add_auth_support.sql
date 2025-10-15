@@ -92,17 +92,19 @@ DECLARE
   v_chats_updated INTEGER;
   v_entitlements_updated INTEGER;
 BEGIN
-  -- Update chats to link them to the user
+  -- Update chats to link them to the user and clear device_id
   UPDATE public.chats
-  SET user_id = p_user_id
+  SET user_id = p_user_id,
+      device_id = NULL
   WHERE device_id = p_device_id
     AND user_id IS NULL;
 
   GET DIAGNOSTICS v_chats_updated = ROW_COUNT;
 
-  -- Update entitlements to link them to the user
+  -- Update entitlements to link them to the user and clear device_id
   UPDATE public.user_entitlements
-  SET user_id = p_user_id
+  SET user_id = p_user_id,
+      device_id = NULL
   WHERE device_id = p_device_id
     AND user_id IS NULL;
 
