@@ -1,9 +1,10 @@
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { ThemedButton } from '@/components/themed-button'
+import { SubscriptionCard } from '@/components/subscription-card'
 import { useTheme } from '@/contexts/theme-context'
 import { PAYMENT_PLANS } from '@/utils/payment-service'
-import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Modal, ScrollView, StyleSheet, Text, View } from 'react-native'
 
 interface PaywallProps {
   visible: boolean
@@ -42,39 +43,31 @@ export function Paywall({ visible, onClose, onPurchase }: PaywallProps) {
             {/* Plans */}
             <View style={styles.plansContainer}>
               {/* One-Time */}
-              <TouchableOpacity style={[styles.planCard, { backgroundColor: theme.colors.backgroundInput }]} onPress={() => handlePurchase(PAYMENT_PLANS.ONE_TIME.id)}>
-                <View style={styles.planHeader}>
-                  <ThemedText style={styles.planName}>{PAYMENT_PLANS.ONE_TIME.name}</ThemedText>
-                  <Text style={[styles.planPrice, { color: theme.colors.primary }]}>${PAYMENT_PLANS.ONE_TIME.price}</Text>
-                </View>
-                <ThemedText style={[styles.planDescription, { color: theme.colors.textSecondary }]}>{PAYMENT_PLANS.ONE_TIME.description}</ThemedText>
-              </TouchableOpacity>
+              <SubscriptionCard
+                name={PAYMENT_PLANS.ONE_TIME.name}
+                price={PAYMENT_PLANS.ONE_TIME.price}
+                description={PAYMENT_PLANS.ONE_TIME.description}
+                onPress={() => handlePurchase(PAYMENT_PLANS.ONE_TIME.id)}
+              />
 
               {/* Weekly - Popular */}
-              <TouchableOpacity
-                style={[styles.planCard, styles.popularPlan, { backgroundColor: theme.colors.backgroundSuccess, borderColor: theme.colors.primary }]}
+              <SubscriptionCard
+                name={PAYMENT_PLANS.WEEKLY.name}
+                price={PAYMENT_PLANS.WEEKLY.price}
+                description={PAYMENT_PLANS.WEEKLY.description}
+                highlight="Best value per day!"
+                isPopular
                 onPress={() => handlePurchase(PAYMENT_PLANS.WEEKLY.id)}
-              >
-                <View style={[styles.popularBadge, { backgroundColor: theme.colors.primary }]}>
-                  <Text style={[styles.popularText, { color: theme.colors.textWhite }]}>POPULAR</Text>
-                </View>
-                <View style={styles.planHeader}>
-                  <ThemedText style={styles.planName}>{PAYMENT_PLANS.WEEKLY.name}</ThemedText>
-                  <Text style={[styles.planPrice, { color: theme.colors.primary }]}>${PAYMENT_PLANS.WEEKLY.price}</Text>
-                </View>
-                <ThemedText style={[styles.planDescription, { color: theme.colors.textSecondary }]}>{PAYMENT_PLANS.WEEKLY.description}</ThemedText>
-                <ThemedText style={[styles.planSavings, { color: theme.colors.primary }]}>Best value per day!</ThemedText>
-              </TouchableOpacity>
+              />
 
               {/* Monthly */}
-              <TouchableOpacity style={[styles.planCard, { backgroundColor: theme.colors.backgroundInput }]} onPress={() => handlePurchase(PAYMENT_PLANS.MONTHLY.id)}>
-                <View style={styles.planHeader}>
-                  <ThemedText style={styles.planName}>{PAYMENT_PLANS.MONTHLY.name}</ThemedText>
-                  <Text style={[styles.planPrice, { color: theme.colors.primary }]}>${PAYMENT_PLANS.MONTHLY.price}</Text>
-                </View>
-                <ThemedText style={[styles.planDescription, { color: theme.colors.textSecondary }]}>{PAYMENT_PLANS.MONTHLY.description}</ThemedText>
-                <ThemedText style={[styles.planSavings, { color: theme.colors.primary }]}>Maximum flexibility!</ThemedText>
-              </TouchableOpacity>
+              <SubscriptionCard
+                name={PAYMENT_PLANS.MONTHLY.name}
+                price={PAYMENT_PLANS.MONTHLY.price}
+                description={PAYMENT_PLANS.MONTHLY.description}
+                highlight="Maximum flexibility!"
+                onPress={() => handlePurchase(PAYMENT_PLANS.MONTHLY.id)}
+              />
             </View>
 
             {/* Features */}
@@ -151,50 +144,6 @@ const styles = StyleSheet.create({
   plansContainer: {
     gap: 12,
     marginBottom: 24,
-  },
-  planCard: {
-    borderRadius: 16,
-    padding: 20,
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  popularPlan: {
-    position: 'relative',
-  },
-  popularBadge: {
-    position: 'absolute',
-    top: -10,
-    right: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  popularText: {
-    fontSize: 10,
-    fontWeight: '700',
-    letterSpacing: 1,
-  },
-  planHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  planName: {
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  planPrice: {
-    fontSize: 24,
-    fontWeight: '700',
-  },
-  planDescription: {
-    fontSize: 14,
-    marginBottom: 4,
-  },
-  planSavings: {
-    fontSize: 12,
-    fontWeight: '500',
   },
   featuresContainer: {
     borderRadius: 12,
