@@ -53,12 +53,48 @@ serve(async (req: Request) => {
       throw new Error('Amount must be at least 50 cents')
     }
 
-    console.log('Creating payment intent:', { amount, currency, planId })
+    console.log('Creating payment intent:', { amount, currency, planId, deviceId })
 
-    // Create or retrieve a customer (in production, you'd want to store this)
-    const customer = await stripe.customers.create({
-      metadata: { planId },
-    })
+    // Try to retrieve existing Stripe customer ID from previous entitlements
+    const { data: existingEntitlements } = await supabase
+      .from('user_entitlements')
+      .select('stripe_customer_id')
+      .eq('device_id', deviceId)
+      .not('stripe_customer_id', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(1)
+
+    let customerId = existingEntitlements?.[0]?.stripe_customer_id
+
+    // If we found a customer ID, verify it still exists in Stripe
+    if (customerId) {
+      try {
+        console.log('Found existing customer ID:', customerId)
+        await stripe.customers.retrieve(customerId)
+        console.log('✅ Customer verified in Stripe')
+      } catch (error) {
+        console.log('❌ Customer not found in Stripe, creating new one')
+        customerId = null
+      }
+    }
+
+    // Create a new customer if we don't have one
+    let customer
+    if (!customerId) {
+      console.log('Creating new Stripe customer for device:', deviceId)
+      customer = await stripe.customers.create({
+        metadata: {
+          deviceId,
+          planId,
+        },
+      })
+      customerId = customer.id
+      console.log('✅ New customer created:', customerId)
+    } else {
+      // Retrieve the existing customer
+      customer = await stripe.customers.retrieve(customerId)
+      console.log('✅ Using existing customer:', customerId)
+    }
 
     // Create an ephemeral key for the customer
     const ephemeralKey = await stripe.ephemeralKeys.create(
@@ -66,64 +102,32 @@ serve(async (req: Request) => {
       { apiVersion: '2024-11-20.acacia' }
     )
 
-    // Create a payment intent
+    // Create a payment intent with metadata for webhook processing
+    // NOTE: Entitlement is NOT created here - it's created by the webhook handler
+    // when payment_intent.succeeded event is received
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
       currency,
-      customer: customer.id,
-      metadata: { planId },
+      customer: customerId,
+      metadata: {
+        planId,
+        deviceId, // Pass deviceId so webhook can create entitlement
+      },
       automatic_payment_methods: {
         enabled: true,
       },
+      // Enable saving payment method for future use
+      setup_future_usage: 'off_session',
     })
 
     console.log('Payment intent created:', paymentIntent.id)
-
-    // Calculate expiration date based on plan
-    let expiresAt = null
-    let remainingAnalyses = 0
-    
-    if (planId === 'one-time') {
-      remainingAnalyses = 1
-    } else if (planId === 'weekly') {
-      const weekFromNow = new Date()
-      weekFromNow.setDate(weekFromNow.getDate() + 7)
-      expiresAt = weekFromNow.toISOString()
-    } else if (planId === 'monthly') {
-      const monthFromNow = new Date()
-      monthFromNow.setMonth(monthFromNow.getMonth() + 1)
-      expiresAt = monthFromNow.toISOString()
-    }
-
-    // Save entitlement to database
-    const { data: entitlement, error: dbError } = await supabase
-      .from('user_entitlements')
-      .insert({
-        device_id: deviceId,
-        plan_id: planId,
-        stripe_payment_intent_id: paymentIntent.id,
-        stripe_customer_id: customer.id,
-        status: 'active',
-        purchased_at: new Date().toISOString(),
-        expires_at: expiresAt,
-        remaining_analyses: remainingAnalyses,
-      })
-      .select()
-      .single()
-
-    if (dbError) {
-      console.error('Database error:', dbError)
-      throw new Error(`Failed to save entitlement: ${dbError.message}`)
-    }
-
-    console.log('Entitlement saved to database:', entitlement?.id)
+    console.log('⚠️ Entitlement will be created by webhook on payment success')
 
     return new Response(
       JSON.stringify({
         paymentIntent: paymentIntent.client_secret,
         ephemeralKey: ephemeralKey.secret,
         customer: customer.id,
-        entitlementId: entitlement?.id,
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

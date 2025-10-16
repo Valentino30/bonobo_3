@@ -46,7 +46,7 @@ export class StripeService {
 
       const { paymentIntent, ephemeralKey, customer } = data
 
-      // Initialize the payment sheet
+      // Initialize the payment sheet with setup for future payments
       const { error: initError } = await initPaymentSheet({
         merchantDisplayName: 'Bonobo Chat Analysis',
         customerId: customer,
@@ -56,6 +56,8 @@ export class StripeService {
         defaultBillingDetails: {
           name: 'User',
         },
+        // Enable saving payment methods for future use
+        returnURL: 'bonobo://payment-complete',
       })
 
       if (initError) {
