@@ -228,12 +228,7 @@ export default function ChatsScreen() {
   if (isLoading) {
     return (
       <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background }]}>
-        <ThemedView style={styles.container}>
-          <View style={styles.loadingHeader}>
-            <ThemedText type="title" style={styles.loadingTitle}>
-              Bonobo
-            </ThemedText>
-          </View>
+        <ThemedView style={styles.loadingContainer}>
           <LoadingScreen icon="database-search" title="Loading Chats" subtitle="Fetching your conversations..." />
         </ThemedView>
       </SafeAreaView>
@@ -295,6 +290,9 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 20,
   },
+  loadingContainer: {
+    flex: 1,
+  },
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -305,13 +303,6 @@ const styles = StyleSheet.create({
   title: {
     lineHeight: 40,
     flex: 1,
-  },
-  loadingHeader: {
-    paddingHorizontal: 20,
-    marginBottom: 16,
-  },
-  loadingTitle: {
-    lineHeight: 40,
   },
   profileButton: {
     padding: 8,
