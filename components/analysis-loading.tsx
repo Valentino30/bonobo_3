@@ -7,17 +7,17 @@ const STEPS = [
   {
     title: 'Reading Messages',
     subtitle: 'Parsing conversation data',
-    icon: 'message-text' as const,
+    icon: 'message-processing' as const,
   },
   {
     title: 'Calculating Stats',
     subtitle: 'Analyzing patterns',
-    icon: 'chart-line' as const,
+    icon: 'chart-box' as const,
   },
   {
     title: 'Generating Insights',
     subtitle: 'Preparing your results',
-    icon: 'lightbulb-on-outline' as const,
+    icon: 'brain' as const,
   },
 ]
 
@@ -33,15 +33,15 @@ export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
     const pulse = Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, {
-          toValue: 1.12,
-          duration: 1000,
-          easing: Easing.inOut(Easing.ease),
+          toValue: 1.15,
+          duration: 900,
+          easing: Easing.bezier(0.4, 0.0, 0.2, 1),
           useNativeDriver: true,
         }),
         Animated.timing(pulseAnim, {
           toValue: 1,
-          duration: 1000,
-          easing: Easing.inOut(Easing.ease),
+          duration: 900,
+          easing: Easing.bezier(0.4, 0.0, 0.2, 1),
           useNativeDriver: true,
         }),
       ])
@@ -130,12 +130,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 24,
+    paddingVertical: 40,
   },
   card: {
     width: '100%',
     maxWidth: 400,
     borderRadius: 20,
-    padding: 32,
+    padding: 36,
     alignItems: 'center',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
@@ -168,6 +169,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     textAlign: 'center',
     letterSpacing: 0.2,
+    lineHeight: 20,
   },
   progressBarContainer: {
     width: '100%',
