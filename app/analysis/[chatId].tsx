@@ -8,13 +8,14 @@ import { Paywall } from '@/components/paywall'
 import { SimpleStatCard } from '@/components/simple-stat-card'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
+import { ThemedButton } from '@/components/themed-button'
 import { useTheme } from '@/contexts/theme-context'
 import { usePersistedChats } from '@/hooks/use-persisted-chats'
 import { AuthService } from '@/utils/auth-service'
 import { PaymentService } from '@/utils/payment-service'
 import { StripeService } from '@/utils/stripe-service'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { Link, useLocalSearchParams, useRouter } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useEffect, useRef, useState } from 'react'
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -332,11 +333,12 @@ export default function ChatAnalysisScreen() {
         <ThemedView style={styles.content}>
           <ThemedText type="title">Chat Not Found</ThemedText>
           <ThemedText style={[styles.errorText, { color: theme.colors.warning }]}>The requested chat could not be found.</ThemedText>
-          <Link href="/chats" asChild>
-            <TouchableOpacity style={[styles.button, { backgroundColor: theme.colors.primary }]}>
-              <ThemedText style={[styles.buttonText, { color: theme.colors.textWhite }]}>Back to Chats</ThemedText>
-            </TouchableOpacity>
-          </Link>
+          <ThemedButton
+            title="Back to Chats"
+            onPress={() => router.push('/chats' as any)}
+            variant="primary"
+            size="large"
+          />
         </ThemedView>
       </SafeAreaView>
     )
@@ -349,9 +351,12 @@ export default function ChatAnalysisScreen() {
         <ThemedView style={styles.content}>
           <ThemedText type="title">Analysis Error</ThemedText>
           <ThemedText style={[styles.errorText, { color: theme.colors.warning }]}>{error}</ThemedText>
-          <TouchableOpacity style={[styles.button, { backgroundColor: theme.colors.primary }]} onPress={() => router.back()}>
-            <ThemedText style={[styles.buttonText, { color: theme.colors.textWhite }]}>Go Back</ThemedText>
-          </TouchableOpacity>
+          <ThemedButton
+            title="Go Back"
+            onPress={() => router.back()}
+            variant="primary"
+            size="large"
+          />
         </ThemedView>
       </SafeAreaView>
     )

@@ -7,12 +7,12 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
+import { ThemedButton } from '@/components/themed-button'
 import { useTheme } from '@/contexts/theme-context'
 import { AuthService } from '@/utils/auth-service'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
@@ -231,17 +231,15 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
             </View>
 
             {/* Create Account Button */}
-            <TouchableOpacity
-              style={[styles.createButton, { backgroundColor: theme.colors.primary }, isLoading && styles.createButtonDisabled]}
+            <ThemedButton
+              title="Create Account & Continue"
               onPress={handleCreateAccount}
+              variant="primary"
+              size="large"
+              loading={isLoading}
               disabled={isLoading}
-            >
-              {isLoading ? (
-                <ActivityIndicator color={theme.colors.textWhite} />
-              ) : (
-                <Text style={[styles.createButtonText, { color: theme.colors.textWhite }]}>Create Account & Continue</Text>
-              )}
-            </TouchableOpacity>
+              fullWidth
+            />
           </ScrollView>
           </ThemedView>
         </KeyboardAvoidingView>
@@ -346,18 +344,5 @@ const styles = StyleSheet.create({
     fontSize: 12,
     flex: 1,
     lineHeight: 16,
-  },
-  createButton: {
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  createButtonDisabled: {
-    opacity: 0.6,
-  },
-  createButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
   },
 })

@@ -1,7 +1,8 @@
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
+import { ThemedButton } from '@/components/themed-button'
 import { useTheme } from '@/contexts/theme-context'
-import { StyleSheet, TextInput, TouchableOpacity } from 'react-native'
+import { StyleSheet, TextInput, View } from 'react-native'
 
 interface ManualInputContainerProps {
   manualInput: string
@@ -30,15 +31,15 @@ export function ManualInputContainer({ manualInput, setManualInput, onImport }: 
         multiline
         textAlignVertical="top"
       />
-      <TouchableOpacity
-        style={[styles.importButton, { backgroundColor: manualInput.trim() ? theme.colors.primary : theme.colors.border }]}
-        onPress={handleImport}
-        disabled={!manualInput.trim()}
-      >
-        <ThemedText style={[styles.importButtonText, { color: manualInput.trim() ? theme.colors.textWhite : theme.colors.textTertiary }]}>
-          Import Chat
-        </ThemedText>
-      </TouchableOpacity>
+      <View style={styles.buttonContainer}>
+        <ThemedButton
+          title="Import Chat"
+          onPress={handleImport}
+          variant="primary"
+          size="medium"
+          disabled={!manualInput.trim()}
+        />
+      </View>
     </ThemedView>
   )
 }
@@ -65,15 +66,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     letterSpacing: 0.1,
   },
-  importButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 6,
+  buttonContainer: {
     alignSelf: 'flex-end',
-  },
-  importButtonText: {
-    fontWeight: '500',
-    fontSize: 14,
-    letterSpacing: 0.3,
   },
 })

@@ -5,13 +5,14 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInput,
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
 import { ThemedText } from '@/components/themed-text'
+import { ThemedButton } from '@/components/themed-button'
+import { LoadingScreen } from '@/components/loading-screen'
 import { AuthService } from '@/utils/auth-service'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useCustomAlert } from '@/components/custom-alert'
@@ -175,9 +176,7 @@ export default function ProfileScreen() {
   if (isLoading) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
-        </View>
+        <LoadingScreen icon="account" title="Loading Profile" subtitle="Please wait..." />
       </SafeAreaView>
     )
   }
@@ -258,17 +257,15 @@ export default function ProfileScreen() {
                 </View>
 
                 {/* Login Button */}
-                <TouchableOpacity
-                  style={[styles.button, { backgroundColor: theme.colors.primary }, isLoggingIn && styles.buttonDisabled]}
+                <ThemedButton
+                  title="Login"
                   onPress={handleLogin}
+                  variant="primary"
+                  size="large"
+                  loading={isLoggingIn}
                   disabled={isLoggingIn}
-                >
-                  {isLoggingIn ? (
-                    <ActivityIndicator color={theme.colors.textWhite} size="small" />
-                  ) : (
-                    <ThemedText style={[styles.buttonText, { color: theme.colors.textWhite }]}>Login</ThemedText>
-                  )}
-                </TouchableOpacity>
+                  fullWidth
+                />
               </View>
             </View>
           </View>
@@ -323,11 +320,15 @@ export default function ProfileScreen() {
         {/* Password Change Section */}
         <View style={styles.section}>
           {!showPasswordChange ? (
-            <TouchableOpacity style={[styles.actionButton, { backgroundColor: theme.colors.backgroundLight, borderColor: theme.colors.border }]} onPress={() => setShowPasswordChange(true)}>
-              <MaterialCommunityIcons name="lock-outline" size={20} color={theme.colors.primary} />
-              <ThemedText style={[styles.actionButtonText, { color: theme.colors.text }]}>Change Password</ThemedText>
-              <MaterialCommunityIcons name="chevron-right" size={20} color={theme.colors.textPlaceholder} />
-            </TouchableOpacity>
+            <ThemedButton
+              title="Change Password"
+              onPress={() => setShowPasswordChange(true)}
+              variant="secondary"
+              size="large"
+              icon="lock-outline"
+              iconPosition="left"
+              fullWidth
+            />
           ) : (
             <View style={[styles.passwordCard, { backgroundColor: theme.colors.backgroundLight, borderColor: theme.colors.border }]}>
               <View style={[styles.passwordHeader, { borderBottomColor: theme.colors.borderLight }]}>
@@ -378,28 +379,27 @@ export default function ProfileScreen() {
 
                 {/* Buttons */}
                 <View style={styles.passwordButtons}>
-                  <TouchableOpacity
-                    style={[styles.button, { backgroundColor: theme.colors.backgroundSecondary }]}
+                  <ThemedButton
+                    title="Cancel"
                     onPress={() => {
                       setShowPasswordChange(false)
                       setNewPassword('')
                       setConfirmPassword('')
                     }}
+                    variant="secondary"
+                    size="medium"
                     disabled={isChangingPassword}
-                  >
-                    <ThemedText style={[styles.buttonTextSecondary, { color: theme.colors.textSecondary }]}>Cancel</ThemedText>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.button, { backgroundColor: theme.colors.primary }, isChangingPassword && styles.buttonDisabled]}
+                    style={{ flex: 1 }}
+                  />
+                  <ThemedButton
+                    title="Update"
                     onPress={handleChangePassword}
+                    variant="primary"
+                    size="medium"
+                    loading={isChangingPassword}
                     disabled={isChangingPassword}
-                  >
-                    {isChangingPassword ? (
-                      <ActivityIndicator color={theme.colors.textWhite} size="small" />
-                    ) : (
-                      <ThemedText style={[styles.buttonText, { color: theme.colors.textWhite }]}>Update</ThemedText>
-                    )}
-                  </TouchableOpacity>
+                    style={{ flex: 1 }}
+                  />
                 </View>
               </View>
             </View>
@@ -408,11 +408,15 @@ export default function ProfileScreen() {
 
         {/* Logout Button */}
         <View style={styles.section}>
-          <TouchableOpacity style={[styles.actionButton, { backgroundColor: theme.colors.backgroundLight, borderColor: theme.colors.border }]} onPress={handleLogout}>
-            <MaterialCommunityIcons name="logout-variant" size={20} color={theme.colors.primary} />
-            <ThemedText style={[styles.actionButtonText, { color: theme.colors.text }]}>Logout</ThemedText>
-            <MaterialCommunityIcons name="chevron-right" size={20} color={theme.colors.textPlaceholder} />
-          </TouchableOpacity>
+          <ThemedButton
+            title="Logout"
+            onPress={handleLogout}
+            variant="secondary"
+            size="large"
+            icon="logout-variant"
+            iconPosition="left"
+            fullWidth
+          />
         </View>
 
         {/* Delete Account Section */}
@@ -425,9 +429,13 @@ export default function ProfileScreen() {
             <ThemedText style={[styles.dangerDescription, { color: theme.colors.textSecondary }]}>
               Permanently delete your account and all data. This cannot be undone.
             </ThemedText>
-            <TouchableOpacity style={[styles.buttonDanger, { borderColor: theme.colors.textDanger }]} onPress={handleDeleteAccount}>
-              <ThemedText style={[styles.buttonDangerText, { color: theme.colors.textDanger }]}>Delete Account</ThemedText>
-            </TouchableOpacity>
+            <ThemedButton
+              title="Delete Account"
+              onPress={handleDeleteAccount}
+              variant="destructive"
+              size="medium"
+              fullWidth
+            />
           </View>
         </View>
       </ScrollView>
@@ -448,11 +456,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 40,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   header: {
     flexDirection: 'row',
@@ -492,19 +495,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   cardValue: {
-    fontSize: 16,
-    fontWeight: '400',
-  },
-  actionButton: {
-    borderRadius: 16,
-    padding: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    borderWidth: 1,
-  },
-  actionButtonText: {
-    flex: 1,
     fontSize: 16,
     fontWeight: '400',
   },
@@ -576,24 +566,6 @@ const styles = StyleSheet.create({
     gap: 12,
     marginTop: 8,
   },
-  button: {
-    flex: 1,
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  buttonTextSecondary: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  buttonDisabled: {
-    opacity: 0.5,
-  },
   dangerCard: {
     borderRadius: 16,
     padding: 20,
@@ -613,17 +585,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     marginBottom: 16,
-  },
-  buttonDanger: {
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-  },
-  buttonDangerText: {
-    fontSize: 16,
-    fontWeight: '500',
   },
   infoText: {
     fontSize: 14,

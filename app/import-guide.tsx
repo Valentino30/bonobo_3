@@ -1,8 +1,9 @@
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
+import { ThemedButton } from '@/components/themed-button'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
-import { Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { Platform, ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useTheme } from '@/contexts/theme-context'
 
@@ -126,10 +127,16 @@ export default function ImportGuideScreen() {
 
           {/* CTA Button */}
           <View style={styles.ctaButtonContainer}>
-            <TouchableOpacity style={[styles.ctaButton, { backgroundColor: theme.colors.primary, shadowColor: theme.colors.shadow }]} onPress={handleGotIt} activeOpacity={0.85}>
-              <ThemedText style={[styles.ctaButtonText, { color: theme.colors.textWhite }]}>GOT IT</ThemedText>
-              <MaterialCommunityIcons name="thumb-up" size={20} color={theme.colors.textWhite} />
-            </TouchableOpacity>
+            <ThemedButton
+              title="GOT IT"
+              onPress={handleGotIt}
+              variant="primary"
+              size="large"
+              icon="thumb-up"
+              iconPosition="right"
+              shadow
+              fullWidth
+            />
           </View>
         </ScrollView>
       </ThemedView>
@@ -271,22 +278,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 32,
     paddingBottom: 40,
-  },
-  ctaButton: {
-    flexDirection: 'row',
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-    gap: 10,
-  },
-  ctaButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    letterSpacing: 0.5,
   },
 })

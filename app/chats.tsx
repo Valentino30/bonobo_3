@@ -1,6 +1,7 @@
 import { ChatList } from '@/components/chat-list'
 import { useCustomAlert } from '@/components/custom-alert'
 import { LoadingScreen } from '@/components/loading-screen'
+import { ThemedButton } from '@/components/themed-button'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
@@ -269,14 +270,16 @@ export default function ChatsScreen() {
           onClearShareData={clearShareData}
         />
 
-        <Link href={'/import-guide' as any} asChild>
-          <TouchableOpacity
-            style={[styles.importButton, { backgroundColor: theme.colors.primary, shadowColor: theme.colors.shadow }]}
-          >
-            <MaterialCommunityIcons name="whatsapp" size={20} color={theme.colors.textWhite} />
-            <ThemedText style={[styles.importButtonText, { color: theme.colors.textWhite }]}>Import Chat</ThemedText>
-          </TouchableOpacity>
-        </Link>
+        <ThemedButton
+          title="Import Chat"
+          onPress={() => router.push('/import-guide' as any)}
+          variant="primary"
+          size="large"
+          icon="whatsapp"
+          iconPosition="left"
+          shadow
+          style={styles.importButton}
+        />
       </ThemedView>
     </SafeAreaView>
   )

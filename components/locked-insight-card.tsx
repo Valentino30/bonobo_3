@@ -1,6 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useTheme } from '@/contexts/theme-context'
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
+import { ThemedButton } from '@/components/themed-button'
 
 interface LockedInsightCardProps {
   title: string
@@ -46,15 +47,19 @@ export function LockedInsightCard({ title, icon, badge, onUnlock, isLoading, unl
           {unlockText && <Text style={[styles.questionText, { color: theme.colors.primaryAccent }]}>{unlockText}</Text>}
 
           {/* Unlock Button with Icon */}
-          <TouchableOpacity
-            style={[styles.unlockButton, { backgroundColor: theme.colors.primary, shadowColor: theme.colors.shadow }, isLoading && { backgroundColor: theme.colors.primaryLight }]}
+          <ThemedButton
+            title={isLoading ? 'UNLOCKING...' : 'UNLOCK WITH AI'}
             onPress={onUnlock}
+            variant="primary"
+            size="medium"
+            icon="auto-fix"
+            iconPosition="right"
+            loading={isLoading}
             disabled={isLoading}
-            activeOpacity={0.85}
-          >
-            <Text style={[styles.unlockButtonText, { color: theme.colors.textWhite }]}>{isLoading ? 'UNLOCKING...' : 'UNLOCK WITH AI'}</Text>
-            <MaterialCommunityIcons name="auto-fix" size={18} color={theme.colors.textWhite} />
-          </TouchableOpacity>
+            shadow
+            fullWidth
+            uppercase
+          />
         </View>
       </View>
     </View>
@@ -131,25 +136,5 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     letterSpacing: 0.2,
     lineHeight: 24,
-  },
-  unlockButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 10,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    width: '100%',
-  },
-  unlockButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
   },
 })

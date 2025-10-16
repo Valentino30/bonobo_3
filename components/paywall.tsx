@@ -1,5 +1,6 @@
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
+import { ThemedButton } from '@/components/themed-button'
 import { useTheme } from '@/contexts/theme-context'
 import { PAYMENT_PLANS } from '@/utils/payment-service'
 import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
@@ -94,9 +95,15 @@ export function Paywall({ visible, onClose, onPurchase }: PaywallProps) {
             </View>
 
             {/* Close Button */}
-            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-              <ThemedText style={[styles.closeButtonText, { color: theme.colors.textTertiary }]}>Maybe Later</ThemedText>
-            </TouchableOpacity>
+            <View style={styles.closeButtonContainer}>
+              <ThemedButton
+                title="Maybe Later"
+                onPress={onClose}
+                variant="ghost"
+                size="medium"
+                fullWidth
+              />
+            </View>
           </ScrollView>
         </ThemedView>
       </View>
@@ -211,11 +218,7 @@ const styles = StyleSheet.create({
   featureText: {
     fontSize: 14,
   },
-  closeButton: {
-    alignItems: 'center',
-    paddingVertical: 12,
-  },
-  closeButtonText: {
-    fontSize: 16,
+  closeButtonContainer: {
+    paddingTop: 8,
   },
 })

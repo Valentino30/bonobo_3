@@ -1,4 +1,5 @@
 import { ThemedText } from '@/components/themed-text'
+import { ThemedButton } from '@/components/themed-button'
 import { useTheme } from '@/contexts/theme-context'
 import { type StoredChat } from '@/utils/chat-storage'
 import { useState } from 'react'
@@ -68,12 +69,22 @@ export function ChatCard({ chat, onAnalyze, onDelete }: ChatCardProps) {
       <Modal visible={showMenu} transparent animationType="fade" onRequestClose={() => setShowMenu(false)}>
         <TouchableOpacity style={[styles.modalOverlay, { backgroundColor: theme.colors.backgroundOverlay }]} activeOpacity={1} onPress={() => setShowMenu(false)}>
           <View style={[styles.bottomDrawer, { backgroundColor: theme.colors.backgroundLight }]}>
-            <TouchableOpacity style={[styles.deleteButton, { backgroundColor: theme.colors.errorLight }]} onPress={handleDelete}>
-              <ThemedText style={[styles.deleteButtonText, { color: theme.colors.textWhite }]}>Delete Chat</ThemedText>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.cancelButton, { backgroundColor: theme.colors.backgroundLight, borderColor: theme.colors.backgroundSecondary }]} onPress={() => setShowMenu(false)}>
-              <ThemedText style={[styles.cancelButtonText, { color: theme.colors.textSecondary }]}>Cancel</ThemedText>
-            </TouchableOpacity>
+            <ThemedButton
+              title="Delete Chat"
+              onPress={handleDelete}
+              variant="destructive"
+              size="large"
+              fullWidth
+              style={styles.drawerButton}
+            />
+            <ThemedButton
+              title="Cancel"
+              onPress={() => setShowMenu(false)}
+              variant="secondary"
+              size="large"
+              fullWidth
+              style={styles.drawerButton}
+            />
           </View>
         </TouchableOpacity>
       </Modal>
@@ -141,27 +152,7 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 40,
   },
-  deleteButton: {
-    paddingVertical: 18,
-    borderRadius: 12,
-    alignItems: 'center',
+  drawerButton: {
     marginBottom: 12,
-  },
-  deleteButtonText: {
-    fontSize: 16,
-    fontWeight: '500',
-    letterSpacing: 0.2,
-  },
-  cancelButton: {
-    paddingVertical: 18,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginBottom: 12,
-    borderWidth: 1,
-  },
-  cancelButtonText: {
-    fontSize: 16,
-    fontWeight: '500',
-    letterSpacing: 0.2,
   },
 })
