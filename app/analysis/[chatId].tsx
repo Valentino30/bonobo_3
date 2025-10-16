@@ -9,6 +9,7 @@ import { SimpleStatCard } from '@/components/simple-stat-card'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { ThemedButton } from '@/components/themed-button'
+import { ThemedIconButton } from '@/components/themed-icon-button'
 import { useTheme } from '@/contexts/theme-context'
 import { usePersistedChats } from '@/hooks/use-persisted-chats'
 import { AuthService } from '@/utils/auth-service'
@@ -373,9 +374,12 @@ export default function ChatAnalysisScreen() {
       {/* Fixed Header */}
       <View style={[styles.header, { backgroundColor: theme.colors.background }]}>
         <View style={styles.headerTop}>
-          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <MaterialCommunityIcons name="chevron-left" size={24} color={theme.colors.primary} />
-          </TouchableOpacity>
+          <ThemedIconButton
+            icon="chevron-left"
+            onPress={() => router.back()}
+            variant="primary"
+            size="large"
+          />
           <ThemedText type="title" style={[styles.title, { color: theme.colors.text }]}>
             Chat Analysis
           </ThemedText>

@@ -13,6 +13,7 @@ import {
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { ThemedButton } from '@/components/themed-button'
+import { ThemedIconButton } from '@/components/themed-icon-button'
 import { useTheme } from '@/contexts/theme-context'
 import { AuthService } from '@/utils/auth-service'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
@@ -189,16 +190,13 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
                     autoCorrect={false}
                     editable={!isLoading}
                   />
-                  <TouchableOpacity
-                    style={styles.showPasswordButton}
+                  <ThemedIconButton
+                    icon={showPassword ? 'eye-off-outline' : 'eye-outline'}
                     onPress={() => setShowPassword(!showPassword)}
-                  >
-                    <MaterialCommunityIcons
-                      name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                      size={20}
-                      color={theme.colors.primary}
-                    />
-                  </TouchableOpacity>
+                    variant="primary"
+                    size="medium"
+                    style={styles.showPasswordButton}
+                  />
                 </View>
               </View>
 

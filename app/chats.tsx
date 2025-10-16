@@ -2,6 +2,7 @@ import { ChatList } from '@/components/chat-list'
 import { useCustomAlert } from '@/components/custom-alert'
 import { LoadingScreen } from '@/components/loading-screen'
 import { ThemedButton } from '@/components/themed-button'
+import { ThemedIconButton } from '@/components/themed-icon-button'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
@@ -10,10 +11,9 @@ import { useShareIntent } from '@/hooks/use-share-intent'
 import { type StoredChat } from '@/utils/chat-storage'
 import { parseWhatsAppChat } from '@/utils/whatsapp-parser'
 import { extractWhatsAppZip } from '@/utils/zip-extractor'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { Link, useLocalSearchParams, useRouter } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useEffect, useRef, useState } from 'react'
-import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { Platform, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 export default function ChatsScreen() {
@@ -248,11 +248,13 @@ export default function ChatsScreen() {
           <ThemedText type="title" style={styles.title}>
             Bonobo
           </ThemedText>
-          <Link href={'/profile' as any} asChild>
-            <TouchableOpacity style={styles.profileButton}>
-              <MaterialCommunityIcons name="account" size={28} color={theme.colors.primary} />
-            </TouchableOpacity>
-          </Link>
+          <ThemedIconButton
+            icon="account"
+            onPress={() => router.push('/profile' as any)}
+            variant="primary"
+            size="large"
+            style={styles.profileButton}
+          />
         </View>
 
         {/* Custom Alert */}

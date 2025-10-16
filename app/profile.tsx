@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedButton } from '@/components/themed-button'
+import { ThemedIconButton } from '@/components/themed-icon-button'
 import { LoadingScreen } from '@/components/loading-screen'
 import { AuthService } from '@/utils/auth-service'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
@@ -199,9 +200,12 @@ export default function ProfileScreen() {
           >
           {/* Header with Back Button */}
           <View style={styles.header}>
-            <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-              <MaterialCommunityIcons name="chevron-left" size={24} color={theme.colors.primary} />
-            </TouchableOpacity>
+            <ThemedIconButton
+              icon="chevron-left"
+              onPress={() => router.back()}
+              variant="primary"
+              size="large"
+            />
             <ThemedText type="title" style={[styles.title, { color: theme.colors.text }]}>
               Login
             </ThemedText>
@@ -243,16 +247,13 @@ export default function ProfileScreen() {
                       autoCapitalize="none"
                       autoCorrect={false}
                     />
-                    <TouchableOpacity
-                      style={styles.showPasswordButton}
+                    <ThemedIconButton
+                      icon={showLoginPassword ? 'eye-off-outline' : 'eye-outline'}
                       onPress={() => setShowLoginPassword(!showLoginPassword)}
-                    >
-                      <MaterialCommunityIcons
-                        name={showLoginPassword ? 'eye-off-outline' : 'eye-outline'}
-                        size={18}
-                        color={theme.colors.textTertiary}
-                      />
-                    </TouchableOpacity>
+                      variant="ghost"
+                      size="small"
+                      style={styles.showPasswordButton}
+                    />
                   </View>
                 </View>
 
@@ -298,9 +299,12 @@ export default function ProfileScreen() {
         >
         {/* Header with Back Button */}
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <MaterialCommunityIcons name="chevron-left" size={24} color={theme.colors.primary} />
-          </TouchableOpacity>
+          <ThemedIconButton
+            icon="chevron-left"
+            onPress={() => router.back()}
+            variant="primary"
+            size="large"
+          />
           <ThemedText type="title" style={[styles.title, { color: theme.colors.text }]}>
             My Profile
           </ThemedText>
@@ -350,16 +354,13 @@ export default function ProfileScreen() {
                       autoCapitalize="none"
                       autoCorrect={false}
                     />
-                    <TouchableOpacity
-                      style={styles.showPasswordButton}
+                    <ThemedIconButton
+                      icon={showPassword ? 'eye-off-outline' : 'eye-outline'}
                       onPress={() => setShowPassword(!showPassword)}
-                    >
-                      <MaterialCommunityIcons
-                        name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                        size={18}
-                        color={theme.colors.textTertiary}
-                      />
-                    </TouchableOpacity>
+                      variant="ghost"
+                      size="small"
+                      style={styles.showPasswordButton}
+                    />
                   </View>
                 </View>
 

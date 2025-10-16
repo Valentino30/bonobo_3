@@ -1,5 +1,6 @@
-import { ThemedText } from '@/components/themed-text'
 import { ThemedButton } from '@/components/themed-button'
+import { ThemedIconButton } from '@/components/themed-icon-button'
+import { ThemedText } from '@/components/themed-text'
 import { useTheme } from '@/contexts/theme-context'
 import { type StoredChat } from '@/utils/chat-storage'
 import { useState } from 'react'
@@ -42,7 +43,11 @@ export function ChatCard({ chat, onAnalyze, onDelete }: ChatCardProps) {
 
   return (
     <>
-      <TouchableOpacity style={[styles.chatCard, { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow }]} onPress={handleAnalyze} activeOpacity={0.7}>
+      <TouchableOpacity
+        style={[styles.chatCard, { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow }]}
+        onPress={handleAnalyze}
+        activeOpacity={0.7}
+      >
         <View style={[styles.avatar, { backgroundColor: theme.colors.infoLight }]}>
           <ThemedText style={[styles.avatarText, { color: theme.colors.textWhite }]}>{getInitial()}</ThemedText>
         </View>
@@ -50,24 +55,30 @@ export function ChatCard({ chat, onAnalyze, onDelete }: ChatCardProps) {
           <ThemedText style={[styles.participantName, { color: theme.colors.text }]} numberOfLines={1}>
             {chat.participants?.join(' & ') || 'Unknown participants'}
           </ThemedText>
-          <ThemedText style={[styles.messageCount, { color: theme.colors.textTertiary }]}>{chat.messageCount || 0} messages</ThemedText>
+          <ThemedText style={[styles.messageCount, { color: theme.colors.textTertiary }]}>
+            {chat.messageCount || 0} messages
+          </ThemedText>
         </View>
         {onDelete && (
-          <TouchableOpacity
-            style={styles.menuButton}
+          <ThemedIconButton
+            icon="dots-horizontal"
             onPress={(e) => {
-              e.stopPropagation()
+              e?.stopPropagation?.()
               setShowMenu(true)
             }}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <ThemedText style={[styles.menuIcon, { color: theme.colors.textTertiary }]}>⋯</ThemedText>
-          </TouchableOpacity>
+            variant="ghost"
+            size="medium"
+            style={styles.menuButton}
+          />
         )}
       </TouchableOpacity>
 
       <Modal visible={showMenu} transparent animationType="fade" onRequestClose={() => setShowMenu(false)}>
-        <TouchableOpacity style={[styles.modalOverlay, { backgroundColor: theme.colors.backgroundOverlay }]} activeOpacity={1} onPress={() => setShowMenu(false)}>
+        <TouchableOpacity
+          style={[styles.modalOverlay, { backgroundColor: theme.colors.backgroundOverlay }]}
+          activeOpacity={1}
+          onPress={() => setShowMenu(false)}
+        >
           <View style={[styles.bottomDrawer, { backgroundColor: theme.colors.backgroundLight }]}>
             <ThemedButton
               title="Delete Chat"
@@ -134,12 +145,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
   menuButton: {
-    padding: 8,
-  },
-  menuIcon: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    letterSpacing: 2,
+    padding: 0,
   },
   modalOverlay: {
     flex: 1,
