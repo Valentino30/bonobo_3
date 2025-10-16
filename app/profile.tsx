@@ -13,6 +13,7 @@ import { useRouter } from 'expo-router'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedButton } from '@/components/themed-button'
 import { ThemedIconButton } from '@/components/themed-icon-button'
+import { BackButton } from '@/components/back-button'
 import { LoadingScreen } from '@/components/loading-screen'
 import { AuthService } from '@/utils/auth-service'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
@@ -200,12 +201,7 @@ export default function ProfileScreen() {
           >
           {/* Header with Back Button */}
           <View style={styles.header}>
-            <ThemedIconButton
-              icon="chevron-left"
-              onPress={() => router.back()}
-              variant="primary"
-              size="large"
-            />
+            <BackButton />
             <ThemedText type="title" style={[styles.title, { color: theme.colors.text }]}>
               Login
             </ThemedText>
@@ -299,12 +295,7 @@ export default function ProfileScreen() {
         >
         {/* Header with Back Button */}
         <View style={styles.header}>
-          <ThemedIconButton
-            icon="chevron-left"
-            onPress={() => router.back()}
-            variant="primary"
-            size="large"
-          />
+          <BackButton />
           <ThemedText type="title" style={[styles.title, { color: theme.colors.text }]}>
             My Profile
           </ThemedText>
