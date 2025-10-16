@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Modal,
   ScrollView,
@@ -90,6 +90,14 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
         userEmail: result.user?.email,
       })
 
+      // Check if session was created (email confirmation may be required)
+      if (!result.session) {
+        console.warn('⚠️ No session created - email confirmation required')
+        setError('Account created but email confirmation is required. Please check your email and then login.')
+        setIsLoading(false)
+        return
+      }
+
       // Clear form and close modal first
       setEmail('')
       setPassword('')
@@ -115,12 +123,18 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
   }
 
 
+  // Debug log when modal visibility changes
+  useEffect(() => {
+    console.log('PaymentAuthScreen visible:', visible)
+  }, [visible])
+
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View style={[styles.overlay, { backgroundColor: theme.colors.backgroundOverlay }]}>
         <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={styles.keyboardAvoidingView}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
         >
           <ThemedView style={[styles.container, { backgroundColor: theme.colors.backgroundLight }]}>
             {/* Custom Alert */}
@@ -253,19 +267,21 @@ const styles = StyleSheet.create({
   },
   keyboardAvoidingView: {
     width: '100%',
+    maxHeight: '95%',
   },
   container: {
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    maxHeight: '95%',
+    height: '100%',
   },
   scrollView: {
-    maxHeight: '100%',
+    flex: 1,
   },
   scrollContent: {
     paddingTop: 32,
-    paddingBottom: 40,
+    paddingBottom: Platform.OS === 'ios' ? 60 : 80,
     paddingHorizontal: 20,
+    flexGrow: 1,
   },
   header: {
     alignItems: 'center',
