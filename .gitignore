@@ -45,3 +45,6 @@ app-example
 
 # AI assistant documentation
 CLAUDE.md
+
+# Supabase
+supabase/.temp/
