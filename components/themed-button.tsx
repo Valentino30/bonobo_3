@@ -36,6 +36,8 @@ export interface ThemedButtonProps {
   uppercase?: boolean
   /** Show shadow effect */
   shadow?: boolean
+  /** Text alignment */
+  align?: 'left' | 'center' | 'right'
 }
 
 export const ThemedButton: React.FC<ThemedButtonProps> = ({
@@ -53,6 +55,7 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
   activeOpacity = 0.7,
   uppercase = false,
   shadow = false,
+  align = 'center',
 }) => {
   const theme = useTheme()
 
@@ -217,6 +220,19 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
   // Icon color
   const iconColor = variantStyles.text.color
 
+  // Get alignment style
+  const getAlignmentStyle = (): ViewStyle => {
+    switch (align) {
+      case 'left':
+        return { justifyContent: 'flex-start' }
+      case 'right':
+        return { justifyContent: 'flex-end' }
+      case 'center':
+      default:
+        return { justifyContent: 'center' }
+    }
+  }
+
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -227,6 +243,7 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
         variantStyles.container,
         sizeStyles.container,
         shadowStyles,
+        getAlignmentStyle(),
         fullWidth && styles.fullWidth,
         isDisabled && styles.disabled,
         style,

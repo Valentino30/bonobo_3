@@ -322,6 +322,7 @@ export default function ProfileScreen() {
               size="large"
               icon="lock-outline"
               iconPosition="left"
+              align="left"
               fullWidth
             />
           ) : (
@@ -407,6 +408,7 @@ export default function ProfileScreen() {
             size="large"
             icon="logout-variant"
             iconPosition="left"
+            align="left"
             fullWidth
           />
         </View>
