@@ -10,15 +10,15 @@ import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { ThemedButton } from '@/components/themed-button'
 import { BackButton } from '@/components/back-button'
+import { ThemedTabButton } from '@/components/themed-tab-button'
 import { useTheme } from '@/contexts/theme-context'
 import { usePersistedChats } from '@/hooks/use-persisted-chats'
 import { AuthService } from '@/utils/auth-service'
 import { PaymentService } from '@/utils/payment-service'
 import { StripeService } from '@/utils/stripe-service'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useEffect, useRef, useState } from 'react'
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { analyzeChat, type AIInsights } from '../../utils/ai-service'
 import { analyzeChatData } from '../../utils/chat-analyzer'
@@ -382,38 +382,18 @@ export default function ChatAnalysisScreen() {
 
         {/* Tab Navigation */}
         <View style={[styles.tabContainer, { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow }]}>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'overview' && { backgroundColor: theme.colors.primary, borderRadius: 6 }]}
+          <ThemedTabButton
+            label="Overview"
+            icon="chart-box-outline"
+            isActive={activeTab === 'overview'}
             onPress={() => handleTabChange('overview')}
-          >
-            <View style={styles.tabContent}>
-              <MaterialCommunityIcons
-                name="chart-box-outline"
-                size={16}
-                color={activeTab === 'overview' ? theme.colors.textWhite : theme.colors.textTertiary}
-                style={styles.tabIcon}
-              />
-              <ThemedText style={[styles.tabText, { color: activeTab === 'overview' ? theme.colors.textWhite : theme.colors.textTertiary }]}>
-                Overview
-              </ThemedText>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'insights' && { backgroundColor: theme.colors.primary, borderRadius: 6 }]}
+          />
+          <ThemedTabButton
+            label="Insights"
+            icon="auto-fix"
+            isActive={activeTab === 'insights'}
             onPress={() => handleTabChange('insights')}
-          >
-            <View style={styles.tabContent}>
-              <MaterialCommunityIcons
-                name="auto-fix"
-                size={16}
-                color={activeTab === 'insights' ? theme.colors.textWhite : theme.colors.textTertiary}
-                style={styles.tabIcon}
-              />
-              <ThemedText style={[styles.tabText, { color: activeTab === 'insights' ? theme.colors.textWhite : theme.colors.textTertiary }]}>
-                Insights
-              </ThemedText>
-            </View>
-          </TouchableOpacity>
+          />
         </View>
       </View>
 
@@ -712,26 +692,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 2,
     elevation: 1,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-  },
-  tabContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-  },
-  tabIcon: {
-    marginRight: 2,
-  },
-  tabText: {
-    fontSize: 14,
-    fontWeight: '500',
-    letterSpacing: 0.3,
   },
   statsGrid: {
     marginTop: 12,
