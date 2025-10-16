@@ -69,6 +69,11 @@ export default function ChatAnalysisScreen() {
   const [unlockedInsights, setUnlockedInsights] = useState<Set<string>>(new Set())
   const [loadingInsight, setLoadingInsight] = useState<string | null>(null)
 
+  // Debug: Log when showAuthScreen changes
+  useEffect(() => {
+    console.log('🔵 showAuthScreen state changed:', showAuthScreen)
+  }, [showAuthScreen])
+
   // Load unlocked insights from cached chat data
   useEffect(() => {
     if (chat?.unlockedInsights) {
@@ -174,33 +179,42 @@ export default function ChatAnalysisScreen() {
   // Handle purchase
   const handlePurchase = async (planId: string) => {
     try {
+      console.log('💳 Starting payment for plan:', planId)
+
       // Initialize Stripe payment - this will show the payment sheet
       const result = await StripeService.initializePayment(planId)
 
+      console.log('💳 Payment result:', result)
+
       if (result.success) {
+        console.log('✅ Payment successful, closing paywall')
         // Payment successful - close paywall and show auth screen if not authenticated
         setShowPaywall(false)
 
         // Check if user is authenticated
         const isAuthenticated = await AuthService.isAuthenticated()
+        console.log('🔐 User authenticated:', isAuthenticated)
 
         if (!isAuthenticated) {
           // Show auth screen to secure the purchase
+          console.log('📝 Showing auth screen (showAuthScreen = true)')
           setShowAuthScreen(true)
         } else {
           // Already authenticated - just show success
+          console.log('✅ Already authenticated, showing success')
           setActiveTab('insights')
           showAlert('🎉 Payment Successful!', 'You now have access to AI insights')
         }
       } else {
         // Payment failed or cancelled
+        console.log('❌ Payment failed or cancelled')
         if (result.error) {
           showAlert('Payment Failed', result.error)
         }
         // User cancelled - no alert needed
       }
     } catch (error) {
-      console.error('Purchase error:', error)
+      console.error('💥 Purchase error:', error)
       showAlert('Error', 'Failed to process payment. Please try again.')
     }
   }
