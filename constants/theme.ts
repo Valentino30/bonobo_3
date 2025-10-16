@@ -3,66 +3,10 @@
  * All colors and design tokens used across the app
  */
 
+import { defaultPalette } from './color-palettes';
+
 export const theme = {
-  colors: {
-    // Primary Brand Colors
-    primary: '#6B8E5A',
-    primaryDark: '#5C6B63',
-    primaryLight: '#A5B89D',
-    primaryLighter: '#D5E3CE',
-    primaryAccent: '#4A5D42',
-
-    // Background Colors
-    background: '#FAFAFA',
-    backgroundLight: '#FFFFFF',
-    backgroundCard: '#FFFFFF',
-    backgroundInput: '#F8F8F8',
-    backgroundSecondary: '#F0F0F0',
-    backgroundSuccess: '#E8F5E9',
-    backgroundSuccessLight: '#F8FBF6',
-    backgroundInfo: '#F5F9F3',
-    backgroundDanger: '#FFF8F8',
-    backgroundError: '#FFEBEE',
-    backgroundOverlay: 'rgba(0, 0, 0, 0.5)',
-    backgroundLoading: '#F8F9FA',
-
-    // Text Colors
-    text: '#1A1A1A',
-    textSecondary: '#666666',
-    textTertiary: '#999999',
-    textLight: '#CCCCCC',
-    textDark: '#333333',
-    textWhite: '#FFFFFF',
-    textPlaceholder: '#CCCCCC',
-    textSuccess: '#2E7D32',
-    textDanger: '#C62828',
-    textError: '#C62828',
-    textInfo: '#4A90E2',
-
-    // Border Colors
-    border: '#E8E8E8',
-    borderLight: '#F5F5F5',
-    borderSecondary: '#F0F0F0',
-    borderFocus: '#D5E3CE',
-    borderDanger: '#FFE0E0',
-    borderInput: '#E0E0E0',
-    borderDivider: '#ECECEC',
-
-    // Shadow Colors
-    shadow: '#000000',
-
-    // Status Colors
-    success: '#6B8E5A',
-    successDark: '#2E7D32',
-    error: '#C62828',
-    errorLight: '#E57373',
-    warning: '#FF6B6B',
-    info: '#4A90E2',
-    infoLight: '#7BA1D7',
-
-    // Misc Colors
-    darkOverlay: '#2C3E50',
-  },
+  colors: defaultPalette.colors,
 
   spacing: {
     xs: 4,
