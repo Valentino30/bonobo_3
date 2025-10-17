@@ -46,6 +46,7 @@ export function Paywall({ visible, onClose, onPurchase }: PaywallProps) {
               <SubscriptionCard
                 name={PAYMENT_PLANS.ONE_TIME.name}
                 price={PAYMENT_PLANS.ONE_TIME.price}
+                currency={PAYMENT_PLANS.ONE_TIME.currency}
                 description={PAYMENT_PLANS.ONE_TIME.description}
                 onPress={() => handlePurchase(PAYMENT_PLANS.ONE_TIME.id)}
               />
@@ -54,6 +55,7 @@ export function Paywall({ visible, onClose, onPurchase }: PaywallProps) {
               <SubscriptionCard
                 name={PAYMENT_PLANS.WEEKLY.name}
                 price={PAYMENT_PLANS.WEEKLY.price}
+                currency={PAYMENT_PLANS.WEEKLY.currency}
                 description={PAYMENT_PLANS.WEEKLY.description}
                 highlight="Best value per day!"
                 isPopular
@@ -64,6 +66,7 @@ export function Paywall({ visible, onClose, onPurchase }: PaywallProps) {
               <SubscriptionCard
                 name={PAYMENT_PLANS.MONTHLY.name}
                 price={PAYMENT_PLANS.MONTHLY.price}
+                currency={PAYMENT_PLANS.MONTHLY.currency}
                 description={PAYMENT_PLANS.MONTHLY.description}
                 highlight="Maximum flexibility!"
                 onPress={() => handlePurchase(PAYMENT_PLANS.MONTHLY.id)}

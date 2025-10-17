@@ -1,35 +1,59 @@
 import { getDeviceId } from './device-id'
 import { supabase } from './supabase'
+import { CurrencyService, type SupportedCurrency } from './currency-service'
 
-// Payment plans
-export const PAYMENT_PLANS = {
-  ONE_TIME: {
-    id: 'one-time',
-    name: 'One-Time Analysis',
-    price: 2.99,
-    currency: 'USD',
-    description: 'Unlock AI insights for one chat analysis',
-    type: 'one-time' as const,
-  },
-  WEEKLY: {
-    id: 'weekly',
-    name: 'Weekly Pass',
-    price: 4.99,
-    currency: 'USD',
-    description: 'Unlimited AI insights for 7 days',
-    duration: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
-    type: 'subscription' as const,
-  },
-  MONTHLY: {
-    id: 'monthly',
-    name: 'Monthly Pass',
-    price: 9.99,
-    currency: 'USD',
-    description: 'Unlimited AI insights for 30 days',
-    duration: 30 * 24 * 60 * 60 * 1000, // 30 days in milliseconds
-    type: 'subscription' as const,
-  },
+// Payment plan structure
+export interface PaymentPlan {
+  id: string
+  name: string
+  price: number
+  currency: SupportedCurrency
+  description: string
+  type: 'one-time' | 'subscription'
+  duration?: number
 }
+
+/**
+ * Get payment plans with pricing in user's currency
+ */
+export function getPaymentPlans(): Record<string, PaymentPlan> {
+  const currency = CurrencyService.getUserCurrency()
+  const pricing = CurrencyService.getPricing(currency)
+
+  console.log('💰 Payment plans currency:', currency, 'Pricing:', pricing)
+
+  return {
+    ONE_TIME: {
+      id: 'one-time',
+      name: 'One-Time Analysis',
+      price: pricing.oneTime,
+      currency,
+      description: 'Unlock AI insights for one chat analysis',
+      type: 'one-time' as const,
+    },
+    WEEKLY: {
+      id: 'weekly',
+      name: 'Weekly Pass',
+      price: pricing.weekly,
+      currency,
+      description: 'Unlimited AI insights for 7 days',
+      duration: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+      type: 'subscription' as const,
+    },
+    MONTHLY: {
+      id: 'monthly',
+      name: 'Monthly Pass',
+      price: pricing.monthly,
+      currency,
+      description: 'Unlimited AI insights for 30 days',
+      duration: 30 * 24 * 60 * 60 * 1000, // 30 days in milliseconds
+      type: 'subscription' as const,
+    },
+  }
+}
+
+// Dynamic payment plans based on user's currency
+export const PAYMENT_PLANS = getPaymentPlans()
 
 interface UserEntitlement {
   id: string

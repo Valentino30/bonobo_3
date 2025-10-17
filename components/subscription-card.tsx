@@ -2,12 +2,15 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { useTheme } from '@/contexts/theme-context';
+import { CurrencyService, type SupportedCurrency } from '@/utils/currency-service';
 
 export interface SubscriptionCardProps {
   /** Plan name (e.g., "One-Time Analysis", "Weekly", "Monthly") */
   name: string;
-  /** Price in dollars */
+  /** Price in local currency */
   price: number;
+  /** Currency code (e.g., 'USD', 'EUR', 'GBP') */
+  currency: SupportedCurrency;
   /** Plan description */
   description: string;
   /** Optional highlight text (e.g., "Best value per day!") */
@@ -29,6 +32,7 @@ export interface SubscriptionCardProps {
 export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
   name,
   price,
+  currency,
   description,
   highlight,
   isPopular = false,
@@ -37,6 +41,9 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
   style,
 }) => {
   const theme = useTheme();
+
+  // Format price with currency symbol
+  const formattedPrice = CurrencyService.formatPrice(price, currency);
 
   return (
     <TouchableOpacity
@@ -65,7 +72,7 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
       <View style={styles.planHeader}>
         <ThemedText style={styles.planName}>{name}</ThemedText>
         <Text style={[styles.planPrice, { color: theme.colors.primary }]}>
-          ${price.toFixed(2)}
+          {formattedPrice}
         </Text>
       </View>
 
