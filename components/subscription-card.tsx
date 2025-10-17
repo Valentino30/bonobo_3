@@ -23,6 +23,8 @@ export interface SubscriptionCardProps {
   onPress: () => void;
   /** Custom style override */
   style?: ViewStyle;
+  /** Whether the card is disabled (prevents taps) */
+  disabled?: boolean;
 }
 
 /**
@@ -39,6 +41,7 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
   popularBadgeText = 'POPULAR',
   onPress,
   style,
+  disabled = false,
 }) => {
   const theme = useTheme();
 
@@ -47,11 +50,13 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
 
   return (
     <TouchableOpacity
+      disabled={disabled}
       style={[
         styles.planCard,
         {
           backgroundColor: isPopular ? theme.colors.backgroundSuccess : theme.colors.backgroundInput,
           borderColor: isPopular ? theme.colors.primary : 'transparent',
+          opacity: disabled ? 0.5 : 1,
         },
         isPopular && styles.popularPlan,
         style,
