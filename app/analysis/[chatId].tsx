@@ -113,8 +113,9 @@ export default function ChatAnalysisScreen() {
     console.log('🔓 handleUnlockInsight called for:', insightId)
     console.log('Current unlockedInsights:', Array.from(unlockedInsights))
 
+    // First access check - show paywall if no access
     const access = await PaymentService.hasAccess(chatId)
-    console.log('Access check result:', access)
+    console.log('Initial access check result:', access)
 
     if (!access) {
       // No access - show paywall
@@ -131,9 +132,22 @@ export default function ChatAnalysisScreen() {
     }
 
     console.log('🔄 Starting unlock process...')
-    // Unlock the insight (generate AI data for this specific insight)
     setLoadingInsight(insightId)
+
     try {
+      // CRITICAL: Triple-check access with explicit chatId right before unlocking
+      // This prevents race conditions and ensures entitlement is valid for THIS specific chat
+      const reconfirmAccess = await PaymentService.hasAccess(chatId)
+      console.log('🔒 Re-confirming access before unlock:', reconfirmAccess)
+
+      if (!reconfirmAccess) {
+        console.error('❌ Access verification failed - aborting unlock')
+        setLoadingInsight(null)
+        setShowPaywall(true)
+        showAlert('Access Required', 'Please complete payment to unlock insights')
+        return
+      }
+
       // If we don't have any AI insights yet, generate them all
       let insights = aiInsights
       if (!aiInsights && chat) {
@@ -147,11 +161,30 @@ export default function ChatAnalysisScreen() {
         const hasSubscription = await PaymentService.hasActiveSubscription()
         if (!hasSubscription) {
           console.log('🔗 Assigning one-time entitlement to chat...')
-          await PaymentService.assignAnalysisToChat(chatId)
-          console.log('✅ Entitlement assigned')
+          try {
+            await PaymentService.assignAnalysisToChat(chatId)
+            console.log('✅ Entitlement assigned to chat')
+          } catch (assignError) {
+            console.error('❌ Failed to assign entitlement:', assignError)
+            // If assignment fails, user might not have valid payment - abort
+            setLoadingInsight(null)
+            setShowPaywall(true)
+            showAlert('Payment Verification Failed', 'Could not verify your payment. Please try again or contact support.')
+            return
+          }
         } else {
           console.log('ℹ️ Subscription active - no need to assign to chat')
         }
+      }
+
+      // FINAL VERIFICATION: Check access one more time after assignment
+      const finalAccessCheck = await PaymentService.hasAccess(chatId)
+      if (!finalAccessCheck) {
+        console.error('❌ Final access check failed after assignment')
+        setLoadingInsight(null)
+        setShowPaywall(true)
+        showAlert('Access Verification Failed', 'Could not verify access. Please try again.')
+        return
       }
 
       // Mark this insight as unlocked and persist it
@@ -191,9 +224,19 @@ export default function ChatAnalysisScreen() {
       console.log('💳 Payment result:', result)
 
       if (result.success) {
-        console.log('✅ Payment successful, closing paywall')
-        // Payment successful - close paywall and show auth screen if not authenticated
+        console.log('✅ Payment sheet returned success')
+
+        // Store payment intent ID for verification
+        const paymentIntentId = result.paymentIntentId
+
+        // Close paywall immediately to improve UX
         setShowPaywall(false)
+
+        // Show a brief success message
+        showAlert(
+          'Payment Processing',
+          'Your payment is being processed. You can unlock insights in a moment.'
+        )
 
         // Check if user is authenticated
         const isAuthenticated = await AuthService.isAuthenticated()
@@ -204,10 +247,74 @@ export default function ChatAnalysisScreen() {
           console.log('📝 Showing auth screen (showAuthScreen = true)')
           setShowAuthScreen(true)
         } else {
-          // Already authenticated - just show success
-          console.log('✅ Already authenticated, showing success')
+          // Already authenticated - switch to insights tab
+          console.log('✅ Already authenticated, switching to insights tab')
           setActiveTab('insights')
-          showAlert('🎉 Payment Successful!', 'You now have access to AI insights')
+        }
+
+        // CRITICAL: Poll for entitlement creation
+        // Webhooks can be delayed or fail, so we need to wait for the entitlement to appear
+        console.log('⏳ Polling for entitlement creation...')
+        const maxAttempts = 10 // 10 attempts over 10 seconds
+        const pollInterval = 1000 // 1 second between attempts
+
+        let entitlementFound = false
+
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+          console.log(`🔄 Polling attempt ${attempt}/${maxAttempts}`)
+
+          // Wait before checking (except first attempt)
+          if (attempt > 1) {
+            await new Promise(resolve => setTimeout(resolve, pollInterval))
+          } else {
+            // First attempt - wait just 500ms to give webhook a head start
+            await new Promise(resolve => setTimeout(resolve, 500))
+          }
+
+          // Check if entitlement exists now
+          const hasAccess = await PaymentService.hasAccess(chatId)
+          console.log(`🔍 Attempt ${attempt}: hasAccess =`, hasAccess)
+
+          if (hasAccess) {
+            console.log('✅ Entitlement found! Payment confirmed.')
+            showAlert(
+              '🎉 Payment Successful!',
+              'You can now unlock AI insights.'
+            )
+            entitlementFound = true
+            break
+          }
+
+          // If we've exhausted attempts, try manual verification
+          if (attempt === maxAttempts) {
+            console.warn('⚠️ Entitlement not found after polling - attempting manual verification')
+
+            if (paymentIntentId) {
+              console.log('🔧 Calling manual verification fallback...')
+              const verified = await PaymentService.verifyPayment(paymentIntentId, planId)
+
+              if (verified) {
+                console.log('✅ Manual verification succeeded!')
+                showAlert(
+                  '🎉 Payment Verified!',
+                  'You can now unlock AI insights.'
+                )
+                entitlementFound = true
+              } else {
+                console.error('❌ Manual verification failed')
+                showAlert(
+                  '⏳ Payment Processing',
+                  'Your payment was successful but verification is taking longer than expected. Please wait a moment and try unlocking again. If the problem persists, contact support.'
+                )
+              }
+            } else {
+              console.error('❌ No payment intent ID available for manual verification')
+              showAlert(
+                '⏳ Payment Processing',
+                'Your payment was successful but verification is taking longer than expected. Please wait a moment and try unlocking again. If the problem persists, contact support.'
+              )
+            }
+          }
         }
       } else {
         // Payment failed or cancelled
@@ -215,7 +322,7 @@ export default function ChatAnalysisScreen() {
         if (result.error) {
           showAlert('Payment Failed', result.error)
         }
-        // User cancelled - no alert needed
+        // User cancelled - no alert needed (already handled by Stripe sheet dismissal)
       }
     } catch (error) {
       console.error('💥 Purchase error:', error)
