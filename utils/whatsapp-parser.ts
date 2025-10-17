@@ -8,6 +8,29 @@ export interface ParsedChatData {
   }[]
 }
 
+/**
+ * Extract the first word from a participant name
+ * Examples:
+ * "Jasmine (Bali)" -> "Jasmine"
+ * "Vale 🇮🇹" -> "Vale"
+ * "John Smith" -> "John"
+ */
+function extractFirstName(fullName: string): string {
+  // Remove emojis and special characters, then get first word
+  const cleaned = fullName
+    .replace(/[\u{1F600}-\u{1F64F}]/gu, '') // Emoticons
+    .replace(/[\u{1F300}-\u{1F5FF}]/gu, '') // Misc symbols
+    .replace(/[\u{1F680}-\u{1F6FF}]/gu, '') // Transport
+    .replace(/[\u{1F1E0}-\u{1F1FF}]/gu, '') // Flags
+    .replace(/[\u{2600}-\u{26FF}]/gu, '') // Misc symbols
+    .replace(/[\u{2700}-\u{27BF}]/gu, '') // Dingbats
+    .trim()
+
+  // Get first word (split by space or parenthesis)
+  const firstWord = cleaned.split(/[\s(]+/)[0]
+  return firstWord || fullName // Fallback to original if extraction fails
+}
+
 export function parseWhatsAppChat(chatText: string): ParsedChatData {
   const lines = chatText.split('\n').filter((line) => line.trim())
   const messages: { timestamp: string; sender: string; message: string }[] = []
@@ -49,13 +72,16 @@ export function parseWhatsAppChat(chatText: string): ParsedChatData {
         continue
       }
 
+      // Extract first name only
+      const firstName = extractFirstName(cleanSender)
+
       messages.push({
         timestamp: timestamp.trim(),
-        sender: cleanSender,
+        sender: firstName,
         message: message.trim(),
       })
 
-      participantSet.add(cleanSender)
+      participantSet.add(firstName)
     }
   }
 

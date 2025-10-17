@@ -6,11 +6,36 @@ interface MessageData {
   responseTime?: number
 }
 
+/**
+ * Extract the first word from a participant name
+ * Examples:
+ * "Jasmine (Bali)" -> "Jasmine"
+ * "Vale 🇮🇹" -> "Vale"
+ * "John Smith" -> "John"
+ */
+function extractFirstName(fullName: string): string {
+  // Remove emojis and special characters, then get first word
+  const cleaned = fullName
+    .replace(/[\u{1F600}-\u{1F64F}]/gu, '') // Emoticons
+    .replace(/[\u{1F300}-\u{1F5FF}]/gu, '') // Misc symbols
+    .replace(/[\u{1F680}-\u{1F6FF}]/gu, '') // Transport
+    .replace(/[\u{1F1E0}-\u{1F1FF}]/gu, '') // Flags
+    .replace(/[\u{2600}-\u{26FF}]/gu, '') // Misc symbols
+    .replace(/[\u{2700}-\u{27BF}]/gu, '') // Dingbats
+    .trim()
+
+  // Get first word (split by space or parenthesis)
+  const firstWord = cleaned.split(/[\s(]+/)[0]
+  return firstWord || fullName // Fallback to original if extraction fails
+}
+
 interface ParticipantStats {
   name: string
   messageCount: number
   averageResponseTime: number
   interestLevel: number
+  initiationRate: number // Percentage of conversations initiated by this participant
+  averageMessageLength: number // Average character count per message
 }
 
 interface ChatAnalysisData {
@@ -81,9 +106,12 @@ function parseMessages(chatText: string): MessageData[] {
           const timestamp = parseTimestamp(dateStr, timeStr)
           const messageType = getMessageType(content)
 
+          // Extract first name only
+          const firstName = extractFirstName(cleanSender)
+
           messages.push({
             timestamp,
-            sender: cleanSender,
+            sender: firstName,
             content: content.trim(),
             type: messageType,
           })
@@ -124,8 +152,22 @@ function formatAnalysisData(messages: MessageData[]): ChatAnalysisData {
   if (messages.length === 0) {
     return {
       totalMessages: 0,
-      participant1: { name: 'Unknown', messageCount: 0, averageResponseTime: 0, interestLevel: 0 },
-      participant2: { name: 'Unknown', messageCount: 0, averageResponseTime: 0, interestLevel: 0 },
+      participant1: {
+        name: 'Unknown',
+        messageCount: 0,
+        averageResponseTime: 0,
+        interestLevel: 0,
+        initiationRate: 0,
+        averageMessageLength: 0,
+      },
+      participant2: {
+        name: 'Unknown',
+        messageCount: 0,
+        averageResponseTime: 0,
+        interestLevel: 0,
+        initiationRate: 0,
+        averageMessageLength: 0,
+      },
       dateRange: { start: new Date(), end: new Date() },
       conversationHealth: { balanceScore: 0, engagementScore: 0 },
     }
@@ -169,11 +211,20 @@ function calculateParticipantStats(participantName: string, messages: MessageDat
 
   const interestLevel = calculateInterestLevel(participantMessages, averageResponseTime)
 
+  // Calculate initiation rate (percentage of conversations started by this participant)
+  const initiationRate = calculateInitiationRate(participantName, messages)
+
+  // Calculate average message length (characters)
+  const averageMessageLength =
+    messageCount > 0 ? Math.round(participantMessages.reduce((sum, m) => sum + m.content.length, 0) / messageCount) : 0
+
   return {
     name: participantName,
     messageCount,
     averageResponseTime,
     interestLevel,
+    initiationRate,
+    averageMessageLength,
   }
 }
 
@@ -196,6 +247,38 @@ function calculateBalanceScore(count1: number, count2: number): number {
 
 function calculateEngagementScore(participant1: ParticipantStats, participant2: ParticipantStats): number {
   return Math.round((participant1.interestLevel + participant2.interestLevel) / 2)
+}
+
+function calculateInitiationRate(participantName: string, messages: MessageData[]): number {
+  if (messages.length === 0) return 0
+
+  // A conversation is "initiated" when someone sends a message after a gap of more than 6 hours
+  const initiationThreshold = 6 * 60 * 60 * 1000 // 6 hours in milliseconds
+  let initiationsByParticipant = 0
+  let totalInitiations = 0
+
+  // First message is always an initiation
+  if (messages[0]?.sender === participantName) {
+    initiationsByParticipant++
+  }
+  totalInitiations++
+
+  // Check each message to see if it initiates a new conversation
+  for (let i = 1; i < messages.length; i++) {
+    const currentMessage = messages[i]
+    const previousMessage = messages[i - 1]
+    const timeSinceLast = currentMessage.timestamp.getTime() - previousMessage.timestamp.getTime()
+
+    // If more than 6 hours passed, this is a new conversation initiation
+    if (timeSinceLast > initiationThreshold) {
+      totalInitiations++
+      if (currentMessage.sender === participantName) {
+        initiationsByParticipant++
+      }
+    }
+  }
+
+  return totalInitiations > 0 ? Math.round((initiationsByParticipant / totalInitiations) * 100) : 0
 }
 
 function parseTimestamp(dateStr: string, timeStr: string): Date {

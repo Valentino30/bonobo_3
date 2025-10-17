@@ -1,4 +1,5 @@
 import { AnalysisLoading } from '@/components/analysis-loading'
+import { BackButton } from '@/components/back-button'
 import { ComparisonCard } from '@/components/comparison-card'
 import { useCustomAlert } from '@/components/custom-alert'
 import { InsightCard } from '@/components/insight-card'
@@ -6,11 +7,10 @@ import { LockedInsightCard } from '@/components/locked-insight-card'
 import { PaymentAuthScreen } from '@/components/payment-auth-screen'
 import { Paywall } from '@/components/paywall'
 import { SimpleStatCard } from '@/components/simple-stat-card'
+import { ThemedButton } from '@/components/themed-button'
+import { ThemedTabButton } from '@/components/themed-tab-button'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
-import { ThemedButton } from '@/components/themed-button'
-import { BackButton } from '@/components/back-button'
-import { ThemedTabButton } from '@/components/themed-tab-button'
 import { useTheme } from '@/contexts/theme-context'
 import { usePersistedChats } from '@/hooks/use-persisted-chats'
 import { AuthService } from '@/utils/auth-service'
@@ -32,12 +32,16 @@ interface ChatAnalysisData {
     messageCount: number
     averageResponseTime: number
     interestLevel: number
+    initiationRate?: number
+    averageMessageLength?: number
   }
   participant2: {
     name: string
     messageCount: number
     averageResponseTime: number
     interestLevel: number
+    initiationRate?: number
+    averageMessageLength?: number
   }
   dateRange: { start: Date; end: Date }
   conversationHealth: {
@@ -347,7 +351,9 @@ export default function ChatAnalysisScreen() {
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <ThemedView style={styles.content}>
           <ThemedText type="title">Chat Not Found</ThemedText>
-          <ThemedText style={[styles.errorText, { color: theme.colors.warning }]}>The requested chat could not be found.</ThemedText>
+          <ThemedText style={[styles.errorText, { color: theme.colors.warning }]}>
+            The requested chat could not be found.
+          </ThemedText>
           <ThemedButton
             title="Back to Chats"
             onPress={() => router.push('/chats' as any)}
@@ -366,12 +372,7 @@ export default function ChatAnalysisScreen() {
         <ThemedView style={styles.content}>
           <ThemedText type="title">Analysis Error</ThemedText>
           <ThemedText style={[styles.errorText, { color: theme.colors.warning }]}>{error}</ThemedText>
-          <ThemedButton
-            title="Go Back"
-            onPress={() => router.back()}
-            variant="primary"
-            size="large"
-          />
+          <ThemedButton title="Go Back" onPress={() => router.back()} variant="primary" size="large" />
         </ThemedView>
       </SafeAreaView>
     )
@@ -395,7 +396,12 @@ export default function ChatAnalysisScreen() {
         </View>
 
         {/* Tab Navigation */}
-        <View style={[styles.tabContainer, { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow }]}>
+        <View
+          style={[
+            styles.tabContainer,
+            { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow },
+          ]}
+        >
           <ThemedTabButton
             label="Overview"
             icon="chart-box-outline"
@@ -477,10 +483,62 @@ export default function ChatAnalysisScreen() {
                 ]}
               />
 
+              {/* Average Message Length Card */}
+              <ComparisonCard
+                title="Average Message Length"
+                icon="📝"
+                participants={[
+                  {
+                    name: analysis.participant1.name,
+                    value: `${analysis.participant1.averageMessageLength} chars`,
+                  },
+                  {
+                    name: analysis.participant2.name,
+                    value: `${analysis.participant2.averageMessageLength} chars`,
+                  },
+                ]}
+              />
+
+              {/* Initiation Rate Card */}
+              {analysis.participant1.initiationRate !== undefined && (
+                <ComparisonCard
+                  title="Initiation Rate"
+                  icon="🚀"
+                  description={
+                    (analysis.participant1.initiationRate ?? 0) > (analysis.participant2.initiationRate ?? 0)
+                      ? `This indicates that ${analysis.participant1.name} starts conversations more often than ${analysis.participant2.name}, which may suggest a higher level of interest or eagerness to engage.`
+                      : (analysis.participant2.initiationRate ?? 0) > (analysis.participant1.initiationRate ?? 0)
+                      ? `This indicates that ${analysis.participant2.name} starts conversations more often than ${analysis.participant1.name}, which may suggest a higher level of interest or eagerness to engage.`
+                      : `Both participants initiate conversations equally, indicating a balanced level of interest and engagement from both sides.`
+                  }
+                  participants={[
+                    {
+                      name: analysis.participant1.name,
+                      value: `${analysis.participant1.initiationRate}%`,
+                      progressValue: analysis.participant1.initiationRate,
+                      progressColor: theme.colors.info,
+                    },
+                    {
+                      name: analysis.participant2.name,
+                      value: `${analysis.participant2.initiationRate ?? 0}%`,
+                      progressValue: analysis.participant2.initiationRate ?? 0,
+                      progressColor: theme.colors.error,
+                    },
+                  ]}
+                />
+              )}
+
               {/* Interest Level Card */}
               <ComparisonCard
                 title="Interest Level"
                 icon="❤️"
+                description={
+                  analysis.participant1.interestLevel > analysis.participant2.interestLevel
+                    ? `${analysis.participant1.name} shows a higher overall engagement score (${analysis.participant1.interestLevel}%) compared to ${analysis.participant2.name} (${analysis.participant2.interestLevel}%), based on response time, message length, and frequency. This suggests ${analysis.participant1.name} may be more invested in the conversation.`
+                    : analysis.participant2.interestLevel > analysis.participant1.interestLevel
+                    ? `${analysis.participant2.name} shows a higher overall engagement score (${analysis.participant2.interestLevel}%) compared to ${analysis.participant1.name} (${analysis.participant1.interestLevel}%), based on response time, message length, and frequency. This suggests ${analysis.participant2.name} may be more invested in the conversation.`
+                    : `Both participants show equal engagement levels (${analysis.participant1.interestLevel}%), indicating a balanced investment in the conversation from both sides.`
+                }
                 participants={[
                   {
                     name: analysis.participant1.name,

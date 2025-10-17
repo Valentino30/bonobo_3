@@ -1,7 +1,8 @@
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, View, Animated, Pressable } from 'react-native'
 import { useTheme } from '@/contexts/theme-context'
+import { useState, useRef, useEffect } from 'react'
 
 interface ParticipantData {
   name: string
@@ -14,54 +15,276 @@ interface ComparisonCardProps {
   title: string
   icon: string
   participants: ParticipantData[]
+  description?: string
 }
 
-export function ComparisonCard({ title, icon, participants }: ComparisonCardProps) {
+export function ComparisonCard({ title, icon, participants, description }: ComparisonCardProps) {
   const theme = useTheme()
+  const [isFlipped, setIsFlipped] = useState(false)
+  const flipAnimation = useRef(new Animated.Value(0)).current
+  const scaleAnimation = useRef(new Animated.Value(1)).current
+  const shakeAnimation = useRef(new Animated.Value(0)).current
+  const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const startShake = () => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(shakeAnimation, {
+          toValue: 1,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnimation, {
+          toValue: -1,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnimation, {
+          toValue: 1,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnimation, {
+          toValue: 0,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start()
+  }
+
+  const stopShake = () => {
+    shakeAnimation.stopAnimation()
+    Animated.timing(shakeAnimation, {
+      toValue: 0,
+      duration: 100,
+      useNativeDriver: true,
+    }).start()
+  }
+
+  const handlePressIn = () => {
+    // Scale down immediately (for all cards)
+    Animated.spring(scaleAnimation, {
+      toValue: 0.97,
+      useNativeDriver: true,
+    }).start()
+
+    // Start shake after a short delay (like being ticklish!)
+    pressTimer.current = setTimeout(() => {
+      startShake()
+    }, 200)
+  }
+
+  const handlePressOut = () => {
+    // Clear the timer if released before shake starts
+    if (pressTimer.current) {
+      clearTimeout(pressTimer.current)
+      pressTimer.current = null
+    }
+
+    // Stop shake and scale back
+    stopShake()
+    Animated.spring(scaleAnimation, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start()
+  }
+
+  const handleFlip = () => {
+    if (!description) return // Don't flip if no description
+
+    Animated.spring(flipAnimation, {
+      toValue: isFlipped ? 0 : 1,
+      friction: 8,
+      tension: 10,
+      useNativeDriver: true,
+    }).start()
+
+    setIsFlipped(!isFlipped)
+  }
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (pressTimer.current) {
+        clearTimeout(pressTimer.current)
+      }
+      shakeAnimation.stopAnimation()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const frontInterpolate = flipAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '180deg'],
+  })
+
+  const backInterpolate = flipAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['180deg', '360deg'],
+  })
+
+  const frontAnimatedStyle = {
+    transform: [{ rotateY: frontInterpolate }],
+  }
+
+  const backAnimatedStyle = {
+    transform: [{ rotateY: backInterpolate }],
+  }
+
+  const frontOpacity = flipAnimation.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [1, 0, 0],
+  })
+
+  const backOpacity = flipAnimation.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [0, 0, 1],
+  })
+
+  const shakeTranslate = shakeAnimation.interpolate({
+    inputRange: [-1, 0, 1],
+    outputRange: [-2, 0, 2],
+  })
+
+  const shakeRotate = shakeAnimation.interpolate({
+    inputRange: [-1, 0, 1],
+    outputRange: ['-1deg', '0deg', '1deg'],
+  })
 
   return (
-    <ThemedView style={[styles.statCard, { backgroundColor: theme.colors.backgroundLight, borderColor: theme.colors.borderLight, shadowColor: theme.colors.shadow }]}>
-      <View style={styles.titleRow}>
-        <ThemedText style={[styles.cardTitle, { color: theme.colors.textSecondary }]}>{title}</ThemedText>
-        <ThemedText style={styles.iconText}>{icon}</ThemedText>
-      </View>
-      <View style={[styles.divider, { backgroundColor: theme.colors.backgroundSecondary }]} />
-      <View style={styles.participantRow}>
-        {participants.map((participant, index) => (
-          <View key={index} style={styles.participantItem}>
-            <ThemedText style={[styles.participantName, { color: theme.colors.textTertiary }]} numberOfLines={1}>{participant.name}</ThemedText>
-            <ThemedText style={[styles.participantNumber, { color: theme.colors.text }]}>{participant.value}</ThemedText>
-            {participant.progressValue !== undefined && (
-              <View style={[styles.progressBar, { backgroundColor: theme.colors.borderLight }]}>
-                <View
-                  style={[
-                    styles.progressFill,
-                    {
-                      width: `${participant.progressValue}%`,
-                      backgroundColor: participant.progressColor || theme.colors.info,
-                    },
-                  ]}
-                />
-              </View>
-            )}
-          </View>
-        ))}
-      </View>
-    </ThemedView>
+    <Pressable
+      onPress={handleFlip}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      style={{ width: '100%' }}
+    >
+      <Animated.View
+        style={[
+          styles.cardContainer,
+          {
+            transform: [{ scale: scaleAnimation }, { translateX: shakeTranslate }, { rotate: shakeRotate }],
+          },
+        ]}
+      >
+        {/* Front of card */}
+        <Animated.View
+          style={[
+            styles.cardFace,
+            frontAnimatedStyle,
+            { opacity: frontOpacity },
+            isFlipped && styles.hiddenFace,
+          ]}
+        >
+          <ThemedView
+            style={[
+              styles.statCard,
+              {
+                backgroundColor: theme.colors.backgroundLight,
+                borderColor: theme.colors.borderLight,
+                shadowColor: theme.colors.shadow,
+              },
+            ]}
+          >
+            <View style={styles.titleRow}>
+              <ThemedText style={[styles.cardTitle, { color: theme.colors.textSecondary }]}>{title}</ThemedText>
+              <ThemedText style={styles.iconText}>{icon}</ThemedText>
+            </View>
+            <View style={[styles.divider, { backgroundColor: theme.colors.backgroundSecondary }]} />
+            <View style={styles.participantRow}>
+              {participants.map((participant, index) => (
+                <View key={index} style={styles.participantItem}>
+                  <ThemedText style={[styles.participantName, { color: theme.colors.textTertiary }]} numberOfLines={1}>
+                    {participant.name}
+                  </ThemedText>
+                  <ThemedText style={[styles.participantNumber, { color: theme.colors.text }]}>
+                    {participant.value}
+                  </ThemedText>
+                  {participant.progressValue !== undefined && (
+                    <View style={[styles.progressBar, { backgroundColor: theme.colors.borderLight }]}>
+                      <View
+                        style={[
+                          styles.progressFill,
+                          {
+                            width: `${participant.progressValue}%`,
+                            backgroundColor: participant.progressColor || theme.colors.info,
+                          },
+                        ]}
+                      />
+                    </View>
+                  )}
+                </View>
+              ))}
+            </View>
+          </ThemedView>
+        </Animated.View>
+
+        {/* Back of card */}
+        {description && (
+          <Animated.View
+            style={[
+              styles.cardFace,
+              styles.cardBack,
+              backAnimatedStyle,
+              { opacity: backOpacity },
+              !isFlipped && styles.hiddenFace,
+            ]}
+          >
+            <ThemedView
+              style={[
+                styles.statCard,
+                styles.backCard,
+                {
+                  backgroundColor: theme.colors.backgroundLight,
+                  borderColor: theme.colors.borderLight,
+                  shadowColor: theme.colors.shadow,
+                },
+              ]}
+            >
+              <ThemedText style={[styles.descriptionLarge, { color: theme.colors.text }]}>{description}</ThemedText>
+              <ThemedText style={[styles.tapHint, { color: theme.colors.textTertiary }]}>Tap to see stats</ThemedText>
+            </ThemedView>
+          </Animated.View>
+        )}
+      </Animated.View>
+    </Pressable>
   )
 }
 
 const styles = StyleSheet.create({
+  cardContainer: {
+    width: '100%',
+    height: 200,
+    marginBottom: 12,
+  },
+  cardFace: {
+    width: '100%',
+    height: '100%',
+    backfaceVisibility: 'hidden',
+  },
+  cardBack: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '100%',
+  },
+  hiddenFace: {
+    pointerEvents: 'none',
+  },
   statCard: {
     borderRadius: 12,
     padding: 20,
     width: '100%',
-    marginBottom: 12,
+    height: '100%',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
     borderWidth: 1,
+  },
+  backCard: {
+    justifyContent: 'center',
   },
   titleRow: {
     flexDirection: 'row',
@@ -69,11 +292,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
   },
+  iconRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   cardTitle: {
     fontSize: 14,
     fontWeight: '600',
     letterSpacing: 0.3,
     textTransform: 'uppercase',
+  },
+  flipHint: {
+    fontSize: 16,
+    opacity: 0.5,
   },
   iconText: {
     fontSize: 20,
@@ -116,5 +348,19 @@ const styles = StyleSheet.create({
   progressFill: {
     height: '100%',
     borderRadius: 3,
+  },
+  descriptionLarge: {
+    fontSize: 15,
+    lineHeight: 24,
+    textAlign: 'center',
+    marginTop: 10,
+    marginBottom: 12,
+    paddingHorizontal: 4,
+  },
+  tapHint: {
+    fontSize: 11,
+    textAlign: 'center',
+    opacity: 0.5,
+    fontStyle: 'italic',
   },
 })
