@@ -1,5 +1,5 @@
 import { initPaymentSheet, presentPaymentSheet } from '@stripe/stripe-react-native'
-import { PAYMENT_PLANS } from './payment-service'
+import { getPaymentPlans } from './payment-service'
 import { supabase } from './supabase'
 import { getDeviceId } from './device-id'
 
@@ -15,6 +15,7 @@ export class StripeService {
   static async initializePayment(planId: string): Promise<StripePaymentResult> {
     try {
       // Get the plan details
+      const PAYMENT_PLANS = getPaymentPlans()
       const plan = Object.values(PAYMENT_PLANS).find((p) => p.id === planId)
       if (!plan) {
         throw new Error('Invalid plan ID')

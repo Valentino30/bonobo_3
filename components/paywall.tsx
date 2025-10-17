@@ -3,7 +3,7 @@ import { ThemedView } from '@/components/themed-view'
 import { ThemedButton } from '@/components/themed-button'
 import { SubscriptionCard } from '@/components/subscription-card'
 import { useTheme } from '@/contexts/theme-context'
-import { PAYMENT_PLANS } from '@/utils/payment-service'
+import { getPaymentPlans } from '@/utils/payment-service'
 import { Modal, ScrollView, StyleSheet, Text, View } from 'react-native'
 
 interface PaywallProps {
@@ -14,6 +14,13 @@ interface PaywallProps {
 
 export function Paywall({ visible, onClose, onPurchase }: PaywallProps) {
   const theme = useTheme()
+  const PAYMENT_PLANS = getPaymentPlans()
+
+  console.log('💳 Paywall opened - Payment plans:', {
+    oneTime: `${PAYMENT_PLANS.ONE_TIME.currency} ${PAYMENT_PLANS.ONE_TIME.price}`,
+    weekly: `${PAYMENT_PLANS.WEEKLY.currency} ${PAYMENT_PLANS.WEEKLY.price}`,
+    monthly: `${PAYMENT_PLANS.MONTHLY.currency} ${PAYMENT_PLANS.MONTHLY.price}`,
+  })
 
   const handlePurchase = async (planId: string) => {
     // Error handling is done by the parent component

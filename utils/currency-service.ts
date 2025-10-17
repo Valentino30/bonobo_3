@@ -117,26 +117,32 @@ export class CurrencyService {
    * Get the user's currency based on their device locale
    */
   static getUserCurrency(): SupportedCurrency {
+    console.log('🌍 getUserCurrency() called')
     try {
+      console.log('📍 Attempting to get locales...')
       // Get the device region code (e.g., 'US', 'GB', 'DE')
       const locales = getLocales()
+      console.log('📍 Locales retrieved:', locales)
+
+      // Use the primary (first) locale's region code
       const regionCode = locales[0]?.regionCode || 'US'
 
-      console.log('Device region code:', regionCode)
+      console.log('📍 Primary region code:', regionCode)
 
       // Look up currency for this region
       const currency = REGION_TO_CURRENCY[regionCode]
 
       if (currency) {
-        console.log('Detected currency:', currency)
+        console.log('✅ Detected currency:', currency)
         return currency
       }
 
       // Fallback to USD if region not found
-      console.log('Region not found, defaulting to USD')
+      console.log('⚠️ Region not found in mapping, defaulting to USD')
       return 'USD'
     } catch (error) {
-      console.error('Error detecting currency, defaulting to USD:', error)
+      console.error('❌ Error detecting currency, defaulting to USD:', error)
+      console.error('❌ Error details:', JSON.stringify(error, null, 2))
       return 'USD'
     }
   }

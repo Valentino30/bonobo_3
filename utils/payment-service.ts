@@ -52,9 +52,6 @@ export function getPaymentPlans(): Record<string, PaymentPlan> {
   }
 }
 
-// Dynamic payment plans based on user's currency
-export const PAYMENT_PLANS = getPaymentPlans()
-
 interface UserEntitlement {
   id: string
   plan: string
@@ -345,7 +342,8 @@ export class PaymentService {
   }
 
   // Get plan details by ID
-  static getPlanDetails(planId: string): typeof PAYMENT_PLANS[keyof typeof PAYMENT_PLANS] | null {
+  static getPlanDetails(planId: string): PaymentPlan | null {
+    const PAYMENT_PLANS = getPaymentPlans()
     const plan = Object.values(PAYMENT_PLANS).find((p) => p.id === planId)
     return plan || null
   }
