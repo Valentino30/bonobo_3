@@ -3,8 +3,6 @@ import {
   View,
   ScrollView,
   StyleSheet,
-  TouchableOpacity,
-  TextInput,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native'
@@ -12,7 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedButton } from '@/components/themed-button'
-import { ThemedIconButton } from '@/components/themed-icon-button'
+import { ThemedTextInput } from '@/components/themed-text-input'
 import { BackButton } from '@/components/back-button'
 import { LoadingScreen } from '@/components/loading-screen'
 import { AuthService } from '@/utils/auth-service'
@@ -31,14 +29,12 @@ export default function ProfileScreen() {
   // Login state
   const [loginEmail, setLoginEmail] = useState('')
   const [loginPassword, setLoginPassword] = useState('')
-  const [showLoginPassword, setShowLoginPassword] = useState(false)
   const [isLoggingIn, setIsLoggingIn] = useState(false)
 
   // Password change state
   const [showPasswordChange, setShowPasswordChange] = useState(false)
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
   const [isChangingPassword, setIsChangingPassword] = useState(false)
 
   // Load user profile
@@ -217,41 +213,30 @@ export default function ProfileScreen() {
 
               <View style={styles.loginForm}>
                 {/* Email Input */}
-                <View style={styles.inputGroup}>
-                  <TextInput
-                    style={[styles.input, { backgroundColor: theme.colors.background, borderColor: theme.colors.border, color: theme.colors.text }]}
-                    placeholder="Email address"
-                    placeholderTextColor={theme.colors.textPlaceholder}
-                    value={loginEmail}
-                    onChangeText={setLoginEmail}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    keyboardType="email-address"
-                  />
-                </View>
+                <ThemedTextInput
+                  placeholder="Email address"
+                  value={loginEmail}
+                  onChangeText={setLoginEmail}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  keyboardType="email-address"
+                  icon="email-outline"
+                  size="large"
+                  fullWidth
+                />
 
                 {/* Password Input */}
-                <View style={styles.inputGroup}>
-                  <View style={[styles.passwordContainer, { backgroundColor: theme.colors.background, borderColor: theme.colors.border }]}>
-                    <TextInput
-                      style={[styles.passwordInput, { color: theme.colors.text }]}
-                      placeholder="Password"
-                      placeholderTextColor={theme.colors.textPlaceholder}
-                      value={loginPassword}
-                      onChangeText={setLoginPassword}
-                      secureTextEntry={!showLoginPassword}
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                    />
-                    <ThemedIconButton
-                      icon={showLoginPassword ? 'eye-off-outline' : 'eye-outline'}
-                      onPress={() => setShowLoginPassword(!showLoginPassword)}
-                      variant="ghost"
-                      size="small"
-                      style={styles.showPasswordButton}
-                    />
-                  </View>
-                </View>
+                <ThemedTextInput
+                  placeholder="Password"
+                  value={loginPassword}
+                  onChangeText={setLoginPassword}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  password
+                  icon="lock-outline"
+                  size="large"
+                  fullWidth
+                />
 
                 {/* Login Button */}
                 <ThemedButton
@@ -334,41 +319,28 @@ export default function ProfileScreen() {
 
               <View style={styles.passwordForm}>
                 {/* New Password */}
-                <View style={styles.inputGroup}>
-                  <View style={[styles.passwordContainer, { backgroundColor: theme.colors.background, borderColor: theme.colors.border }]}>
-                    <TextInput
-                      style={[styles.passwordInput, { color: theme.colors.text }]}
-                      placeholder="New password (min. 8 characters)"
-                      placeholderTextColor={theme.colors.textPlaceholder}
-                      value={newPassword}
-                      onChangeText={setNewPassword}
-                      secureTextEntry={!showPassword}
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                    />
-                    <ThemedIconButton
-                      icon={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                      onPress={() => setShowPassword(!showPassword)}
-                      variant="ghost"
-                      size="small"
-                      style={styles.showPasswordButton}
-                    />
-                  </View>
-                </View>
+                <ThemedTextInput
+                  placeholder="New password (min. 8 characters)"
+                  value={newPassword}
+                  onChangeText={setNewPassword}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  password
+                  icon="lock-outline"
+                  fullWidth
+                />
 
                 {/* Confirm Password */}
-                <View style={styles.inputGroup}>
-                  <TextInput
-                    style={[styles.input, { backgroundColor: theme.colors.background, borderColor: theme.colors.border, color: theme.colors.text }]}
-                    placeholder="Confirm new password"
-                    placeholderTextColor={theme.colors.textPlaceholder}
-                    value={confirmPassword}
-                    onChangeText={setConfirmPassword}
-                    secureTextEntry={!showPassword}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                  />
-                </View>
+                <ThemedTextInput
+                  placeholder="Confirm new password"
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  password
+                  icon="lock-check-outline"
+                  fullWidth
+                />
 
                 {/* Buttons */}
                 <View style={styles.passwordButtons}>
@@ -531,29 +503,6 @@ const styles = StyleSheet.create({
   },
   passwordForm: {
     gap: 16,
-  },
-  inputGroup: {
-    gap: 8,
-  },
-  input: {
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 15,
-    borderWidth: 1,
-  },
-  passwordContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 12,
-    borderWidth: 1,
-  },
-  passwordInput: {
-    flex: 1,
-    padding: 16,
-    fontSize: 15,
-  },
-  showPasswordButton: {
-    padding: 16,
   },
   passwordButtons: {
     flexDirection: 'row',
