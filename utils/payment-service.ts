@@ -84,10 +84,10 @@ export class PaymentService {
         // CRITICAL: Only consider entitlements with valid Stripe payment
         .not('stripe_payment_intent_id', 'is', null)
 
-      // If user is authenticated, check by user_id OR device_id
+      // If user is authenticated, ONLY check by user_id
       // Otherwise, check by device_id only
       if (user) {
-        query = query.or(`user_id.eq.${user.id},device_id.eq.${deviceId}`)
+        query = query.eq('user_id', user.id)
       } else {
         query = query.eq('device_id', deviceId)
       }
@@ -192,10 +192,10 @@ export class PaymentService {
         // CRITICAL: Only assign entitlements with valid Stripe payment
         .not('stripe_payment_intent_id', 'is', null)
 
-      // If user is authenticated, check by user_id OR device_id
+      // If user is authenticated, ONLY check by user_id
       // Otherwise, check by device_id only
       if (user) {
-        query = query.or(`user_id.eq.${user.id},device_id.eq.${deviceId}`)
+        query = query.eq('user_id', user.id)
       } else {
         query = query.eq('device_id', deviceId)
       }
@@ -263,10 +263,10 @@ export class PaymentService {
         .eq('status', 'active')
         .neq('plan_id', 'one-time')
 
-      // If user is authenticated, check by user_id OR device_id
+      // If user is authenticated, ONLY check by user_id
       // Otherwise, check by device_id only
       if (user) {
-        query = query.or(`user_id.eq.${user.id},device_id.eq.${deviceId}`)
+        query = query.eq('user_id', user.id)
       } else {
         query = query.eq('device_id', deviceId)
       }
@@ -308,10 +308,10 @@ export class PaymentService {
         .select('*')
         .eq('status', 'active')
 
-      // If user is authenticated, check by user_id OR device_id
+      // If user is authenticated, ONLY check by user_id
       // Otherwise, check by device_id only
       if (user) {
-        query = query.or(`user_id.eq.${user.id},device_id.eq.${deviceId}`)
+        query = query.eq('user_id', user.id)
       } else {
         query = query.eq('device_id', deviceId)
       }

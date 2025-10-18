@@ -42,15 +42,24 @@ export class ChatStorage {
       // Get current user if authenticated
       const { data: { user } } = await supabase.auth.getUser()
 
+      console.log('📂 Loading chats:', {
+        isAuthenticated: !!user,
+        userId: user?.id,
+        deviceId,
+      })
+
       let query = supabase
         .from('chats')
         .select('*')
 
-      // If user is authenticated, fetch their chats (linked by user_id OR device_id)
-      // Otherwise, fetch by device_id only
+      // If user is authenticated, ONLY fetch chats linked to user_id
+      // This prevents showing chats after logout (migrated chats have device_id = NULL)
+      // When user logs out, only device_id chats are shown
       if (user) {
-        query = query.or(`user_id.eq.${user.id},device_id.eq.${deviceId}`)
+        console.log('🔐 User authenticated - loading chats for user_id:', user.id)
+        query = query.eq('user_id', user.id)
       } else {
+        console.log('👤 Anonymous user - loading chats for device_id:', deviceId)
         query = query.eq('device_id', deviceId)
       }
 
@@ -60,6 +69,8 @@ export class ChatStorage {
         console.error('Error loading chats from Supabase:', error)
         return []
       }
+
+      console.log(`✅ Loaded ${data?.length || 0} chats from Supabase`)
 
       // Convert database format to StoredChat format
       return (data || []).map((row: any) => ({
@@ -138,10 +149,10 @@ export class ChatStorage {
         .delete()
         .eq('id', chatId)
 
-      // If user is authenticated, delete chats that match user_id OR device_id
+      // If user is authenticated, ONLY delete chats linked to user_id
       // Otherwise, only delete chats matching device_id
       if (user) {
-        query = query.or(`user_id.eq.${user.id},device_id.eq.${deviceId}`)
+        query = query.eq('user_id', user.id)
       } else {
         query = query.eq('device_id', deviceId)
       }
@@ -171,10 +182,10 @@ export class ChatStorage {
         .from('chats')
         .delete()
 
-      // If user is authenticated, delete chats that match user_id OR device_id
+      // If user is authenticated, ONLY delete chats linked to user_id
       // Otherwise, only delete chats matching device_id
       if (user) {
-        query = query.or(`user_id.eq.${user.id},device_id.eq.${deviceId}`)
+        query = query.eq('user_id', user.id)
       } else {
         query = query.eq('device_id', deviceId)
       }
@@ -204,10 +215,10 @@ export class ChatStorage {
         .from('chats')
         .select('*', { count: 'exact', head: true })
 
-      // If user is authenticated, count chats that match user_id OR device_id
+      // If user is authenticated, ONLY count chats linked to user_id
       // Otherwise, only count chats matching device_id
       if (user) {
-        query = query.or(`user_id.eq.${user.id},device_id.eq.${deviceId}`)
+        query = query.eq('user_id', user.id)
       } else {
         query = query.eq('device_id', deviceId)
       }
@@ -251,10 +262,10 @@ export class ChatStorage {
         .update(updateData)
         .eq('id', chatId)
 
-      // If user is authenticated, update chats that match user_id OR device_id
+      // If user is authenticated, ONLY update chats linked to user_id
       // Otherwise, only update chats matching device_id
       if (user) {
-        query = query.or(`user_id.eq.${user.id},device_id.eq.${deviceId}`)
+        query = query.eq('user_id', user.id)
       } else {
         query = query.eq('device_id', deviceId)
       }
