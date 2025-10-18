@@ -32,10 +32,21 @@ export class AuthService {
       })
 
       if (error) {
-        console.error('Sign up error:', error)
+        console.log('⚠️ Sign up failed:', error.message)
+
+        // Provide user-friendly error messages
+        let userMessage = error.message
+        if (error.message.includes('already registered')) {
+          userMessage = 'This email is already registered. Please sign in instead.'
+        } else if (error.message.includes('Password should be')) {
+          userMessage = 'Password must be at least 6 characters long.'
+        } else if (error.message.includes('Invalid email')) {
+          userMessage = 'Please enter a valid email address.'
+        }
+
         return {
           success: false,
-          error: error.message,
+          error: userMessage,
         }
       }
 
@@ -75,10 +86,10 @@ export class AuthService {
         session: data.session ?? undefined,
       }
     } catch (error) {
-      console.error('Sign up error (catch):', error)
+      console.log('⚠️ Sign up error:', error)
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Sign up failed',
+        error: 'Unable to create account. Please check your connection and try again.',
       }
     }
   }
@@ -96,10 +107,19 @@ export class AuthService {
       })
 
       if (error) {
-        console.error('Sign in error:', error)
+        console.log('⚠️ Sign in failed:', error.message)
+
+        // Provide user-friendly error messages
+        let userMessage = error.message
+        if (error.message.includes('Invalid login credentials')) {
+          userMessage = 'Incorrect email or password. Please try again.'
+        } else if (error.message.includes('Email not confirmed')) {
+          userMessage = 'Please verify your email address before signing in.'
+        }
+
         return {
           success: false,
-          error: error.message,
+          error: userMessage,
         }
       }
 
@@ -111,10 +131,10 @@ export class AuthService {
         session: data.session,
       }
     } catch (error) {
-      console.error('Sign in error (catch):', error)
+      console.log('⚠️ Sign in error:', error)
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Sign in failed',
+        error: 'Unable to sign in. Please check your connection and try again.',
       }
     }
   }
@@ -127,10 +147,10 @@ export class AuthService {
       const { error } = await supabase.auth.signOut()
 
       if (error) {
-        console.error('Sign out error:', error)
+        console.log('⚠️ Sign out failed:', error.message)
         return {
           success: false,
-          error: error.message,
+          error: 'Unable to sign out. Please try again.',
         }
       }
 
@@ -140,10 +160,10 @@ export class AuthService {
         success: true,
       }
     } catch (error) {
-      console.error('Sign out error (catch):', error)
+      console.log('⚠️ Sign out error:', error)
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Sign out failed',
+        error: 'Unable to sign out. Please try again.',
       }
     }
   }
@@ -158,10 +178,10 @@ export class AuthService {
       })
 
       if (error) {
-        console.error('Password update error:', error)
+        console.log('⚠️ Password update failed:', error.message)
         return {
           success: false,
-          error: error.message,
+          error: 'Unable to update password. Please try again.',
         }
       }
 
@@ -172,10 +192,10 @@ export class AuthService {
         user: data.user,
       }
     } catch (error) {
-      console.error('Password update error (catch):', error)
+      console.log('⚠️ Password update error:', error)
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Password update failed',
+        error: 'Unable to update password. Please try again.',
       }
     }
   }
@@ -203,10 +223,10 @@ export class AuthService {
       })
 
       if (rpcError) {
-        console.error('Account deletion error:', rpcError)
+        console.log('⚠️ Account deletion failed:', rpcError.message)
         return {
           success: false,
-          error: rpcError.message,
+          error: 'Unable to delete account. Please try again or contact support.',
         }
       }
 
@@ -216,10 +236,10 @@ export class AuthService {
         success: true,
       }
     } catch (error) {
-      console.error('Account deletion error (catch):', error)
+      console.log('⚠️ Account deletion error:', error)
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Account deletion failed',
+        error: 'Unable to delete account. Please try again or contact support.',
       }
     }
   }
