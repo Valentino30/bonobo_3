@@ -1,8 +1,8 @@
-import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { ThemedButton } from '@/components/themed-button'
+import { ThemedTextInput } from '@/components/themed-text-input'
 import { useTheme } from '@/contexts/theme-context'
-import { StyleSheet, TextInput, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 
 interface ManualInputContainerProps {
   manualInput: string
@@ -22,14 +22,15 @@ export function ManualInputContainer({ manualInput, setManualInput, onImport }: 
 
   return (
     <ThemedView style={[styles.manualInputContainer, { backgroundColor: theme.colors.backgroundLight, borderColor: theme.colors.backgroundSecondary, shadowColor: theme.colors.shadow }]}>
-      <TextInput
-        style={[styles.manualInput, { backgroundColor: theme.colors.background, borderColor: theme.colors.border, color: theme.colors.text }]}
+      <ThemedTextInput
         placeholder="Paste your WhatsApp chat export here..."
-        placeholderTextColor={theme.colors.textPlaceholder}
         value={manualInput}
         onChangeText={setManualInput}
         multiline
         textAlignVertical="top"
+        containerStyle={styles.inputContainer}
+        inputStyle={styles.multilineInput}
+        fullWidth
       />
       <View style={styles.buttonContainer}>
         <ThemedButton
@@ -55,15 +56,14 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-  manualInput: {
+  inputContainer: {
+    marginBottom: 12,
+  },
+  multilineInput: {
     minHeight: 100,
     textAlignVertical: 'top',
     fontSize: 14,
     lineHeight: 20,
-    marginBottom: 12,
-    padding: 12,
-    borderRadius: 6,
-    borderWidth: 1,
     letterSpacing: 0.1,
   },
   buttonContainer: {

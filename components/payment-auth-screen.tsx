@@ -4,8 +4,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
-  TouchableOpacity,
   View,
   KeyboardAvoidingView,
   Platform,
@@ -13,10 +11,9 @@ import {
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { ThemedButton } from '@/components/themed-button'
-import { ThemedIconButton } from '@/components/themed-icon-button'
+import { ThemedTextInput } from '@/components/themed-text-input'
 import { useTheme } from '@/contexts/theme-context'
 import { AuthService } from '@/utils/auth-service'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useCustomAlert } from '@/components/custom-alert'
 
 interface PaymentAuthScreenProps {
@@ -30,7 +27,6 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { showAlert, AlertComponent } = useCustomAlert()
@@ -170,10 +166,8 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
               {/* Email Input */}
               <View style={styles.inputGroup}>
                 <ThemedText style={[styles.label, { color: theme.colors.textDark }]}>Email Address</ThemedText>
-                <TextInput
-                  style={[styles.input, { backgroundColor: theme.colors.backgroundInput, borderColor: theme.colors.borderInput, color: theme.colors.text }]}
+                <ThemedTextInput
                   placeholder="your@email.com"
-                  placeholderTextColor={theme.colors.textTertiary}
                   value={email}
                   onChangeText={(text) => {
                     setEmail(text.trim())
@@ -182,54 +176,50 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
                   autoCapitalize="none"
                   autoCorrect={false}
                   keyboardType="email-address"
-                  editable={!isLoading}
+                  disabled={isLoading}
+                  icon="email-outline"
+                  variant="filled"
+                  fullWidth
                 />
               </View>
 
               {/* Password Input */}
               <View style={styles.inputGroup}>
                 <ThemedText style={[styles.label, { color: theme.colors.textDark }]}>Password</ThemedText>
-                <View style={[styles.passwordContainer, { backgroundColor: theme.colors.backgroundInput, borderColor: theme.colors.borderInput }]}>
-                  <TextInput
-                    style={[styles.passwordInput, { color: theme.colors.text }]}
-                    placeholder="Minimum 8 characters"
-                    placeholderTextColor={theme.colors.textTertiary}
-                    value={password}
-                    onChangeText={(text) => {
-                      setPassword(text)
-                      setError(null)
-                    }}
-                    secureTextEntry={!showPassword}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    editable={!isLoading}
-                  />
-                  <ThemedIconButton
-                    icon={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                    onPress={() => setShowPassword(!showPassword)}
-                    variant="primary"
-                    size="medium"
-                    style={styles.showPasswordButton}
-                  />
-                </View>
+                <ThemedTextInput
+                  placeholder="Minimum 8 characters"
+                  value={password}
+                  onChangeText={(text) => {
+                    setPassword(text)
+                    setError(null)
+                  }}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  disabled={isLoading}
+                  password
+                  icon="lock-outline"
+                  variant="filled"
+                  fullWidth
+                />
               </View>
 
               {/* Confirm Password Input */}
               <View style={styles.inputGroup}>
                 <ThemedText style={[styles.label, { color: theme.colors.textDark }]}>Confirm Password</ThemedText>
-                <TextInput
-                  style={[styles.input, { backgroundColor: theme.colors.backgroundInput, borderColor: theme.colors.borderInput, color: theme.colors.text }]}
+                <ThemedTextInput
                   placeholder="Re-enter your password"
-                  placeholderTextColor={theme.colors.textTertiary}
                   value={confirmPassword}
                   onChangeText={(text) => {
                     setConfirmPassword(text)
                     setError(null)
                   }}
-                  secureTextEntry={!showPassword}
                   autoCapitalize="none"
                   autoCorrect={false}
-                  editable={!isLoading}
+                  disabled={isLoading}
+                  password
+                  icon="lock-check-outline"
+                  variant="filled"
+                  fullWidth
                 />
               </View>
             </View>
@@ -322,26 +312,6 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-  },
-  input: {
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 16,
-    borderWidth: 1,
-  },
-  passwordContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 12,
-    borderWidth: 1,
-  },
-  passwordInput: {
-    flex: 1,
-    padding: 16,
-    fontSize: 16,
-  },
-  showPasswordButton: {
-    padding: 16,
   },
   privacyNotice: {
     flexDirection: 'row',
