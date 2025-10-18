@@ -72,6 +72,7 @@ export default function ChatAnalysisScreen() {
   const [showAuthScreen, setShowAuthScreen] = useState(false)
   const [unlockedInsights, setUnlockedInsights] = useState<Set<string>>(new Set())
   const [loadingInsight, setLoadingInsight] = useState<string | null>(null)
+  const [pendingInsightToUnlock, setPendingInsightToUnlock] = useState<string | null>(null)
 
   // Debug: Log when showAuthScreen changes
   useEffect(() => {
@@ -118,8 +119,9 @@ export default function ChatAnalysisScreen() {
     console.log('Initial access check result:', access)
 
     if (!access) {
-      // No access - show paywall
+      // No access - show paywall and remember which insight to unlock after payment
       console.log('❌ No access - showing paywall')
+      setPendingInsightToUnlock(insightId)
       setShowPaywall(true)
       return
     }
@@ -169,7 +171,10 @@ export default function ChatAnalysisScreen() {
             // If assignment fails, user might not have valid payment - abort
             setLoadingInsight(null)
             setShowPaywall(true)
-            showAlert('Payment Verification Failed', 'Could not verify your payment. Please try again or contact support.')
+            showAlert(
+              'Payment Verification Failed',
+              'Could not verify your payment. Please try again or contact support.'
+            )
             return
           }
         } else {
@@ -233,10 +238,7 @@ export default function ChatAnalysisScreen() {
         setShowPaywall(false)
 
         // Show a brief success message
-        showAlert(
-          'Payment Processing',
-          'Your payment is being processed. You can unlock insights in a moment.'
-        )
+        showAlert('Payment Processing', 'Your payment is being processed. You can unlock insights in a moment.')
 
         // Check if user is authenticated
         const isAuthenticated = await AuthService.isAuthenticated()
@@ -258,17 +260,15 @@ export default function ChatAnalysisScreen() {
         const maxAttempts = 10 // 10 attempts over 10 seconds
         const pollInterval = 1000 // 1 second between attempts
 
-        let entitlementFound = false
-
         for (let attempt = 1; attempt <= maxAttempts; attempt++) {
           console.log(`🔄 Polling attempt ${attempt}/${maxAttempts}`)
 
           // Wait before checking (except first attempt)
           if (attempt > 1) {
-            await new Promise(resolve => setTimeout(resolve, pollInterval))
+            await new Promise((resolve) => setTimeout(resolve, pollInterval))
           } else {
             // First attempt - wait just 500ms to give webhook a head start
-            await new Promise(resolve => setTimeout(resolve, 500))
+            await new Promise((resolve) => setTimeout(resolve, 500))
           }
 
           // Check if entitlement exists now
@@ -277,11 +277,14 @@ export default function ChatAnalysisScreen() {
 
           if (hasAccess) {
             console.log('✅ Entitlement found! Payment confirmed.')
-            showAlert(
-              '🎉 Payment Successful!',
-              'You can now unlock AI insights.'
-            )
-            entitlementFound = true
+            showAlert('🎉 Payment Successful!', 'Unlocking your insight now...')
+
+            // Automatically unlock the pending insight
+            if (pendingInsightToUnlock) {
+              console.log('🔓 Auto-unlocking pending insight:', pendingInsightToUnlock)
+              setTimeout(() => handleUnlockInsight(pendingInsightToUnlock), 500)
+              setPendingInsightToUnlock(null)
+            }
             break
           }
 
@@ -291,15 +294,18 @@ export default function ChatAnalysisScreen() {
 
             if (paymentIntentId) {
               console.log('🔧 Calling manual verification fallback...')
-              const verified = await PaymentService.verifyPayment(paymentIntentId, planId)
+              const verified = await PaymentService.verifyPayment(paymentIntentId, planId, chatId)
 
               if (verified) {
                 console.log('✅ Manual verification succeeded!')
-                showAlert(
-                  '🎉 Payment Verified!',
-                  'You can now unlock AI insights.'
-                )
-                entitlementFound = true
+                showAlert('🎉 Payment Verified!', 'Unlocking your insight now...')
+
+                // Automatically unlock the pending insight
+                if (pendingInsightToUnlock) {
+                  console.log('🔓 Auto-unlocking pending insight:', pendingInsightToUnlock)
+                  setTimeout(() => handleUnlockInsight(pendingInsightToUnlock), 500)
+                  setPendingInsightToUnlock(null)
+                }
               } else {
                 console.error('❌ Manual verification failed')
                 showAlert(

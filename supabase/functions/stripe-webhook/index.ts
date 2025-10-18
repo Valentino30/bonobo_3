@@ -43,16 +43,19 @@ serve(async (req: Request) => {
     }
 
     console.log('✅ Stripe signature found:', signature.substring(0, 20) + '...')
+    console.log('🔑 Using webhook secret starting with:', webhookSecret.substring(0, 10) + '...')
 
     // Get the raw body
     const body = await req.text()
+    console.log('📦 Body length:', body.length)
 
-    // Verify the webhook signature
+    // Verify the webhook signature (use async version for Deno)
     let event: Stripe.Event
     try {
-      event = stripe.webhooks.constructEvent(body, signature, webhookSecret)
+      event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret)
     } catch (err) {
       console.error('❌ Webhook signature verification failed:', err)
+      console.error('Error details:', err instanceof Error ? err.message : String(err))
       return new Response(JSON.stringify({ error: 'Signature verification failed' }), {
         status: 400,
       })

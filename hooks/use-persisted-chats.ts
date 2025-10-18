@@ -28,11 +28,13 @@ export function usePersistedChats() {
 
   const addChat = async (chat: StoredChat) => {
     try {
+      console.log('🔷 usePersistedChats.addChat called for chat:', chat.id)
       // Add to local state immediately for instant UI update
       setChats((prev) => [chat, ...prev])
 
       // Persist to storage
       await ChatStorage.addChat(chat)
+      console.log('🔶 usePersistedChats.addChat completed for chat:', chat.id)
     } catch (error) {
       console.error('Error adding chat:', error)
       // Revert local state if storage failed

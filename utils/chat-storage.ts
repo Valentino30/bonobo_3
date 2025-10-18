@@ -86,6 +86,7 @@ export class ChatStorage {
 
   static async addChat(chat: StoredChat): Promise<void> {
     try {
+      console.log('📥 ChatStorage.addChat called for chat:', chat.id)
       const deviceId = await getDeviceId()
 
       // Get current user if authenticated
@@ -108,18 +109,19 @@ export class ChatStorage {
         insertData.user_id = user.id
       }
 
+      console.log('💾 Inserting chat into Supabase:', { chatId: chat.id, deviceId, userId: user?.id })
       const { error } = await supabase
         .from('chats')
         .insert(insertData)
 
       if (error) {
-        console.error('Error adding chat to Supabase:', error)
+        console.error('❌ Error adding chat to Supabase:', error)
         throw error
       }
 
-      console.log('Chat added to Supabase successfully')
+      console.log('✅ Chat added to Supabase successfully:', chat.id)
     } catch (error) {
-      console.error('Error adding chat to Supabase:', error)
+      console.error('❌ Error adding chat to Supabase:', error)
       throw error
     }
   }

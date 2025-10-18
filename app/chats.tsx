@@ -26,6 +26,7 @@ export default function ChatsScreen() {
   const router = useRouter()
   const { showAlert, AlertComponent } = useCustomAlert()
   const hasReloadedRef = useRef(false)
+  const processedShareDataRef = useRef<string | null>(null)
 
   // Determine which platform to show instructions for
   const showPlatform = device || Platform.OS
@@ -57,32 +58,50 @@ export default function ChatsScreen() {
 
   useEffect(() => {
     const processShareData = async () => {
-      console.log('Share intent state:', { hasShareData, shareData, isProcessing })
+      console.log('🟡 useEffect triggered - Share intent state:', {
+        hasShareData,
+        hasText: !!shareData?.text,
+        hasFiles: !!shareData?.files?.length,
+        isProcessing,
+        processedHash: processedShareDataRef.current
+      })
 
-      // Prevent processing if already in progress
-      if (isProcessing) {
-        console.log('Already processing, skipping...')
+      // Prevent processing if already in progress or no share data
+      if (isProcessing || !hasShareData) {
+        console.log('Already processing or no share data, skipping...')
         return
       }
 
-      if (hasShareData && shareData?.text) {
-        console.log('Processing share data:', shareData.text.substring(0, 100) + '...')
+      if (shareData?.text) {
+        // Check if we've already processed this exact text
+        const shareDataHash = shareData.text.substring(0, 100) + shareData.text.length
+        if (processedShareDataRef.current === shareDataHash) {
+          console.log('⏭️  Already processed this share data, skipping...')
+          return
+        }
 
+        // Mark as processing IMMEDIATELY to prevent race conditions
+        processedShareDataRef.current = shareDataHash
         setIsProcessing(true)
+
+        console.log('🟢 Processing share data:', shareData.text.substring(0, 100) + '...')
 
         // Parse the WhatsApp chat to extract participants and message count
         const parsedData = parseWhatsAppChat(shareData.text)
         console.log('Parsed data:', parsedData)
 
         // Process the shared WhatsApp chat
+        const chatId = Date.now().toString()
         const newChat: StoredChat = {
-          id: Date.now().toString(),
+          id: chatId,
           text: shareData.text,
           timestamp: new Date(),
           participants: parsedData.participants,
           messageCount: parsedData.messageCount,
         }
+        console.log('🔵 About to add chat to database:', { chatId, participants: parsedData.participants })
         await persistAddChat(newChat)
+        console.log('🟢 Chat added to database successfully:', chatId)
 
         // Show confirmation with more details
         const participantNames =
@@ -91,16 +110,34 @@ export default function ChatsScreen() {
         showAlert(
           'Chat Imported Successfully!',
           `Chat between ${participantNames} with ${parsedData.messageCount} messages has been imported.`,
-          [{ text: 'OK', onPress: clearShareData }]
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                processedShareDataRef.current = null
+                clearShareData()
+                setIsProcessing(false)
+              },
+            },
+          ]
         )
       } else if (hasShareData && shareData?.files && shareData.files.length > 0) {
         // Handle ZIP files from WhatsApp
-        console.log('ZIP file detected:', shareData.files![0])
+        const zipFilePath = shareData.files![0]
 
+        // Check if we've already processed this exact file
+        if (processedShareDataRef.current === zipFilePath) {
+          console.log('⏭️  Already processed this ZIP file, skipping...')
+          return
+        }
+
+        // Mark as processing IMMEDIATELY to prevent race conditions
+        processedShareDataRef.current = zipFilePath
         setIsProcessing(true)
 
+        console.log('🟢 ZIP file detected:', zipFilePath)
+
         try {
-          const zipFilePath = shareData.files![0]
           console.log('Attempting to extract ZIP file:', zipFilePath)
 
           const extractedContent = await extractWhatsAppZip(zipFilePath)
@@ -133,6 +170,7 @@ export default function ChatsScreen() {
                 {
                   text: 'Great!',
                   onPress: () => {
+                    processedShareDataRef.current = null
                     clearShareData()
                     setIsProcessing(false)
                   },
@@ -148,6 +186,7 @@ export default function ChatsScreen() {
                 {
                   text: 'OK',
                   onPress: () => {
+                    processedShareDataRef.current = null
                     clearShareData()
                     setIsProcessing(false)
                   },
@@ -155,6 +194,7 @@ export default function ChatsScreen() {
                 {
                   text: 'Try Manual Import',
                   onPress: () => {
+                    processedShareDataRef.current = null
                     clearShareData()
                     setIsProcessing(false)
                   },
@@ -171,6 +211,7 @@ export default function ChatsScreen() {
               {
                 text: 'OK',
                 onPress: () => {
+                  processedShareDataRef.current = null
                   clearShareData()
                   setIsProcessing(false)
                 },
@@ -184,13 +225,23 @@ export default function ChatsScreen() {
         showAlert(
           'Import Error',
           'No text data was found in the shared content. Please try exporting the chat again or use manual import.',
-          [{ text: 'OK', onPress: clearShareData }]
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                processedShareDataRef.current = null
+                clearShareData()
+                setIsProcessing(false)
+              },
+            },
+          ]
         )
       }
     }
 
     processShareData()
-  }, [hasShareData, shareData, isProcessing, clearShareData, persistAddChat, setIsProcessing, showAlert])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasShareData, shareData])
 
   const handleManualImport = async () => {
     if (manualInput.trim()) {
@@ -221,7 +272,7 @@ export default function ChatsScreen() {
 
   const handleAnalyzeChat = (chatId: string) => {
     // Use string interpolation for dynamic route
-    router.push(`/analysis/${chatId}` as any)
+    router.push(`/analysis/${chatId}`)
   }
 
   // Show loading screen while chats are being loaded
@@ -245,7 +296,7 @@ export default function ChatsScreen() {
           </ThemedText>
           <ThemedIconButton
             icon="account"
-            onPress={() => router.push('/profile' as any)}
+            onPress={() => router.push('/profile')}
             variant="primary"
             size="large"
             style={styles.profileButton}
@@ -269,7 +320,7 @@ export default function ChatsScreen() {
 
         <ThemedButton
           title="Import Chat"
-          onPress={() => router.push('/import-guide' as any)}
+          onPress={() => router.push('/import-guide')}
           variant="primary"
           size="large"
           icon="whatsapp"

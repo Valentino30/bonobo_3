@@ -509,10 +509,15 @@ export class PaymentService {
     console.log('⚠️ grantAccess() is deprecated - entitlement is created by Edge Function')
   }
 
-  // Manually verify payment and create entitlement (fallback if webhook fails)
-  static async verifyPayment(paymentIntentId: string, planId: string): Promise<boolean> {
+  /**
+   * Manually verify payment and create entitlement (fallback if webhook fails)
+   * @param paymentIntentId - The Stripe payment intent ID
+   * @param planId - The plan ID (one-time, weekly, monthly)
+   * @param chatId - Optional chat ID for one-time purchases
+   */
+  static async verifyPayment(paymentIntentId: string, planId: string, chatId?: string): Promise<boolean> {
     try {
-      console.log('🔍 Manually verifying payment:', paymentIntentId)
+      console.log('🔍 Manually verifying payment:', paymentIntentId, 'for chatId:', chatId)
       const deviceId = await getDeviceId()
 
       const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || ''
@@ -530,6 +535,7 @@ export class PaymentService {
             paymentIntentId,
             deviceId,
             planId,
+            chatId,
           }),
         }
       )

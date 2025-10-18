@@ -7,13 +7,7 @@
 -- Authentication > Settings > Email Auth > "Enable email confirmations" = OFF
 
 -- This file serves as documentation of the required configuration
--- and can be used to verify the setting in production
+-- No SQL changes needed - this is a dashboard setting only
 
--- To verify the setting is correct, you can check:
-SELECT setting_name, value
-FROM auth.config
-WHERE setting_name = 'email_confirm';
-
--- Expected result: email_confirm should be false or not present
-
-COMMENT ON SCHEMA auth IS 'Authentication schema - email confirmation should be DISABLED for immediate mobile app access';
+-- Migration placeholder: The first account deletion migration (20241217000000_fix_account_deletion.sql)
+-- contains the actual changes needed for account deletion to work properly.

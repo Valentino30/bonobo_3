@@ -25,6 +25,7 @@ interface VerifyPaymentRequest {
   paymentIntentId: string
   deviceId: string
   planId: string
+  chatId?: string
 }
 
 serve(async (req: Request) => {
@@ -39,7 +40,7 @@ serve(async (req: Request) => {
   try {
     console.log('🔍 Verify payment request received')
 
-    const { paymentIntentId, deviceId, planId }: VerifyPaymentRequest = await req.json()
+    const { paymentIntentId, deviceId, planId, chatId }: VerifyPaymentRequest = await req.json()
 
     if (!paymentIntentId || !deviceId || !planId) {
       console.error('❌ Missing required parameters')
@@ -53,6 +54,7 @@ serve(async (req: Request) => {
       paymentIntentId,
       deviceId,
       planId,
+      chatId,
     })
 
     // Check if entitlement already exists
@@ -135,18 +137,26 @@ serve(async (req: Request) => {
     }
 
     // Create entitlement
+    const insertData: any = {
+      device_id: deviceId,
+      plan_id: planId,
+      stripe_payment_intent_id: paymentIntent.id,
+      stripe_customer_id: paymentIntent.customer as string,
+      status: 'active',
+      purchased_at: new Date().toISOString(),
+      expires_at: expiresAt,
+      remaining_analyses: remainingAnalyses,
+    }
+
+    // For one-time purchases, assign to specific chat if provided
+    if (planId === 'one-time' && chatId) {
+      insertData.chat_id = chatId
+      console.log('✅ Assigning one-time purchase to chat:', chatId)
+    }
+
     const { data: entitlement, error: dbError } = await supabase
       .from('user_entitlements')
-      .insert({
-        device_id: deviceId,
-        plan_id: planId,
-        stripe_payment_intent_id: paymentIntent.id,
-        stripe_customer_id: paymentIntent.customer as string,
-        status: 'active',
-        purchased_at: new Date().toISOString(),
-        expires_at: expiresAt,
-        remaining_analyses: remainingAnalyses,
-      })
+      .insert(insertData)
       .select()
       .single()
 
