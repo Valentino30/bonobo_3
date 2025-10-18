@@ -827,6 +827,82 @@ export default function ChatAnalysisScreen() {
                   unlockText="What can you improve?"
                 />
               )}
+
+              {/* Conflict Resolution Style */}
+              {isInsightUnlocked('conflictResolutionStyle') && aiInsights ? (
+                <InsightCard
+                  icon="🤝"
+                  title="Conflict Resolution Style"
+                  description={aiInsights.conflictResolutionStyle.description}
+                  items={aiInsights.conflictResolutionStyle.items}
+                  badge={{ text: aiInsights.conflictResolutionStyle.type, color: theme.colors.info }}
+                />
+              ) : (
+                <LockedInsightCard
+                  icon="🤝"
+                  title="Conflict Resolution Style"
+                  onUnlock={() => handleUnlockInsight('conflictResolutionStyle')}
+                  isLoading={loadingInsight === 'conflictResolutionStyle'}
+                  unlockText="How do you handle disagreements?"
+                />
+              )}
+
+              {/* Shared Interests */}
+              {isInsightUnlocked('sharedInterests') && aiInsights ? (
+                <InsightCard
+                  icon="🎯"
+                  title="Shared Interests"
+                  description={aiInsights.sharedInterests.description}
+                  items={aiInsights.sharedInterests.items}
+                  badge={{ text: `${aiInsights.sharedInterests.count} Found`, color: theme.colors.success }}
+                />
+              ) : (
+                <LockedInsightCard
+                  icon="🎯"
+                  title="Shared Interests"
+                  onUnlock={() => handleUnlockInsight('sharedInterests')}
+                  isLoading={loadingInsight === 'sharedInterests'}
+                  unlockText="What do you have in common?"
+                />
+              )}
+
+              {/* We vs I Ratio */}
+              {isInsightUnlocked('weVsIRatio') && aiInsights ? (
+                <InsightCard
+                  icon="👥"
+                  title='"We" vs "I" Language'
+                  description={aiInsights.weVsIRatio.description}
+                  items={aiInsights.weVsIRatio.items}
+                  badge={{ text: `${aiInsights.weVsIRatio.percentage}% "We"`, color: theme.colors.primary }}
+                />
+              ) : (
+                <LockedInsightCard
+                  icon="👥"
+                  title='"We" vs "I" Language'
+                  onUnlock={() => handleUnlockInsight('weVsIRatio')}
+                  isLoading={loadingInsight === 'weVsIRatio'}
+                  unlockText="How connected are you?"
+                />
+              )}
+
+              {/* Love Language */}
+              {isInsightUnlocked('loveLanguage') && aiInsights ? (
+                <InsightCard
+                  icon="❤️"
+                  title="Love Language"
+                  description={aiInsights.loveLanguage.description}
+                  items={aiInsights.loveLanguage.items}
+                  badge={{ text: aiInsights.loveLanguage.primary, color: theme.colors.error }}
+                />
+              ) : (
+                <LockedInsightCard
+                  icon="❤️"
+                  title="Love Language"
+                  onUnlock={() => handleUnlockInsight('loveLanguage')}
+                  isLoading={loadingInsight === 'loveLanguage'}
+                  unlockText="How do you show love?"
+                />
+              )}
             </View>
           )}
         </View>

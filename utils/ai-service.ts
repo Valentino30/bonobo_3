@@ -46,6 +46,28 @@ export interface AIInsights {
     description: string
     tips: string[]
   }
+  conflictResolutionStyle: {
+    type: string
+    description: string
+    items: string[]
+  }
+  sharedInterests: {
+    count: number
+    description: string
+    items: string[]
+  }
+  weVsIRatio: {
+    percentage: number
+    rating: string
+    description: string
+    items: string[]
+  }
+  loveLanguage: {
+    primary: string
+    secondary: string
+    description: string
+    items: string[]
+  }
 }
 
 export async function analyzeChat(chatText: string): Promise<AIInsights> {
@@ -118,6 +140,28 @@ Provide a detailed analysis with the following structure (respond ONLY with vali
     "count": <number>,
     "description": "<AI-generated SIMPLE STRING intro to the tips>",
     "tips": [<array of 4 SIMPLE STRING actionable tips>]
+  },
+  "conflictResolutionStyle": {
+    "type": "<Collaborative/Competitive/Accommodating/Avoiding/Compromising>",
+    "description": "<AI-generated SIMPLE STRING explanation of how conflicts are handled>",
+    "items": [<array of 3 SIMPLE STRING specific examples of conflict resolution patterns>]
+  },
+  "sharedInterests": {
+    "count": <number of distinct shared interests>,
+    "description": "<AI-generated SIMPLE STRING summary of common interests and activities>",
+    "items": [<array of 3-5 SIMPLE STRING specific shared interests mentioned, e.g. "Movies and TV shows", "Travel and adventure", "Cooking and trying new restaurants">]
+  },
+  "weVsIRatio": {
+    "percentage": <0-100, percentage of "we" language vs "I" language>,
+    "rating": "<Low/Moderate/High/Very High>",
+    "description": "<AI-generated SIMPLE STRING summary of collective vs individual language usage>",
+    "items": [<array of 3 SIMPLE STRING observations about "we" vs "I" language patterns, e.g. "Frequently uses 'we' when discussing future plans", "Tends to use 'I' when discussing personal feelings">]
+  },
+  "loveLanguage": {
+    "primary": "<Words of Affirmation/Quality Time/Physical Touch/Acts of Service/Receiving Gifts>",
+    "secondary": "<Words of Affirmation/Quality Time/Physical Touch/Acts of Service/Receiving Gifts>",
+    "description": "<AI-generated SIMPLE STRING explanation of the dominant love language patterns>",
+    "items": [<array of 3 SIMPLE STRING specific examples showing the love language, e.g. "Frequently expresses appreciation verbally", "Often suggests spending time together", "Regularly offers help with tasks">]
   }
 }
 
@@ -254,6 +298,26 @@ Focus on communication patterns, emotional dynamics, and relationship health ind
         ...rawInsights.relationshipTips,
         description: normalizeDescription(rawInsights.relationshipTips.description),
         tips: normalizeArray(rawInsights.relationshipTips.tips),
+      },
+      conflictResolutionStyle: {
+        ...rawInsights.conflictResolutionStyle,
+        description: normalizeDescription(rawInsights.conflictResolutionStyle.description),
+        items: normalizeArray(rawInsights.conflictResolutionStyle.items),
+      },
+      sharedInterests: {
+        ...rawInsights.sharedInterests,
+        description: normalizeDescription(rawInsights.sharedInterests.description),
+        items: normalizeArray(rawInsights.sharedInterests.items),
+      },
+      weVsIRatio: {
+        ...rawInsights.weVsIRatio,
+        description: normalizeDescription(rawInsights.weVsIRatio.description),
+        items: normalizeArray(rawInsights.weVsIRatio.items),
+      },
+      loveLanguage: {
+        ...rawInsights.loveLanguage,
+        description: normalizeDescription(rawInsights.loveLanguage.description),
+        items: normalizeArray(rawInsights.loveLanguage.items),
       },
     }
 
