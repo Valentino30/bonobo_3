@@ -108,7 +108,7 @@ serve(async (req: Request) => {
 
       console.log('✅ Payment intent status is "succeeded" - proceeding to create entitlement')
 
-      const { planId, deviceId, chatId } = paymentIntent.metadata
+      const { planId, deviceId, userId, chatId } = paymentIntent.metadata
 
       if (!planId || !deviceId) {
         console.error('❌ Missing metadata:', paymentIntent.metadata)
@@ -118,7 +118,7 @@ serve(async (req: Request) => {
         )
       }
 
-      console.log('📝 Payment metadata:', { planId, deviceId, chatId })
+      console.log('📝 Payment metadata:', { planId, deviceId, userId, chatId })
 
       // Calculate expiration date based on plan
       let expiresAt = null
@@ -149,8 +149,8 @@ serve(async (req: Request) => {
       }
 
       // Save entitlement to database
+      // IMPORTANT: Use userId if authenticated, otherwise use deviceId
       const insertData: any = {
-        device_id: deviceId,
         plan_id: planId,
         stripe_payment_intent_id: paymentIntent.id,
         stripe_customer_id: paymentIntent.customer as string,
@@ -158,6 +158,17 @@ serve(async (req: Request) => {
         purchased_at: new Date().toISOString(),
         expires_at: expiresAt,
         remaining_analyses: remainingAnalyses,
+      }
+
+      // Set user_id if authenticated, otherwise device_id
+      if (userId) {
+        insertData.user_id = userId
+        insertData.device_id = null
+        console.log('✅ Creating entitlement for authenticated user:', userId)
+      } else {
+        insertData.device_id = deviceId
+        insertData.user_id = null
+        console.log('✅ Creating entitlement for anonymous device:', deviceId)
       }
 
       // Assign chat_id for one-time purchases if provided in metadata

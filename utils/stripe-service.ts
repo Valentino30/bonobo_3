@@ -27,11 +27,16 @@ export class StripeService {
       // Get device ID for user identification
       const deviceId = await getDeviceId()
 
+      // Get user ID if authenticated
+      const { data: { user } } = await supabase.auth.getUser()
+      const userId = user?.id
+
       console.log('📞 Calling create-payment-intent with:', {
         amount: Math.round(plan.price * 100),
         currency: plan.currency.toLowerCase(),
         planId: plan.id,
         deviceId,
+        userId: userId || 'none (anonymous)',
         chatId,
       })
 
@@ -42,6 +47,7 @@ export class StripeService {
           currency: plan.currency.toLowerCase(),
           planId: plan.id,
           deviceId,
+          userId, // Include userId if authenticated
           chatId, // Include chatId for one-time purchases
         },
       })

@@ -69,13 +69,21 @@ interface UserEntitlement {
 export class PaymentService {
   // Check if user has access to AI insights for a specific chat
   static async hasAccess(chatId?: string): Promise<boolean> {
+    console.log('🚀 hasAccess() FUNCTION CALLED with chatId:', chatId, 'type:', typeof chatId)
     try {
       const deviceId = await getDeviceId()
+      console.log('📱 Retrieved device ID:', deviceId)
 
       // Get current user if authenticated
       const { data: { user } } = await supabase.auth.getUser()
 
-      console.log('🔐 Checking access for device:', deviceId, 'user:', user?.id, 'chatId:', chatId)
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+      console.log('🔐 ACCESS CHECK START')
+      console.log('  Device ID:', deviceId)
+      console.log('  User ID:', user?.id || 'none (anonymous)')
+      console.log('  Chat ID:', chatId || 'none provided')
+      console.log('  Chat ID Type:', typeof chatId)
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
 
       let query = supabase
         .from('user_entitlements')
@@ -83,15 +91,20 @@ export class PaymentService {
         .eq('status', 'active')
         // CRITICAL: Only consider entitlements with valid Stripe payment
         .not('stripe_payment_intent_id', 'is', null)
+        // Also exclude empty strings (should never happen, but extra safety)
+        .neq('stripe_payment_intent_id', '')
 
       // If user is authenticated, ONLY check by user_id
       // Otherwise, check by device_id only
       if (user) {
+        console.log('🔐 User is authenticated - querying by user_id:', user.id)
         query = query.eq('user_id', user.id)
       } else {
+        console.log('👤 Anonymous user - querying by device_id:', deviceId)
         query = query.eq('device_id', deviceId)
       }
 
+      console.log('🔍 Executing database query for entitlements...')
       const { data: entitlements, error } = await query.order('created_at', { ascending: false })
 
       if (error) {
@@ -100,7 +113,7 @@ export class PaymentService {
         return false
       }
 
-      console.log(`📋 Found ${entitlements?.length ?? 0} valid entitlements (with payment confirmation)`)
+      console.log(`📋 Query returned ${entitlements?.length ?? 0} entitlements (filtered by active status + valid payment)`)
 
       if (!entitlements || entitlements.length === 0) {
         console.log('❌ No valid entitlements found')
@@ -109,34 +122,50 @@ export class PaymentService {
 
       // Check each entitlement
       for (const entitlement of entitlements) {
-        console.log('🔍 Checking entitlement:', {
-          id: entitlement.id,
-          plan_id: entitlement.plan_id,
-          chat_id: entitlement.chat_id,
-          status: entitlement.status,
-          expires_at: entitlement.expires_at,
-          stripe_payment_intent_id: entitlement.stripe_payment_intent_id,
-        })
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+        console.log('🔍 Examining Entitlement:')
+        console.log('  ID:', entitlement.id)
+        console.log('  Plan:', entitlement.plan_id)
+        console.log('  Chat ID:', entitlement.chat_id, '(type:', typeof entitlement.chat_id + ')')
+        console.log('  Status:', entitlement.status)
+        console.log('  Expires:', entitlement.expires_at || 'N/A')
+        console.log('  Payment Intent:', entitlement.stripe_payment_intent_id)
+        console.log('  Device ID:', entitlement.device_id)
+        console.log('  User ID:', entitlement.user_id || 'null')
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
 
         // Check one-time purchase
         if (entitlement.plan_id === 'one-time') {
+          console.log('📦 ONE-TIME PURCHASE CHECK:')
+
           // CRITICAL: One-time purchases must be checked with chatId
           if (!chatId) {
-            console.log('⚠️ No chatId provided for one-time purchase check')
+            console.log('  ⚠️ No chatId provided - skipping this entitlement')
             continue
           }
+
+          console.log('  Comparing:')
+          console.log('    Entitlement chat_id:', entitlement.chat_id, '(' + typeof entitlement.chat_id + ')')
+          console.log('    Request chatId:', chatId, '(' + typeof chatId + ')')
+          console.log('    Are they equal?', entitlement.chat_id === chatId)
+          console.log('    Is entitlement unassigned?', entitlement.chat_id === null)
 
           // One-time purchase is valid ONLY if:
           // 1. It's assigned to THIS specific chat (chat_id === chatId)
           // 2. OR it's unassigned (chat_id === null) - available to be assigned to this chat
           if (entitlement.chat_id === chatId) {
-            console.log('✅ Access granted: One-time purchase assigned to this chat')
+            console.log('  ✅ MATCH! Entitlement assigned to this exact chat')
+            console.log('  ✅ ACCESS GRANTED')
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
             return true
           } else if (entitlement.chat_id === null) {
-            console.log('✅ Access granted: Unused one-time purchase available')
+            console.log('  ✅ AVAILABLE! Entitlement is unassigned')
+            console.log('  ✅ ACCESS GRANTED')
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
             return true
           } else {
-            console.log(`❌ One-time purchase already used for different chat: ${entitlement.chat_id}`)
+            console.log('  ❌ MISMATCH! Already assigned to different chat:', entitlement.chat_id)
+            console.log('  Continuing to check other entitlements...')
             // Continue checking other entitlements
           }
         }
@@ -165,7 +194,9 @@ export class PaymentService {
         }
       }
 
-      console.log('❌ No valid access found')
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+      console.log('❌ ACCESS DENIED - No valid entitlement found')
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
       return false
     } catch (error) {
       console.error('❌ Error checking access (exception):', error)
@@ -191,6 +222,8 @@ export class PaymentService {
         .is('chat_id', null)
         // CRITICAL: Only assign entitlements with valid Stripe payment
         .not('stripe_payment_intent_id', 'is', null)
+        // Also exclude empty strings (should never happen, but extra safety)
+        .neq('stripe_payment_intent_id', '')
 
       // If user is authenticated, ONLY check by user_id
       // Otherwise, check by device_id only
@@ -336,163 +369,6 @@ export class PaymentService {
     } catch (error) {
       console.error('Error getting entitlement:', error)
       return null
-    }
-  }
-
-  // Clear entitlement (for testing - marks all as cancelled)
-  static async clearEntitlement(): Promise<void> {
-    try {
-      const deviceId = await getDeviceId()
-
-      const { error } = await supabase
-        .from('user_entitlements')
-        .update({ status: 'cancelled' })
-        .eq('device_id', deviceId)
-        .eq('status', 'active')
-
-      if (error) {
-        console.error('Error clearing entitlement:', error)
-      } else {
-        console.log('🗑️ Entitlements cleared')
-      }
-    } catch (error) {
-      console.error('Error clearing entitlement:', error)
-    }
-  }
-
-  // Delete all invalid entitlements (for testing - removes entitlements without payment)
-  static async deleteInvalidEntitlements(): Promise<void> {
-    try {
-      const deviceId = await getDeviceId()
-
-      console.log('🔍 Searching for invalid entitlements (without stripe_payment_intent_id)...')
-
-      // Find all entitlements without stripe_payment_intent_id
-      const { data: invalidEntitlements, error: fetchError } = await supabase
-        .from('user_entitlements')
-        .select('*')
-        .eq('device_id', deviceId)
-        .is('stripe_payment_intent_id', null)
-
-      if (fetchError) {
-        console.error('❌ Error fetching invalid entitlements:', fetchError)
-        return
-      }
-
-      console.log(`Found ${invalidEntitlements?.length ?? 0} invalid entitlements`)
-
-      if (!invalidEntitlements || invalidEntitlements.length === 0) {
-        console.log('✅ No invalid entitlements found')
-        return
-      }
-
-      // Log each invalid entitlement
-      invalidEntitlements.forEach((ent) => {
-        console.log('⚠️ Invalid entitlement:', {
-          id: ent.id,
-          plan_id: ent.plan_id,
-          status: ent.status,
-          created_at: ent.created_at,
-          stripe_payment_intent_id: ent.stripe_payment_intent_id,
-        })
-      })
-
-      // Delete them
-      const { error: deleteError } = await supabase
-        .from('user_entitlements')
-        .delete()
-        .eq('device_id', deviceId)
-        .is('stripe_payment_intent_id', null)
-
-      if (deleteError) {
-        console.error('❌ Error deleting invalid entitlements:', deleteError)
-      } else {
-        console.log(`✅ Deleted ${invalidEntitlements.length} invalid entitlements`)
-      }
-    } catch (error) {
-      console.error('❌ Error in deleteInvalidEntitlements:', error)
-    }
-  }
-
-  // Reset entitlements for testing - reactivates 'used' entitlements
-  static async resetEntitlementsForTesting(): Promise<void> {
-    try {
-      const deviceId = await getDeviceId()
-
-      const { error } = await supabase
-        .from('user_entitlements')
-        .update({
-          status: 'active',
-          chat_id: null,
-        })
-        .eq('device_id', deviceId)
-        .in('status', ['used', 'cancelled'])
-
-      if (error) {
-        console.error('Error resetting entitlements:', error)
-      } else {
-        console.log('🔄 Entitlements reset to active')
-      }
-    } catch (error) {
-      console.error('Error resetting entitlements:', error)
-    }
-  }
-
-  // Debug: List all entitlements for this device
-  static async debugListAllEntitlements(): Promise<void> {
-    try {
-      const deviceId = await getDeviceId()
-
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
-      console.log('🔍 DEBUG: All Entitlements for Device:', deviceId)
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
-
-      const { data: allEntitlements, error } = await supabase
-        .from('user_entitlements')
-        .select('*')
-        .eq('device_id', deviceId)
-        .order('created_at', { ascending: false })
-
-      if (error) {
-        console.error('❌ Error fetching entitlements:', error)
-        return
-      }
-
-      if (!allEntitlements || allEntitlements.length === 0) {
-        console.log('📭 No entitlements found')
-        return
-      }
-
-      console.log(`\n📊 Total entitlements: ${allEntitlements.length}\n`)
-
-      allEntitlements.forEach((ent, index) => {
-        const isValid = ent.stripe_payment_intent_id !== null
-        const icon = isValid ? '✅' : '❌'
-
-        console.log(`${icon} Entitlement #${index + 1}:`)
-        console.log(`   ID: ${ent.id}`)
-        console.log(`   Plan: ${ent.plan_id}`)
-        console.log(`   Status: ${ent.status}`)
-        console.log(`   Chat ID: ${ent.chat_id ?? 'null (unassigned)'}`)
-        console.log(`   Stripe Payment Intent: ${ent.stripe_payment_intent_id ?? 'NULL (INVALID!)'}`)
-        console.log(`   Stripe Customer: ${ent.stripe_customer_id ?? 'null'}`)
-        console.log(`   Created: ${ent.created_at}`)
-        console.log(`   Purchased: ${ent.purchased_at ?? 'null'}`)
-        console.log(`   Expires: ${ent.expires_at ?? 'null'}`)
-        console.log(`   Valid: ${isValid ? 'YES ✅' : 'NO ❌ (MISSING PAYMENT)'}`)
-        console.log('')
-      })
-
-      const validCount = allEntitlements.filter((e) => e.stripe_payment_intent_id !== null).length
-      const invalidCount = allEntitlements.length - validCount
-
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
-      console.log(`📈 Summary:`)
-      console.log(`   Valid entitlements: ${validCount}`)
-      console.log(`   Invalid entitlements: ${invalidCount}`)
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n')
-    } catch (error) {
-      console.error('❌ Error in debugListAllEntitlements:', error)
     }
   }
 
