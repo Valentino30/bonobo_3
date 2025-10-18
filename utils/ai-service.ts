@@ -46,7 +46,7 @@ export interface AIInsights {
     description: string
     tips: string[]
   }
-  conflictResolutionStyle: {
+  conflictResolution: {
     type: string
     description: string
     items: string[]
@@ -141,7 +141,7 @@ Provide a detailed analysis with the following structure (respond ONLY with vali
     "description": "<AI-generated SIMPLE STRING intro to the tips>",
     "tips": [<array of 4 SIMPLE STRING actionable tips>]
   },
-  "conflictResolutionStyle": {
+  "conflictResolution": {
     "type": "<Collaborative/Competitive/Accommodating/Avoiding/Compromising>",
     "description": "<AI-generated SIMPLE STRING explanation of how conflicts are handled>",
     "items": [<array of 3 SIMPLE STRING specific examples of conflict resolution patterns>]
@@ -299,10 +299,10 @@ Focus on communication patterns, emotional dynamics, and relationship health ind
         description: normalizeDescription(rawInsights.relationshipTips.description),
         tips: normalizeArray(rawInsights.relationshipTips.tips),
       },
-      conflictResolutionStyle: {
-        ...rawInsights.conflictResolutionStyle,
-        description: normalizeDescription(rawInsights.conflictResolutionStyle.description),
-        items: normalizeArray(rawInsights.conflictResolutionStyle.items),
+      conflictResolution: {
+        ...rawInsights.conflictResolution,
+        description: normalizeDescription(rawInsights.conflictResolution.description),
+        items: normalizeArray(rawInsights.conflictResolution.items),
       },
       sharedInterests: {
         ...rawInsights.sharedInterests,

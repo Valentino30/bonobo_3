@@ -867,20 +867,20 @@ export default function ChatAnalysisScreen() {
               )}
 
               {/* 11. Conflict Resolution - How you handle challenges */}
-              {isInsightUnlocked('conflictResolutionStyle') && aiInsights ? (
+              {isInsightUnlocked('conflictResolution') && aiInsights ? (
                 <InsightCard
                   icon="🤝"
                   title="Conflict Resolution"
-                  description={aiInsights.conflictResolutionStyle.description}
-                  items={aiInsights.conflictResolutionStyle.items}
-                  badge={{ text: aiInsights.conflictResolutionStyle.type, color: theme.colors.info }}
+                  description={aiInsights.conflictResolution.description}
+                  items={aiInsights.conflictResolution.items}
+                  badge={{ text: aiInsights.conflictResolution.type, color: theme.colors.info }}
                 />
               ) : (
                 <LockedInsightCard
                   icon="🤝"
                   title="Conflict Resolution"
-                  onUnlock={() => handleUnlockInsight('conflictResolutionStyle')}
-                  isLoading={loadingInsight === 'conflictResolutionStyle'}
+                  onUnlock={() => handleUnlockInsight('conflictResolution')}
+                  isLoading={loadingInsight === 'conflictResolution'}
                   unlockText="How do you handle disagreements?"
                 />
               )}
