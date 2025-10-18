@@ -125,6 +125,10 @@ export class AuthService {
 
       console.log('✅ User signed in successfully:', data.user.id)
 
+      // Migrate device data to the signed-in user
+      // This ensures any chats/entitlements created while anonymous get linked to the account
+      await this.migrateDeviceDataToUser(data.user.id)
+
       return {
         success: true,
         user: data.user,

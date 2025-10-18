@@ -105,7 +105,6 @@ export class ChatStorage {
 
       const insertData: any = {
         id: chat.id,
-        device_id: deviceId,
         chat_text: chat.text,
         timestamp: chat.timestamp.toISOString(),
         participants: chat.participants || [],
@@ -115,9 +114,16 @@ export class ChatStorage {
         unlocked_insights: chat.unlockedInsights || [],
       }
 
-      // If user is authenticated, link chat to user
+      // If user is authenticated, link chat to user_id only (device_id = NULL)
+      // Otherwise, link to device_id only (user_id = NULL)
       if (user) {
         insertData.user_id = user.id
+        insertData.device_id = null
+        console.log('🔐 Authenticated user - setting user_id, device_id = NULL')
+      } else {
+        insertData.device_id = deviceId
+        insertData.user_id = null
+        console.log('👤 Anonymous user - setting device_id, user_id = NULL')
       }
 
       console.log('💾 Inserting chat into Supabase:', { chatId: chat.id, deviceId, userId: user?.id })
