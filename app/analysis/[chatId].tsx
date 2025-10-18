@@ -866,11 +866,11 @@ export default function ChatAnalysisScreen() {
                 />
               )}
 
-              {/* 11. Conflict Resolution Style - How you handle challenges */}
+              {/* 11. Conflict Resolution - How you handle challenges */}
               {isInsightUnlocked('conflictResolutionStyle') && aiInsights ? (
                 <InsightCard
                   icon="🤝"
-                  title="Conflict Resolution Style"
+                  title="Conflict Resolution"
                   description={aiInsights.conflictResolutionStyle.description}
                   items={aiInsights.conflictResolutionStyle.items}
                   badge={{ text: aiInsights.conflictResolutionStyle.type, color: theme.colors.info }}
@@ -878,7 +878,7 @@ export default function ChatAnalysisScreen() {
               ) : (
                 <LockedInsightCard
                   icon="🤝"
-                  title="Conflict Resolution Style"
+                  title="Conflict Resolution"
                   onUnlock={() => handleUnlockInsight('conflictResolutionStyle')}
                   isLoading={loadingInsight === 'conflictResolutionStyle'}
                   unlockText="How do you handle disagreements?"
