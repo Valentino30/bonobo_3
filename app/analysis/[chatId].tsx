@@ -221,10 +221,10 @@ export default function ChatAnalysisScreen() {
   // Handle purchase
   const handlePurchase = async (planId: string) => {
     try {
-      console.log('💳 Starting payment for plan:', planId)
+      console.log('💳 Starting payment for plan:', planId, 'chatId:', chatId)
 
-      // Initialize Stripe payment - this will show the payment sheet
-      const result = await StripeService.initializePayment(planId)
+      // Initialize Stripe payment - pass chatId for one-time purchase assignment
+      const result = await StripeService.initializePayment(planId, chatId as string)
 
       console.log('💳 Payment result:', result)
 

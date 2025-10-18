@@ -32,6 +32,7 @@ interface RequestBody {
   currency: string
   planId: string
   deviceId: string
+  chatId?: string
 }
 
 serve(async (req: Request) => {
@@ -42,7 +43,7 @@ serve(async (req: Request) => {
 
   try {
     const body = (await req.json()) as RequestBody
-    const { amount, currency, planId, deviceId } = body
+    const { amount, currency, planId, deviceId, chatId } = body
 
     // Validate request body
     if (!amount || !currency || !planId || !deviceId) {
@@ -53,7 +54,7 @@ serve(async (req: Request) => {
       throw new Error('Amount must be at least 50 cents')
     }
 
-    console.log('Creating payment intent:', { amount, currency, planId, deviceId })
+    console.log('Creating payment intent:', { amount, currency, planId, deviceId, chatId })
 
     // Try to retrieve existing Stripe customer ID from previous entitlements
     const { data: existingEntitlements } = await supabase
@@ -105,14 +106,22 @@ serve(async (req: Request) => {
     // Create a payment intent with metadata for webhook processing
     // NOTE: Entitlement is NOT created here - it's created by the webhook handler
     // when payment_intent.succeeded event is received
+    const metadata: { planId: string; deviceId: string; chatId?: string } = {
+      planId,
+      deviceId, // Pass deviceId so webhook can create entitlement
+    }
+
+    // Include chatId for one-time purchases (so webhook can assign it)
+    if (chatId) {
+      metadata.chatId = chatId
+      console.log('✅ Including chatId in payment metadata:', chatId)
+    }
+
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
       currency,
       customer: customerId,
-      metadata: {
-        planId,
-        deviceId, // Pass deviceId so webhook can create entitlement
-      },
+      metadata,
       automatic_payment_methods: {
         enabled: true,
       },

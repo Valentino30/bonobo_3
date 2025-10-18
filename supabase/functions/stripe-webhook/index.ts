@@ -108,7 +108,7 @@ serve(async (req: Request) => {
 
       console.log('✅ Payment intent status is "succeeded" - proceeding to create entitlement')
 
-      const { planId, deviceId } = paymentIntent.metadata
+      const { planId, deviceId, chatId } = paymentIntent.metadata
 
       if (!planId || !deviceId) {
         console.error('❌ Missing metadata:', paymentIntent.metadata)
@@ -117,6 +117,8 @@ serve(async (req: Request) => {
           { status: 400 }
         )
       }
+
+      console.log('📝 Payment metadata:', { planId, deviceId, chatId })
 
       // Calculate expiration date based on plan
       let expiresAt = null
@@ -147,18 +149,26 @@ serve(async (req: Request) => {
       }
 
       // Save entitlement to database
+      const insertData: any = {
+        device_id: deviceId,
+        plan_id: planId,
+        stripe_payment_intent_id: paymentIntent.id,
+        stripe_customer_id: paymentIntent.customer as string,
+        status: 'active',
+        purchased_at: new Date().toISOString(),
+        expires_at: expiresAt,
+        remaining_analyses: remainingAnalyses,
+      }
+
+      // Assign chat_id for one-time purchases if provided in metadata
+      if (planId === 'one-time' && chatId) {
+        insertData.chat_id = chatId
+        console.log('✅ Assigning one-time purchase to chat:', chatId)
+      }
+
       const { data: entitlement, error: dbError } = await supabase
         .from('user_entitlements')
-        .insert({
-          device_id: deviceId,
-          plan_id: planId,
-          stripe_payment_intent_id: paymentIntent.id,
-          stripe_customer_id: paymentIntent.customer as string,
-          status: 'active',
-          purchased_at: new Date().toISOString(),
-          expires_at: expiresAt,
-          remaining_analyses: remainingAnalyses,
-        })
+        .insert(insertData)
         .select()
         .single()
 

@@ -13,7 +13,7 @@ export class StripeService {
   /**
    * Create a payment intent using Supabase Edge Function and initialize the payment sheet
    */
-  static async initializePayment(planId: string): Promise<StripePaymentResult> {
+  static async initializePayment(planId: string, chatId?: string): Promise<StripePaymentResult> {
     try {
       // Get the plan details
       const PAYMENT_PLANS = await getPaymentPlans()
@@ -32,6 +32,7 @@ export class StripeService {
         currency: plan.currency.toLowerCase(),
         planId: plan.id,
         deviceId,
+        chatId,
       })
 
       // Call Supabase Edge Function to create payment intent
@@ -41,6 +42,7 @@ export class StripeService {
           currency: plan.currency.toLowerCase(),
           planId: plan.id,
           deviceId,
+          chatId, // Include chatId for one-time purchases
         },
       })
 
