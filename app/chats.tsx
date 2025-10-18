@@ -75,12 +75,15 @@ export default function ChatsScreen() {
       if (shareData?.text) {
         // Check if we've already processed this exact text
         const shareDataHash = shareData.text.substring(0, 100) + shareData.text.length
+        console.log('🔍 Hash check - Current:', processedShareDataRef.current, 'New:', shareDataHash)
+
         if (processedShareDataRef.current === shareDataHash) {
           console.log('⏭️  Already processed this share data, skipping...')
           return
         }
 
         // Mark as processing IMMEDIATELY to prevent race conditions
+        console.log('✅ Setting processed hash:', shareDataHash)
         processedShareDataRef.current = shareDataHash
         setIsProcessing(true)
 
@@ -89,6 +92,17 @@ export default function ChatsScreen() {
         // Parse the WhatsApp chat to extract participants and message count
         const parsedData = parseWhatsAppChat(shareData.text)
         console.log('Parsed data:', parsedData)
+
+        // Check if this chat already exists (by checking first 100 chars)
+        const chatPreview = shareData.text.substring(0, 100)
+        const existingChat = chats.find(c => c.text.substring(0, 100) === chatPreview)
+
+        if (existingChat) {
+          console.log('⚠️ Chat already exists in database, skipping add:', existingChat.id)
+          setIsProcessing(false)
+          clearShareData()
+          return
+        }
 
         // Process the shared WhatsApp chat
         const chatId = Date.now().toString()
@@ -148,6 +162,17 @@ export default function ChatsScreen() {
             // Parse the extracted WhatsApp chat
             const parsedData = parseWhatsAppChat(extractedContent)
             console.log('Parsed ZIP data:', parsedData)
+
+            // Check if this chat already exists (by checking first 100 chars)
+            const chatPreview = extractedContent.substring(0, 100)
+            const existingChat = chats.find(c => c.text.substring(0, 100) === chatPreview)
+
+            if (existingChat) {
+              console.log('⚠️ Chat already exists in database, skipping add:', existingChat.id)
+              setIsProcessing(false)
+              clearShareData()
+              return
+            }
 
             // Process the extracted WhatsApp chat
             const newChat: StoredChat = {
