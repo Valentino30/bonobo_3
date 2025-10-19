@@ -7,8 +7,8 @@ import { PaymentAuthScreen } from '@/components/payment-auth-screen'
 import { Paywall } from '@/components/paywall'
 import { ScreenHeader } from '@/components/screen-header'
 import { SimpleStatCard } from '@/components/simple-stat-card'
+import { TabNavigation } from '@/components/tab-navigation'
 import { ThemedButton } from '@/components/themed-button'
-import { ThemedTabButton } from '@/components/themed-tab-button'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
@@ -88,25 +88,14 @@ export default function ChatAnalysisScreen() {
       {/* Fixed Header */}
       <ScreenHeader title="Chat Analysis" style={[styles.header, { backgroundColor: theme.colors.background }]}>
         {/* Tab Navigation */}
-        <View
-          style={[
-            styles.tabContainer,
-            { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow },
+        <TabNavigation
+          tabs={[
+            { id: 'overview', label: 'Overview', icon: 'chart-box-outline' },
+            { id: 'insights', label: 'Insights', icon: 'auto-fix' },
           ]}
-        >
-          <ThemedTabButton
-            label="Overview"
-            icon="chart-box-outline"
-            isActive={activeTab === 'overview'}
-            onPress={() => handleTabChange('overview')}
-          />
-          <ThemedTabButton
-            label="Insights"
-            icon="auto-fix"
-            isActive={activeTab === 'insights'}
-            onPress={() => handleTabChange('insights')}
-          />
-        </View>
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+        />
       </ScreenHeader>
 
       {/* Custom Alert */}
@@ -509,15 +498,6 @@ const styles = StyleSheet.create({
   content: {
     padding: 20,
     paddingTop: 0,
-  },
-  tabContainer: {
-    flexDirection: 'row',
-    borderRadius: 8,
-    padding: 4,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
   },
   statsGrid: {
     marginTop: 12,
