@@ -1,4 +1,5 @@
 import { useCustomAlert } from '@/components/custom-alert'
+import { DangerZoneCard } from '@/components/danger-zone-card'
 import { LabelValueCard } from '@/components/label-value-card'
 import { LoadingScreen } from '@/components/loading-screen'
 import { PasswordChangeCard } from '@/components/password-change-card'
@@ -175,29 +176,11 @@ export default function ProfileScreen() {
           </View>
 
           {/* Delete Account Section */}
-          <View style={styles.section}>
-            <View
-              style={[
-                styles.dangerCard,
-                { backgroundColor: theme.colors.backgroundDanger, borderColor: theme.colors.borderDanger },
-              ]}
-            >
-              <View style={styles.dangerHeader}>
-                <MaterialCommunityIcons name="alert-circle-outline" size={20} color={theme.colors.textDanger} />
-                <ThemedText style={[styles.dangerTitle, { color: theme.colors.textDanger }]}>Danger Zone</ThemedText>
-              </View>
-              <ThemedText style={[styles.dangerDescription, { color: theme.colors.textSecondary }]}>
-                Permanently delete your account and all data. This cannot be undone.
-              </ThemedText>
-              <ThemedButton
-                title="Delete Account"
-                onPress={handleDeleteAccount}
-                variant="destructive"
-                size="medium"
-                fullWidth
-              />
-            </View>
-          </View>
+          <DangerZoneCard
+            description="Permanently delete your account and all data. This cannot be undone."
+            buttonText="Delete Account"
+            onPress={handleDeleteAccount}
+          />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -245,26 +228,6 @@ const styles = StyleSheet.create({
   },
   loginForm: {
     gap: 16,
-  },
-  dangerCard: {
-    borderRadius: 16,
-    padding: 20,
-    borderWidth: 1,
-  },
-  dangerHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 8,
-  },
-  dangerTitle: {
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  dangerDescription: {
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 16,
   },
   infoText: {
     fontSize: 14,
