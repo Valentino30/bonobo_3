@@ -1,12 +1,11 @@
 import { AnalysisLoading } from '@/components/analysis-loading'
-import { ComparisonCard } from '@/components/comparison-card'
+import { AnalysisOverview } from '@/components/analysis-overview'
 import { useCustomAlert } from '@/components/custom-alert'
 import { InsightCard } from '@/components/insight-card'
 import { LockedInsightCard } from '@/components/locked-insight-card'
 import { PaymentAuthScreen } from '@/components/payment-auth-screen'
 import { Paywall } from '@/components/paywall'
 import { ScreenHeader } from '@/components/screen-header'
-import { SimpleStatCard } from '@/components/simple-stat-card'
 import { TabNavigation } from '@/components/tab-navigation'
 import { ThemedButton } from '@/components/themed-button'
 import { ThemedText } from '@/components/themed-text'
@@ -122,120 +121,7 @@ export default function ChatAnalysisScreen() {
         <View style={[styles.content, { backgroundColor: theme.colors.background }]}>
           {/* Tab Content */}
           {activeTab === 'overview' ? (
-            <View style={styles.statsGrid}>
-              {/* Total Messages Card */}
-              <SimpleStatCard title="Total Messages" icon="💬" value={analysis.totalMessages} />
-
-              {/* Messages per Participant Card */}
-              <ComparisonCard
-                title="Messages per Participant"
-                icon="👥"
-                participants={[
-                  {
-                    name: analysis.participant1.name,
-                    value: analysis.participant1.messageCount,
-                  },
-                  {
-                    name: analysis.participant2.name,
-                    value: analysis.participant2.messageCount,
-                  },
-                ]}
-              />
-
-              {/* Response Time Card */}
-              <ComparisonCard
-                title="Average Response Time"
-                icon="⏱️"
-                participants={[
-                  {
-                    name: analysis.participant1.name,
-                    value:
-                      analysis.participant1.averageResponseTime < 1
-                        ? `${Math.round(analysis.participant1.averageResponseTime * 60)}m`
-                        : `${analysis.participant1.averageResponseTime.toFixed(1)}h`,
-                  },
-                  {
-                    name: analysis.participant2.name,
-                    value:
-                      analysis.participant2.averageResponseTime < 1
-                        ? `${Math.round(analysis.participant2.averageResponseTime * 60)}m`
-                        : `${analysis.participant2.averageResponseTime.toFixed(1)}h`,
-                  },
-                ]}
-              />
-
-              {/* Average Message Length Card */}
-              <ComparisonCard
-                title="Average Message Length"
-                icon="📝"
-                participants={[
-                  {
-                    name: analysis.participant1.name,
-                    value: `${analysis.participant1.averageMessageLength} chars`,
-                  },
-                  {
-                    name: analysis.participant2.name,
-                    value: `${analysis.participant2.averageMessageLength} chars`,
-                  },
-                ]}
-              />
-
-              {/* Initiation Rate Card */}
-              {analysis.participant1.initiationRate !== undefined && (
-                <ComparisonCard
-                  title="Initiation Rate"
-                  icon="🚀"
-                  description={
-                    (analysis.participant1.initiationRate ?? 0) > (analysis.participant2.initiationRate ?? 0)
-                      ? `This indicates that ${analysis.participant1.name} starts conversations more often than ${analysis.participant2.name}, which may suggest a higher level of interest or eagerness to engage.`
-                      : (analysis.participant2.initiationRate ?? 0) > (analysis.participant1.initiationRate ?? 0)
-                      ? `This indicates that ${analysis.participant2.name} starts conversations more often than ${analysis.participant1.name}, which may suggest a higher level of interest or eagerness to engage.`
-                      : `Both participants initiate conversations equally, indicating a balanced level of interest and engagement from both sides.`
-                  }
-                  participants={[
-                    {
-                      name: analysis.participant1.name,
-                      value: `${analysis.participant1.initiationRate}%`,
-                      progressValue: analysis.participant1.initiationRate,
-                      progressColor: theme.colors.info,
-                    },
-                    {
-                      name: analysis.participant2.name,
-                      value: `${analysis.participant2.initiationRate ?? 0}%`,
-                      progressValue: analysis.participant2.initiationRate ?? 0,
-                      progressColor: theme.colors.error,
-                    },
-                  ]}
-                />
-              )}
-
-              {/* Interest Level Card */}
-              <ComparisonCard
-                title="Interest Level"
-                icon="❤️"
-                description={
-                  analysis.participant1.interestLevel > analysis.participant2.interestLevel
-                    ? `${analysis.participant1.name} shows a higher overall engagement score (${analysis.participant1.interestLevel}%) compared to ${analysis.participant2.name} (${analysis.participant2.interestLevel}%), based on response time, message length, and frequency. This suggests ${analysis.participant1.name} may be more invested in the conversation.`
-                    : analysis.participant2.interestLevel > analysis.participant1.interestLevel
-                    ? `${analysis.participant2.name} shows a higher overall engagement score (${analysis.participant2.interestLevel}%) compared to ${analysis.participant1.name} (${analysis.participant1.interestLevel}%), based on response time, message length, and frequency. This suggests ${analysis.participant2.name} may be more invested in the conversation.`
-                    : `Both participants show equal engagement levels (${analysis.participant1.interestLevel}%), indicating a balanced investment in the conversation from both sides.`
-                }
-                participants={[
-                  {
-                    name: analysis.participant1.name,
-                    value: `${analysis.participant1.interestLevel}%`,
-                    progressValue: analysis.participant1.interestLevel,
-                    progressColor: theme.colors.info,
-                  },
-                  {
-                    name: analysis.participant2.name,
-                    value: `${analysis.participant2.interestLevel}%`,
-                    progressValue: analysis.participant2.interestLevel,
-                    progressColor: theme.colors.error,
-                  },
-                ]}
-              />
-            </View>
+            <AnalysisOverview analysis={analysis} />
           ) : (
             <View style={styles.insightsContainer}>
               {/* Red Flags */}
@@ -498,9 +384,6 @@ const styles = StyleSheet.create({
   content: {
     padding: 20,
     paddingTop: 0,
-  },
-  statsGrid: {
-    marginTop: 12,
   },
   insightsContainer: {
     marginTop: 12,
