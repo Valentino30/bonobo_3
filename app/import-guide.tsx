@@ -3,6 +3,7 @@ import { ThemedView } from '@/components/themed-view'
 import { ThemedButton } from '@/components/themed-button'
 import { StepList, Step } from '@/components/step-list'
 import { InfoCard } from '@/components/info-card'
+import { Badge } from '@/components/badge'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import { Platform, ScrollView, StyleSheet, View } from 'react-native'
@@ -65,12 +66,11 @@ export default function ImportGuideScreen() {
           </View>
 
           {/* Platform Badge */}
-          <View style={styles.platformBadgeContainer}>
-            <View style={[styles.platformBadge, { backgroundColor: theme.colors.backgroundInfo, borderColor: theme.colors.primaryLighter }]}>
-              <MaterialCommunityIcons name={isIOS ? 'apple' : 'android'} size={16} color={theme.colors.primary} />
-              <ThemedText style={[styles.platformBadgeText, { color: theme.colors.primary }]}>Instructions for {isIOS ? 'iOS' : 'Android'}</ThemedText>
-            </View>
-          </View>
+          <Badge
+            icon={isIOS ? 'apple' : 'android'}
+            text={`Instructions for ${isIOS ? 'iOS' : 'Android'}`}
+            variant="primary"
+          />
 
           {/* Steps */}
           <StepList title="Follow these steps:" steps={steps} />
@@ -151,24 +151,6 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   supportedText: {
-    fontSize: 13,
-    fontWeight: '500',
-  },
-  platformBadgeContainer: {
-    paddingHorizontal: 24,
-    paddingBottom: 8,
-  },
-  platformBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    borderWidth: 1,
-    alignSelf: 'center',
-    gap: 6,
-  },
-  platformBadgeText: {
     fontSize: 13,
     fontWeight: '500',
   },
