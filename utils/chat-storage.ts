@@ -97,7 +97,14 @@ export class ChatStorage {
 
   static async addChat(chat: StoredChat): Promise<void> {
     try {
-      console.log('📥 ChatStorage.addChat called for chat:', chat.id)
+      const callStack = new Error().stack
+      console.log('📥 ChatStorage.addChat called for chat:', {
+        chatId: chat.id,
+        timestamp: new Date().toISOString(),
+        participantsPreview: chat.participants?.join(' & '),
+      })
+      console.log('📍 ChatStorage call stack:', callStack?.split('\n').slice(0, 5).join('\n'))
+
       const deviceId = await getDeviceId()
 
       // Get current user if authenticated
@@ -126,7 +133,12 @@ export class ChatStorage {
         console.log('👤 Anonymous user - setting device_id, user_id = NULL')
       }
 
-      console.log('💾 Inserting chat into Supabase:', { chatId: chat.id, deviceId, userId: user?.id })
+      console.log('💾 Inserting chat into Supabase:', {
+        chatId: chat.id,
+        deviceId,
+        userId: user?.id,
+        timestamp: new Date().toISOString()
+      })
       const { error } = await supabase
         .from('chats')
         .insert(insertData)
@@ -136,7 +148,10 @@ export class ChatStorage {
         throw error
       }
 
-      console.log('✅ Chat added to Supabase successfully:', chat.id)
+      console.log('✅ Chat added to Supabase successfully:', {
+        chatId: chat.id,
+        timestamp: new Date().toISOString()
+      })
     } catch (error) {
       console.error('❌ Error adding chat to Supabase:', error)
       throw error
