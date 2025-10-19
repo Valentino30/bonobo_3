@@ -6,95 +6,29 @@ import { ThemedIconButton } from '@/components/themed-icon-button'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
-import { usePersistedChats } from '@/hooks/use-persisted-chats'
-import { useShareIntent } from '@/hooks/use-share-intent'
-import { useShareImport } from '@/hooks/use-share-import'
-import { type StoredChat } from '@/utils/chat-storage'
-import { createShareImportAlerts } from '@/utils/share-import-alerts'
-import { parseWhatsAppChat } from '@/utils/whatsapp-parser'
-import { useLocalSearchParams, useRouter } from 'expo-router'
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { Platform, StyleSheet, View } from 'react-native'
+import { useChats } from '@/hooks/use-chats'
+import { StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 export default function ChatsScreen() {
   const theme = useTheme()
-  const { shareData, hasShareData, clearShareData } = useShareIntent()
-  const { device, reload } = useLocalSearchParams<{ device?: string; reload?: string }>()
-  const { chats, addChat: persistAddChat, deleteChat, isLoading, refreshChats } = usePersistedChats()
-  const [manualInput, setManualInput] = useState('')
-  const router = useRouter()
   const { showAlert, AlertComponent } = useCustomAlert()
-  const hasReloadedRef = useRef(false)
 
-  // Create alert configurations (memoized to avoid recreating on each render)
-  const alerts = useMemo(() => createShareImportAlerts(clearShareData), [clearShareData])
-
-  // Determine which platform to show instructions for
-  const showPlatform = device || Platform.OS
-
-  // Reload chats when coming from login/logout - only once
-  useEffect(() => {
-    if (reload === 'true' && !hasReloadedRef.current) {
-      console.log('Reloading chats after auth change...')
-      hasReloadedRef.current = true
-      refreshChats()
-
-      // Clear the reload parameter from URL after reloading
-      router.replace('/chats')
-    }
-  }, [reload, refreshChats, router])
-
-  // Add timeout for share intent processing
-  useEffect(() => {
-    if (hasShareData && !shareData?.text) {
-      // If we have share intent but no text after 3 seconds, clear it
-      const timeout = setTimeout(() => {
-        console.log('Share intent timeout - clearing stale state')
-        clearShareData()
-      }, 3000)
-
-      return () => clearTimeout(timeout)
-    }
-  }, [hasShareData, shareData, clearShareData])
-
-  // Process shared WhatsApp data with integrated alert handling
-  useShareImport({
-    shareData,
+  // All business logic encapsulated in custom hook
+  const {
+    chats,
+    isLoading,
     hasShareData,
+    showPlatform,
+    manualInput,
+    setManualInput,
+    handleManualImport,
+    handleAnalyzeChat,
+    handleNavigateToProfile,
+    handleNavigateToImportGuide,
+    deleteChat,
     clearShareData,
-    addChat: persistAddChat,
-    showAlert,
-  })
-
-  const handleManualImport = async () => {
-    if (manualInput.trim()) {
-      // Parse the manually entered WhatsApp chat
-      const parsedData = parseWhatsAppChat(manualInput.trim())
-
-      const newChat: StoredChat = {
-        id: Date.now().toString(),
-        text: manualInput.trim(),
-        timestamp: new Date(),
-        participants: parsedData.participants,
-        messageCount: parsedData.messageCount,
-      }
-      await persistAddChat(newChat)
-      setManualInput('')
-
-      // Show confirmation with details
-      const participantNames =
-        parsedData.participants.length > 0 ? parsedData.participants.join(' & ') : 'Unknown participants'
-
-      const config = alerts.manualImportSuccess(participantNames, parsedData.messageCount)
-      showAlert(config.title, config.message, config.buttons)
-    }
-  }
-
-  const handleAnalyzeChat = (chatId: string) => {
-    // Use string interpolation for dynamic route
-    router.push(`/analysis/${chatId}`)
-  }
+  } = useChats({ showAlert })
 
   // Show loading screen while chats are being loaded
   if (isLoading) {
@@ -117,7 +51,7 @@ export default function ChatsScreen() {
           </ThemedText>
           <ThemedIconButton
             icon="account"
-            onPress={() => router.push('/profile')}
+            onPress={handleNavigateToProfile}
             variant="primary"
             size="large"
             style={styles.profileButton}
@@ -141,7 +75,7 @@ export default function ChatsScreen() {
 
         <ThemedButton
           title="Import Chat"
-          onPress={() => router.push('/import-guide')}
+          onPress={handleNavigateToImportGuide}
           variant="primary"
           size="large"
           icon="whatsapp"
