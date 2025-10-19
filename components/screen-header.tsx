@@ -50,11 +50,11 @@ export function ScreenHeader({ title, showBackButton = true, style, children }: 
     <View style={style}>
       <View style={styles.headerTop}>
         {showBackButton && <BackButton />}
-        <ThemedText type="title" style={[styles.title, { color: theme.colors.text }]}>
+        <ThemedText type="title" style={[styles.title, { color: theme.colors.text, fontWeight: '300' }]}>
           {title}
         </ThemedText>
       </View>
-      {children}
+      {children && <View style={styles.childrenContainer}>{children}</View>}
     </View>
   )
 }
@@ -67,5 +67,8 @@ const styles = StyleSheet.create({
   },
   title: {
     flex: 1,
+  },
+  childrenContainer: {
+    marginTop: 16,
   },
 })
