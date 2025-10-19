@@ -12,453 +12,50 @@ import { ThemedTabButton } from '@/components/themed-tab-button'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
-import { usePersistedChats } from '@/hooks/use-persisted-chats'
-import { AuthService } from '@/utils/auth-service'
-import { PaymentService } from '@/utils/payment-service'
-import { StripeService } from '@/utils/stripe-service'
-import { useLocalSearchParams, useRouter } from 'expo-router'
-import { useEffect, useRef, useState } from 'react'
+import { useChatAnalysis } from '@/hooks/use-chat-analysis'
 import { ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { analyzeChat, type AIInsights } from '../../utils/ai-service'
-import { analyzeChatData } from '../../utils/chat-analyzer'
-
-type TabType = 'overview' | 'insights'
-
-interface ChatAnalysisData {
-  totalMessages: number
-  participant1: {
-    name: string
-    messageCount: number
-    averageResponseTime: number
-    interestLevel: number
-    initiationRate?: number
-    averageMessageLength?: number
-  }
-  participant2: {
-    name: string
-    messageCount: number
-    averageResponseTime: number
-    interestLevel: number
-    initiationRate?: number
-    averageMessageLength?: number
-  }
-  dateRange: { start: Date; end: Date }
-  conversationHealth: {
-    balanceScore: number
-    engagementScore: number
-  }
-}
 
 export default function ChatAnalysisScreen() {
   const theme = useTheme()
-  const analysisRef = useRef<ChatAnalysisData | null>(null)
-  const { chatId } = useLocalSearchParams<{ chatId: string }>()
-  const { chats, isLoading: chatsLoading, updateChatAnalysis } = usePersistedChats()
-  const router = useRouter()
-  const previousChatIdRef = useRef<string | null>(null)
   const { showAlert, AlertComponent } = useCustomAlert()
 
-  const chat = chats.find((c) => c.id === chatId)
+  // All business logic encapsulated in custom hook
+  const {
+    chat,
+    chatId,
+    chatsLoading,
+    analysis,
+    aiInsights,
+    showLoadingAnimation,
+    error,
+    activeTab,
+    showPaywall,
+    showAuthScreen,
+    loadingInsight,
+    isInsightUnlocked,
+    getFrequencyLabel,
+    handleTabChange,
+    handleUnlockInsight,
+    handlePurchase,
+    handleAuthSuccess,
+    handleLoadingComplete,
+    handleGoBack,
+    handleNavigateToChats,
+    setShowPaywall,
+    setShowAuthScreen,
+  } = useChatAnalysis({ showAlert })
 
-  // Initialize states - delay initialization until we know chats are loaded
-  const [analysis, setAnalysis] = useState<ChatAnalysisData | null>(null)
-  const [aiInsights, setAiInsights] = useState<AIInsights | null>(null)
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [showLoadingAnimation, setShowLoadingAnimation] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<TabType>('overview')
-  const [showPaywall, setShowPaywall] = useState(false)
-  const [showAuthScreen, setShowAuthScreen] = useState(false)
-  const [unlockedInsights, setUnlockedInsights] = useState<Set<string>>(new Set())
-  const [loadingInsight, setLoadingInsight] = useState<string | null>(null)
-  const [pendingInsightToUnlock, setPendingInsightToUnlock] = useState<string | null>(null)
-
-  // Debug: Log when showAuthScreen changes
-  useEffect(() => {
-    console.log('🔵 showAuthScreen state changed:', showAuthScreen)
-  }, [showAuthScreen])
-
-  // Load unlocked insights from cached chat data
-  useEffect(() => {
-    if (chat?.unlockedInsights) {
-      setUnlockedInsights(new Set(chat.unlockedInsights))
-    }
-  }, [chat])
-
-  // Helper to check if an insight should be shown as unlocked
-  const isInsightUnlocked = (insightId: string): boolean => {
-    const unlocked = unlockedInsights.has(insightId)
-    console.log(`Checking if ${insightId} is unlocked:`, unlocked, 'All unlocked:', Array.from(unlockedInsights))
-    return unlocked
-  }
-
-  // Helper to get frequency label from count
-  const getFrequencyLabel = (count: number): string => {
-    if (count === 0) return 'None'
-    if (count === 1) return 'Rare'
-    if (count <= 3) return 'Few'
-    if (count <= 7) return 'Occasional'
-    if (count <= 15) return 'Moderate'
-    if (count <= 25) return 'Frequent'
-    return 'Very Frequent'
-  }
-
-  // Handle tab change - insights tab is always accessible to see locked cards
-  const handleTabChange = async (tab: TabType) => {
-    setActiveTab(tab)
-  }
-
-  // Handle unlock insight - check access and show paywall or unlock
-  const handleUnlockInsight = async (insightId: string) => {
-    console.log('🔓 handleUnlockInsight called for:', insightId)
-    console.log('Current unlockedInsights:', Array.from(unlockedInsights))
-
-    // First access check - show paywall if no access
-    const access = await PaymentService.hasAccess(chatId)
-    console.log('Initial access check result:', access)
-
-    if (!access) {
-      // No access - show paywall and remember which insight to unlock after payment
-      console.log('❌ No access - showing paywall')
-      setPendingInsightToUnlock(insightId)
-      setShowPaywall(true)
-      return
-    }
-
-    // Has access - unlock this specific insight
-    if (unlockedInsights.has(insightId)) {
-      // Already unlocked, do nothing
-      console.log('✅ Insight already unlocked')
-      return
-    }
-
-    console.log('🔄 Starting unlock process...')
-    setLoadingInsight(insightId)
-
-    try {
-      // CRITICAL: Triple-check access with explicit chatId right before unlocking
-      // This prevents race conditions and ensures entitlement is valid for THIS specific chat
-      const reconfirmAccess = await PaymentService.hasAccess(chatId)
-      console.log('🔒 Re-confirming access before unlock:', reconfirmAccess)
-
-      if (!reconfirmAccess) {
-        console.error('❌ Access verification failed - aborting unlock')
-        setLoadingInsight(null)
-        setShowPaywall(true)
-        showAlert('Access Required', 'Please complete payment to unlock insights')
-        return
-      }
-
-      // If we don't have any AI insights yet, generate them all
-      let insights = aiInsights
-      if (!aiInsights && chat) {
-        console.log('📊 Generating AI insights...')
-        insights = await analyzeChat(chat.text)
-        setAiInsights(insights)
-        console.log('✅ AI insights generated')
-
-        // Assign this one-time purchase to this specific chat (only on first unlock and only for one-time purchases)
-        // Skip this for subscriptions
-        const hasSubscription = await PaymentService.hasActiveSubscription()
-        if (!hasSubscription) {
-          console.log('🔗 Assigning one-time entitlement to chat...')
-          try {
-            await PaymentService.assignAnalysisToChat(chatId)
-            console.log('✅ Entitlement assigned to chat')
-          } catch (assignError) {
-            console.error('❌ Failed to assign entitlement:', assignError)
-            // If assignment fails, user might not have valid payment - abort
-            setLoadingInsight(null)
-            setShowPaywall(true)
-            showAlert(
-              'Payment Verification Failed',
-              'Could not verify your payment. Please try again or contact support.'
-            )
-            return
-          }
-        } else {
-          console.log('ℹ️ Subscription active - no need to assign to chat')
-        }
-      }
-
-      // FINAL VERIFICATION: Check access one more time after assignment
-      const finalAccessCheck = await PaymentService.hasAccess(chatId)
-      if (!finalAccessCheck) {
-        console.error('❌ Final access check failed after assignment')
-        setLoadingInsight(null)
-        setShowPaywall(true)
-        showAlert('Access Verification Failed', 'Could not verify access. Please try again.')
-        return
-      }
-
-      // Mark this insight as unlocked and persist it
-      const newUnlockedInsights = new Set([...unlockedInsights, insightId])
-      console.log('New unlockedInsights:', Array.from(newUnlockedInsights))
-      setUnlockedInsights(newUnlockedInsights)
-
-      // Save to storage
-      if (analysis) {
-        console.log('💾 Saving to storage...')
-        await updateChatAnalysis(chatId, analysis, insights || undefined, Array.from(newUnlockedInsights))
-        console.log('✅ Saved to storage')
-      } else {
-        console.warn('⚠️ No analysis to save!')
-      }
-
-      console.log('🎉 Unlock complete!')
-    } catch (err) {
-      console.error('❌ Error Unlocking Insight:', err)
-      showAlert(
-        'Failed to Unlock Insight',
-        "Don't worry, this can happen sometimes due to the AI being overloaded. Simply try again in a few seconds."
-      )
-    } finally {
-      setLoadingInsight(null)
-    }
-  }
-
-  // Handle purchase
-  const handlePurchase = async (planId: string) => {
-    try {
-      console.log('💳 Starting payment for plan:', planId, 'chatId:', chatId)
-
-      // Initialize Stripe payment - pass chatId for one-time purchase assignment
-      const result = await StripeService.initializePayment(planId, chatId as string)
-
-      console.log('💳 Payment result:', result)
-
-      if (result.success) {
-        console.log('✅ Payment sheet returned success')
-
-        // Store payment intent ID for verification
-        const paymentIntentId = result.paymentIntentId
-
-        // Close paywall immediately to improve UX
-        setShowPaywall(false)
-
-        // Show a brief success message
-        showAlert('Payment Processing', 'Your payment is being processed. You can unlock insights in a moment.')
-
-        // Check if user is authenticated
-        const isAuthenticated = await AuthService.isAuthenticated()
-        console.log('🔐 User authenticated:', isAuthenticated)
-
-        if (!isAuthenticated) {
-          // Show auth screen to secure the purchase
-          console.log('📝 Showing auth screen (showAuthScreen = true)')
-          setShowAuthScreen(true)
-        } else {
-          // Already authenticated - switch to insights tab
-          console.log('✅ Already authenticated, switching to insights tab')
-          setActiveTab('insights')
-        }
-
-        // CRITICAL: Poll for entitlement creation
-        // Webhooks can be delayed or fail, so we need to wait for the entitlement to appear
-        console.log('⏳ Polling for entitlement creation...')
-        const maxAttempts = 10 // 10 attempts over 10 seconds
-        const pollInterval = 1000 // 1 second between attempts
-
-        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-          console.log(`🔄 Polling attempt ${attempt}/${maxAttempts}`)
-
-          // Wait before checking (except first attempt)
-          if (attempt > 1) {
-            await new Promise((resolve) => setTimeout(resolve, pollInterval))
-          } else {
-            // First attempt - wait just 500ms to give webhook a head start
-            await new Promise((resolve) => setTimeout(resolve, 500))
-          }
-
-          // Check if entitlement exists now
-          const hasAccess = await PaymentService.hasAccess(chatId)
-          console.log(`🔍 Attempt ${attempt}: hasAccess =`, hasAccess)
-
-          if (hasAccess) {
-            console.log('✅ Entitlement found! Payment confirmed.')
-            showAlert('🎉 Payment Successful!', 'Unlocking your insight now...')
-
-            // Automatically unlock the pending insight
-            if (pendingInsightToUnlock) {
-              console.log('🔓 Auto-unlocking pending insight:', pendingInsightToUnlock)
-              setTimeout(() => handleUnlockInsight(pendingInsightToUnlock), 500)
-              setPendingInsightToUnlock(null)
-            }
-            break
-          }
-
-          // If we've exhausted attempts, try manual verification
-          if (attempt === maxAttempts) {
-            console.warn('⚠️ Entitlement not found after polling - attempting manual verification')
-
-            if (paymentIntentId) {
-              console.log('🔧 Calling manual verification fallback...')
-              const verified = await PaymentService.verifyPayment(paymentIntentId, planId, chatId)
-
-              if (verified) {
-                console.log('✅ Manual verification succeeded!')
-                showAlert('🎉 Payment Verified!', 'Unlocking your insight now...')
-
-                // Automatically unlock the pending insight
-                if (pendingInsightToUnlock) {
-                  console.log('🔓 Auto-unlocking pending insight:', pendingInsightToUnlock)
-                  setTimeout(() => handleUnlockInsight(pendingInsightToUnlock), 500)
-                  setPendingInsightToUnlock(null)
-                }
-              } else {
-                console.error('❌ Manual verification failed')
-                showAlert(
-                  '⏳ Payment Processing',
-                  'Your payment was successful but verification is taking longer than expected. Please wait a moment and try unlocking again. If the problem persists, contact support.'
-                )
-              }
-            } else {
-              console.error('❌ No payment intent ID available for manual verification')
-              showAlert(
-                '⏳ Payment Processing',
-                'Your payment was successful but verification is taking longer than expected. Please wait a moment and try unlocking again. If the problem persists, contact support.'
-              )
-            }
-          }
-        }
-      } else {
-        // Payment failed or cancelled
-        console.log('❌ Payment failed or cancelled')
-        if (result.error) {
-          showAlert('Payment Failed', result.error)
-        }
-        // User cancelled - no alert needed (already handled by Stripe sheet dismissal)
-      }
-    } catch (error) {
-      console.error('💥 Purchase error:', error)
-      showAlert('Error', 'Failed to process payment. Please try again.')
-    }
-  }
-
-  // Handle successful authentication
-  const handleAuthSuccess = () => {
-    setShowAuthScreen(false)
-    setActiveTab('insights')
-    showAlert('🎉 Account Created!', 'Your purchases are now secure and accessible from any device')
-  }
-
-  useEffect(() => {
-    console.log('Analysis screen - chatId:', chatId)
-    console.log('Analysis screen - chats count:', chats.length)
-    console.log('Analysis screen - chats loading:', chatsLoading)
-    console.log('Analysis screen - chat found:', !!chat)
-    console.log('Analysis screen - cached analysis:', !!chat?.analysis)
-
-    // Reset state ONLY when chatId changes
-    if (previousChatIdRef.current !== chatId) {
-      console.log('ChatId changed, resetting all state')
-      setUnlockedInsights(new Set())
-      setAiInsights(null)
-      setAnalysis(null)
-      setIsAnalyzing(false)
-      setError(null)
-      setShowLoadingAnimation(true)
-      previousChatIdRef.current = chatId
-    }
-
-    // Don't do anything if chats are still loading
-    if (chatsLoading) {
-      console.log('Chats still loading, waiting...')
-      return
-    }
-
-    if (!chat) {
-      console.log('Chat not found for ID:', chatId)
-      console.log(
-        'Available chat IDs:',
-        chats.map((c) => c.id)
-      )
-      setError('Chat not found')
-      setIsAnalyzing(false)
-      return
-    }
-
-    // Reset error state when chat is found
-    setError(null)
-
-    // If we already have analysis loaded, don't do anything
-    if (analysis) {
-      console.log('Analysis already loaded, skipping')
-      return
-    }
-
-    // Check if we have cached analysis - load it immediately to prevent flashing
-    if (chat.analysis && !analysis) {
-      console.log('Using cached basic analysis')
-      setAnalysis(chat.analysis)
-
-      // Load cached AI insights if they exist (user has already unlocked some)
-      if (chat.aiInsights) {
-        console.log('Loading cached AI insights')
-        setAiInsights(chat.aiInsights)
-      }
-
-      setIsAnalyzing(false)
-      return
-    }
-
-    // If we don't have basic analysis and we're not already analyzing, run it
-    if (!isAnalyzing) {
-      console.log('No cached analysis found, performing basic analysis only')
-      setIsAnalyzing(true)
-
-      const performBasicAnalysis = async () => {
-        try {
-          const basicAnalysis = await analyzeChatData(chat.text)
-          analysisRef.current = basicAnalysis
-
-          // Save only basic analysis (no AI insights yet)
-          await updateChatAnalysis(chatId, basicAnalysis)
-          console.log('Basic analysis complete and cached')
-        } catch (err) {
-          console.error('Analysis error:', err)
-          setError(err instanceof Error ? err.message : 'Failed to analyze chat')
-          setIsAnalyzing(false)
-        }
-        // Do not set isAnalyzing=false or setAnalysis here; wait for animation
-      }
-
-      performBasicAnalysis()
-    }
-  }, [chat, chatId, chats, chatsLoading, updateChatAnalysis, analysis, isAnalyzing])
-
-  // Always show AnalysisLoading when:
-  // 1. Chats are still loading from Supabase, OR
-  // 2. We don't have the analysis loaded yet, OR
-  // 3. showLoadingAnimation is true (set on navigation)
+  // Show loading animation
   if (chatsLoading || !analysis || showLoadingAnimation) {
-    console.log(
-      'Showing AnalysisLoading: chatsLoading =',
-      chatsLoading,
-      'analysis =',
-      !!analysis,
-      'showLoadingAnimation =',
-      showLoadingAnimation
-    )
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-        <AnalysisLoading
-          key={chatId}
-          onComplete={() => {
-            console.log('AnalysisLoading complete')
-            setIsAnalyzing(false)
-            setShowLoadingAnimation(false)
-            if (analysisRef.current) {
-              setAnalysis(analysisRef.current)
-              analysisRef.current = null
-            }
-          }}
-        />
+        <AnalysisLoading key={chatId} onComplete={handleLoadingComplete} />
       </SafeAreaView>
     )
   }
 
+  // Show chat not found error
   if (!chat && !chatsLoading) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -467,34 +64,23 @@ export default function ChatAnalysisScreen() {
           <ThemedText style={[styles.errorText, { color: theme.colors.warning }]}>
             The requested chat could not be found.
           </ThemedText>
-          <ThemedButton
-            title="Back to Chats"
-            onPress={() => router.push('/chats' as any)}
-            variant="primary"
-            size="large"
-          />
+          <ThemedButton title="Back to Chats" onPress={handleNavigateToChats} variant="primary" size="large" />
         </ThemedView>
       </SafeAreaView>
     )
   }
 
-  // Only show error screen if there's an actual error AND we're not analyzing
-  if (error && !isAnalyzing) {
+  // Show analysis error
+  if (error) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <ThemedView style={styles.content}>
           <ThemedText type="title">Analysis Error</ThemedText>
           <ThemedText style={[styles.errorText, { color: theme.colors.warning }]}>{error}</ThemedText>
-          <ThemedButton title="Go Back" onPress={() => router.back()} variant="primary" size="large" />
+          <ThemedButton title="Go Back" onPress={handleGoBack} variant="primary" size="large" />
         </ThemedView>
       </SafeAreaView>
     )
-  }
-
-  // If we don't have analysis yet, we should be showing the loading screen (handled above)
-  // This shouldn't render, but just in case
-  if (!analysis) {
-    return null
   }
 
   return (
@@ -663,7 +249,7 @@ export default function ChatAnalysisScreen() {
             </View>
           ) : (
             <View style={styles.insightsContainer}>
-              {/* 1. Red Flags - Eye-catching warning signs */}
+              {/* Red Flags */}
               {isInsightUnlocked('redFlags') && aiInsights ? (
                 <InsightCard
                   icon="🚩"
@@ -682,7 +268,7 @@ export default function ChatAnalysisScreen() {
                 />
               )}
 
-              {/* 2. Green Flags - Positive counterpart */}
+              {/* Green Flags */}
               {isInsightUnlocked('greenFlags') && aiInsights ? (
                 <InsightCard
                   icon="✅"
@@ -701,7 +287,7 @@ export default function ChatAnalysisScreen() {
                 />
               )}
 
-              {/* 3. Compatibility Score - Overall assessment */}
+              {/* Compatibility Score */}
               {isInsightUnlocked('compatibilityScore') && aiInsights ? (
                 <InsightCard
                   icon="💯"
@@ -723,7 +309,7 @@ export default function ChatAnalysisScreen() {
                 />
               )}
 
-              {/* 4. Love Language - Emotional connection */}
+              {/* Love Language */}
               {isInsightUnlocked('loveLanguage') && aiInsights ? (
                 <InsightCard
                   icon="❤️"
@@ -742,7 +328,7 @@ export default function ChatAnalysisScreen() {
                 />
               )}
 
-              {/* 5. "We" vs "I" Language - Partnership mindset */}
+              {/* "We" vs "I" Language */}
               {isInsightUnlocked('weVsIRatio') && aiInsights ? (
                 <InsightCard
                   icon="👥"
@@ -761,7 +347,7 @@ export default function ChatAnalysisScreen() {
                 />
               )}
 
-              {/* 6. Shared Interests - Common ground */}
+              {/* Shared Interests */}
               {isInsightUnlocked('sharedInterests') && aiInsights ? (
                 <InsightCard
                   icon="🎯"
@@ -780,7 +366,7 @@ export default function ChatAnalysisScreen() {
                 />
               )}
 
-              {/* 7. Reciprocity Score - Balance */}
+              {/* Reciprocity Score */}
               {isInsightUnlocked('reciprocityScore') && aiInsights ? (
                 <InsightCard
                   icon="⚖️"
@@ -802,7 +388,7 @@ export default function ChatAnalysisScreen() {
                 />
               )}
 
-              {/* 8. Attachment Style - Deeper psychological */}
+              {/* Attachment Style */}
               {isInsightUnlocked('attachmentStyle') && aiInsights ? (
                 <InsightCard
                   icon="🔗"
@@ -821,7 +407,7 @@ export default function ChatAnalysisScreen() {
                 />
               )}
 
-              {/* 9. Compliments - Communication patterns */}
+              {/* Compliments */}
               {isInsightUnlocked('compliments') && aiInsights ? (
                 <InsightCard
                   icon="💐"
@@ -840,7 +426,7 @@ export default function ChatAnalysisScreen() {
                 />
               )}
 
-              {/* 10. Criticism - Communication patterns */}
+              {/* Criticism */}
               {isInsightUnlocked('criticism') && aiInsights ? (
                 <InsightCard
                   icon="⚠️"
@@ -859,7 +445,7 @@ export default function ChatAnalysisScreen() {
                 />
               )}
 
-              {/* 11. Conflict Resolution - How you handle challenges */}
+              {/* Conflict Resolution */}
               {isInsightUnlocked('conflictResolution') && aiInsights ? (
                 <InsightCard
                   icon="🤝"
@@ -878,7 +464,7 @@ export default function ChatAnalysisScreen() {
                 />
               )}
 
-              {/* 12. Relationship Tips - Actionable advice (moved to end) */}
+              {/* Relationship Tips */}
               {isInsightUnlocked('relationshipTips') && aiInsights ? (
                 <InsightCard
                   icon="💡"
@@ -938,29 +524,6 @@ const styles = StyleSheet.create({
   },
   insightsContainer: {
     marginTop: 12,
-  },
-  button: {
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  buttonText: {
-    fontWeight: '500',
-    fontSize: 14,
-    letterSpacing: 0.3,
-  },
-  loadingContainer: {
-    paddingVertical: 60,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  loadingText: {
-    textAlign: 'center',
-    marginTop: 16,
-    fontSize: 14,
-    letterSpacing: 0.1,
   },
   errorText: {
     textAlign: 'center',
