@@ -1,8 +1,7 @@
+import { AnalysisInsights } from '@/components/analysis-insights'
 import { AnalysisLoading } from '@/components/analysis-loading'
 import { AnalysisOverview } from '@/components/analysis-overview'
 import { useCustomAlert } from '@/components/custom-alert'
-import { InsightCard } from '@/components/insight-card'
-import { LockedInsightCard } from '@/components/locked-insight-card'
 import { PaymentAuthScreen } from '@/components/payment-auth-screen'
 import { Paywall } from '@/components/paywall'
 import { ScreenHeader } from '@/components/screen-header'
@@ -123,241 +122,13 @@ export default function ChatAnalysisScreen() {
           {activeTab === 'overview' ? (
             <AnalysisOverview analysis={analysis} />
           ) : (
-            <View style={styles.insightsContainer}>
-              {/* Red Flags */}
-              {isInsightUnlocked('redFlags') && aiInsights ? (
-                <InsightCard
-                  icon="🚩"
-                  title="Red Flags"
-                  description={aiInsights.redFlags.description}
-                  items={aiInsights.redFlags.items}
-                  badge={{ text: `${aiInsights.redFlags.count} Found`, color: theme.colors.error }}
-                />
-              ) : (
-                <LockedInsightCard
-                  icon="🚩"
-                  title="Red Flags"
-                  onUnlock={() => handleUnlockInsight('redFlags')}
-                  isLoading={loadingInsight === 'redFlags'}
-                  unlockText="What are the warning signs?"
-                />
-              )}
-
-              {/* Green Flags */}
-              {isInsightUnlocked('greenFlags') && aiInsights ? (
-                <InsightCard
-                  icon="✅"
-                  title="Green Flags"
-                  description={aiInsights.greenFlags.description}
-                  items={aiInsights.greenFlags.items}
-                  badge={{ text: `${aiInsights.greenFlags.count} Found`, color: theme.colors.success }}
-                />
-              ) : (
-                <LockedInsightCard
-                  icon="✅"
-                  title="Green Flags"
-                  onUnlock={() => handleUnlockInsight('greenFlags')}
-                  isLoading={loadingInsight === 'greenFlags'}
-                  unlockText="What are the positive signs?"
-                />
-              )}
-
-              {/* Compatibility Score */}
-              {isInsightUnlocked('compatibilityScore') && aiInsights ? (
-                <InsightCard
-                  icon="💯"
-                  title="Compatibility Score"
-                  description={aiInsights.compatibilityScore.description}
-                  items={aiInsights.compatibilityScore.items}
-                  badge={{
-                    text: `${aiInsights.compatibilityScore.percentage}% ${aiInsights.compatibilityScore.rating}`,
-                    color: theme.colors.primary,
-                  }}
-                />
-              ) : (
-                <LockedInsightCard
-                  icon="💯"
-                  title="Compatibility Score"
-                  onUnlock={() => handleUnlockInsight('compatibilityScore')}
-                  isLoading={loadingInsight === 'compatibilityScore'}
-                  unlockText="How compatible are you?"
-                />
-              )}
-
-              {/* Love Language */}
-              {isInsightUnlocked('loveLanguage') && aiInsights ? (
-                <InsightCard
-                  icon="❤️"
-                  title="Love Language"
-                  description={aiInsights.loveLanguage.description}
-                  items={aiInsights.loveLanguage.items}
-                  badge={{ text: aiInsights.loveLanguage.primary, color: theme.colors.error }}
-                />
-              ) : (
-                <LockedInsightCard
-                  icon="❤️"
-                  title="Love Language"
-                  onUnlock={() => handleUnlockInsight('loveLanguage')}
-                  isLoading={loadingInsight === 'loveLanguage'}
-                  unlockText="How do you show love?"
-                />
-              )}
-
-              {/* "We" vs "I" Language */}
-              {isInsightUnlocked('weVsIRatio') && aiInsights ? (
-                <InsightCard
-                  icon="👥"
-                  title='"We" vs "I" Language'
-                  description={aiInsights.weVsIRatio.description}
-                  items={aiInsights.weVsIRatio.items}
-                  badge={{ text: `${aiInsights.weVsIRatio.percentage}% "We"`, color: theme.colors.primary }}
-                />
-              ) : (
-                <LockedInsightCard
-                  icon="👥"
-                  title='"We" vs "I" Language'
-                  onUnlock={() => handleUnlockInsight('weVsIRatio')}
-                  isLoading={loadingInsight === 'weVsIRatio'}
-                  unlockText="How connected are you?"
-                />
-              )}
-
-              {/* Shared Interests */}
-              {isInsightUnlocked('sharedInterests') && aiInsights ? (
-                <InsightCard
-                  icon="🎯"
-                  title="Shared Interests"
-                  description={aiInsights.sharedInterests.description}
-                  items={aiInsights.sharedInterests.items}
-                  badge={{ text: `${aiInsights.sharedInterests.count} Found`, color: theme.colors.success }}
-                />
-              ) : (
-                <LockedInsightCard
-                  icon="🎯"
-                  title="Shared Interests"
-                  onUnlock={() => handleUnlockInsight('sharedInterests')}
-                  isLoading={loadingInsight === 'sharedInterests'}
-                  unlockText="What do you have in common?"
-                />
-              )}
-
-              {/* Reciprocity Score */}
-              {isInsightUnlocked('reciprocityScore') && aiInsights ? (
-                <InsightCard
-                  icon="⚖️"
-                  title="Reciprocity Score"
-                  description={aiInsights.reciprocityScore.description}
-                  items={aiInsights.reciprocityScore.items}
-                  badge={{
-                    text: `${aiInsights.reciprocityScore.percentage}% ${aiInsights.reciprocityScore.rating}`,
-                    color: theme.colors.primary,
-                  }}
-                />
-              ) : (
-                <LockedInsightCard
-                  icon="⚖️"
-                  title="Reciprocity Score"
-                  onUnlock={() => handleUnlockInsight('reciprocityScore')}
-                  isLoading={loadingInsight === 'reciprocityScore'}
-                  unlockText="How balanced is this relationship?"
-                />
-              )}
-
-              {/* Attachment Style */}
-              {isInsightUnlocked('attachmentStyle') && aiInsights ? (
-                <InsightCard
-                  icon="🔗"
-                  title="Attachment Style"
-                  description={aiInsights.attachmentStyle.description}
-                  items={aiInsights.attachmentStyle.items}
-                  badge={{ text: aiInsights.attachmentStyle.type, color: theme.colors.info }}
-                />
-              ) : (
-                <LockedInsightCard
-                  icon="🔗"
-                  title="Attachment Style"
-                  onUnlock={() => handleUnlockInsight('attachmentStyle')}
-                  isLoading={loadingInsight === 'attachmentStyle'}
-                  unlockText="What's the attachment pattern?"
-                />
-              )}
-
-              {/* Compliments */}
-              {isInsightUnlocked('compliments') && aiInsights ? (
-                <InsightCard
-                  icon="💐"
-                  title="Compliments"
-                  description={aiInsights.compliments.description}
-                  items={aiInsights.compliments.items}
-                  badge={{ text: getFrequencyLabel(aiInsights.compliments.count), color: theme.colors.success }}
-                />
-              ) : (
-                <LockedInsightCard
-                  icon="💐"
-                  title="Compliments"
-                  onUnlock={() => handleUnlockInsight('compliments')}
-                  isLoading={loadingInsight === 'compliments'}
-                  unlockText="How often do they compliment?"
-                />
-              )}
-
-              {/* Criticism */}
-              {isInsightUnlocked('criticism') && aiInsights ? (
-                <InsightCard
-                  icon="⚠️"
-                  title="Criticism"
-                  description={aiInsights.criticism.description}
-                  items={aiInsights.criticism.items}
-                  badge={{ text: getFrequencyLabel(aiInsights.criticism.count), color: theme.colors.warning }}
-                />
-              ) : (
-                <LockedInsightCard
-                  icon="⚠️"
-                  title="Criticism"
-                  onUnlock={() => handleUnlockInsight('criticism')}
-                  isLoading={loadingInsight === 'criticism'}
-                  unlockText="Are there critical moments?"
-                />
-              )}
-
-              {/* Conflict Resolution */}
-              {isInsightUnlocked('conflictResolution') && aiInsights ? (
-                <InsightCard
-                  icon="🤝"
-                  title="Conflict Resolution"
-                  description={aiInsights.conflictResolution.description}
-                  items={aiInsights.conflictResolution.items}
-                  badge={{ text: aiInsights.conflictResolution.type, color: theme.colors.info }}
-                />
-              ) : (
-                <LockedInsightCard
-                  icon="🤝"
-                  title="Conflict Resolution"
-                  onUnlock={() => handleUnlockInsight('conflictResolution')}
-                  isLoading={loadingInsight === 'conflictResolution'}
-                  unlockText="How do you handle disagreements?"
-                />
-              )}
-
-              {/* Relationship Tips */}
-              {isInsightUnlocked('relationshipTips') && aiInsights ? (
-                <InsightCard
-                  icon="💡"
-                  title="Relationship Tips"
-                  description={aiInsights.relationshipTips.description}
-                  items={aiInsights.relationshipTips.tips}
-                  badge={{ text: `${aiInsights.relationshipTips.count} Tips`, color: theme.colors.primary }}
-                />
-              ) : (
-                <LockedInsightCard
-                  icon="💡"
-                  title="Relationship Tips"
-                  onUnlock={() => handleUnlockInsight('relationshipTips')}
-                  isLoading={loadingInsight === 'relationshipTips'}
-                  unlockText="What can you improve?"
-                />
-              )}
-            </View>
+            <AnalysisInsights
+              aiInsights={aiInsights}
+              isInsightUnlocked={isInsightUnlocked}
+              loadingInsight={loadingInsight}
+              onUnlockInsight={handleUnlockInsight}
+              getFrequencyLabel={getFrequencyLabel}
+            />
           )}
         </View>
       </ScrollView>
@@ -384,9 +155,6 @@ const styles = StyleSheet.create({
   content: {
     padding: 20,
     paddingTop: 0,
-  },
-  insightsContainer: {
-    marginTop: 12,
   },
   errorText: {
     textAlign: 'center',
