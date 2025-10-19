@@ -1,6 +1,7 @@
 import { useCustomAlert } from '@/components/custom-alert'
 import { LabelValueCard } from '@/components/label-value-card'
 import { LoadingScreen } from '@/components/loading-screen'
+import { PasswordChangeCard } from '@/components/password-change-card'
 import { ScreenHeader } from '@/components/screen-header'
 import { ThemedButton } from '@/components/themed-button'
 import { ThemedText } from '@/components/themed-text'
@@ -148,85 +149,16 @@ export default function ProfileScreen() {
           <LabelValueCard icon="email-outline" label="Email" value={email} />
 
           {/* Password Change Section */}
-          <View style={styles.section}>
-            {!showPasswordChange ? (
-              <ThemedButton
-                title="Change Password"
-                onPress={() => setShowPasswordChange(true)}
-                variant="secondary"
-                size="large"
-                icon="lock-outline"
-                iconPosition="left"
-                align="left"
-                fullWidth
-              />
-            ) : (
-              <View
-                style={[
-                  styles.passwordCard,
-                  { backgroundColor: theme.colors.backgroundLight, borderColor: theme.colors.border },
-                ]}
-              >
-                <View style={[styles.passwordHeader, { borderBottomColor: theme.colors.borderLight }]}>
-                  <MaterialCommunityIcons name="lock-outline" size={18} color={theme.colors.primary} />
-                  <ThemedText style={[styles.passwordHeaderText, { color: theme.colors.text }]}>
-                    Update Password
-                  </ThemedText>
-                </View>
-
-                <View style={styles.passwordForm}>
-                  {/* New Password */}
-                  <ThemedTextInput
-                    placeholder="New password (min. 8 characters)"
-                    value={newPassword}
-                    onChangeText={setNewPassword}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    password
-                    icon="lock-outline"
-                    fullWidth
-                  />
-
-                  {/* Confirm Password */}
-                  <ThemedTextInput
-                    placeholder="Confirm new password"
-                    value={confirmPassword}
-                    onChangeText={setConfirmPassword}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    password
-                    icon="lock-check-outline"
-                    fullWidth
-                  />
-
-                  {/* Buttons */}
-                  <View style={styles.passwordButtons}>
-                    <ThemedButton
-                      title="Cancel"
-                      onPress={() => {
-                        setShowPasswordChange(false)
-                        setNewPassword('')
-                        setConfirmPassword('')
-                      }}
-                      variant="secondary"
-                      size="medium"
-                      disabled={isChangingPassword}
-                      style={{ flex: 1 }}
-                    />
-                    <ThemedButton
-                      title="Update"
-                      onPress={handleChangePassword}
-                      variant="primary"
-                      size="medium"
-                      loading={isChangingPassword}
-                      disabled={isChangingPassword}
-                      style={{ flex: 1 }}
-                    />
-                  </View>
-                </View>
-              </View>
-            )}
-          </View>
+          <PasswordChangeCard
+            showForm={showPasswordChange}
+            onShowFormChange={setShowPasswordChange}
+            newPassword={newPassword}
+            onNewPasswordChange={setNewPassword}
+            confirmPassword={confirmPassword}
+            onConfirmPasswordChange={setConfirmPassword}
+            onChangePassword={handleChangePassword}
+            isChanging={isChangingPassword}
+          />
 
           {/* Logout Button */}
           <View style={styles.section}>
@@ -313,31 +245,6 @@ const styles = StyleSheet.create({
   },
   loginForm: {
     gap: 16,
-  },
-  passwordCard: {
-    borderRadius: 16,
-    padding: 24,
-    borderWidth: 1,
-  },
-  passwordHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 24,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-  },
-  passwordHeaderText: {
-    fontSize: 16,
-    fontWeight: '400',
-  },
-  passwordForm: {
-    gap: 16,
-  },
-  passwordButtons: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 8,
   },
   dangerCard: {
     borderRadius: 16,
