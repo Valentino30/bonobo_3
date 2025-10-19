@@ -22,12 +22,9 @@ export default function ChatsScreen() {
   const { device, reload } = useLocalSearchParams<{ device?: string; reload?: string }>()
   const { chats, addChat: persistAddChat, deleteChat, isLoading, refreshChats } = usePersistedChats()
   const [manualInput, setManualInput] = useState('')
-  const [isProcessing, setIsProcessing] = useState(false)
   const router = useRouter()
   const { showAlert, AlertComponent } = useCustomAlert()
   const hasReloadedRef = useRef(false)
-  const processedShareDataRef = useRef<string | null>(null)
-  const isProcessingRef = useRef(false)
 
   // Determine which platform to show instructions for
   const showPlatform = device || Platform.OS
@@ -57,57 +54,14 @@ export default function ChatsScreen() {
     }
   }, [hasShareData, shareData, clearShareData])
 
-  // Reset processed refs when share data is cleared
-  useEffect(() => {
-    if (!hasShareData) {
-      console.log('Share data cleared - resetting processed refs')
-      processedShareDataRef.current = null
-      isProcessingRef.current = false
-    }
-  }, [hasShareData])
-
   useEffect(() => {
     const processShareData = async () => {
-      const callStack = new Error().stack
-      console.log('🟡 useEffect triggered - Share intent state:', {
-        hasShareData,
-        hasText: !!shareData?.text,
-        hasFiles: !!shareData?.files?.length,
-        isProcessing,
-        processedHash: processedShareDataRef.current,
-        shareDataPreview: shareData?.text?.substring(0, 50),
-        timestamp: new Date().toISOString(),
-      })
-      console.log('📍 Call stack:', callStack?.split('\n').slice(0, 5).join('\n'))
-
       // Prevent processing if no share data
       if (!hasShareData) {
-        console.log('No share data, skipping...')
         return
       }
 
       if (shareData?.text) {
-        // Check if we've already processed this exact text
-        const shareDataHash = shareData.text.substring(0, 100) + shareData.text.length
-        console.log('🔍 Hash check - Current:', processedShareDataRef.current, 'New:', shareDataHash)
-
-        if (processedShareDataRef.current === shareDataHash) {
-          console.log('⏭️  Already processed this share data, skipping...')
-          return
-        }
-
-        // Check if already processing using ref (more reliable than state)
-        if (isProcessing || isProcessingRef.current) {
-          console.log('⏭️  Already processing (isProcessing=true or ref=true), skipping...')
-          return
-        }
-
-        // Mark as processing IMMEDIATELY to prevent race conditions
-        console.log('✅ Setting processed hash:', shareDataHash)
-        processedShareDataRef.current = shareDataHash
-        isProcessingRef.current = true
-        setIsProcessing(true)
-
         console.log('🟢 Processing share data:', shareData.text.substring(0, 100) + '...')
 
         // Parse the WhatsApp chat to extract participants and message count
@@ -126,8 +80,7 @@ export default function ChatsScreen() {
         console.log('🔵 About to add chat to database:', {
           chatId,
           participants: parsedData.participants,
-          timestamp: new Date().toISOString(),
-          shareDataHash
+          timestamp: new Date().toISOString()
         })
         await persistAddChat(newChat)
         console.log('🟢 Chat added to database successfully:', {
@@ -147,8 +100,6 @@ export default function ChatsScreen() {
               text: 'OK',
               onPress: () => {
                 clearShareData()
-                isProcessingRef.current = false
-                setIsProcessing(false)
               },
             },
           ]
@@ -156,24 +107,6 @@ export default function ChatsScreen() {
       } else if (hasShareData && shareData?.files && shareData.files.length > 0) {
         // Handle ZIP files from WhatsApp
         const zipFilePath = shareData.files![0]
-
-        // Check if we've already processed this exact file
-        if (processedShareDataRef.current === zipFilePath) {
-          console.log('⏭️  Already processed this ZIP file, skipping...')
-          return
-        }
-
-        // Check if already processing using ref (more reliable than state)
-        if (isProcessing || isProcessingRef.current) {
-          console.log('⏭️  Already processing ZIP (isProcessing=true or ref=true), skipping...')
-          return
-        }
-
-        // Mark as processing IMMEDIATELY to prevent race conditions
-        processedShareDataRef.current = zipFilePath
-        isProcessingRef.current = true
-        setIsProcessing(true)
-
         console.log('🟢 ZIP file detected:', zipFilePath)
 
         try {
@@ -210,8 +143,6 @@ export default function ChatsScreen() {
                   text: 'Great!',
                   onPress: () => {
                     clearShareData()
-                    isProcessingRef.current = false
-                    setIsProcessing(false)
                   },
                 },
               ]
@@ -226,16 +157,12 @@ export default function ChatsScreen() {
                   text: 'OK',
                   onPress: () => {
                     clearShareData()
-                    isProcessingRef.current = false
-                    setIsProcessing(false)
                   },
                 },
                 {
                   text: 'Try Manual Import',
                   onPress: () => {
                     clearShareData()
-                    isProcessingRef.current = false
-                    setIsProcessing(false)
                   },
                 },
               ]
@@ -251,8 +178,6 @@ export default function ChatsScreen() {
                 text: 'OK',
                 onPress: () => {
                   clearShareData()
-                  isProcessingRef.current = false
-                  setIsProcessing(false)
                 },
               },
             ]
@@ -269,8 +194,6 @@ export default function ChatsScreen() {
               text: 'OK',
               onPress: () => {
                 clearShareData()
-                isProcessingRef.current = false
-                setIsProcessing(false)
               },
             },
           ]
@@ -280,7 +203,7 @@ export default function ChatsScreen() {
 
     processShareData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasShareData, shareData])
+  }, [hasShareData])
 
   const handleManualImport = async () => {
     if (manualInput.trim()) {
