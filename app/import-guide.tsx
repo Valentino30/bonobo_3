@@ -4,7 +4,6 @@ import { ThemedButton } from '@/components/themed-button'
 import { StepList, Step } from '@/components/step-list'
 import { InfoCard } from '@/components/info-card'
 import { Badge } from '@/components/badge'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import { Platform, ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -59,10 +58,14 @@ export default function ImportGuideScreen() {
             <ThemedText style={[styles.intro, { color: theme.colors.primaryAccent }]}>
               Import your WhatsApp conversation to analyze your relationship dynamics and communication patterns.
             </ThemedText>
-            <View style={[styles.supportedPlatforms, { backgroundColor: theme.colors.backgroundSuccess }]}>
-              <MaterialCommunityIcons name="whatsapp" size={20} color="#25D366" />
-              <ThemedText style={[styles.supportedText, { color: theme.colors.successDark }]}>Currently supporting WhatsApp only</ThemedText>
-            </View>
+            <Badge
+              icon="whatsapp"
+              iconSize={20}
+              iconColor="#25D366"
+              text="Currently supporting WhatsApp only"
+              variant="success"
+              containerStyle={{ paddingHorizontal: 0, paddingBottom: 0 }}
+            />
           </View>
 
           {/* Platform Badge */}
@@ -139,20 +142,6 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     textAlign: 'center',
     marginBottom: 16,
-  },
-  supportedPlatforms: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    alignSelf: 'center',
-    gap: 8,
-  },
-  supportedText: {
-    fontSize: 13,
-    fontWeight: '500',
   },
   ctaButtonContainer: {
     paddingHorizontal: 24,
