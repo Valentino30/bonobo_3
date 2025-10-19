@@ -8,11 +8,12 @@ import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
 import { usePersistedChats } from '@/hooks/use-persisted-chats'
 import { useShareIntent } from '@/hooks/use-share-intent'
+import { useShareImport } from '@/hooks/use-share-import'
 import { type StoredChat } from '@/utils/chat-storage'
+import { createShareImportAlerts } from '@/utils/share-import-alerts'
 import { parseWhatsAppChat } from '@/utils/whatsapp-parser'
-import { extractWhatsAppZip } from '@/utils/zip-extractor'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Platform, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
@@ -25,6 +26,9 @@ export default function ChatsScreen() {
   const router = useRouter()
   const { showAlert, AlertComponent } = useCustomAlert()
   const hasReloadedRef = useRef(false)
+
+  // Create alert configurations (memoized to avoid recreating on each render)
+  const alerts = useMemo(() => createShareImportAlerts(clearShareData), [clearShareData])
 
   // Determine which platform to show instructions for
   const showPlatform = device || Platform.OS
@@ -54,156 +58,14 @@ export default function ChatsScreen() {
     }
   }, [hasShareData, shareData, clearShareData])
 
-  useEffect(() => {
-    const processShareData = async () => {
-      // Prevent processing if no share data
-      if (!hasShareData) {
-        return
-      }
-
-      if (shareData?.text) {
-        console.log('🟢 Processing share data:', shareData.text.substring(0, 100) + '...')
-
-        // Parse the WhatsApp chat to extract participants and message count
-        const parsedData = parseWhatsAppChat(shareData.text)
-        console.log('Parsed data:', parsedData)
-
-        // Process the shared WhatsApp chat
-        const chatId = Date.now().toString()
-        const newChat: StoredChat = {
-          id: chatId,
-          text: shareData.text,
-          timestamp: new Date(),
-          participants: parsedData.participants,
-          messageCount: parsedData.messageCount,
-        }
-        console.log('🔵 About to add chat to database:', {
-          chatId,
-          participants: parsedData.participants,
-          timestamp: new Date().toISOString()
-        })
-        await persistAddChat(newChat)
-        console.log('🟢 Chat added to database successfully:', {
-          chatId,
-          timestamp: new Date().toISOString()
-        })
-
-        // Show confirmation with more details
-        const participantNames =
-          parsedData.participants.length > 0 ? parsedData.participants.join(' & ') : 'Unknown participants'
-
-        showAlert(
-          'Chat Imported Successfully!',
-          `Chat between ${participantNames} with ${parsedData.messageCount} messages has been imported.`,
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                clearShareData()
-              },
-            },
-          ]
-        )
-      } else if (hasShareData && shareData?.files && shareData.files.length > 0) {
-        // Handle ZIP files from WhatsApp
-        const zipFilePath = shareData.files![0]
-        console.log('🟢 ZIP file detected:', zipFilePath)
-
-        try {
-          console.log('Attempting to extract ZIP file:', zipFilePath)
-
-          const extractedContent = await extractWhatsAppZip(zipFilePath)
-
-          if (extractedContent) {
-            console.log('Successfully extracted content from ZIP')
-
-            // Parse the extracted WhatsApp chat
-            const parsedData = parseWhatsAppChat(extractedContent)
-            console.log('Parsed ZIP data:', parsedData)
-
-            // Process the extracted WhatsApp chat
-            const newChat: StoredChat = {
-              id: Date.now().toString(),
-              text: extractedContent,
-              timestamp: new Date(),
-              participants: parsedData.participants,
-              messageCount: parsedData.messageCount,
-            }
-            await persistAddChat(newChat)
-
-            // Show confirmation
-            const participantNames =
-              parsedData.participants.length > 0 ? parsedData.participants.join(' & ') : 'Unknown participants'
-
-            showAlert(
-              'Chat Imported Successfully!',
-              `Chat between ${participantNames} with ${parsedData.messageCount} messages has been successfully imported.`,
-              [
-                {
-                  text: 'Great!',
-                  onPress: () => {
-                    clearShareData()
-                  },
-                },
-              ]
-            )
-          } else {
-            // Failed to extract content
-            showAlert(
-              'ZIP Extraction Failed',
-              'Could not extract chat content from the ZIP file. Please try exporting the chat as "Without Media" or use manual import.',
-              [
-                {
-                  text: 'OK',
-                  onPress: () => {
-                    clearShareData()
-                  },
-                },
-                {
-                  text: 'Try Manual Import',
-                  onPress: () => {
-                    clearShareData()
-                  },
-                },
-              ]
-            )
-          }
-        } catch (error) {
-          console.error('Error processing ZIP file:', error)
-          showAlert(
-            'ZIP Processing Error',
-            'An error occurred while processing the ZIP file. Please try again or use manual import.',
-            [
-              {
-                text: 'OK',
-                onPress: () => {
-                  clearShareData()
-                },
-              },
-            ]
-          )
-        }
-      } else if (hasShareData && (!shareData || !shareData.text)) {
-        // Handle case where share intent is detected but no text data
-        console.log('Share intent detected but no text data:', shareData)
-        showAlert(
-          'Import Error',
-          'No text data was found in the shared content. Please try exporting the chat again or use manual import.',
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                clearShareData()
-              },
-            },
-          ]
-        )
-      }
-    }
-
-    processShareData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasShareData])
+  // Process shared WhatsApp data with integrated alert handling
+  useShareImport({
+    shareData,
+    hasShareData,
+    clearShareData,
+    addChat: persistAddChat,
+    showAlert,
+  })
 
   const handleManualImport = async () => {
     if (manualInput.trim()) {
@@ -224,11 +86,8 @@ export default function ChatsScreen() {
       const participantNames =
         parsedData.participants.length > 0 ? parsedData.participants.join(' & ') : 'Unknown participants'
 
-      showAlert(
-        'Chat Imported Successfully!',
-        `Chat between ${participantNames} with ${parsedData.messageCount} messages has been imported.`,
-        [{ text: 'OK' }]
-      )
+      const config = alerts.manualImportSuccess(participantNames, parsedData.messageCount)
+      showAlert(config.title, config.message, config.buttons)
     }
   }
 
