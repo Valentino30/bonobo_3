@@ -2,14 +2,13 @@ import { useCustomAlert } from '@/components/custom-alert'
 import { DangerZoneCard } from '@/components/danger-zone-card'
 import { LabelValueCard } from '@/components/label-value-card'
 import { LoadingScreen } from '@/components/loading-screen'
+import { LoginCard } from '@/components/login-card'
 import { PasswordChangeCard } from '@/components/password-change-card'
 import { ScreenHeader } from '@/components/screen-header'
 import { ThemedButton } from '@/components/themed-button'
 import { ThemedText } from '@/components/themed-text'
-import { ThemedTextInput } from '@/components/themed-text-input'
 import { useTheme } from '@/contexts/theme-context'
 import { useProfile } from '@/hooks/use-profile'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
@@ -67,58 +66,14 @@ export default function ProfileScreen() {
             <ScreenHeader title="Login" style={styles.header} />
 
             {/* Login Form */}
-            <View style={styles.section}>
-              <View
-                style={[
-                  styles.loginCard,
-                  { backgroundColor: theme.colors.backgroundLight, borderColor: theme.colors.border },
-                ]}
-              >
-                <View style={[styles.loginHeader, { borderBottomColor: theme.colors.borderLight }]}>
-                  <MaterialCommunityIcons name="login-variant" size={18} color={theme.colors.primary} />
-                  <ThemedText style={[styles.loginHeaderText, { color: theme.colors.text }]}>Welcome Back</ThemedText>
-                </View>
-
-                <View style={styles.loginForm}>
-                  {/* Email Input */}
-                  <ThemedTextInput
-                    placeholder="Email address"
-                    value={loginEmail}
-                    onChangeText={setLoginEmail}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    keyboardType="email-address"
-                    icon="email-outline"
-                    size="large"
-                    fullWidth
-                  />
-
-                  {/* Password Input */}
-                  <ThemedTextInput
-                    placeholder="Password"
-                    value={loginPassword}
-                    onChangeText={setLoginPassword}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    password
-                    icon="lock-outline"
-                    size="large"
-                    fullWidth
-                  />
-
-                  {/* Login Button */}
-                  <ThemedButton
-                    title="Login"
-                    onPress={handleLogin}
-                    variant="primary"
-                    size="large"
-                    loading={isLoggingIn}
-                    disabled={isLoggingIn}
-                    fullWidth
-                  />
-                </View>
-              </View>
-            </View>
+            <LoginCard
+              email={loginEmail}
+              onEmailChange={setLoginEmail}
+              password={loginPassword}
+              onPasswordChange={setLoginPassword}
+              onLogin={handleLogin}
+              isLoading={isLoggingIn}
+            />
 
             {/* Info Text */}
             <View style={styles.section}>
@@ -208,26 +163,6 @@ const styles = StyleSheet.create({
   section: {
     paddingHorizontal: 24,
     marginBottom: 16,
-  },
-  loginCard: {
-    borderRadius: 16,
-    padding: 24,
-    borderWidth: 1,
-  },
-  loginHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 24,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-  },
-  loginHeaderText: {
-    fontSize: 16,
-    fontWeight: '400',
-  },
-  loginForm: {
-    gap: 16,
   },
   infoText: {
     fontSize: 14,
