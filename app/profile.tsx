@@ -1,4 +1,5 @@
 import { useCustomAlert } from '@/components/custom-alert'
+import { LabelValueCard } from '@/components/label-value-card'
 import { LoadingScreen } from '@/components/loading-screen'
 import { ScreenHeader } from '@/components/screen-header'
 import { ThemedButton } from '@/components/themed-button'
@@ -144,17 +145,7 @@ export default function ProfileScreen() {
           <ScreenHeader title="My Profile" style={styles.header} />
 
           {/* Email Section */}
-          <View style={styles.section}>
-            <View
-              style={[styles.card, { backgroundColor: theme.colors.backgroundLight, borderColor: theme.colors.border }]}
-            >
-              <View style={styles.cardHeader}>
-                <MaterialCommunityIcons name="email-outline" size={20} color={theme.colors.primary} />
-                <ThemedText style={[styles.cardLabel, { color: theme.colors.textTertiary }]}>Email</ThemedText>
-              </View>
-              <ThemedText style={[styles.cardValue, { color: theme.colors.text }]}>{email}</ThemedText>
-            </View>
-          </View>
+          <LabelValueCard icon="email-outline" label="Email" value={email} />
 
           {/* Password Change Section */}
           <View style={styles.section}>
@@ -302,26 +293,6 @@ const styles = StyleSheet.create({
   section: {
     paddingHorizontal: 24,
     marginBottom: 16,
-  },
-  card: {
-    borderRadius: 16,
-    padding: 20,
-    borderWidth: 1,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 8,
-  },
-  cardLabel: {
-    fontSize: 13,
-    fontWeight: '500',
-    letterSpacing: 0.5,
-  },
-  cardValue: {
-    fontSize: 16,
-    fontWeight: '400',
   },
   loginCard: {
     borderRadius: 16,
