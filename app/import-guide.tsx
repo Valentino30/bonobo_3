@@ -2,6 +2,7 @@ import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { ThemedButton } from '@/components/themed-button'
 import { StepList, Step } from '@/components/step-list'
+import { InfoCard } from '@/components/info-card'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import { Platform, ScrollView, StyleSheet, View } from 'react-native'
@@ -75,16 +76,12 @@ export default function ImportGuideScreen() {
           <StepList title="Follow these steps:" steps={steps} />
 
           {/* Privacy Notice */}
-          <View style={[styles.privacySection, { backgroundColor: theme.colors.backgroundInfo, borderColor: theme.colors.primaryLighter }]}>
-            <View style={styles.privacyHeader}>
-              <MaterialCommunityIcons name="shield-check" size={24} color={theme.colors.primary} />
-              <ThemedText style={[styles.privacyTitle, { color: theme.colors.primary }]}>Your Privacy Matters</ThemedText>
-            </View>
-            <ThemedText style={[styles.privacyText, { color: theme.colors.primaryDark }]}>
-              All chat data is stored securely on your device. We never upload your conversations to our servers. AI
-              analysis is performed using encrypted requests.
-            </ThemedText>
-          </View>
+          <InfoCard
+            icon="shield-check"
+            title="Your Privacy Matters"
+            description="All chat data is stored securely on your device. We never upload your conversations to our servers. AI analysis is performed using encrypted requests."
+            variant="info"
+          />
 
           {/* CTA Button */}
           <View style={styles.ctaButtonContainer}>
@@ -174,27 +171,6 @@ const styles = StyleSheet.create({
   platformBadgeText: {
     fontSize: 13,
     fontWeight: '500',
-  },
-  privacySection: {
-    marginHorizontal: 24,
-    marginTop: 16,
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-  },
-  privacyHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  privacyTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginLeft: 8,
-  },
-  privacyText: {
-    fontSize: 14,
-    lineHeight: 20,
   },
   ctaButtonContainer: {
     paddingHorizontal: 24,
