@@ -1,6 +1,6 @@
-import { BackButton } from '@/components/back-button'
 import { useCustomAlert } from '@/components/custom-alert'
 import { LoadingScreen } from '@/components/loading-screen'
+import { ScreenHeader } from '@/components/screen-header'
 import { ThemedButton } from '@/components/themed-button'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedTextInput } from '@/components/themed-text-input'
@@ -61,12 +61,7 @@ export default function ProfileScreen() {
             keyboardShouldPersistTaps="handled"
           >
             {/* Header with Back Button */}
-            <View style={styles.header}>
-              <BackButton />
-              <ThemedText type="title" style={[styles.title, { color: theme.colors.text }]}>
-                Login
-              </ThemedText>
-            </View>
+            <ScreenHeader title="Login" style={styles.header} />
 
             {/* Login Form */}
             <View style={styles.section}>
@@ -146,12 +141,7 @@ export default function ProfileScreen() {
           keyboardShouldPersistTaps="handled"
         >
           {/* Header with Back Button */}
-          <View style={styles.header}>
-            <BackButton />
-            <ThemedText type="title" style={[styles.title, { color: theme.colors.text }]}>
-              My Profile
-            </ThemedText>
-          </View>
+          <ScreenHeader title="My Profile" style={styles.header} />
 
           {/* Email Section */}
           <View style={styles.section}>
@@ -305,21 +295,9 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
     paddingHorizontal: 16,
     paddingTop: 20,
     paddingBottom: 32,
-    gap: 8,
-  },
-  backButton: {
-    padding: 0,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: '300',
-    letterSpacing: -0.5,
-    lineHeight: 40,
   },
   section: {
     paddingHorizontal: 24,

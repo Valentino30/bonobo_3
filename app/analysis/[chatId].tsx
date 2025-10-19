@@ -1,11 +1,11 @@
 import { AnalysisLoading } from '@/components/analysis-loading'
-import { BackButton } from '@/components/back-button'
 import { ComparisonCard } from '@/components/comparison-card'
 import { useCustomAlert } from '@/components/custom-alert'
 import { InsightCard } from '@/components/insight-card'
 import { LockedInsightCard } from '@/components/locked-insight-card'
 import { PaymentAuthScreen } from '@/components/payment-auth-screen'
 import { Paywall } from '@/components/paywall'
+import { ScreenHeader } from '@/components/screen-header'
 import { SimpleStatCard } from '@/components/simple-stat-card'
 import { ThemedButton } from '@/components/themed-button'
 import { ThemedTabButton } from '@/components/themed-tab-button'
@@ -500,14 +500,7 @@ export default function ChatAnalysisScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]} edges={['top']}>
       {/* Fixed Header */}
-      <View style={[styles.header, { backgroundColor: theme.colors.background }]}>
-        <View style={styles.headerTop}>
-          <BackButton />
-          <ThemedText type="title" style={[styles.title, { color: theme.colors.text }]}>
-            Chat Analysis
-          </ThemedText>
-        </View>
-
+      <ScreenHeader title="Chat Analysis" style={[styles.header, { backgroundColor: theme.colors.background }]}>
         {/* Tab Navigation */}
         <View
           style={[
@@ -528,7 +521,7 @@ export default function ChatAnalysisScreen() {
             onPress={() => handleTabChange('insights')}
           />
         </View>
-      </View>
+      </ScreenHeader>
 
       {/* Custom Alert */}
       <AlertComponent />
@@ -920,15 +913,6 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 12,
   },
-  headerTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 16,
-  },
-  backButton: {
-    padding: 0,
-  },
   scrollView: {
     flex: 1,
   },
@@ -939,11 +923,6 @@ const styles = StyleSheet.create({
   content: {
     padding: 20,
     paddingTop: 0,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: '300',
-    letterSpacing: -0.5,
   },
   tabContainer: {
     flexDirection: 'row',
