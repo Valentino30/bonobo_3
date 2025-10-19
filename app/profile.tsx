@@ -1,175 +1,40 @@
-import { useEffect, useState } from 'react'
-import {
-  View,
-  ScrollView,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { useRouter } from 'expo-router'
-import { ThemedText } from '@/components/themed-text'
-import { ThemedButton } from '@/components/themed-button'
-import { ThemedTextInput } from '@/components/themed-text-input'
 import { BackButton } from '@/components/back-button'
-import { LoadingScreen } from '@/components/loading-screen'
-import { AuthService } from '@/utils/auth-service'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useCustomAlert } from '@/components/custom-alert'
+import { LoadingScreen } from '@/components/loading-screen'
+import { ThemedButton } from '@/components/themed-button'
+import { ThemedText } from '@/components/themed-text'
+import { ThemedTextInput } from '@/components/themed-text-input'
 import { useTheme } from '@/contexts/theme-context'
+import { useProfile } from '@/hooks/use-profile'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 export default function ProfileScreen() {
   const theme = useTheme()
-  const router = useRouter()
-  const [email, setEmail] = useState('')
-  const [isLoading, setIsLoading] = useState(true)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const { showAlert, AlertComponent } = useCustomAlert()
 
-  // Login state
-  const [loginEmail, setLoginEmail] = useState('')
-  const [loginPassword, setLoginPassword] = useState('')
-  const [isLoggingIn, setIsLoggingIn] = useState(false)
-
-  // Password change state
-  const [showPasswordChange, setShowPasswordChange] = useState(false)
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [isChangingPassword, setIsChangingPassword] = useState(false)
-
-  // Load user profile
-  useEffect(() => {
-    loadProfile()
-  }, [])
-
-  const loadProfile = async () => {
-    setIsLoading(true)
-    const user = await AuthService.getCurrentUser()
-
-    if (!user || !user.email) {
-      // Not authenticated - show login screen
-      setIsAuthenticated(false)
-      setIsLoading(false)
-      return
-    }
-
-    setEmail(user.email)
-    setIsAuthenticated(true)
-    setIsLoading(false)
-  }
-
-  const handleLogin = async () => {
-    if (!loginEmail || !loginPassword) {
-      showAlert('Missing Information', 'Please enter your email and password', [{ text: 'OK' }])
-      return
-    }
-
-    setIsLoggingIn(true)
-
-    const result = await AuthService.signInWithEmail(loginEmail, loginPassword)
-
-    setIsLoggingIn(false)
-
-    if (result.success) {
-      // Successfully logged in - redirect to chats and force reload
-      router.replace('/chats?reload=true')
-    } else {
-      showAlert('Login Failed', result.error || 'Failed to login', [{ text: 'OK' }])
-    }
-  }
-
-  const handleChangePassword = async () => {
-    if (!newPassword || !confirmPassword) {
-      showAlert('Missing Information', 'Please fill in all password fields', [{ text: 'OK' }])
-      return
-    }
-
-    if (newPassword.length < 8) {
-      showAlert('Password Too Short', 'Password must be at least 8 characters', [{ text: 'OK' }])
-      return
-    }
-
-    if (newPassword !== confirmPassword) {
-      showAlert('Password Mismatch', 'Passwords do not match', [{ text: 'OK' }])
-      return
-    }
-
-    setIsChangingPassword(true)
-
-    const result = await AuthService.updatePassword(newPassword)
-
-    setIsChangingPassword(false)
-
-    if (result.success) {
-      showAlert('Password Updated', 'Your password has been updated successfully', [{ text: 'Great!' }])
-      setShowPasswordChange(false)
-      setNewPassword('')
-      setConfirmPassword('')
-    } else {
-      showAlert('Update Failed', result.error || 'Failed to update password', [{ text: 'OK' }])
-    }
-  }
-
-  const handleLogout = () => {
-    showAlert('Logout', 'Are you sure you want to logout?', [
-      { text: 'Cancel' },
-      {
-        text: 'Logout',
-        onPress: async () => {
-          const result = await AuthService.signOut()
-          if (result.success) {
-            // Redirect to chats and force reload (will show empty state since user logged out)
-            router.replace('/chats?reload=true')
-          } else {
-            showAlert('Error', result.error || 'Failed to logout', [{ text: 'OK' }])
-          }
-        },
-      },
-    ])
-  }
-
-  const handleDeleteAccount = () => {
-    showAlert(
-      'Delete Account',
-      'This will permanently delete your account and ALL associated data including chats, purchases, and insights. This action CANNOT be undone.',
-      [
-        { text: 'Cancel' },
-        {
-          text: 'Delete',
-          onPress: () => {
-            // Add delay before showing second confirmation to allow first alert to close
-            setTimeout(() => {
-              showAlert(
-                'Are You Absolutely Sure?',
-                'This is your last chance to cancel. All your data will be permanently deleted.',
-                [
-                  { text: 'Cancel' },
-                  {
-                    text: 'Delete Everything',
-                    onPress: async () => {
-                      setIsLoading(true)
-                      const result = await AuthService.deleteAccount()
-                      setIsLoading(false)
-
-                      if (result.success) {
-                        showAlert(
-                          'Account Deleted',
-                          'Your account and all data have been permanently deleted.',
-                          [{ text: 'OK', onPress: () => router.replace('/chats?reload=true') }]
-                        )
-                      } else {
-                        showAlert('Error', result.error || 'Failed to delete account', [{ text: 'OK' }])
-                      }
-                    },
-                  },
-                ]
-              )
-            }, 300)
-          },
-        },
-      ]
-    )
-  }
+  const {
+    email,
+    isLoading,
+    isAuthenticated,
+    loginEmail,
+    setLoginEmail,
+    loginPassword,
+    setLoginPassword,
+    isLoggingIn,
+    showPasswordChange,
+    setShowPasswordChange,
+    newPassword,
+    setNewPassword,
+    confirmPassword,
+    setConfirmPassword,
+    isChangingPassword,
+    handleLogin,
+    handleChangePassword,
+    handleLogout,
+    handleDeleteAccount,
+  } = useProfile({ onShowAlert: showAlert })
 
   if (isLoading) {
     return (
@@ -195,70 +60,75 @@ export default function ProfileScreen() {
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
-          {/* Header with Back Button */}
-          <View style={styles.header}>
-            <BackButton />
-            <ThemedText type="title" style={[styles.title, { color: theme.colors.text }]}>
-              Login
-            </ThemedText>
-          </View>
+            {/* Header with Back Button */}
+            <View style={styles.header}>
+              <BackButton />
+              <ThemedText type="title" style={[styles.title, { color: theme.colors.text }]}>
+                Login
+              </ThemedText>
+            </View>
 
-          {/* Login Form */}
-          <View style={styles.section}>
-            <View style={[styles.loginCard, { backgroundColor: theme.colors.backgroundLight, borderColor: theme.colors.border }]}>
-              <View style={[styles.loginHeader, { borderBottomColor: theme.colors.borderLight }]}>
-                <MaterialCommunityIcons name="login-variant" size={18} color={theme.colors.primary} />
-                <ThemedText style={[styles.loginHeaderText, { color: theme.colors.text }]}>Welcome Back</ThemedText>
-              </View>
+            {/* Login Form */}
+            <View style={styles.section}>
+              <View
+                style={[
+                  styles.loginCard,
+                  { backgroundColor: theme.colors.backgroundLight, borderColor: theme.colors.border },
+                ]}
+              >
+                <View style={[styles.loginHeader, { borderBottomColor: theme.colors.borderLight }]}>
+                  <MaterialCommunityIcons name="login-variant" size={18} color={theme.colors.primary} />
+                  <ThemedText style={[styles.loginHeaderText, { color: theme.colors.text }]}>Welcome Back</ThemedText>
+                </View>
 
-              <View style={styles.loginForm}>
-                {/* Email Input */}
-                <ThemedTextInput
-                  placeholder="Email address"
-                  value={loginEmail}
-                  onChangeText={setLoginEmail}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  keyboardType="email-address"
-                  icon="email-outline"
-                  size="large"
-                  fullWidth
-                />
+                <View style={styles.loginForm}>
+                  {/* Email Input */}
+                  <ThemedTextInput
+                    placeholder="Email address"
+                    value={loginEmail}
+                    onChangeText={setLoginEmail}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    keyboardType="email-address"
+                    icon="email-outline"
+                    size="large"
+                    fullWidth
+                  />
 
-                {/* Password Input */}
-                <ThemedTextInput
-                  placeholder="Password"
-                  value={loginPassword}
-                  onChangeText={setLoginPassword}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  password
-                  icon="lock-outline"
-                  size="large"
-                  fullWidth
-                />
+                  {/* Password Input */}
+                  <ThemedTextInput
+                    placeholder="Password"
+                    value={loginPassword}
+                    onChangeText={setLoginPassword}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    password
+                    icon="lock-outline"
+                    size="large"
+                    fullWidth
+                  />
 
-                {/* Login Button */}
-                <ThemedButton
-                  title="Login"
-                  onPress={handleLogin}
-                  variant="primary"
-                  size="large"
-                  loading={isLoggingIn}
-                  disabled={isLoggingIn}
-                  fullWidth
-                />
+                  {/* Login Button */}
+                  <ThemedButton
+                    title="Login"
+                    onPress={handleLogin}
+                    variant="primary"
+                    size="large"
+                    loading={isLoggingIn}
+                    disabled={isLoggingIn}
+                    fullWidth
+                  />
+                </View>
               </View>
             </View>
-          </View>
 
-          {/* Info Text */}
-          <View style={styles.section}>
-            <ThemedText style={[styles.infoText, { color: theme.colors.textTertiary }]}>
-              Don&apos;t have an account? Create one after making a purchase to save your insights.
-            </ThemedText>
-          </View>
-        </ScrollView>
+            {/* Info Text */}
+            <View style={styles.section}>
+              <ThemedText style={[styles.infoText, { color: theme.colors.textTertiary }]}>
+                Don&apos;t have an account? Create one after making a purchase to save your insights.
+              </ThemedText>
+            </View>
+          </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
     )
@@ -268,143 +138,154 @@ export default function ProfileScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <AlertComponent />
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardAvoidingView}
-      >
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.keyboardAvoidingView}>
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-        {/* Header with Back Button */}
-        <View style={styles.header}>
-          <BackButton />
-          <ThemedText type="title" style={[styles.title, { color: theme.colors.text }]}>
-            My Profile
-          </ThemedText>
-        </View>
-
-        {/* Email Section */}
-        <View style={styles.section}>
-          <View style={[styles.card, { backgroundColor: theme.colors.backgroundLight, borderColor: theme.colors.border }]}>
-            <View style={styles.cardHeader}>
-              <MaterialCommunityIcons name="email-outline" size={20} color={theme.colors.primary} />
-              <ThemedText style={[styles.cardLabel, { color: theme.colors.textTertiary }]}>Email</ThemedText>
-            </View>
-            <ThemedText style={[styles.cardValue, { color: theme.colors.text }]}>{email}</ThemedText>
+          {/* Header with Back Button */}
+          <View style={styles.header}>
+            <BackButton />
+            <ThemedText type="title" style={[styles.title, { color: theme.colors.text }]}>
+              My Profile
+            </ThemedText>
           </View>
-        </View>
 
-        {/* Password Change Section */}
-        <View style={styles.section}>
-          {!showPasswordChange ? (
+          {/* Email Section */}
+          <View style={styles.section}>
+            <View
+              style={[styles.card, { backgroundColor: theme.colors.backgroundLight, borderColor: theme.colors.border }]}
+            >
+              <View style={styles.cardHeader}>
+                <MaterialCommunityIcons name="email-outline" size={20} color={theme.colors.primary} />
+                <ThemedText style={[styles.cardLabel, { color: theme.colors.textTertiary }]}>Email</ThemedText>
+              </View>
+              <ThemedText style={[styles.cardValue, { color: theme.colors.text }]}>{email}</ThemedText>
+            </View>
+          </View>
+
+          {/* Password Change Section */}
+          <View style={styles.section}>
+            {!showPasswordChange ? (
+              <ThemedButton
+                title="Change Password"
+                onPress={() => setShowPasswordChange(true)}
+                variant="secondary"
+                size="large"
+                icon="lock-outline"
+                iconPosition="left"
+                align="left"
+                fullWidth
+              />
+            ) : (
+              <View
+                style={[
+                  styles.passwordCard,
+                  { backgroundColor: theme.colors.backgroundLight, borderColor: theme.colors.border },
+                ]}
+              >
+                <View style={[styles.passwordHeader, { borderBottomColor: theme.colors.borderLight }]}>
+                  <MaterialCommunityIcons name="lock-outline" size={18} color={theme.colors.primary} />
+                  <ThemedText style={[styles.passwordHeaderText, { color: theme.colors.text }]}>
+                    Update Password
+                  </ThemedText>
+                </View>
+
+                <View style={styles.passwordForm}>
+                  {/* New Password */}
+                  <ThemedTextInput
+                    placeholder="New password (min. 8 characters)"
+                    value={newPassword}
+                    onChangeText={setNewPassword}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    password
+                    icon="lock-outline"
+                    fullWidth
+                  />
+
+                  {/* Confirm Password */}
+                  <ThemedTextInput
+                    placeholder="Confirm new password"
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    password
+                    icon="lock-check-outline"
+                    fullWidth
+                  />
+
+                  {/* Buttons */}
+                  <View style={styles.passwordButtons}>
+                    <ThemedButton
+                      title="Cancel"
+                      onPress={() => {
+                        setShowPasswordChange(false)
+                        setNewPassword('')
+                        setConfirmPassword('')
+                      }}
+                      variant="secondary"
+                      size="medium"
+                      disabled={isChangingPassword}
+                      style={{ flex: 1 }}
+                    />
+                    <ThemedButton
+                      title="Update"
+                      onPress={handleChangePassword}
+                      variant="primary"
+                      size="medium"
+                      loading={isChangingPassword}
+                      disabled={isChangingPassword}
+                      style={{ flex: 1 }}
+                    />
+                  </View>
+                </View>
+              </View>
+            )}
+          </View>
+
+          {/* Logout Button */}
+          <View style={styles.section}>
             <ThemedButton
-              title="Change Password"
-              onPress={() => setShowPasswordChange(true)}
+              title="Logout"
+              onPress={handleLogout}
               variant="secondary"
               size="large"
-              icon="lock-outline"
+              icon="logout-variant"
               iconPosition="left"
               align="left"
               fullWidth
             />
-          ) : (
-            <View style={[styles.passwordCard, { backgroundColor: theme.colors.backgroundLight, borderColor: theme.colors.border }]}>
-              <View style={[styles.passwordHeader, { borderBottomColor: theme.colors.borderLight }]}>
-                <MaterialCommunityIcons name="lock-outline" size={18} color={theme.colors.primary} />
-                <ThemedText style={[styles.passwordHeaderText, { color: theme.colors.text }]}>Update Password</ThemedText>
-              </View>
-
-              <View style={styles.passwordForm}>
-                {/* New Password */}
-                <ThemedTextInput
-                  placeholder="New password (min. 8 characters)"
-                  value={newPassword}
-                  onChangeText={setNewPassword}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  password
-                  icon="lock-outline"
-                  fullWidth
-                />
-
-                {/* Confirm Password */}
-                <ThemedTextInput
-                  placeholder="Confirm new password"
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  password
-                  icon="lock-check-outline"
-                  fullWidth
-                />
-
-                {/* Buttons */}
-                <View style={styles.passwordButtons}>
-                  <ThemedButton
-                    title="Cancel"
-                    onPress={() => {
-                      setShowPasswordChange(false)
-                      setNewPassword('')
-                      setConfirmPassword('')
-                    }}
-                    variant="secondary"
-                    size="medium"
-                    disabled={isChangingPassword}
-                    style={{ flex: 1 }}
-                  />
-                  <ThemedButton
-                    title="Update"
-                    onPress={handleChangePassword}
-                    variant="primary"
-                    size="medium"
-                    loading={isChangingPassword}
-                    disabled={isChangingPassword}
-                    style={{ flex: 1 }}
-                  />
-                </View>
-              </View>
-            </View>
-          )}
-        </View>
-
-        {/* Logout Button */}
-        <View style={styles.section}>
-          <ThemedButton
-            title="Logout"
-            onPress={handleLogout}
-            variant="secondary"
-            size="large"
-            icon="logout-variant"
-            iconPosition="left"
-            align="left"
-            fullWidth
-          />
-        </View>
-
-        {/* Delete Account Section */}
-        <View style={styles.section}>
-          <View style={[styles.dangerCard, { backgroundColor: theme.colors.backgroundDanger, borderColor: theme.colors.borderDanger }]}>
-            <View style={styles.dangerHeader}>
-              <MaterialCommunityIcons name="alert-circle-outline" size={20} color={theme.colors.textDanger} />
-              <ThemedText style={[styles.dangerTitle, { color: theme.colors.textDanger }]}>Danger Zone</ThemedText>
-            </View>
-            <ThemedText style={[styles.dangerDescription, { color: theme.colors.textSecondary }]}>
-              Permanently delete your account and all data. This cannot be undone.
-            </ThemedText>
-            <ThemedButton
-              title="Delete Account"
-              onPress={handleDeleteAccount}
-              variant="destructive"
-              size="medium"
-              fullWidth
-            />
           </View>
-        </View>
-      </ScrollView>
+
+          {/* Delete Account Section */}
+          <View style={styles.section}>
+            <View
+              style={[
+                styles.dangerCard,
+                { backgroundColor: theme.colors.backgroundDanger, borderColor: theme.colors.borderDanger },
+              ]}
+            >
+              <View style={styles.dangerHeader}>
+                <MaterialCommunityIcons name="alert-circle-outline" size={20} color={theme.colors.textDanger} />
+                <ThemedText style={[styles.dangerTitle, { color: theme.colors.textDanger }]}>Danger Zone</ThemedText>
+              </View>
+              <ThemedText style={[styles.dangerDescription, { color: theme.colors.textSecondary }]}>
+                Permanently delete your account and all data. This cannot be undone.
+              </ThemedText>
+              <ThemedButton
+                title="Delete Account"
+                onPress={handleDeleteAccount}
+                variant="destructive"
+                size="medium"
+                fullWidth
+              />
+            </View>
+          </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   )
