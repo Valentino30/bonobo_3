@@ -1,47 +1,23 @@
+import { Badge } from '@/components/badge'
+import { InfoCard } from '@/components/info-card'
+import { StepList } from '@/components/step-list'
+import { ThemedButton } from '@/components/themed-button'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
-import { ThemedButton } from '@/components/themed-button'
-import { StepList, Step } from '@/components/step-list'
-import { InfoCard } from '@/components/info-card'
-import { Badge } from '@/components/badge'
+import { IMPORT_GUIDE_STEPS } from '@/constants/import-guide'
+import { useTheme } from '@/contexts/theme-context'
 import { useRouter } from 'expo-router'
 import { Platform, ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useTheme } from '@/contexts/theme-context'
 
 export default function ImportGuideScreen() {
-  const theme = useTheme()
   const isIOS = Platform.OS === 'ios'
   const router = useRouter()
+  const theme = useTheme()
 
   const handleGotIt = () => {
     router.back()
   }
-
-  const steps: Step[] = [
-    {
-      title: 'Open WhatsApp',
-      description: 'Open the WhatsApp app',
-    },
-    {
-      title: 'Open Chat',
-      description: 'Enter the chat you want to analyze',
-    },
-    {
-      title: 'Export Chat',
-      description: isIOS
-        ? 'Tap on the contact or group name at the top of the chat, scroll all the way down and tap "Export Chat"'
-        : 'Tap the three dots (⋮) and select "More" → "Export Chat"',
-    },
-    {
-      title: 'Without Media',
-      description: 'Choose "Without Media" when prompted (media files are not needed for analysis)',
-    },
-    {
-      title: 'Share to Bonobo',
-      description: 'Select "Bonobo" from the share menu to import the chat',
-    },
-  ]
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.backgroundSuccessLight }]} edges={['top']}>
@@ -50,7 +26,9 @@ export default function ImportGuideScreen() {
           {/* Title */}
           <View style={styles.titleSection}>
             <ThemedText style={[styles.title, { color: theme.colors.darkOverlay }]}>How to Import</ThemedText>
-            <ThemedText style={[styles.subtitle, { color: theme.colors.primary }]}>WhatsApp Chat Export Guide</ThemedText>
+            <ThemedText style={[styles.subtitle, { color: theme.colors.primary }]}>
+              WhatsApp Chat Export Guide
+            </ThemedText>
           </View>
 
           {/* Introduction */}
@@ -76,7 +54,7 @@ export default function ImportGuideScreen() {
           />
 
           {/* Steps */}
-          <StepList title="Follow these steps:" steps={steps} />
+          <StepList title="Follow these steps:" steps={IMPORT_GUIDE_STEPS} />
 
           {/* Privacy Notice */}
           <InfoCard
