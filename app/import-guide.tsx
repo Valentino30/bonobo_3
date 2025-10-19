@@ -1,6 +1,7 @@
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { ThemedButton } from '@/components/themed-button'
+import { StepList, Step } from '@/components/step-list'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import { Platform, ScrollView, StyleSheet, View } from 'react-native'
@@ -15,6 +16,31 @@ export default function ImportGuideScreen() {
   const handleGotIt = () => {
     router.back()
   }
+
+  const steps: Step[] = [
+    {
+      title: 'Open WhatsApp',
+      description: 'Open the WhatsApp app',
+    },
+    {
+      title: 'Open Chat',
+      description: 'Enter the chat you want to analyze',
+    },
+    {
+      title: 'Export Chat',
+      description: isIOS
+        ? 'Tap on the contact or group name at the top of the chat, scroll all the way down and tap "Export Chat"'
+        : 'Tap the three dots (⋮) and select "More" → "Export Chat"',
+    },
+    {
+      title: 'Without Media',
+      description: 'Choose "Without Media" when prompted (media files are not needed for analysis)',
+    },
+    {
+      title: 'Share to Bonobo',
+      description: 'Select "Bonobo" from the share menu to import the chat',
+    },
+  ]
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.backgroundSuccessLight }]} edges={['top']}>
@@ -46,72 +72,7 @@ export default function ImportGuideScreen() {
           </View>
 
           {/* Steps */}
-          <View style={styles.stepsContainer}>
-            <ThemedText style={[styles.sectionTitle, { color: theme.colors.darkOverlay }]}>Follow these steps:</ThemedText>
-
-            {/* Step 1 */}
-            <View style={styles.step}>
-              <View style={[styles.stepNumber, { backgroundColor: theme.colors.primary }]}>
-                <ThemedText style={[styles.stepNumberText, { color: theme.colors.textWhite }]}>1</ThemedText>
-              </View>
-              <View style={styles.stepContent}>
-                <ThemedText style={[styles.stepTitle, { color: theme.colors.darkOverlay }]}>Open WhatsApp</ThemedText>
-                <ThemedText style={[styles.stepDescription, { color: theme.colors.primaryDark }]}>Open the WhatsApp app</ThemedText>
-              </View>
-            </View>
-
-            {/* Step 2 */}
-            <View style={styles.step}>
-              <View style={[styles.stepNumber, { backgroundColor: theme.colors.primary }]}>
-                <ThemedText style={[styles.stepNumberText, { color: theme.colors.textWhite }]}>2</ThemedText>
-              </View>
-              <View style={styles.stepContent}>
-                <ThemedText style={[styles.stepTitle, { color: theme.colors.darkOverlay }]}>Open Chat</ThemedText>
-                <ThemedText style={[styles.stepDescription, { color: theme.colors.primaryDark }]}>Enter the chat you want to analyze</ThemedText>
-              </View>
-            </View>
-
-            {/* Step 3 */}
-            <View style={styles.step}>
-              <View style={[styles.stepNumber, { backgroundColor: theme.colors.primary }]}>
-                <ThemedText style={[styles.stepNumberText, { color: theme.colors.textWhite }]}>3</ThemedText>
-              </View>
-              <View style={styles.stepContent}>
-                <ThemedText style={[styles.stepTitle, { color: theme.colors.darkOverlay }]}>Export Chat</ThemedText>
-                <ThemedText style={[styles.stepDescription, { color: theme.colors.primaryDark }]}>
-                  {isIOS
-                    ? 'Tap on the contact or group name at the top of the chat, scroll all the way down and tap "Export Chat"'
-                    : 'Tap the three dots (⋮) and select "More" → "Export Chat"'}
-                </ThemedText>
-              </View>
-            </View>
-
-            {/* Step 4 */}
-            <View style={styles.step}>
-              <View style={[styles.stepNumber, { backgroundColor: theme.colors.primary }]}>
-                <ThemedText style={[styles.stepNumberText, { color: theme.colors.textWhite }]}>4</ThemedText>
-              </View>
-              <View style={styles.stepContent}>
-                <ThemedText style={[styles.stepTitle, { color: theme.colors.darkOverlay }]}>Without Media</ThemedText>
-                <ThemedText style={[styles.stepDescription, { color: theme.colors.primaryDark }]}>
-                  Choose &quot;Without Media&quot; when prompted (media files are not needed for analysis)
-                </ThemedText>
-              </View>
-            </View>
-
-            {/* Step 5 */}
-            <View style={styles.step}>
-              <View style={[styles.stepNumber, { backgroundColor: theme.colors.primary }]}>
-                <ThemedText style={[styles.stepNumberText, { color: theme.colors.textWhite }]}>5</ThemedText>
-              </View>
-              <View style={styles.stepContent}>
-                <ThemedText style={[styles.stepTitle, { color: theme.colors.darkOverlay }]}>Share to Bonobo</ThemedText>
-                <ThemedText style={[styles.stepDescription, { color: theme.colors.primaryDark }]}>
-                  Select &quot;Bonobo&quot; from the share menu to import the chat
-                </ThemedText>
-              </View>
-            </View>
-          </View>
+          <StepList title="Follow these steps:" steps={steps} />
 
           {/* Privacy Notice */}
           <View style={[styles.privacySection, { backgroundColor: theme.colors.backgroundInfo, borderColor: theme.colors.primaryLighter }]}>
@@ -213,45 +174,6 @@ const styles = StyleSheet.create({
   platformBadgeText: {
     fontSize: 13,
     fontWeight: '500',
-  },
-  stepsContainer: {
-    paddingHorizontal: 24,
-    paddingTop: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 16,
-  },
-  step: {
-    flexDirection: 'row',
-    marginBottom: 24,
-    alignItems: 'flex-start',
-  },
-  stepNumber: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 16,
-  },
-  stepNumberText: {
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  stepContent: {
-    flex: 1,
-    paddingTop: 4,
-  },
-  stepTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  stepDescription: {
-    fontSize: 14,
-    lineHeight: 20,
   },
   privacySection: {
     marginHorizontal: 24,
