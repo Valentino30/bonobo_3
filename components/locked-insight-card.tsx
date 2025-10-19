@@ -70,6 +70,7 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: 12,
     marginBottom: 16,
+    minHeight: 280,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 3,
