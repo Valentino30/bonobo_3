@@ -1,8 +1,8 @@
 import { ComparisonCard } from '@/components/comparison-card'
 import { SimpleStatCard } from '@/components/simple-stat-card'
+import { OVERVIEW_CARDS } from '@/constants/analysis-overview'
 import { useTheme } from '@/contexts/theme-context'
 import { type ChatAnalysisData } from '@/hooks/use-chat-analysis'
-import { formatResponseTime, getInitiationDescription, getInterestDescription } from '@/utils/analysis-formatters'
 import { StyleSheet, View } from 'react-native'
 
 type AnalysisOverviewProps = {
@@ -18,100 +18,33 @@ export function AnalysisOverview({ analysis }: AnalysisOverviewProps) {
 
   return (
     <View style={styles.container}>
-      {/* Total Messages Card */}
-      <SimpleStatCard title="Total Messages" icon="💬" value={analysis.totalMessages} />
+      {OVERVIEW_CARDS.map((card) => {
+        // Check if card should be shown
+        if (card.shouldShow && !card.shouldShow(analysis)) {
+          return null
+        }
 
-      {/* Messages per Participant Card */}
-      <ComparisonCard
-        title="Messages per Participant"
-        icon="👥"
-        participants={[
-          {
-            name: analysis.participant1.name,
-            value: analysis.participant1.messageCount,
-          },
-          {
-            name: analysis.participant2.name,
-            value: analysis.participant2.messageCount,
-          },
-        ]}
-      />
+        // Render simple stat card
+        if (card.type === 'simple' && card.getValue) {
+          return <SimpleStatCard key={card.id} title={card.title} icon={card.icon} value={card.getValue(analysis)} />
+        }
 
-      {/* Response Time Card */}
-      <ComparisonCard
-        title="Average Response Time"
-        icon="⏱️"
-        participants={[
-          {
-            name: analysis.participant1.name,
-            value: formatResponseTime(analysis.participant1.averageResponseTime),
-          },
-          {
-            name: analysis.participant2.name,
-            value: formatResponseTime(analysis.participant2.averageResponseTime),
-          },
-        ]}
-      />
+        // Render comparison card
+        if (card.type === 'comparison' && card.getParticipants) {
+          const colors = { info: theme.colors.info, error: theme.colors.error }
+          return (
+            <ComparisonCard
+              key={card.id}
+              title={card.title}
+              icon={card.icon}
+              description={card.description?.(analysis)}
+              participants={card.getParticipants(analysis, colors)}
+            />
+          )
+        }
 
-      {/* Average Message Length Card */}
-      <ComparisonCard
-        title="Average Message Length"
-        icon="📝"
-        participants={[
-          {
-            name: analysis.participant1.name,
-            value: `${analysis.participant1.averageMessageLength} chars`,
-          },
-          {
-            name: analysis.participant2.name,
-            value: `${analysis.participant2.averageMessageLength} chars`,
-          },
-        ]}
-      />
-
-      {/* Initiation Rate Card */}
-      {analysis.participant1.initiationRate !== undefined && (
-        <ComparisonCard
-          title="Initiation Rate"
-          icon="🚀"
-          description={getInitiationDescription(analysis)}
-          participants={[
-            {
-              name: analysis.participant1.name,
-              value: `${analysis.participant1.initiationRate}%`,
-              progressValue: analysis.participant1.initiationRate,
-              progressColor: theme.colors.info,
-            },
-            {
-              name: analysis.participant2.name,
-              value: `${analysis.participant2.initiationRate ?? 0}%`,
-              progressValue: analysis.participant2.initiationRate ?? 0,
-              progressColor: theme.colors.error,
-            },
-          ]}
-        />
-      )}
-
-      {/* Interest Level Card */}
-      <ComparisonCard
-        title="Interest Level"
-        icon="❤️"
-        description={getInterestDescription(analysis)}
-        participants={[
-          {
-            name: analysis.participant1.name,
-            value: `${analysis.participant1.interestLevel}%`,
-            progressValue: analysis.participant1.interestLevel,
-            progressColor: theme.colors.info,
-          },
-          {
-            name: analysis.participant2.name,
-            value: `${analysis.participant2.interestLevel}%`,
-            progressValue: analysis.participant2.interestLevel,
-            progressColor: theme.colors.error,
-          },
-        ]}
-      />
+        return null
+      })}
     </View>
   )
 }
