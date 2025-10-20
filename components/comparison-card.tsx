@@ -1,5 +1,6 @@
 import { AnimatedCard } from '@/components/animated-card'
 import { FlippableCard } from '@/components/flippable-card'
+import { ParticipantStat } from '@/components/participant-stat'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
@@ -40,43 +41,9 @@ export function ComparisonCard({ title, icon, participants, description, index }
       </View>
       <View style={[styles.divider, { backgroundColor: theme.colors.backgroundSecondary }]} />
       <View style={styles.participantRow}>
-        {participants.map((participant, index) => {
-          // Split value into number and unit if it's a string like "123 words"
-          const valueString = String(participant.value)
-          const match = valueString.match(/^(\d+)\s+(.+)$/)
-          const hasUnit = match !== null
-
-          return (
-            <View key={index} style={styles.participantItem}>
-              <ThemedText style={[styles.participantName, { color: theme.colors.textTertiary }]} numberOfLines={1}>
-                {participant.name}
-              </ThemedText>
-              {hasUnit ? (
-                <View style={styles.valueWithUnit}>
-                  <ThemedText style={[styles.participantNumber, { color: theme.colors.text }]}>{match[1]}</ThemedText>
-                  <ThemedText style={[styles.unitText, { color: theme.colors.textSecondary }]}>{match[2]}</ThemedText>
-                </View>
-              ) : (
-                <ThemedText style={[styles.participantNumber, { color: theme.colors.text }]} numberOfLines={1}>
-                  {participant.value}
-                </ThemedText>
-              )}
-              {participant.progressValue !== undefined && (
-                <View style={[styles.progressBar, { backgroundColor: theme.colors.borderLight }]}>
-                  <View
-                    style={[
-                      styles.progressFill,
-                      {
-                        width: `${participant.progressValue}%`,
-                        backgroundColor: participant.progressColor || theme.colors.info,
-                      },
-                    ]}
-                  />
-                </View>
-              )}
-            </View>
-          )
-        })}
+        {participants.map((participant, index) => (
+          <ParticipantStat key={index} participant={participant} />
+        ))}
       </View>
     </ThemedView>
   )
@@ -154,49 +121,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     gap: 24,
-  },
-  participantItem: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  participantName: {
-    fontSize: 11,
-    fontWeight: '500',
-    marginBottom: 10,
-    textAlign: 'center',
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
-  },
-  participantNumber: {
-    fontSize: 32,
-    fontWeight: '300',
-    marginBottom: 8,
-    letterSpacing: -0.5,
-    textAlign: 'center',
-    width: '100%',
-  },
-  valueWithUnit: {
-    alignItems: 'center',
-    width: '100%',
-  },
-  unitText: {
-    fontSize: 11,
-    fontWeight: '400',
-    letterSpacing: 0.3,
-    textTransform: 'lowercase',
-    marginTop: 4,
-    opacity: 0.5,
-  },
-  progressBar: {
-    height: 6,
-    borderRadius: 3,
-    marginTop: 8,
-    width: '100%',
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: 3,
   },
   descriptionLarge: {
     fontSize: 15,
