@@ -3,8 +3,9 @@ import { ThemedIconButton } from '@/components/themed-icon-button'
 import { ThemedText } from '@/components/themed-text'
 import { useTheme } from '@/contexts/theme-context'
 import { type StoredChat } from '@/utils/chat-storage'
-import { useEffect, useRef, useState } from 'react'
-import { Animated, Easing, Modal, Pressable, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { useCardAnimation } from '@/hooks/use-card-animation'
+import { useState } from 'react'
+import { Animated, Modal, Pressable, StyleSheet, TouchableOpacity, View } from 'react-native'
 
 interface ChatCardProps {
   chat: StoredChat
@@ -15,66 +16,7 @@ interface ChatCardProps {
 export function ChatCard({ chat, onAnalyze, onDelete }: ChatCardProps) {
   const theme = useTheme()
   const [showMenu, setShowMenu] = useState(false)
-  const scaleAnim = useRef(new Animated.Value(1)).current
-  const shakeAnim = useRef(new Animated.Value(0)).current
-
-  // Entrance animation - subtle scale and shake on mount
-  useEffect(() => {
-    Animated.parallel([
-      Animated.sequence([
-        Animated.timing(scaleAnim, {
-          toValue: 1.02,
-          duration: 200,
-          easing: Easing.out(Easing.quad),
-          useNativeDriver: true,
-        }),
-        Animated.timing(scaleAnim, {
-          toValue: 1,
-          duration: 200,
-          easing: Easing.inOut(Easing.quad),
-          useNativeDriver: true,
-        }),
-      ]),
-      Animated.sequence([
-        Animated.timing(shakeAnim, {
-          toValue: 2,
-          duration: 100,
-          easing: Easing.linear,
-          useNativeDriver: true,
-        }),
-        Animated.timing(shakeAnim, {
-          toValue: -2,
-          duration: 100,
-          easing: Easing.linear,
-          useNativeDriver: true,
-        }),
-        Animated.timing(shakeAnim, {
-          toValue: 0,
-          duration: 100,
-          easing: Easing.linear,
-          useNativeDriver: true,
-        }),
-      ]),
-    ]).start()
-  }, [scaleAnim, shakeAnim])
-
-  const handlePressIn = () => {
-    Animated.spring(scaleAnim, {
-      toValue: 0.96,
-      useNativeDriver: true,
-      damping: 15,
-      stiffness: 200,
-    }).start()
-  }
-
-  const handlePressOut = () => {
-    Animated.spring(scaleAnim, {
-      toValue: 1,
-      useNativeDriver: true,
-      damping: 15,
-      stiffness: 200,
-    }).start()
-  }
+  const { scaleAnim, translateX, handlePressIn, handlePressOut } = useCardAnimation()
 
   const handleAnalyze = () => {
     onAnalyze(chat.id)
@@ -100,11 +42,6 @@ export function ChatCard({ chat, onAnalyze, onDelete }: ChatCardProps) {
 
     return firstParticipant.trim()[0].toUpperCase()
   }
-
-  const translateX = shakeAnim.interpolate({
-    inputRange: [-2, 0, 2],
-    outputRange: [-2, 0, 2],
-  })
 
   return (
     <>
