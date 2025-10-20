@@ -2,7 +2,8 @@ import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { StyleSheet, View, Animated, Pressable } from 'react-native'
 import { useTheme } from '@/contexts/theme-context'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
+import { useCardAnimation } from '@/hooks/use-card-animation'
 
 interface ParticipantData {
   name: string
@@ -22,73 +23,9 @@ export function ComparisonCard({ title, icon, participants, description }: Compa
   const theme = useTheme()
   const [isFlipped, setIsFlipped] = useState(false)
   const flipAnimation = useRef(new Animated.Value(0)).current
-  const scaleAnimation = useRef(new Animated.Value(1)).current
-  const shakeAnimation = useRef(new Animated.Value(0)).current
-  const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const startShake = () => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(shakeAnimation, {
-          toValue: 1,
-          duration: 50,
-          useNativeDriver: true,
-        }),
-        Animated.timing(shakeAnimation, {
-          toValue: -1,
-          duration: 50,
-          useNativeDriver: true,
-        }),
-        Animated.timing(shakeAnimation, {
-          toValue: 1,
-          duration: 50,
-          useNativeDriver: true,
-        }),
-        Animated.timing(shakeAnimation, {
-          toValue: 0,
-          duration: 50,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start()
-  }
-
-  const stopShake = () => {
-    shakeAnimation.stopAnimation()
-    Animated.timing(shakeAnimation, {
-      toValue: 0,
-      duration: 100,
-      useNativeDriver: true,
-    }).start()
-  }
-
-  const handlePressIn = () => {
-    // Scale down immediately (for all cards)
-    Animated.spring(scaleAnimation, {
-      toValue: 0.97,
-      useNativeDriver: true,
-    }).start()
-
-    // Start shake after a short delay (like being ticklish!)
-    pressTimer.current = setTimeout(() => {
-      startShake()
-    }, 200)
-  }
-
-  const handlePressOut = () => {
-    // Clear the timer if released before shake starts
-    if (pressTimer.current) {
-      clearTimeout(pressTimer.current)
-      pressTimer.current = null
-    }
-
-    // Stop shake and scale back
-    stopShake()
-    Animated.spring(scaleAnimation, {
-      toValue: 1,
-      useNativeDriver: true,
-    }).start()
-  }
+  const { scale, shake, rotate, handlePressIn, handlePressOut } = useCardAnimation({
+    entranceAnimation: false,
+  })
 
   const handleFlip = () => {
     if (!description) return // Don't flip if no description
@@ -102,17 +39,6 @@ export function ComparisonCard({ title, icon, participants, description }: Compa
 
     setIsFlipped(!isFlipped)
   }
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (pressTimer.current) {
-        clearTimeout(pressTimer.current)
-      }
-      shakeAnimation.stopAnimation()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   const frontInterpolate = flipAnimation.interpolate({
     inputRange: [0, 1],
@@ -142,16 +68,6 @@ export function ComparisonCard({ title, icon, participants, description }: Compa
     outputRange: [0, 0, 1],
   })
 
-  const shakeTranslate = shakeAnimation.interpolate({
-    inputRange: [-1, 0, 1],
-    outputRange: [-2, 0, 2],
-  })
-
-  const shakeRotate = shakeAnimation.interpolate({
-    inputRange: [-1, 0, 1],
-    outputRange: ['-1deg', '0deg', '1deg'],
-  })
-
   return (
     <Pressable
       onPress={handleFlip}
@@ -163,7 +79,7 @@ export function ComparisonCard({ title, icon, participants, description }: Compa
         style={[
           styles.cardContainer,
           {
-            transform: [{ scale: scaleAnimation }, { translateX: shakeTranslate }, { rotate: shakeRotate }],
+            transform: [{ scale }, { translateX: shake }, { rotate }],
           },
         ]}
       >

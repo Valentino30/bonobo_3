@@ -1,6 +1,7 @@
 import { useTheme } from '@/contexts/theme-context'
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
+import { useCardAnimation } from '@/hooks/use-card-animation'
 
 interface FlippableInsightCardProps {
   title: string
@@ -39,73 +40,9 @@ export function FlippableInsightCard({
   const frontHeightRef = useRef<number>(0)
   const backHeightRef = useRef<number>(0)
   const flipAnimation = useRef(new Animated.Value(0)).current
-  const scaleAnimation = useRef(new Animated.Value(1)).current
-  const shakeAnimation = useRef(new Animated.Value(0)).current
-  const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const startShake = () => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(shakeAnimation, {
-          toValue: 1,
-          duration: 50,
-          useNativeDriver: true,
-        }),
-        Animated.timing(shakeAnimation, {
-          toValue: -1,
-          duration: 50,
-          useNativeDriver: true,
-        }),
-        Animated.timing(shakeAnimation, {
-          toValue: 1,
-          duration: 50,
-          useNativeDriver: true,
-        }),
-        Animated.timing(shakeAnimation, {
-          toValue: 0,
-          duration: 50,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start()
-  }
-
-  const stopShake = () => {
-    shakeAnimation.stopAnimation()
-    Animated.timing(shakeAnimation, {
-      toValue: 0,
-      duration: 100,
-      useNativeDriver: true,
-    }).start()
-  }
-
-  const handlePressIn = () => {
-    // Scale down immediately
-    Animated.spring(scaleAnimation, {
-      toValue: 0.97,
-      useNativeDriver: true,
-    }).start()
-
-    // Start shake after a short delay
-    pressTimer.current = setTimeout(() => {
-      startShake()
-    }, 200)
-  }
-
-  const handlePressOut = () => {
-    // Clear the timer if released before shake starts
-    if (pressTimer.current) {
-      clearTimeout(pressTimer.current)
-      pressTimer.current = null
-    }
-
-    // Stop shake and scale back
-    stopShake()
-    Animated.spring(scaleAnimation, {
-      toValue: 1,
-      useNativeDriver: true,
-    }).start()
-  }
+  const { scale, shake, rotate, handlePressIn, handlePressOut } = useCardAnimation({
+    entranceAnimation: false,
+  })
 
   const handleFlip = () => {
     Animated.spring(flipAnimation, {
@@ -117,17 +54,6 @@ export function FlippableInsightCard({
 
     setIsFlipped(!isFlipped)
   }
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (pressTimer.current) {
-        clearTimeout(pressTimer.current)
-      }
-      shakeAnimation.stopAnimation()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   const frontInterpolate = flipAnimation.interpolate({
     inputRange: [0, 1],
@@ -157,23 +83,13 @@ export function FlippableInsightCard({
     outputRange: [0, 0, 1],
   })
 
-  const shakeTranslate = shakeAnimation.interpolate({
-    inputRange: [-1, 0, 1],
-    outputRange: [-2, 0, 2],
-  })
-
-  const shakeRotate = shakeAnimation.interpolate({
-    inputRange: [-1, 0, 1],
-    outputRange: ['-1deg', '0deg', '1deg'],
-  })
-
   return (
     <Pressable onPress={handleFlip} onPressIn={handlePressIn} onPressOut={handlePressOut} style={{ width: '100%' }}>
       <Animated.View
         style={[
           styles.cardContainer,
           {
-            transform: [{ scale: scaleAnimation }, { translateX: shakeTranslate }, { rotate: shakeRotate }],
+            transform: [{ scale }, { translateX: shake }, { rotate }],
             height: containerHeight,
           },
         ]}

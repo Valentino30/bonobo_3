@@ -16,7 +16,7 @@ interface ChatCardProps {
 export function ChatCard({ chat, onAnalyze, onDelete }: ChatCardProps) {
   const theme = useTheme()
   const [showMenu, setShowMenu] = useState(false)
-  const { scaleAnim, translateX, handlePressIn, handlePressOut } = useCardAnimation()
+  const { scale, shake, handlePressIn, handlePressOut } = useCardAnimation()
 
   const handleAnalyze = () => {
     onAnalyze(chat.id)
@@ -47,7 +47,7 @@ export function ChatCard({ chat, onAnalyze, onDelete }: ChatCardProps) {
     <>
       <Animated.View
         style={{
-          transform: [{ scale: scaleAnim }, { translateX }],
+          transform: [{ scale }, { translateX: shake }],
         }}
       >
         <Pressable

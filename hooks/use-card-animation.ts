@@ -14,19 +14,25 @@ export type CardAnimationConfig = {
   springDamping?: number
   /** Spring stiffness for press animation */
   springStiffness?: number
+  /** Enable delayed shake loop on long press */
+  enablePressShake?: boolean
+  /** Delay before shake starts on press (ms) */
+  pressShakeDelay?: number
+  /** Shake intensity for press shake (e.g., 1 for subtle, 2 for more) */
+  pressShakeIntensity?: number
 }
 
 export type CardAnimationResult = {
   /** Animated value for scale transform */
-  scaleAnim: Animated.Value
-  /** Animated value for shake transform (translateX) */
-  shakeAnim: Animated.Value
+  scale: Animated.Value
+  /** Interpolated translateX value for horizontal shake/jiggle */
+  shake: Animated.AnimatedInterpolation<number>
+  /** Interpolated rotate value for shake/jiggle rotation */
+  rotate: Animated.AnimatedInterpolation<string>
   /** Call when press starts */
   handlePressIn: () => void
   /** Call when press ends */
   handlePressOut: () => void
-  /** Interpolated translateX value for shake */
-  translateX: Animated.AnimatedInterpolation<number>
 }
 
 /**
@@ -35,12 +41,15 @@ export type CardAnimationResult = {
  *
  * @example
  * ```tsx
- * const { scaleAnim, translateX, handlePressIn, handlePressOut } = useCardAnimation({
- *   entranceAnimation: true,
- *   pressScale: 0.96
+ * // Simple entrance animation (chat cards)
+ * const { scale, shake, handlePressIn, handlePressOut } = useCardAnimation()
+ *
+ * // Press shake animation (flippable cards)
+ * const { scale, shake, rotate, handlePressIn, handlePressOut } = useCardAnimation({
+ *   entranceAnimation: false
  * })
  *
- * <Animated.View style={{ transform: [{ scale: scaleAnim }, { translateX }] }}>
+ * <Animated.View style={{ transform: [{ scale }, { translateX: shake }, { rotate }] }}>
  *   <Pressable onPressIn={handlePressIn} onPressOut={handlePressOut}>
  *     ...
  *   </Pressable>
@@ -55,10 +64,15 @@ export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimatio
     pressScale = 0.96,
     springDamping = 15,
     springStiffness = 200,
+    enablePressShake = true,
+    pressShakeDelay = 200,
+    pressShakeIntensity = 1,
   } = config
 
   const scaleAnim = useRef(new Animated.Value(1)).current
   const shakeAnim = useRef(new Animated.Value(0)).current
+  const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const shakeLoopRef = useRef<Animated.CompositeAnimation | null>(null)
 
   // Entrance animation - subtle scale and shake on mount
   useEffect(() => {
@@ -102,16 +116,77 @@ export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimatio
     ]).start()
   }, [scaleAnim, shakeAnim, entranceAnimation, entranceScale, entranceShake])
 
+  const startShake = () => {
+    shakeLoopRef.current = Animated.loop(
+      Animated.sequence([
+        Animated.timing(shakeAnim, {
+          toValue: pressShakeIntensity,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnim, {
+          toValue: -pressShakeIntensity,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnim, {
+          toValue: pressShakeIntensity,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnim, {
+          toValue: 0,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+      ])
+    )
+    shakeLoopRef.current.start()
+  }
+
+  const stopShake = () => {
+    if (shakeLoopRef.current) {
+      shakeLoopRef.current.stop()
+      shakeLoopRef.current = null
+    }
+    shakeAnim.stopAnimation()
+    Animated.timing(shakeAnim, {
+      toValue: 0,
+      duration: 100,
+      useNativeDriver: true,
+    }).start()
+  }
+
   const handlePressIn = () => {
+    // Scale down immediately
     Animated.spring(scaleAnim, {
       toValue: pressScale,
       useNativeDriver: true,
       damping: springDamping,
       stiffness: springStiffness,
     }).start()
+
+    // Start shake after delay if enabled
+    if (enablePressShake) {
+      pressTimer.current = setTimeout(() => {
+        startShake()
+      }, pressShakeDelay)
+    }
   }
 
   const handlePressOut = () => {
+    // Clear the timer if released before shake starts
+    if (pressTimer.current) {
+      clearTimeout(pressTimer.current)
+      pressTimer.current = null
+    }
+
+    // Stop shake if running
+    if (enablePressShake) {
+      stopShake()
+    }
+
+    // Scale back to normal
     Animated.spring(scaleAnim, {
       toValue: 1,
       useNativeDriver: true,
@@ -120,16 +195,36 @@ export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimatio
     }).start()
   }
 
-  const translateX = shakeAnim.interpolate({
-    inputRange: [-entranceShake, 0, entranceShake],
-    outputRange: [-entranceShake, 0, entranceShake],
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (pressTimer.current) {
+        clearTimeout(pressTimer.current)
+      }
+      if (shakeLoopRef.current) {
+        shakeLoopRef.current.stop()
+      }
+      shakeAnim.stopAnimation()
+    }
+  }, [shakeAnim])
+
+  const maxShakeValue = enablePressShake ? pressShakeIntensity : entranceShake
+
+  const shake = shakeAnim.interpolate({
+    inputRange: [-maxShakeValue, 0, maxShakeValue],
+    outputRange: [-2, 0, 2],
+  })
+
+  const rotate = shakeAnim.interpolate({
+    inputRange: [-maxShakeValue, 0, maxShakeValue],
+    outputRange: ['-1deg', '0deg', '1deg'],
   })
 
   return {
-    scaleAnim,
-    shakeAnim,
+    scale: scaleAnim,
+    shake,
+    rotate,
     handlePressIn,
     handlePressOut,
-    translateX,
   }
 }
