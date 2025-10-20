@@ -2,9 +2,10 @@ import { AnimatedIcon } from '@/components/animated-icon'
 import { ANALYSIS_LOADING_STEPS } from '@/constants/analysis-loading'
 import { InfoBanner } from '@/components/info-banner'
 import { LoadingProgressBar } from '@/components/loading-progress-bar'
+import { ThemedText } from '@/components/themed-text'
 import { useTheme } from '@/contexts/theme-context'
 import { useLoadingAnimation } from '@/hooks/use-loading-animation'
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 
 export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
   const theme = useTheme()
@@ -25,8 +26,12 @@ export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
 
         {/* Title and Subtitle */}
         <View style={styles.textContainer}>
-          <Text style={[styles.title, { color: theme.colors.text }]}>{ANALYSIS_LOADING_STEPS[currentStep].title}</Text>
-          <Text style={[styles.subtitle, { color: theme.colors.textTertiary }]}>{ANALYSIS_LOADING_STEPS[currentStep].subtitle}</Text>
+          <ThemedText style={styles.title} lightColor={theme.colors.text}>
+            {ANALYSIS_LOADING_STEPS[currentStep].title}
+          </ThemedText>
+          <ThemedText style={styles.subtitle} lightColor={theme.colors.textTertiary}>
+            {ANALYSIS_LOADING_STEPS[currentStep].subtitle}
+          </ThemedText>
         </View>
 
         {/* Progress Bar */}
