@@ -123,7 +123,6 @@ export function InsightCard({
 const styles = StyleSheet.create({
   cardContainer: {
     marginBottom: 16,
-    height: 340,
   },
   card: {
     borderRadius: 12,
@@ -132,10 +131,10 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 2,
     overflow: 'hidden',
-    height: 340,
+    minHeight: 380,
   },
   backCard: {
-    height: 340,
+    minHeight: 380,
   },
   headerSection: {
     paddingHorizontal: 16,
