@@ -1,4 +1,4 @@
-import { useCustomAlert } from '@/components/custom-alert'
+import { useCustomAlert } from '@/hooks/use-custom-alert'
 import { DangerZoneCard } from '@/components/danger-zone-card'
 import { LabelValueCard } from '@/components/label-value-card'
 import { LoadingScreen } from '@/components/loading-screen'

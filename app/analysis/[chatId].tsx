@@ -1,7 +1,7 @@
 import { AnalysisInsights } from '@/components/analysis-insights'
 import { AnalysisLoading } from '@/components/analysis-loading'
 import { AnalysisOverview } from '@/components/analysis-overview'
-import { useCustomAlert } from '@/components/custom-alert'
+import { useCustomAlert } from '@/hooks/use-custom-alert'
 import { PaymentAuthScreen } from '@/components/payment-auth-screen'
 import { Paywall } from '@/components/paywall'
 import { ScreenHeader } from '@/components/screen-header'

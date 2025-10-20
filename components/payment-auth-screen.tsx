@@ -14,7 +14,7 @@ import { ThemedButton } from '@/components/themed-button'
 import { ThemedTextInput } from '@/components/themed-text-input'
 import { useTheme } from '@/contexts/theme-context'
 import { AuthService } from '@/utils/auth-service'
-import { useCustomAlert } from '@/components/custom-alert'
+import { useCustomAlert } from '@/hooks/use-custom-alert'
 
 interface PaymentAuthScreenProps {
   visible: boolean

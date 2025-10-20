@@ -1,5 +1,5 @@
 import { ChatList } from '@/components/chat-list'
-import { useCustomAlert } from '@/components/custom-alert'
+import { useCustomAlert } from '@/hooks/use-custom-alert'
 import { LoadingScreen } from '@/components/loading-screen'
 import { ThemedButton } from '@/components/themed-button'
 import { ThemedIconButton } from '@/components/themed-icon-button'
