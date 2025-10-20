@@ -16,37 +16,35 @@ type AnalysisOverviewProps = {
 export function AnalysisOverview({ analysis }: AnalysisOverviewProps) {
   const theme = useTheme()
 
-  return (
-    <View style={styles.container}>
-      {OVERVIEW_CARDS.map((card) => {
-        // Check if card should be shown
-        if (card.shouldShow && !card.shouldShow(analysis)) {
-          return null
-        }
+  const renderCard = (card: (typeof OVERVIEW_CARDS)[number]) => {
+    // Check if card should be shown
+    if (card.shouldShow && !card.shouldShow(analysis)) {
+      return null
+    }
 
-        // Render simple stat card
-        if (card.type === 'simple' && card.getValue) {
-          return <SimpleStatCard key={card.id} title={card.title} icon={card.icon} value={card.getValue(analysis)} />
-        }
+    // Render simple stat card
+    if (card.type === 'simple' && card.getValue) {
+      return <SimpleStatCard key={card.id} title={card.title} icon={card.icon} value={card.getValue(analysis)} />
+    }
 
-        // Render comparison card
-        if (card.type === 'comparison' && card.getParticipants) {
-          const colors = { info: theme.colors.info, error: theme.colors.error }
-          return (
-            <ComparisonCard
-              key={card.id}
-              title={card.title}
-              icon={card.icon}
-              description={card.description?.(analysis)}
-              participants={card.getParticipants(analysis, colors)}
-            />
-          )
-        }
+    // Render comparison card
+    if (card.type === 'comparison' && card.getParticipants) {
+      const colors = { info: theme.colors.info, error: theme.colors.error }
+      return (
+        <ComparisonCard
+          key={card.id}
+          title={card.title}
+          icon={card.icon}
+          description={card.description?.(analysis)}
+          participants={card.getParticipants(analysis, colors)}
+        />
+      )
+    }
 
-        return null
-      })}
-    </View>
-  )
+    return null
+  }
+
+  return <View style={styles.container}>{OVERVIEW_CARDS.map(renderCard)}</View>
 }
 
 const styles = StyleSheet.create({
