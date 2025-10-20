@@ -82,7 +82,7 @@ export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimatio
     const timeout = setTimeout(() => {
       Animated.timing(slideAnim, {
         toValue: 0,
-        duration: 450,
+        duration: 600,
         easing: Easing.out(Easing.cubic),
         useNativeDriver: true,
       }).start()

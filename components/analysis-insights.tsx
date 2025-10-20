@@ -29,7 +29,7 @@ export function AnalysisInsights({
   // Render individual insight card (unlocked or locked)
   const renderInsightCard = (config: InsightConfig, index: number) => {
     const { id, icon, title, unlockText } = config
-    const entranceDelay = index * 50
+    const entranceDelay = index * 80
 
     if (isInsightUnlocked(id) && aiInsights) {
       return renderUnlockedInsight(config, entranceDelay)

@@ -22,7 +22,7 @@ export function AnalysisOverview({ analysis }: AnalysisOverviewProps) {
       return null
     }
 
-    const entranceDelay = index * 50
+    const entranceDelay = index * 80
 
     // Render simple stat card
     if (card.type === 'simple' && card.getValue) {
