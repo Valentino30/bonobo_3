@@ -1,7 +1,7 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useTheme } from '@/contexts/theme-context'
 import { useBounceAnimation } from '@/hooks/use-bounce-animation'
 import { usePulseAnimation } from '@/hooks/use-pulse-animation'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { Animated, StyleSheet } from 'react-native'
 
 type AnimationType = 'bounce' | 'pulsate' | 'none'
@@ -51,21 +51,31 @@ export function AnimatedIcon({
   const finalBackgroundColor = backgroundColor || theme.colors.backgroundInfo
   const finalBorderColor = borderColor || theme.colors.primaryLighter
 
-  const getTransform = () => {
-    // Support old API with custom pulseAnim (deprecated)
-    if (customPulseAnim) {
-      return [{ scale: customPulseAnim }]
-    }
+  // Support old API with custom pulseAnim (deprecated)
+  if (customPulseAnim) {
+    return (
+      <Animated.View
+        style={[
+          styles.container,
+          {
+            width: containerSize,
+            height: containerSize,
+            borderRadius: containerSize / 2,
+            backgroundColor: finalBackgroundColor,
+            borderColor: finalBorderColor,
+            transform: [{ scale: customPulseAnim }],
+          },
+        ]}
+      >
+        <MaterialCommunityIcons name={icon} size={iconSize} color={finalIconColor} />
+      </Animated.View>
+    )
+  }
 
-    // New API with animation type
-    switch (animation) {
-      case 'bounce':
-        return [{ translateY: bounceAnim }]
-      case 'pulsate':
-        return [{ scale: pulseAnim }]
-      default:
-        return undefined
-    }
+  const animationTransforms = {
+    bounce: [{ translateY: bounceAnim }],
+    pulsate: [{ scale: pulseAnim }],
+    none: undefined,
   }
 
   return (
@@ -78,7 +88,7 @@ export function AnimatedIcon({
           borderRadius: containerSize / 2,
           backgroundColor: finalBackgroundColor,
           borderColor: finalBorderColor,
-          transform: getTransform(),
+          transform: animationTransforms[animation],
         },
       ]}
     >
