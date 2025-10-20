@@ -7,21 +7,9 @@ import { Animated, StyleSheet } from 'react-native'
 
 interface EmptyStateProps {
   hasShareData: boolean
-  showPlatform: string
-  manualInput: string
-  setManualInput: (text: string) => void
-  onManualImport: () => void
-  onClearShareData?: () => void
 }
 
-export function EmptyState({
-  hasShareData,
-  showPlatform,
-  manualInput,
-  setManualInput,
-  onManualImport,
-  onClearShareData,
-}: EmptyStateProps) {
+export function EmptyState({ hasShareData }: EmptyStateProps) {
   const theme = useTheme()
   const bounceAnim = useRef(new Animated.Value(0)).current
 
@@ -47,7 +35,12 @@ export function EmptyState({
 
   return (
     <ThemedView style={styles.emptyState}>
-      <ThemedView style={[styles.emptyIconContainer, { backgroundColor: theme.colors.background, borderColor: theme.colors.backgroundSecondary }]}>
+      <ThemedView
+        style={[
+          styles.emptyIconContainer,
+          { backgroundColor: theme.colors.background, borderColor: theme.colors.backgroundSecondary },
+        ]}
+      >
         <ThemedText style={styles.emptyIcon}>🤗</ThemedText>
       </ThemedView>
       <ThemedText style={[styles.emptyTitle, { color: theme.colors.text }]}>

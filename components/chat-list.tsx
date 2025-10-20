@@ -6,26 +6,11 @@ import { ScrollView, StyleSheet } from 'react-native'
 interface ChatListProps {
   chats: StoredChat[]
   hasShareData: boolean
-  showPlatform: string
-  manualInput: string
-  setManualInput: (text: string) => void
-  onManualImport: () => void
   onAnalyzeChat: (chatId: string) => void
   onDeleteChat?: (chatId: string) => void
-  onClearShareData?: () => void
 }
 
-export function ChatList({
-  chats,
-  hasShareData,
-  showPlatform,
-  manualInput,
-  setManualInput,
-  onManualImport,
-  onAnalyzeChat,
-  onDeleteChat,
-  onClearShareData,
-}: ChatListProps) {
+export function ChatList({ chats, hasShareData, onAnalyzeChat, onDeleteChat }: ChatListProps) {
   return (
     <ScrollView
       style={styles.chatList}
@@ -37,14 +22,7 @@ export function ChatList({
           <ChatCard key={chat.id} chat={chat} onAnalyze={onAnalyzeChat} onDelete={onDeleteChat} index={index} />
         ))
       ) : (
-        <EmptyState
-          hasShareData={hasShareData}
-          showPlatform={showPlatform}
-          manualInput={manualInput}
-          setManualInput={setManualInput}
-          onManualImport={onManualImport}
-          onClearShareData={onClearShareData}
-        />
+        <EmptyState hasShareData={hasShareData} />
       )}
     </ScrollView>
   )
