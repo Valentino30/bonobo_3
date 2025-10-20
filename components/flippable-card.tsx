@@ -63,7 +63,10 @@ export function FlippableCard({ front, back, onFlip, style, minHeight = 300 }: F
             isFlipped && styles.hiddenFace,
           ]}
         >
-          <View onLayout={handleFrontLayout}>
+          <View
+            style={containerHeight ? { height: containerHeight } : undefined}
+            onLayout={handleFrontLayout}
+          >
             {front}
           </View>
         </Animated.View>
@@ -77,7 +80,10 @@ export function FlippableCard({ front, back, onFlip, style, minHeight = 300 }: F
             !isFlipped && styles.hiddenFace,
           ]}
         >
-          <View onLayout={handleBackLayout}>
+          <View
+            style={containerHeight ? { height: containerHeight } : undefined}
+            onLayout={handleBackLayout}
+          >
             {back}
           </View>
         </Animated.View>
