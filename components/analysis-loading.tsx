@@ -1,25 +1,8 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { ANALYSIS_LOADING_STEPS } from '@/constants/analysis-loading'
 import { useTheme } from '@/contexts/theme-context'
 import { useEffect, useState } from 'react'
 import { Animated, Easing, StyleSheet, Text, View } from 'react-native'
-
-const STEPS = [
-  {
-    title: 'Reading Messages',
-    subtitle: 'Parsing conversation data',
-    icon: 'message-processing' as const,
-  },
-  {
-    title: 'Calculating Stats',
-    subtitle: 'Analyzing patterns',
-    icon: 'chart-box' as const,
-  },
-  {
-    title: 'Generating Insights',
-    subtitle: 'Preparing your results',
-    icon: 'brain' as const,
-  },
-]
 
 export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
   const theme = useTheme()
@@ -54,7 +37,7 @@ export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
   // Progress animation - matches step duration for smooth transition
   useEffect(() => {
     Animated.timing(progressAnim, {
-      toValue: (currentStep + 1) / STEPS.length,
+      toValue: (currentStep + 1) / ANALYSIS_LOADING_STEPS.length,
       duration: 1000,
       easing: Easing.out(Easing.ease),
       useNativeDriver: false,
@@ -66,7 +49,7 @@ export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
   useEffect(() => {
     const STEP_DURATION = 1000
 
-    if (currentStep < STEPS.length - 1) {
+    if (currentStep < ANALYSIS_LOADING_STEPS.length - 1) {
       console.log('AnalysisLoading: advancing to step', currentStep + 1)
       const timeout = setTimeout(() => {
         setCurrentStep(currentStep + 1)
@@ -95,13 +78,13 @@ export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
       <View style={[styles.card, { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow, borderColor: theme.colors.backgroundSecondary }]}>
         {/* Animated Icon */}
         <Animated.View style={[styles.iconContainer, { backgroundColor: theme.colors.backgroundInfo, borderColor: theme.colors.primaryLighter, transform: [{ scale: pulseAnim }] }]}>
-          <MaterialCommunityIcons name={STEPS[currentStep].icon} size={56} color={theme.colors.primary} />
+          <MaterialCommunityIcons name={ANALYSIS_LOADING_STEPS[currentStep].icon} size={56} color={theme.colors.primary} />
         </Animated.View>
 
         {/* Title and Subtitle */}
         <View style={styles.textContainer}>
-          <Text style={[styles.title, { color: theme.colors.text }]}>{STEPS[currentStep].title}</Text>
-          <Text style={[styles.subtitle, { color: theme.colors.textTertiary }]}>{STEPS[currentStep].subtitle}</Text>
+          <Text style={[styles.title, { color: theme.colors.text }]}>{ANALYSIS_LOADING_STEPS[currentStep].title}</Text>
+          <Text style={[styles.subtitle, { color: theme.colors.textTertiary }]}>{ANALYSIS_LOADING_STEPS[currentStep].subtitle}</Text>
         </View>
 
         {/* Progress Bar */}
@@ -110,7 +93,7 @@ export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
             <Animated.View style={[styles.progressBarFill, { backgroundColor: theme.colors.primary, width: progressWidth }]} />
           </View>
           <Text style={[styles.progressText, { color: theme.colors.primary }]}>
-            {currentStep + 1} of {STEPS.length}
+            {currentStep + 1} of {ANALYSIS_LOADING_STEPS.length}
           </Text>
         </View>
       </View>
