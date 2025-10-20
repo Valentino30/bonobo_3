@@ -9,7 +9,7 @@ import { StyleSheet, View } from 'react-native'
 
 export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
   const theme = useTheme()
-  const { currentStep, pulseAnim, progressWidth } = useLoadingAnimation({
+  const { currentStep, progressWidth } = useLoadingAnimation({
     stepCount: ANALYSIS_LOADING_STEPS.length,
     stepDuration: 1000,
     onComplete,
@@ -21,7 +21,7 @@ export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
       <View style={[styles.card, { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow, borderColor: theme.colors.backgroundSecondary }]}>
         {/* Animated Icon */}
         <View style={styles.iconWrapper}>
-          <AnimatedIcon icon={ANALYSIS_LOADING_STEPS[currentStep].icon} pulseAnim={pulseAnim} />
+          <AnimatedIcon icon={ANALYSIS_LOADING_STEPS[currentStep].icon} animation="pulsate" />
         </View>
 
         {/* Title and Subtitle */}

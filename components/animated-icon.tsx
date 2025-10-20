@@ -11,8 +11,6 @@ type AnimatedIconProps = {
   iconSize?: number
   containerSize?: number
   animation?: AnimationType
-  /** @deprecated Use animation="pulsate" instead */
-  pulseAnim?: Animated.Value
   iconColor?: string
   backgroundColor?: string
   borderColor?: string
@@ -38,7 +36,6 @@ export function AnimatedIcon({
   iconSize = 56,
   containerSize = 96,
   animation = 'none',
-  pulseAnim: customPulseAnim,
   iconColor,
   backgroundColor,
   borderColor,
@@ -50,27 +47,6 @@ export function AnimatedIcon({
   const finalIconColor = iconColor || theme.colors.primary
   const finalBackgroundColor = backgroundColor || theme.colors.backgroundInfo
   const finalBorderColor = borderColor || theme.colors.primaryLighter
-
-  // Support old API with custom pulseAnim (deprecated)
-  if (customPulseAnim) {
-    return (
-      <Animated.View
-        style={[
-          styles.container,
-          {
-            width: containerSize,
-            height: containerSize,
-            borderRadius: containerSize / 2,
-            backgroundColor: finalBackgroundColor,
-            borderColor: finalBorderColor,
-            transform: [{ scale: customPulseAnim }],
-          },
-        ]}
-      >
-        <MaterialCommunityIcons name={icon} size={iconSize} color={finalIconColor} />
-      </Animated.View>
-    )
-  }
 
   const animationTransforms = {
     bounce: [{ translateY: bounceAnim }],
