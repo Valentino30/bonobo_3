@@ -68,27 +68,35 @@ export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimatio
     pressShakeIntensity = 1,
   } = config
 
-  const scaleAnim = useRef(new Animated.Value(1)).current
+  const scaleAnim = useRef(new Animated.Value(entranceAnimation ? 0.98 : 1)).current
   const opacityAnim = useRef(new Animated.Value(entranceAnimation ? 0 : 1)).current
   const shakeAnim = useRef(new Animated.Value(0)).current
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const shakeLoopRef = useRef<Animated.CompositeAnimation | null>(null)
 
-  // Entrance animation - soft blur-like fade only (no slide to avoid border artifacts)
+  // Entrance animation - gentle scale + fade (avoids shadow artifacts from translateX)
   useEffect(() => {
     if (!entranceAnimation) return
 
     const timeout = setTimeout(() => {
-      Animated.timing(opacityAnim, {
-        toValue: 1,
-        duration: 450,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
-      }).start()
+      Animated.parallel([
+        Animated.timing(opacityAnim, {
+          toValue: 1,
+          duration: 500,
+          easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+          useNativeDriver: true,
+        }),
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          tension: 35,
+          friction: 7,
+          useNativeDriver: true,
+        }),
+      ]).start()
     }, entranceDelay)
 
     return () => clearTimeout(timeout)
-  }, [opacityAnim, entranceAnimation, entranceDelay])
+  }, [opacityAnim, scaleAnim, entranceAnimation, entranceDelay])
 
   const startShake = () => {
     shakeLoopRef.current = Animated.loop(
