@@ -53,8 +53,8 @@ export function FlippableCard({ front, back, onFlip, style, minHeight = 300 }: F
   }
 
   return (
-    <Pressable onPress={handleFlip} style={[styles.container, style]}>
-      <View style={[styles.contentWrapper, containerHeight ? { height: containerHeight } : undefined]}>
+    <Pressable onPress={handleFlip} style={[styles.container, style, containerHeight ? { height: containerHeight } : undefined]}>
+      <View style={styles.contentWrapper}>
         <Animated.View
           style={[
             styles.cardFace,
@@ -63,10 +63,7 @@ export function FlippableCard({ front, back, onFlip, style, minHeight = 300 }: F
             isFlipped && styles.hiddenFace,
           ]}
         >
-          <View
-            style={containerHeight ? { height: containerHeight } : undefined}
-            onLayout={handleFrontLayout}
-          >
+          <View onLayout={handleFrontLayout}>
             {front}
           </View>
         </Animated.View>
@@ -80,10 +77,7 @@ export function FlippableCard({ front, back, onFlip, style, minHeight = 300 }: F
             !isFlipped && styles.hiddenFace,
           ]}
         >
-          <View
-            style={containerHeight ? { height: containerHeight } : undefined}
-            onLayout={handleBackLayout}
-          >
+          <View onLayout={handleBackLayout}>
             {back}
           </View>
         </Animated.View>
@@ -98,7 +92,6 @@ const styles = StyleSheet.create({
   },
   contentWrapper: {
     width: '100%',
-    height: '100%',
   },
   cardFace: {
     width: '100%',
