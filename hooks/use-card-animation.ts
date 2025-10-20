@@ -69,35 +69,27 @@ export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimatio
   } = config
 
   const scaleAnim = useRef(new Animated.Value(1)).current
-  const opacityAnim = useRef(new Animated.Value(entranceAnimation ? 0 : 1)).current
+  const opacityAnim = useRef(new Animated.Value(1)).current
   const slideAnim = useRef(new Animated.Value(entranceAnimation ? -30 : 0)).current
   const shakeAnim = useRef(new Animated.Value(0)).current
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const shakeLoopRef = useRef<Animated.CompositeAnimation | null>(null)
 
-  // Entrance animation - slide from left with fade (shadow on separate layer to prevent artifacts)
+  // Entrance animation - slide from left only (no opacity to avoid shadow artifacts)
   useEffect(() => {
     if (!entranceAnimation) return
 
     const timeout = setTimeout(() => {
-      Animated.parallel([
-        Animated.timing(opacityAnim, {
-          toValue: 1,
-          duration: 500,
-          easing: Easing.bezier(0.25, 0.1, 0.25, 1),
-          useNativeDriver: true,
-        }),
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 500,
-          easing: Easing.bezier(0.25, 0.1, 0.25, 1),
-          useNativeDriver: true,
-        }),
-      ]).start()
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 450,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }).start()
     }, entranceDelay)
 
     return () => clearTimeout(timeout)
-  }, [opacityAnim, slideAnim, entranceAnimation, entranceDelay])
+  }, [slideAnim, entranceAnimation, entranceDelay])
 
   const startShake = () => {
     shakeLoopRef.current = Animated.loop(
