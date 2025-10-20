@@ -33,7 +33,9 @@ export function ChatList({
       showsVerticalScrollIndicator={false}
     >
       {chats.length > 0 ? (
-        chats.map((chat) => <ChatCard key={chat.id} chat={chat} onAnalyze={onAnalyzeChat} onDelete={onDeleteChat} />)
+        chats.map((chat, index) => (
+          <ChatCard key={chat.id} chat={chat} onAnalyze={onAnalyzeChat} onDelete={onDeleteChat} entranceDelay={index * 50} />
+        ))
       ) : (
         <EmptyState
           hasShareData={hasShareData}

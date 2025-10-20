@@ -12,9 +12,10 @@ interface ChatCardProps {
   chat: StoredChat
   onAnalyze: (chatId: string) => void
   onDelete?: (chatId: string) => void
+  entranceDelay?: number
 }
 
-export function ChatCard({ chat, onAnalyze, onDelete }: ChatCardProps) {
+export function ChatCard({ chat, onAnalyze, onDelete, entranceDelay }: ChatCardProps) {
   const theme = useTheme()
   const [showMenu, setShowMenu] = useState(false)
 
@@ -34,6 +35,7 @@ export function ChatCard({ chat, onAnalyze, onDelete }: ChatCardProps) {
       <AnimatedCard
         onPress={handleAnalyze}
         containerStyle={[styles.chatCard, { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow }]}
+        entranceDelay={entranceDelay}
       >
         <View style={[styles.avatar, { backgroundColor: theme.colors.infoLight }]}>
           <ThemedText style={[styles.avatarText, { color: theme.colors.textWhite }]}>{getParticipantInitial(chat.participants)}</ThemedText>

@@ -70,12 +70,12 @@ export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimatio
 
   const scaleAnim = useRef(new Animated.Value(entranceAnimation ? 0.95 : 1)).current
   const opacityAnim = useRef(new Animated.Value(entranceAnimation ? 0 : 1)).current
-  const slideAnim = useRef(new Animated.Value(entranceAnimation ? 50 : 0)).current
+  const slideAnim = useRef(new Animated.Value(entranceAnimation ? -50 : 0)).current
   const shakeAnim = useRef(new Animated.Value(0)).current
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const shakeLoopRef = useRef<Animated.CompositeAnimation | null>(null)
 
-  // Entrance animation - slide in from right with fade
+  // Entrance animation - slide in from left to right with fade
   useEffect(() => {
     if (!entranceAnimation) return
 

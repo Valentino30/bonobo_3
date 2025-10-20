@@ -11,6 +11,8 @@ interface AnimatedCardProps extends Omit<PressableProps, 'style' | 'onPressIn' |
   containerStyle?: ViewStyle | ViewStyle[]
   /** Animation configuration (uses sensible defaults if not provided) */
   animationConfig?: CardAnimationConfig
+  /** Entrance animation delay in milliseconds (for staggered list animations) */
+  entranceDelay?: number
   /** Custom onPressIn handler (will be called after animation) */
   onPressIn?: () => void
   /** Custom onPressOut handler (will be called after animation) */
@@ -44,11 +46,15 @@ export function AnimatedCard({
   style,
   containerStyle,
   animationConfig,
+  entranceDelay,
   onPressIn: customOnPressIn,
   onPressOut: customOnPressOut,
   ...pressableProps
 }: AnimatedCardProps) {
-  const { scale, opacity, shake, rotate, handlePressIn, handlePressOut } = useCardAnimation(animationConfig)
+  const { scale, opacity, shake, rotate, handlePressIn, handlePressOut } = useCardAnimation({
+    ...animationConfig,
+    entranceDelay,
+  })
 
   const handlePressInWrapper = () => {
     handlePressIn()
