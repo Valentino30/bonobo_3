@@ -139,7 +139,8 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 2,
     overflow: 'hidden',
-    flex: 1,
+    width: '100%',
+    height: '100%',
   },
   headerSection: {
     paddingHorizontal: 16,
