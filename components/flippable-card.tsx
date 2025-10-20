@@ -1,26 +1,20 @@
 import { Animated, StyleSheet, View } from 'react-native'
 import { useRef, useState } from 'react'
 import { AnimatedCard } from '@/components/animated-card'
+import { useFlipAnimation } from '@/hooks/use-flip-animation'
 import { type ReactNode } from 'react'
 
 interface FlippableCardProps {
-  /** Content to show on the front of the card */
   front: ReactNode
-  /** Content to show on the back of the card */
   back: ReactNode
-  /** Index for staggered entrance animations */
   index?: number
-  /** Additional styles for the card container */
   containerStyle?: any
-  /** Fixed height for the card (optional) */
   height?: number
-  /** Callback when card is flipped */
   onFlip?: (isFlipped: boolean) => void
 }
 
 /**
- * Reusable flippable card component with entrance animations
- * Wraps content in a flip animation that shows front and back
+ * Reusable flippable card component with entrance and flip animations
  *
  * @example
  * ```tsx
@@ -32,52 +26,12 @@ interface FlippableCardProps {
  * ```
  */
 export function FlippableCard({ front, back, index, containerStyle, height, onFlip }: FlippableCardProps) {
-  const [isFlipped, setIsFlipped] = useState(false)
   const [containerHeight, setContainerHeight] = useState<number | undefined>(height)
   const frontHeightRef = useRef<number>(0)
   const backHeightRef = useRef<number>(0)
-  const flipAnimation = useRef(new Animated.Value(0)).current
 
-  const handleFlip = () => {
-    const newFlippedState = !isFlipped
-
-    Animated.spring(flipAnimation, {
-      toValue: newFlippedState ? 1 : 0,
-      friction: 8,
-      tension: 10,
-      useNativeDriver: true,
-    }).start()
-
-    setIsFlipped(newFlippedState)
-    onFlip?.(newFlippedState)
-  }
-
-  const frontInterpolate = flipAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '180deg'],
-  })
-
-  const backInterpolate = flipAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['180deg', '360deg'],
-  })
-
-  const frontAnimatedStyle = {
-    transform: [{ rotateY: frontInterpolate }],
-  }
-
-  const backAnimatedStyle = {
-    transform: [{ rotateY: backInterpolate }],
-  }
-
-  const frontOpacity = flipAnimation.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [1, 0, 0],
-  })
-
-  const backOpacity = flipAnimation.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [0, 0, 1],
+  const { isFlipped, handleFlip, frontAnimatedStyle, backAnimatedStyle, frontOpacity, backOpacity } = useFlipAnimation({
+    onFlip,
   })
 
   return (

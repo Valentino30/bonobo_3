@@ -1,5 +1,6 @@
 import { useTheme } from '@/contexts/theme-context'
 import { AnimatedCard } from '@/components/animated-card'
+import { useFlipAnimation } from '@/hooks/use-flip-animation'
 import { Animated, StyleSheet, Text, View } from 'react-native'
 import { useRef, useState } from 'react'
 
@@ -37,50 +38,11 @@ export function FlippableInsightCard({
 }: FlippableInsightCardProps) {
   const theme = useTheme()
   const itemColor = color || theme.colors.primary
-  const [isFlipped, setIsFlipped] = useState(false)
   const [containerHeight, setContainerHeight] = useState<number | undefined>(undefined)
   const frontHeightRef = useRef<number>(0)
   const backHeightRef = useRef<number>(0)
-  const flipAnimation = useRef(new Animated.Value(0)).current
 
-  const handleFlip = () => {
-    Animated.spring(flipAnimation, {
-      toValue: isFlipped ? 0 : 1,
-      friction: 8,
-      tension: 10,
-      useNativeDriver: true,
-    }).start()
-
-    setIsFlipped(!isFlipped)
-  }
-
-  const frontInterpolate = flipAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '180deg'],
-  })
-
-  const backInterpolate = flipAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['180deg', '360deg'],
-  })
-
-  const frontAnimatedStyle = {
-    transform: [{ rotateY: frontInterpolate }],
-  }
-
-  const backAnimatedStyle = {
-    transform: [{ rotateY: backInterpolate }],
-  }
-
-  const frontOpacity = flipAnimation.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [1, 0, 0],
-  })
-
-  const backOpacity = flipAnimation.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [0, 0, 1],
-  })
+  const { isFlipped, handleFlip, frontAnimatedStyle, backAnimatedStyle, frontOpacity, backOpacity } = useFlipAnimation()
 
   return (
     <AnimatedCard
