@@ -4,6 +4,7 @@ import { ThemedText } from '@/components/themed-text'
 import { AnimatedCard } from '@/components/animated-card'
 import { useTheme } from '@/contexts/theme-context'
 import { type StoredChat } from '@/utils/chat-storage'
+import { getParticipantInitial } from '@/utils/string-helpers'
 import { useState } from 'react'
 import { Modal, StyleSheet, TouchableOpacity, View } from 'react-native'
 
@@ -28,20 +29,6 @@ export function ChatCard({ chat, onAnalyze, onDelete }: ChatCardProps) {
     }
   }
 
-  // Get initial for avatar from first participant
-  const getInitial = () => {
-    if (!chat.participants || chat.participants.length === 0) {
-      return '?'
-    }
-
-    const firstParticipant = chat.participants[0]
-    if (!firstParticipant || firstParticipant.trim().length === 0) {
-      return '?'
-    }
-
-    return firstParticipant.trim()[0].toUpperCase()
-  }
-
   return (
     <>
       <AnimatedCard
@@ -49,7 +36,7 @@ export function ChatCard({ chat, onAnalyze, onDelete }: ChatCardProps) {
         containerStyle={[styles.chatCard, { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow }]}
       >
         <View style={[styles.avatar, { backgroundColor: theme.colors.infoLight }]}>
-          <ThemedText style={[styles.avatarText, { color: theme.colors.textWhite }]}>{getInitial()}</ThemedText>
+          <ThemedText style={[styles.avatarText, { color: theme.colors.textWhite }]}>{getParticipantInitial(chat.participants)}</ThemedText>
         </View>
         <View style={styles.contentContainer}>
           <ThemedText style={[styles.participantName, { color: theme.colors.text }]} numberOfLines={1}>
