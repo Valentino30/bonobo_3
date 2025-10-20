@@ -1,11 +1,11 @@
 import { ThemedButton } from '@/components/themed-button'
 import { ThemedIconButton } from '@/components/themed-icon-button'
 import { ThemedText } from '@/components/themed-text'
+import { AnimatedCard } from '@/components/animated-card'
 import { useTheme } from '@/contexts/theme-context'
 import { type StoredChat } from '@/utils/chat-storage'
-import { useCardAnimation } from '@/hooks/use-card-animation'
 import { useState } from 'react'
-import { Animated, Modal, Pressable, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { Modal, StyleSheet, TouchableOpacity, View } from 'react-native'
 
 interface ChatCardProps {
   chat: StoredChat
@@ -16,7 +16,6 @@ interface ChatCardProps {
 export function ChatCard({ chat, onAnalyze, onDelete }: ChatCardProps) {
   const theme = useTheme()
   const [showMenu, setShowMenu] = useState(false)
-  const { scale, shake, handlePressIn, handlePressOut } = useCardAnimation()
 
   const handleAnalyze = () => {
     onAnalyze(chat.id)
@@ -45,42 +44,34 @@ export function ChatCard({ chat, onAnalyze, onDelete }: ChatCardProps) {
 
   return (
     <>
-      <Animated.View
-        style={{
-          transform: [{ scale }, { translateX: shake }],
-        }}
+      <AnimatedCard
+        onPress={handleAnalyze}
+        containerStyle={[styles.chatCard, { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow }]}
       >
-        <Pressable
-          style={[styles.chatCard, { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow }]}
-          onPress={handleAnalyze}
-          onPressIn={handlePressIn}
-          onPressOut={handlePressOut}
-        >
-          <View style={[styles.avatar, { backgroundColor: theme.colors.infoLight }]}>
-            <ThemedText style={[styles.avatarText, { color: theme.colors.textWhite }]}>{getInitial()}</ThemedText>
-          </View>
-          <View style={styles.contentContainer}>
-            <ThemedText style={[styles.participantName, { color: theme.colors.text }]} numberOfLines={1}>
-              {chat.participants?.join(' & ') || 'Unknown participants'}
-            </ThemedText>
-            <ThemedText style={[styles.messageCount, { color: theme.colors.textTertiary }]}>
-              {chat.messageCount || 0} messages
-            </ThemedText>
-          </View>
-          {onDelete && (
-            <ThemedIconButton
-              icon="dots-horizontal"
-              onPress={(e) => {
-                e?.stopPropagation?.()
-                setShowMenu(true)
-              }}
-              variant="ghost"
-              size="medium"
-              style={styles.menuButton}
-            />
-          )}
-        </Pressable>
-      </Animated.View>
+        <View style={[styles.avatar, { backgroundColor: theme.colors.infoLight }]}>
+          <ThemedText style={[styles.avatarText, { color: theme.colors.textWhite }]}>{getInitial()}</ThemedText>
+        </View>
+        <View style={styles.contentContainer}>
+          <ThemedText style={[styles.participantName, { color: theme.colors.text }]} numberOfLines={1}>
+            {chat.participants?.join(' & ') || 'Unknown participants'}
+          </ThemedText>
+          <ThemedText style={[styles.messageCount, { color: theme.colors.textTertiary }]}>
+            {chat.messageCount || 0} messages
+          </ThemedText>
+        </View>
+        {onDelete && (
+          <ThemedIconButton
+            icon="dots-horizontal"
+            onPress={(e) => {
+              e?.stopPropagation?.()
+              setShowMenu(true)
+            }}
+            variant="ghost"
+            size="medium"
+            style={styles.menuButton}
+          />
+        )}
+      </AnimatedCard>
 
       <Modal visible={showMenu} transparent animationType="fade" onRequestClose={() => setShowMenu(false)}>
         <TouchableOpacity

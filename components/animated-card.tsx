@@ -6,9 +6,9 @@ interface AnimatedCardProps extends Omit<PressableProps, 'style' | 'onPressIn' |
   /** Child components to render inside the animated card */
   children: ReactNode
   /** Optional style for the Pressable wrapper */
-  style?: ViewStyle
+  style?: ViewStyle | ViewStyle[]
   /** Optional style for the Animated.View container */
-  containerStyle?: ViewStyle
+  containerStyle?: ViewStyle | ViewStyle[]
   /** Animation configuration (uses sensible defaults if not provided) */
   animationConfig?: CardAnimationConfig
   /** Custom onPressIn handler (will be called after animation) */
