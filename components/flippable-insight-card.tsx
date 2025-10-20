@@ -1,6 +1,7 @@
 import { useTheme } from '@/contexts/theme-context'
-import { FlippableCard } from '@/components/flippable-card'
-import { StyleSheet, Text, View } from 'react-native'
+import { AnimatedCard } from '@/components/animated-card'
+import { Animated, StyleSheet, Text, View } from 'react-native'
+import { useRef, useState } from 'react'
 
 interface FlippableInsightCardProps {
   title: string
@@ -36,101 +37,189 @@ export function FlippableInsightCard({
 }: FlippableInsightCardProps) {
   const theme = useTheme()
   const itemColor = color || theme.colors.primary
+  const [isFlipped, setIsFlipped] = useState(false)
+  const [containerHeight, setContainerHeight] = useState<number | undefined>(undefined)
+  const frontHeightRef = useRef<number>(0)
+  const backHeightRef = useRef<number>(0)
+  const flipAnimation = useRef(new Animated.Value(0)).current
 
-  const frontContent = (
-    <View
-      style={[
-        styles.card,
-        { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow },
-      ]}
-    >
-      {/* Header Section with Divider */}
-      <View style={styles.headerSection}>
-        <View style={styles.header}>
-          {icon && <Text style={styles.icon}>{icon}</Text>}
-          <Text style={[styles.title, { color: theme.colors.text }]}>{title}</Text>
-          {badge && (
-            <View style={[styles.badge, { backgroundColor: `${badge.color}20` }]}>
-              <Text style={[styles.badgeText, { color: badge.color }]}>{badge.text}</Text>
-            </View>
-          )}
-        </View>
-        <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
-      </View>
+  const handleFlip = () => {
+    Animated.spring(flipAnimation, {
+      toValue: isFlipped ? 0 : 1,
+      friction: 8,
+      tension: 10,
+      useNativeDriver: true,
+    }).start()
 
-      {/* Content Section */}
-      <View style={styles.content}>
-        <View>
-          {value && <Text style={[styles.value, { color: itemColor }]}>{value}</Text>}
-          {description && (
-            <Text style={[styles.description, { color: theme.colors.textSecondary }]}>
-              {typeof description === 'string' ? description : JSON.stringify(description)}
-            </Text>
-          )}
+    setIsFlipped(!isFlipped)
+  }
 
-          {items && items.length > 0 && (
-            <View style={[styles.itemsList, !description && styles.itemsListNoDescription]}>
-              {items.map((item, index) => {
-                const itemText = typeof item === 'string' ? item : JSON.stringify(item)
+  const frontInterpolate = flipAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '180deg'],
+  })
 
-                return (
-                  <View key={index} style={styles.itemRow}>
-                    <View style={[styles.bullet, { backgroundColor: itemColor }]} />
-                    <Text style={[styles.itemText, { color: theme.colors.textSecondary }]}>{itemText}</Text>
-                  </View>
-                )
-              })}
-            </View>
-          )}
-        </View>
+  const backInterpolate = flipAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['180deg', '360deg'],
+  })
 
-        {/* Flip hint */}
-        <View style={styles.flipHintContainer}>
-          <Text style={[styles.flipHint, { color: theme.colors.textSecondary }]}>Tap to learn more 💡</Text>
-        </View>
-      </View>
-    </View>
-  )
+  const frontAnimatedStyle = {
+    transform: [{ rotateY: frontInterpolate }],
+  }
 
-  const backContent = (
-    <View
-      style={[
-        styles.card,
-        { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow },
-      ]}
-    >
-      {/* Back content - centered layout */}
-      <View style={styles.backContent}>
-        <View style={styles.backCenterSection}>
-          {icon && <Text style={styles.backIcon}>{icon}</Text>}
-          <Text style={[styles.backTitle, { color: theme.colors.text }]}>{explanationTitle}</Text>
-          <Text style={[styles.backDescription, { color: theme.colors.textSecondary }]}>
-            {explanationText}
-          </Text>
-        </View>
+  const backAnimatedStyle = {
+    transform: [{ rotateY: backInterpolate }],
+  }
 
-        {/* Flip hint */}
-        <View style={styles.flipHintContainer}>
-          <Text style={[styles.flipHint, { color: theme.colors.textSecondary }]}>Tap to flip back ↩️</Text>
-        </View>
-      </View>
-    </View>
-  )
+  const frontOpacity = flipAnimation.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [1, 0, 0],
+  })
+
+  const backOpacity = flipAnimation.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [0, 0, 1],
+  })
 
   return (
-    <FlippableCard
-      front={frontContent}
-      back={backContent}
+    <AnimatedCard
+      onPress={handleFlip}
       index={index}
-      containerStyle={styles.cardContainer}
-    />
+      containerStyle={[styles.cardContainer, { height: containerHeight }]}
+    >
+      <View style={{ width: '100%', height: '100%' }}>
+        {/* Front of card */}
+        <Animated.View
+          style={[
+            styles.cardFace,
+            frontAnimatedStyle,
+            { opacity: frontOpacity },
+            isFlipped && styles.hiddenFace,
+          ]}
+        >
+          <View
+            style={[
+              styles.card,
+              { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow },
+              containerHeight ? { height: containerHeight } : undefined,
+            ]}
+            onLayout={(event) => {
+              const height = event.nativeEvent.layout.height
+              if (height > 0 && frontHeightRef.current === 0) {
+                frontHeightRef.current = height
+                if (backHeightRef.current > 0) {
+                  setContainerHeight(Math.max(frontHeightRef.current, backHeightRef.current, 300))
+                }
+              }
+            }}
+          >
+            {/* Header Section with Divider */}
+            <View style={styles.headerSection}>
+              <View style={styles.header}>
+                {icon && <Text style={styles.icon}>{icon}</Text>}
+                <Text style={[styles.title, { color: theme.colors.text }]}>{title}</Text>
+                {badge && (
+                  <View style={[styles.badge, { backgroundColor: `${badge.color}20` }]}>
+                    <Text style={[styles.badgeText, { color: badge.color }]}>{badge.text}</Text>
+                  </View>
+                )}
+              </View>
+              <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
+            </View>
+
+            {/* Content Section */}
+            <View style={styles.content}>
+              <View>
+                {value && <Text style={[styles.value, { color: itemColor }]}>{value}</Text>}
+                {description && (
+                  <Text style={[styles.description, { color: theme.colors.textSecondary }]}>
+                    {typeof description === 'string' ? description : JSON.stringify(description)}
+                  </Text>
+                )}
+
+                {items && items.length > 0 && (
+                  <View style={[styles.itemsList, !description && styles.itemsListNoDescription]}>
+                    {items.map((item, index) => {
+                      const itemText = typeof item === 'string' ? item : JSON.stringify(item)
+
+                      return (
+                        <View key={index} style={styles.itemRow}>
+                          <View style={[styles.bullet, { backgroundColor: itemColor }]} />
+                          <Text style={[styles.itemText, { color: theme.colors.textSecondary }]}>{itemText}</Text>
+                        </View>
+                      )
+                    })}
+                  </View>
+                )}
+              </View>
+
+              {/* Flip hint */}
+              <View style={styles.flipHintContainer}>
+                <Text style={[styles.flipHint, { color: theme.colors.textSecondary }]}>Tap to learn more 💡</Text>
+              </View>
+            </View>
+          </View>
+        </Animated.View>
+
+        {/* Back of card */}
+        <Animated.View
+          style={[
+            styles.cardFace,
+            styles.cardBack,
+            backAnimatedStyle,
+            { opacity: backOpacity },
+            !isFlipped && styles.hiddenFace,
+          ]}
+        >
+          <View
+            style={[
+              styles.card,
+              { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow },
+              containerHeight ? { height: containerHeight } : undefined,
+            ]}
+            onLayout={(event) => {
+              const height = event.nativeEvent.layout.height
+              if (height > 0 && backHeightRef.current === 0) {
+                backHeightRef.current = height
+                if (frontHeightRef.current > 0) {
+                  setContainerHeight(Math.max(frontHeightRef.current, backHeightRef.current, 300))
+                }
+              }
+            }}
+          >
+            {/* Back content - centered layout */}
+            <View style={styles.backContent}>
+              <View style={styles.backCenterSection}>
+                {icon && <Text style={styles.backIcon}>{icon}</Text>}
+                <Text style={[styles.backTitle, { color: theme.colors.text }]}>{explanationTitle}</Text>
+                <Text style={[styles.backDescription, { color: theme.colors.textSecondary }]}>
+                  {explanationText}
+                </Text>
+              </View>
+
+              {/* Flip hint */}
+              <View style={styles.flipHintContainer}>
+                <Text style={[styles.flipHint, { color: theme.colors.textSecondary }]}>Tap to flip back ↩️</Text>
+              </View>
+            </View>
+          </View>
+        </Animated.View>
+      </View>
+    </AnimatedCard>
   )
 }
 
 const styles = StyleSheet.create({
   cardContainer: {
+    width: '100%',
     marginBottom: 16,
     minHeight: 300,
+  },
+  cardFace: {
+    width: '100%',
+    height: '100%',
+    backfaceVisibility: 'hidden',
   },
   card: {
     borderRadius: 12,
@@ -139,8 +228,16 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 2,
     overflow: 'hidden',
-    width: '100%',
-    height: '100%',
+  },
+  cardBack: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  hiddenFace: {
+    pointerEvents: 'none',
   },
   headerSection: {
     paddingHorizontal: 16,

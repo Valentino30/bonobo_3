@@ -81,13 +81,22 @@ export function FlippableCard({ front, back, index, containerStyle, height, onFl
   })
 
   return (
-    <AnimatedCard onPress={handleFlip} index={index} containerStyle={[styles.container, containerStyle, { height: containerHeight }]}>
-      <View style={styles.innerContainer}>
+    <AnimatedCard
+      onPress={handleFlip}
+      index={index}
+      containerStyle={[styles.container, containerStyle, { height: containerHeight }]}
+    >
+      <View style={{ width: '100%', height: '100%' }}>
         {/* Front of card */}
         <Animated.View
-          style={[styles.cardFace, frontAnimatedStyle, { opacity: frontOpacity }, isFlipped && styles.hiddenFace]}
+          style={[
+            styles.cardFace,
+            frontAnimatedStyle,
+            { opacity: frontOpacity },
+            isFlipped && styles.hiddenFace,
+          ]}
           onLayout={(event) => {
-            if (!height) {
+            if (height === undefined) {
               const layoutHeight = event.nativeEvent.layout.height
               if (layoutHeight > 0 && frontHeightRef.current === 0) {
                 frontHeightRef.current = layoutHeight
@@ -103,9 +112,15 @@ export function FlippableCard({ front, back, index, containerStyle, height, onFl
 
         {/* Back of card */}
         <Animated.View
-          style={[styles.cardFace, styles.cardBack, backAnimatedStyle, { opacity: backOpacity }, !isFlipped && styles.hiddenFace]}
+          style={[
+            styles.cardFace,
+            styles.cardBack,
+            backAnimatedStyle,
+            { opacity: backOpacity },
+            !isFlipped && styles.hiddenFace,
+          ]}
           onLayout={(event) => {
-            if (!height) {
+            if (height === undefined) {
               const layoutHeight = event.nativeEvent.layout.height
               if (layoutHeight > 0 && backHeightRef.current === 0) {
                 backHeightRef.current = layoutHeight
@@ -126,10 +141,6 @@ export function FlippableCard({ front, back, index, containerStyle, height, onFl
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-  },
-  innerContainer: {
-    width: '100%',
-    height: '100%',
   },
   cardFace: {
     width: '100%',
