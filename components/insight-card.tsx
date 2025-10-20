@@ -1,3 +1,5 @@
+import { AnimatedCard } from '@/components/animated-card'
+import { FlippableCard } from '@/components/flippable-card'
 import { useTheme } from '@/contexts/theme-context'
 import { StyleSheet, Text, View } from 'react-native'
 
@@ -12,15 +14,29 @@ interface InsightCardProps {
     color: string
   }
   color?: string
+  explanationTitle?: string
+  explanationText?: string
+  index?: number
 }
 
-export function InsightCard({ title, icon, value, description, items, badge, color }: InsightCardProps) {
+export function InsightCard({
+  title,
+  icon,
+  value,
+  description,
+  items,
+  badge,
+  color,
+  explanationTitle,
+  explanationText,
+  index,
+}: InsightCardProps) {
   const theme = useTheme()
   const itemColor = color || theme.colors.primary
+  const isFlippable = explanationTitle && explanationText
 
-  return (
+  const frontContent = (
     <View style={[styles.card, { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow }]}>
-      {/* Header Section with Divider */}
       <View style={styles.headerSection}>
         <View style={styles.header}>
           {icon && <Text style={styles.icon}>{icon}</Text>}
@@ -34,43 +50,90 @@ export function InsightCard({ title, icon, value, description, items, badge, col
         <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
       </View>
 
-      {/* Content Section */}
       <View style={styles.content}>
-        {value && <Text style={[styles.value, { color: itemColor }]}>{value}</Text>}
-        {description && (
-          <Text style={[styles.description, { color: theme.colors.textSecondary }]}>
-            {typeof description === 'string' ? description : JSON.stringify(description)}
-          </Text>
-        )}
+        <View>
+          {value && <Text style={[styles.value, { color: itemColor }]}>{value}</Text>}
+          {description && (
+            <Text style={[styles.description, { color: theme.colors.textSecondary }]}>
+              {typeof description === 'string' ? description : JSON.stringify(description)}
+            </Text>
+          )}
 
-        {items && items.length > 0 && (
-          <View style={[styles.itemsList, !description && styles.itemsListNoDescription]}>
-            {items.map((item, index) => {
-              // Handle both string items and object items
-              const itemText = typeof item === 'string' ? item : JSON.stringify(item)
+          {items && items.length > 0 && (
+            <View style={[styles.itemsList, !description && styles.itemsListNoDescription]}>
+              {items.map((item, itemIndex) => {
+                const itemText = typeof item === 'string' ? item : JSON.stringify(item)
+                return (
+                  <View key={itemIndex} style={styles.itemRow}>
+                    <View style={[styles.bullet, { backgroundColor: itemColor }]} />
+                    <Text style={[styles.itemText, { color: theme.colors.textSecondary }]}>{itemText}</Text>
+                  </View>
+                )
+              })}
+            </View>
+          )}
+        </View>
 
-              return (
-                <View key={index} style={styles.itemRow}>
-                  <View style={[styles.bullet, { backgroundColor: itemColor }]} />
-                  <Text style={[styles.itemText, { color: theme.colors.textSecondary }]}>{itemText}</Text>
-                </View>
-              )
-            })}
+        {isFlippable && (
+          <View style={styles.flipHintContainer}>
+            <Text style={[styles.flipHint, { color: theme.colors.textSecondary }]}>Tap to learn more 💡</Text>
           </View>
         )}
       </View>
     </View>
   )
+
+  const backContent = isFlippable ? (
+    <View
+      style={[
+        styles.card,
+        styles.backCard,
+        { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow },
+      ]}
+    >
+      <View style={styles.backContent}>
+        <View style={styles.backCenterSection}>
+          {icon && <Text style={styles.backIcon}>{icon}</Text>}
+          <Text style={[styles.backTitle, { color: theme.colors.text }]}>{explanationTitle}</Text>
+          <Text style={[styles.backDescription, { color: theme.colors.textSecondary }]}>{explanationText}</Text>
+        </View>
+
+        <View style={styles.flipHintContainer}>
+          <Text style={[styles.flipHint, { color: theme.colors.textSecondary }]}>Tap to flip back ↩️</Text>
+        </View>
+      </View>
+    </View>
+  ) : null
+
+  if (isFlippable) {
+    return (
+      <AnimatedCard index={index} containerStyle={styles.cardContainer}>
+        <FlippableCard front={frontContent} back={backContent!} />
+      </AnimatedCard>
+    )
+  }
+
+  return (
+    <AnimatedCard index={index} containerStyle={styles.cardContainer}>
+      {frontContent}
+    </AnimatedCard>
+  )
 }
+
 const styles = StyleSheet.create({
+  cardContainer: {
+    marginBottom: 16,
+  },
   card: {
     borderRadius: 12,
-    marginBottom: 16,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 3,
     elevation: 2,
     overflow: 'hidden',
+  },
+  backCard: {
+    minHeight: 300,
   },
   headerSection: {
     paddingHorizontal: 16,
@@ -110,6 +173,8 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
+    flex: 1,
+    justifyContent: 'space-between',
   },
   value: {
     fontSize: 24,
@@ -148,5 +213,45 @@ const styles = StyleSheet.create({
     fontWeight: '300',
     lineHeight: 20,
     letterSpacing: 0.1,
+  },
+  flipHintContainer: {
+    marginTop: 12,
+    alignItems: 'center',
+  },
+  flipHint: {
+    fontSize: 12,
+    fontWeight: '400',
+    opacity: 0.6,
+  },
+  backContent: {
+    padding: 16,
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  backCenterSection: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    paddingHorizontal: 8,
+  },
+  backIcon: {
+    fontSize: 32,
+    marginBottom: 12,
+  },
+  backTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 12,
+    textAlign: 'center',
+    width: '100%',
+  },
+  backDescription: {
+    fontSize: 14,
+    fontWeight: '300',
+    lineHeight: 20,
+    letterSpacing: 0.1,
+    textAlign: 'center',
+    width: '100%',
   },
 })

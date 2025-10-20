@@ -1,4 +1,4 @@
-import { FlippableInsightCard } from '@/components/flippable-insight-card'
+import { InsightCard } from '@/components/insight-card'
 import { LockedInsightCard } from '@/components/locked-insight-card'
 import { INSIGHT_CONFIGS, type InsightConfig } from '@/constants/insights'
 import { useTheme } from '@/contexts/theme-context'
@@ -57,7 +57,7 @@ export function AnalysisInsights({
     const items = config.getItems(aiInsights)
 
     return (
-      <FlippableInsightCard
+      <InsightCard
         key={id}
         icon={icon}
         title={title}
