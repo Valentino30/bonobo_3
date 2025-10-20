@@ -1,4 +1,4 @@
-import React from 'react'
+import { useState } from 'react'
 import { useTheme } from '@/contexts/theme-context'
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 
@@ -77,7 +77,7 @@ export function CustomAlert({ visible, title, message, buttons = [{ text: 'OK' }
 
 // Hook for managing alert state
 export function useCustomAlert() {
-  const [alertConfig, setAlertConfig] = React.useState<{
+  const [alertConfig, setAlertConfig] = useState<{
     visible: boolean
     title: string
     message?: string

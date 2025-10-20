@@ -1,4 +1,3 @@
-import React from 'react';
 import { useRouter } from 'expo-router';
 import { ThemedIconButton } from '@/components/themed-icon-button';
 import type { ViewStyle } from 'react-native';
