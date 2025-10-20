@@ -3,8 +3,8 @@ import { ThemedIconButton } from '@/components/themed-icon-button'
 import { ThemedText } from '@/components/themed-text'
 import { useTheme } from '@/contexts/theme-context'
 import { type StoredChat } from '@/utils/chat-storage'
-import { useState } from 'react'
-import { Modal, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { useEffect, useRef, useState } from 'react'
+import { Animated, Easing, Modal, Pressable, StyleSheet, TouchableOpacity, View } from 'react-native'
 
 interface ChatCardProps {
   chat: StoredChat
@@ -15,6 +15,66 @@ interface ChatCardProps {
 export function ChatCard({ chat, onAnalyze, onDelete }: ChatCardProps) {
   const theme = useTheme()
   const [showMenu, setShowMenu] = useState(false)
+  const scaleAnim = useRef(new Animated.Value(1)).current
+  const shakeAnim = useRef(new Animated.Value(0)).current
+
+  // Entrance animation - subtle scale and shake on mount
+  useEffect(() => {
+    Animated.parallel([
+      Animated.sequence([
+        Animated.timing(scaleAnim, {
+          toValue: 1.02,
+          duration: 200,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleAnim, {
+          toValue: 1,
+          duration: 200,
+          easing: Easing.inOut(Easing.quad),
+          useNativeDriver: true,
+        }),
+      ]),
+      Animated.sequence([
+        Animated.timing(shakeAnim, {
+          toValue: 2,
+          duration: 100,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnim, {
+          toValue: -2,
+          duration: 100,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnim, {
+          toValue: 0,
+          duration: 100,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        }),
+      ]),
+    ]).start()
+  }, [scaleAnim, shakeAnim])
+
+  const handlePressIn = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 0.96,
+      useNativeDriver: true,
+      damping: 15,
+      stiffness: 200,
+    }).start()
+  }
+
+  const handlePressOut = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+      damping: 15,
+      stiffness: 200,
+    }).start()
+  }
 
   const handleAnalyze = () => {
     onAnalyze(chat.id)
@@ -41,37 +101,49 @@ export function ChatCard({ chat, onAnalyze, onDelete }: ChatCardProps) {
     return firstParticipant.trim()[0].toUpperCase()
   }
 
+  const translateX = shakeAnim.interpolate({
+    inputRange: [-2, 0, 2],
+    outputRange: [-2, 0, 2],
+  })
+
   return (
     <>
-      <TouchableOpacity
-        style={[styles.chatCard, { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow }]}
-        onPress={handleAnalyze}
-        activeOpacity={0.7}
+      <Animated.View
+        style={{
+          transform: [{ scale: scaleAnim }, { translateX }],
+        }}
       >
-        <View style={[styles.avatar, { backgroundColor: theme.colors.infoLight }]}>
-          <ThemedText style={[styles.avatarText, { color: theme.colors.textWhite }]}>{getInitial()}</ThemedText>
-        </View>
-        <View style={styles.contentContainer}>
-          <ThemedText style={[styles.participantName, { color: theme.colors.text }]} numberOfLines={1}>
-            {chat.participants?.join(' & ') || 'Unknown participants'}
-          </ThemedText>
-          <ThemedText style={[styles.messageCount, { color: theme.colors.textTertiary }]}>
-            {chat.messageCount || 0} messages
-          </ThemedText>
-        </View>
-        {onDelete && (
-          <ThemedIconButton
-            icon="dots-horizontal"
-            onPress={(e) => {
-              e?.stopPropagation?.()
-              setShowMenu(true)
-            }}
-            variant="ghost"
-            size="medium"
-            style={styles.menuButton}
-          />
-        )}
-      </TouchableOpacity>
+        <Pressable
+          style={[styles.chatCard, { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow }]}
+          onPress={handleAnalyze}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+        >
+          <View style={[styles.avatar, { backgroundColor: theme.colors.infoLight }]}>
+            <ThemedText style={[styles.avatarText, { color: theme.colors.textWhite }]}>{getInitial()}</ThemedText>
+          </View>
+          <View style={styles.contentContainer}>
+            <ThemedText style={[styles.participantName, { color: theme.colors.text }]} numberOfLines={1}>
+              {chat.participants?.join(' & ') || 'Unknown participants'}
+            </ThemedText>
+            <ThemedText style={[styles.messageCount, { color: theme.colors.textTertiary }]}>
+              {chat.messageCount || 0} messages
+            </ThemedText>
+          </View>
+          {onDelete && (
+            <ThemedIconButton
+              icon="dots-horizontal"
+              onPress={(e) => {
+                e?.stopPropagation?.()
+                setShowMenu(true)
+              }}
+              variant="ghost"
+              size="medium"
+              style={styles.menuButton}
+            />
+          )}
+        </Pressable>
+      </Animated.View>
 
       <Modal visible={showMenu} transparent animationType="fade" onRequestClose={() => setShowMenu(false)}>
         <TouchableOpacity
