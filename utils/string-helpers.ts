@@ -37,3 +37,19 @@ export function getNameInitials(name?: string): string {
 
   return (words[0][0] + words[words.length - 1][0]).toUpperCase()
 }
+
+/**
+ * Truncates text to a maximum length with ellipsis
+ * Returns original text if it's shorter than max length
+ *
+ * @param text Text to truncate
+ * @param maxLength Maximum length before truncation (default: 100)
+ * @returns Truncated text with '...' or original text
+ */
+export function truncateText(text: string, maxLength: number = 100): string {
+  if (!text || text.length <= maxLength) {
+    return text
+  }
+
+  return text.substring(0, maxLength) + '...'
+}
