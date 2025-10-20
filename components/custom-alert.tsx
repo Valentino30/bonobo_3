@@ -23,26 +23,24 @@ export function CustomAlert({ visible, title, message, buttons = [{ text: 'OK' }
     onDismiss?.()
   }
 
-  const getButtonStyle = (buttonStyle?: string) => {
-    switch (buttonStyle) {
-      case 'cancel':
-        return { backgroundColor: theme.colors.backgroundInput }
-      case 'destructive':
-        return { backgroundColor: theme.colors.backgroundLight }
-      default:
-        return { backgroundColor: theme.colors.backgroundLight }
-    }
+  const buttonStyles = {
+    cancel: {
+      background: theme.colors.backgroundInput,
+      text: theme.colors.textTertiary,
+    },
+    destructive: {
+      background: theme.colors.backgroundLight,
+      text: theme.colors.warning,
+    },
+    default: {
+      background: theme.colors.backgroundLight,
+      text: theme.colors.primary,
+    },
   }
 
-  const getButtonTextStyle = (buttonStyle?: string) => {
-    switch (buttonStyle) {
-      case 'cancel':
-        return { color: theme.colors.textTertiary }
-      case 'destructive':
-        return { color: theme.colors.warning }
-      default:
-        return { color: theme.colors.primary }
-    }
+  const getButtonStyles = (style?: string) => {
+    const styleKey = (style === 'cancel' || style === 'destructive') ? style : 'default'
+    return buttonStyles[styleKey]
   }
 
   return (
@@ -57,16 +55,24 @@ export function CustomAlert({ visible, title, message, buttons = [{ text: 'OK' }
 
           {/* Buttons */}
           <View style={[styles.buttonContainer, { borderTopColor: theme.colors.backgroundSecondary }]}>
-            {buttons.map((button, index) => (
-              <TouchableOpacity
-                key={index}
-                style={[styles.button, getButtonStyle(button.style), buttons.length === 1 && styles.buttonSingle, index < buttons.length - 1 && { borderRightWidth: 1, borderRightColor: theme.colors.backgroundSecondary }]}
-                onPress={() => handleButtonPress(button)}
-                activeOpacity={0.8}
-              >
-                <Text style={[styles.buttonText, getButtonTextStyle(button.style)]}>{button.text}</Text>
-              </TouchableOpacity>
-            ))}
+            {buttons.map((button, index) => {
+              const buttonStyle = getButtonStyles(button.style)
+              return (
+                <TouchableOpacity
+                  key={index}
+                  style={[
+                    styles.button,
+                    { backgroundColor: buttonStyle.background },
+                    buttons.length === 1 && styles.buttonSingle,
+                    index < buttons.length - 1 && { borderRightWidth: 1, borderRightColor: theme.colors.backgroundSecondary },
+                  ]}
+                  onPress={() => handleButtonPress(button)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[styles.buttonText, { color: buttonStyle.text }]}>{button.text}</Text>
+                </TouchableOpacity>
+              )
+            })}
           </View>
         </View>
       </View>
