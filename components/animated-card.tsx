@@ -1,4 +1,4 @@
-import { Animated, Pressable, type PressableProps, type ViewStyle } from 'react-native'
+import { Animated, Pressable, View, type PressableProps, type ViewStyle } from 'react-native'
 import { useCardAnimation, type CardAnimationConfig } from '@/hooks/use-card-animation'
 import { type ReactNode } from 'react'
 
@@ -67,18 +67,24 @@ export function AnimatedCard({
   }
 
   return (
-    <Pressable style={style} onPressIn={handlePressInWrapper} onPressOut={handlePressOutWrapper} {...pressableProps}>
-      <Animated.View
-        style={[
-          containerStyle,
-          {
-            opacity,
-            transform: [{ scale }, { translateX: shake }, { rotate }],
-          },
-        ]}
-      >
-        {children}
-      </Animated.View>
-    </Pressable>
+    <Animated.View
+      style={{
+        opacity,
+        transform: [{ translateX: shake }],
+      }}
+    >
+      <Pressable style={style} onPressIn={handlePressInWrapper} onPressOut={handlePressOutWrapper} {...pressableProps}>
+        <Animated.View
+          style={[
+            containerStyle,
+            {
+              transform: [{ scale }, { rotate }],
+            },
+          ]}
+        >
+          {children}
+        </Animated.View>
+      </Pressable>
+    </Animated.View>
   )
 }

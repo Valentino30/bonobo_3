@@ -68,13 +68,14 @@ export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimatio
     pressShakeIntensity = 1,
   } = config
 
-  const scaleAnim = useRef(new Animated.Value(entranceAnimation ? 0.98 : 1)).current
+  const scaleAnim = useRef(new Animated.Value(1)).current
   const opacityAnim = useRef(new Animated.Value(entranceAnimation ? 0 : 1)).current
+  const slideAnim = useRef(new Animated.Value(entranceAnimation ? -30 : 0)).current
   const shakeAnim = useRef(new Animated.Value(0)).current
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const shakeLoopRef = useRef<Animated.CompositeAnimation | null>(null)
 
-  // Entrance animation - gentle scale + fade (avoids shadow artifacts from translateX)
+  // Entrance animation - slide from left with fade (shadow on separate layer to prevent artifacts)
   useEffect(() => {
     if (!entranceAnimation) return
 
@@ -86,17 +87,17 @@ export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimatio
           easing: Easing.bezier(0.25, 0.1, 0.25, 1),
           useNativeDriver: true,
         }),
-        Animated.spring(scaleAnim, {
-          toValue: 1,
-          tension: 35,
-          friction: 7,
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 500,
+          easing: Easing.bezier(0.25, 0.1, 0.25, 1),
           useNativeDriver: true,
         }),
       ]).start()
     }, entranceDelay)
 
     return () => clearTimeout(timeout)
-  }, [opacityAnim, scaleAnim, entranceAnimation, entranceDelay])
+  }, [opacityAnim, slideAnim, entranceAnimation, entranceDelay])
 
   const startShake = () => {
     shakeLoopRef.current = Animated.loop(
@@ -190,11 +191,14 @@ export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimatio
     }
   }, [shakeAnim])
 
-  // Press shake only (no entrance slide)
-  const shake = shakeAnim.interpolate({
-    inputRange: [-pressShakeIntensity, 0, pressShakeIntensity],
-    outputRange: [-2, 0, 2],
-  })
+  // Combine slide entrance with press shake
+  const shake = Animated.add(
+    slideAnim,
+    shakeAnim.interpolate({
+      inputRange: [-pressShakeIntensity, 0, pressShakeIntensity],
+      outputRange: [-2, 0, 2],
+    })
+  )
 
   const rotate = shakeAnim.interpolate({
     inputRange: [-pressShakeIntensity, 0, pressShakeIntensity],
