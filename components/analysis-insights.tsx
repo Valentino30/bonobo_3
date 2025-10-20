@@ -29,10 +29,9 @@ export function AnalysisInsights({
   // Render individual insight card (unlocked or locked)
   const renderInsightCard = (config: InsightConfig, index: number) => {
     const { id, icon, title, unlockText } = config
-    const entranceDelay = index * 80
 
     if (isInsightUnlocked(id) && aiInsights) {
-      return renderUnlockedInsight(config, entranceDelay)
+      return renderUnlockedInsight(config, index)
     }
 
     return (
@@ -43,13 +42,13 @@ export function AnalysisInsights({
         onUnlock={() => onUnlockInsight(id)}
         isLoading={loadingInsight === id}
         unlockText={unlockText}
-        entranceDelay={entranceDelay}
+        index={index}
       />
     )
   }
 
   // Render unlocked insight with data using config
-  const renderUnlockedInsight = (config: InsightConfig, entranceDelay: number) => {
+  const renderUnlockedInsight = (config: InsightConfig, index: number) => {
     if (!aiInsights) return null
 
     const { id, icon, title, explanationTitle, explanationText } = config
@@ -67,7 +66,7 @@ export function AnalysisInsights({
         badge={{ text: badge.text, color: theme.colors[badge.colorKey] }}
         explanationTitle={explanationTitle}
         explanationText={explanationText}
-        entranceDelay={entranceDelay}
+        index={index}
       />
     )
   }

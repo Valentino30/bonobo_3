@@ -34,7 +34,7 @@ export function ChatList({
     >
       {chats.length > 0 ? (
         chats.map((chat, index) => (
-          <ChatCard key={chat.id} chat={chat} onAnalyze={onAnalyzeChat} onDelete={onDeleteChat} entranceDelay={index * 80} />
+          <ChatCard key={chat.id} chat={chat} onAnalyze={onAnalyzeChat} onDelete={onDeleteChat} index={index} />
         ))
       ) : (
         <EmptyState

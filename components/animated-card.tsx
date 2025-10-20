@@ -1,6 +1,6 @@
-import { Animated, Pressable, View, type PressableProps, type ViewStyle } from 'react-native'
 import { useCardAnimation, type CardAnimationConfig } from '@/hooks/use-card-animation'
 import { type ReactNode } from 'react'
+import { Animated, Pressable, type PressableProps, type ViewStyle } from 'react-native'
 
 interface AnimatedCardProps extends Omit<PressableProps, 'style' | 'onPressIn' | 'onPressOut'> {
   /** Child components to render inside the animated card */
@@ -11,13 +11,16 @@ interface AnimatedCardProps extends Omit<PressableProps, 'style' | 'onPressIn' |
   containerStyle?: ViewStyle | ViewStyle[]
   /** Animation configuration (uses sensible defaults if not provided) */
   animationConfig?: CardAnimationConfig
-  /** Entrance animation delay in milliseconds (for staggered list animations) */
-  entranceDelay?: number
+  /** Index for staggered animations (will be multiplied by 80ms) */
+  index?: number
   /** Custom onPressIn handler (will be called after animation) */
   onPressIn?: () => void
   /** Custom onPressOut handler (will be called after animation) */
   onPressOut?: () => void
 }
+
+/** Stagger delay in milliseconds between each card animation */
+const STAGGER_DELAY_MS = 80
 
 /**
  * Wrapper component that adds scale and shake animations to any card-like component
@@ -46,11 +49,13 @@ export function AnimatedCard({
   style,
   containerStyle,
   animationConfig,
-  entranceDelay,
+  index,
   onPressIn: customOnPressIn,
   onPressOut: customOnPressOut,
   ...pressableProps
 }: AnimatedCardProps) {
+  const entranceDelay = index !== undefined ? index * STAGGER_DELAY_MS : undefined
+
   const { scale, opacity, shake, rotate, handlePressIn, handlePressOut } = useCardAnimation({
     ...animationConfig,
     entranceDelay,

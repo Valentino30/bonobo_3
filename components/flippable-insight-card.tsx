@@ -16,7 +16,7 @@ interface FlippableInsightCardProps {
   color?: string
   explanationTitle: string
   explanationText: string
-  entranceDelay?: number
+  index?: number
 }
 
 /**
@@ -33,7 +33,7 @@ export function FlippableInsightCard({
   color,
   explanationTitle,
   explanationText,
-  entranceDelay,
+  index,
 }: FlippableInsightCardProps) {
   const theme = useTheme()
   const itemColor = color || theme.colors.primary
@@ -42,6 +42,7 @@ export function FlippableInsightCard({
   const frontHeightRef = useRef<number>(0)
   const backHeightRef = useRef<number>(0)
   const flipAnimation = useRef(new Animated.Value(0)).current
+  const entranceDelay = index !== undefined ? index * 80 : undefined
   const { scale, opacity, shake, rotate, handlePressIn, handlePressOut } = useCardAnimation({
     entranceAnimation: true,
     entranceDelay,

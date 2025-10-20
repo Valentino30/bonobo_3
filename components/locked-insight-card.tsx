@@ -14,17 +14,17 @@ interface LockedInsightCardProps {
   onUnlock: () => void
   isLoading?: boolean
   unlockText?: string
-  entranceDelay?: number
+  index?: number
 }
 
-export function LockedInsightCard({ title, icon, badge, onUnlock, isLoading, unlockText, entranceDelay }: LockedInsightCardProps) {
+export function LockedInsightCard({ title, icon, badge, onUnlock, isLoading, unlockText, index }: LockedInsightCardProps) {
   const theme = useTheme()
 
   return (
     <AnimatedCard
       onPress={onUnlock}
       containerStyle={[styles.card, { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow, borderColor: theme.colors.backgroundSecondary }]}
-      entranceDelay={entranceDelay}
+      index={index}
     >
       {/* Header Section */}
       <View style={styles.headerSection}>

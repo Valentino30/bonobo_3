@@ -22,8 +22,6 @@ export function AnalysisOverview({ analysis }: AnalysisOverviewProps) {
       return null
     }
 
-    const entranceDelay = index * 80
-
     // Render simple stat card
     if (card.type === 'simple' && card.getValue) {
       return (
@@ -32,7 +30,7 @@ export function AnalysisOverview({ analysis }: AnalysisOverviewProps) {
           title={card.title}
           icon={card.icon}
           value={card.getValue(analysis)}
-          entranceDelay={entranceDelay}
+          index={index}
         />
       )
     }
@@ -47,7 +45,7 @@ export function AnalysisOverview({ analysis }: AnalysisOverviewProps) {
           icon={card.icon}
           description={card.description?.(analysis)}
           participants={card.getParticipants(analysis, colors)}
-          entranceDelay={entranceDelay}
+          index={index}
         />
       )
     }
