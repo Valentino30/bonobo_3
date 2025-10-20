@@ -5,64 +5,52 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useEffect, useRef } from 'react'
 import { Animated, StyleSheet } from 'react-native'
 
-interface EmptyStateProps {
-  hasShareData: boolean
-}
-
-export function EmptyState({ hasShareData }: EmptyStateProps) {
+export function WelcomeState() {
   const theme = useTheme()
   const bounceAnim = useRef(new Animated.Value(0)).current
 
   // Bouncing animation for the arrow
   useEffect(() => {
-    if (!hasShareData) {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(bounceAnim, {
-            toValue: -10,
-            duration: 600,
-            useNativeDriver: true,
-          }),
-          Animated.timing(bounceAnim, {
-            toValue: 0,
-            duration: 600,
-            useNativeDriver: true,
-          }),
-        ])
-      ).start()
-    }
-  }, [hasShareData, bounceAnim])
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(bounceAnim, {
+          toValue: -10,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+        Animated.timing(bounceAnim, {
+          toValue: 0,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start()
+  }, [bounceAnim])
 
   return (
-    <ThemedView style={styles.emptyState}>
+    <ThemedView style={styles.welcomeState}>
       <ThemedView
         style={[
-          styles.emptyIconContainer,
+          styles.iconContainer,
           { backgroundColor: theme.colors.background, borderColor: theme.colors.backgroundSecondary },
         ]}
       >
-        <ThemedText style={styles.emptyIcon}>🤗</ThemedText>
+        <ThemedText style={styles.icon}>🤗</ThemedText>
       </ThemedView>
-      <ThemedText style={[styles.emptyTitle, { color: theme.colors.text }]}>
-        {hasShareData ? 'Loading Your Chat' : 'Welcome to Bonobo!'}
-      </ThemedText>
-      <ThemedText style={[styles.emptySubtitle, { color: theme.colors.textSecondary }]}>
-        {hasShareData
-          ? 'Please wait while we import your WhatsApp chat'
-          : "We're here to help you improve your relationships through AI-powered insights."}
+      <ThemedText style={[styles.title, { color: theme.colors.text }]}>Welcome to Bonobo!</ThemedText>
+      <ThemedText style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
+        We're here to help you improve your relationships through AI-powered insights.
       </ThemedText>
 
-      {!hasShareData && (
-        <Animated.View style={[styles.arrowContainer, { transform: [{ translateY: bounceAnim }] }]}>
-          <MaterialCommunityIcons name="arrow-down" size={48} color={theme.colors.primary} />
-        </Animated.View>
-      )}
+      <Animated.View style={[styles.arrowContainer, { transform: [{ translateY: bounceAnim }] }]}>
+        <MaterialCommunityIcons name="arrow-down" size={48} color={theme.colors.primary} />
+      </Animated.View>
     </ThemedView>
   )
 }
 
 const styles = StyleSheet.create({
-  emptyState: {
+  welcomeState: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -70,7 +58,7 @@ const styles = StyleSheet.create({
     paddingTop: 100,
     paddingBottom: 140,
   },
-  emptyIconContainer: {
+  iconContainer: {
     width: 100,
     height: 100,
     borderRadius: 50,
@@ -80,12 +68,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     overflow: 'visible',
   },
-  emptyIcon: {
+  icon: {
     fontSize: 56,
     opacity: 0.9,
     lineHeight: 64,
   },
-  emptyTitle: {
+  title: {
     fontSize: 28,
     fontWeight: '700',
     textAlign: 'center',
@@ -93,7 +81,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
     paddingHorizontal: 10,
   },
-  emptySubtitle: {
+  subtitle: {
     fontSize: 17,
     textAlign: 'center',
     marginBottom: 40,

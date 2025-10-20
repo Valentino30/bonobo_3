@@ -15,7 +15,7 @@ export default function ChatsScreen() {
   const { showAlert, AlertComponent } = useCustomAlert()
 
   // All business logic encapsulated in custom hook
-  const { chats, isLoading, hasShareData, handleAnalyzeChat, handleNavigateToProfile, handleNavigateToImportGuide, deleteChat } =
+  const { chats, isLoading, handleAnalyzeChat, handleNavigateToProfile, handleNavigateToImportGuide, deleteChat } =
     useChats({ showAlert })
 
   // Show loading screen while chats are being loaded
@@ -49,7 +49,7 @@ export default function ChatsScreen() {
         {/* Custom Alert */}
         <AlertComponent />
 
-        <ChatList chats={chats} hasShareData={hasShareData} onAnalyzeChat={handleAnalyzeChat} onDeleteChat={deleteChat} />
+        <ChatList chats={chats} onAnalyzeChat={handleAnalyzeChat} onDeleteChat={deleteChat} />
 
         <ThemedButton
           title="Import Chat"

@@ -1,16 +1,15 @@
 import { ChatCard } from '@/components/chat-card'
-import { EmptyState } from '@/components/empty-state'
+import { WelcomeState } from '@/components/welcome-state'
 import { type StoredChat } from '@/utils/chat-storage'
 import { ScrollView, StyleSheet } from 'react-native'
 
 interface ChatListProps {
   chats: StoredChat[]
-  hasShareData: boolean
   onAnalyzeChat: (chatId: string) => void
   onDeleteChat?: (chatId: string) => void
 }
 
-export function ChatList({ chats, hasShareData, onAnalyzeChat, onDeleteChat }: ChatListProps) {
+export function ChatList({ chats, onAnalyzeChat, onDeleteChat }: ChatListProps) {
   return (
     <ScrollView
       style={styles.chatList}
@@ -22,7 +21,7 @@ export function ChatList({ chats, hasShareData, onAnalyzeChat, onDeleteChat }: C
           <ChatCard key={chat.id} chat={chat} onAnalyze={onAnalyzeChat} onDelete={onDeleteChat} index={index} />
         ))
       ) : (
-        <EmptyState hasShareData={hasShareData} />
+        <WelcomeState />
       )}
     </ScrollView>
   )
