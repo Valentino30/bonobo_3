@@ -1,10 +1,10 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { AnimatedIcon } from '@/components/animated-icon'
 import { ANALYSIS_LOADING_STEPS } from '@/constants/analysis-loading'
 import { InfoBanner } from '@/components/info-banner'
 import { LoadingProgressBar } from '@/components/loading-progress-bar'
 import { useTheme } from '@/contexts/theme-context'
 import { useLoadingAnimation } from '@/hooks/use-loading-animation'
-import { Animated, StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 
 export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
   const theme = useTheme()
@@ -19,9 +19,9 @@ export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
       {/* Main Content Card */}
       <View style={[styles.card, { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow, borderColor: theme.colors.backgroundSecondary }]}>
         {/* Animated Icon */}
-        <Animated.View style={[styles.iconContainer, { backgroundColor: theme.colors.backgroundInfo, borderColor: theme.colors.primaryLighter, transform: [{ scale: pulseAnim }] }]}>
-          <MaterialCommunityIcons name={ANALYSIS_LOADING_STEPS[currentStep].icon} size={56} color={theme.colors.primary} />
-        </Animated.View>
+        <View style={styles.iconWrapper}>
+          <AnimatedIcon icon={ANALYSIS_LOADING_STEPS[currentStep].icon} pulseAnim={pulseAnim} />
+        </View>
 
         {/* Title and Subtitle */}
         <View style={styles.textContainer}>
@@ -61,14 +61,8 @@ const styles = StyleSheet.create({
     elevation: 4,
     borderWidth: 1,
   },
-  iconContainer: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
+  iconWrapper: {
     marginBottom: 24,
-    borderWidth: 2,
   },
   textContainer: {
     alignItems: 'center',
