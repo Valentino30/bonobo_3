@@ -1,5 +1,6 @@
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
+import { AnimatedCard } from '@/components/animated-card'
 import { StyleSheet, View } from 'react-native'
 import { useTheme } from '@/contexts/theme-context'
 
@@ -13,14 +14,14 @@ export function SimpleStatCard({ title, icon, value }: SimpleStatCardProps) {
   const theme = useTheme()
 
   return (
-    <ThemedView style={[styles.statCard, { backgroundColor: theme.colors.backgroundLight, borderColor: theme.colors.borderLight, shadowColor: theme.colors.shadow }]}>
+    <AnimatedCard containerStyle={[styles.statCard, { backgroundColor: theme.colors.backgroundLight, borderColor: theme.colors.borderLight, shadowColor: theme.colors.shadow }]}>
       <View style={styles.titleRow}>
         <ThemedText style={[styles.cardTitle, { color: theme.colors.textSecondary }]}>{title}</ThemedText>
         <ThemedText style={styles.iconText}>{icon}</ThemedText>
       </View>
       <View style={[styles.divider, { backgroundColor: theme.colors.backgroundSecondary }]} />
       <ThemedText style={[styles.singleValueNumber, { color: theme.colors.text }]}>{value}</ThemedText>
-    </ThemedView>
+    </AnimatedCard>
   )
 }
 
