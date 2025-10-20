@@ -69,35 +69,27 @@ export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimatio
   } = config
 
   const scaleAnim = useRef(new Animated.Value(1)).current
-  const opacityAnim = useRef(new Animated.Value(entranceAnimation ? 0 : 1)).current
-  const slideAnim = useRef(new Animated.Value(entranceAnimation ? -20 : 0)).current
+  const opacityAnim = useRef(new Animated.Value(1)).current
+  const slideAnim = useRef(new Animated.Value(entranceAnimation ? -30 : 0)).current
   const shakeAnim = useRef(new Animated.Value(0)).current
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const shakeLoopRef = useRef<Animated.CompositeAnimation | null>(null)
 
-  // Entrance animation - slide in from left to right with fade
+  // Entrance animation - simple slide in from left
   useEffect(() => {
     if (!entranceAnimation) return
 
     const timeout = setTimeout(() => {
-      Animated.parallel([
-        Animated.timing(opacityAnim, {
-          toValue: 1,
-          duration: 400,
-          easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
-        }),
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 400,
-          easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
-        }),
-      ]).start()
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 350,
+        easing: Easing.out(Easing.quad),
+        useNativeDriver: true,
+      }).start()
     }, entranceDelay)
 
     return () => clearTimeout(timeout)
-  }, [opacityAnim, slideAnim, entranceAnimation, entranceDelay])
+  }, [slideAnim, entranceAnimation, entranceDelay])
 
   const startShake = () => {
     shakeLoopRef.current = Animated.loop(
@@ -191,7 +183,7 @@ export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimatio
     }
   }, [shakeAnim])
 
-  // Combine slide-in animation with press shake
+  // Combine slide entrance with press shake
   const shake = Animated.add(
     slideAnim,
     shakeAnim.interpolate({
