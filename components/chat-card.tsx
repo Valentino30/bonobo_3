@@ -1,12 +1,12 @@
-import { ThemedButton } from '@/components/themed-button'
 import { ThemedIconButton } from '@/components/themed-icon-button'
 import { ThemedText } from '@/components/themed-text'
 import { AnimatedCard } from '@/components/animated-card'
+import { BottomSheet } from '@/components/bottom-sheet'
 import { useTheme } from '@/contexts/theme-context'
 import { type StoredChat } from '@/utils/chat-storage'
 import { getParticipantInitial } from '@/utils/string-helpers'
 import { useState } from 'react'
-import { Modal, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 
 interface ChatCardProps {
   chat: StoredChat
@@ -60,32 +60,22 @@ export function ChatCard({ chat, onAnalyze, onDelete }: ChatCardProps) {
         )}
       </AnimatedCard>
 
-      <Modal visible={showMenu} transparent animationType="fade" onRequestClose={() => setShowMenu(false)}>
-        <TouchableOpacity
-          style={[styles.modalOverlay, { backgroundColor: theme.colors.backgroundOverlay }]}
-          activeOpacity={1}
-          onPress={() => setShowMenu(false)}
-        >
-          <View style={[styles.bottomDrawer, { backgroundColor: theme.colors.backgroundLight }]}>
-            <ThemedButton
-              title="Delete Chat"
-              onPress={handleDelete}
-              variant="destructive"
-              size="large"
-              fullWidth
-              style={styles.drawerButton}
-            />
-            <ThemedButton
-              title="Cancel"
-              onPress={() => setShowMenu(false)}
-              variant="secondary"
-              size="large"
-              fullWidth
-              style={styles.drawerButton}
-            />
-          </View>
-        </TouchableOpacity>
-      </Modal>
+      <BottomSheet
+        visible={showMenu}
+        onDismiss={() => setShowMenu(false)}
+        actions={[
+          {
+            title: 'Delete Chat',
+            onPress: handleDelete,
+            variant: 'destructive',
+          },
+          {
+            title: 'Cancel',
+            onPress: () => setShowMenu(false),
+            variant: 'secondary',
+          },
+        ]}
+      />
     </>
   )
 }
@@ -133,19 +123,5 @@ const styles = StyleSheet.create({
   },
   menuButton: {
     padding: 0,
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  bottomDrawer: {
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 40,
-  },
-  drawerButton: {
-    marginBottom: 12,
   },
 })
