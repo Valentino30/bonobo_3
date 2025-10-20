@@ -2,6 +2,7 @@ import { ThemedText } from '@/components/themed-text'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { StyleSheet, View, ViewStyle } from 'react-native'
 import { useTheme } from '@/contexts/theme-context'
+import { getVariantStyles, type VariantType } from '@/utils/badge-variants'
 
 interface BadgeProps {
   icon?: keyof typeof MaterialCommunityIcons.glyphMap
@@ -11,7 +12,7 @@ interface BadgeProps {
   textColor?: string
   backgroundColor?: string
   borderColor?: string
-  variant?: 'default' | 'primary' | 'success' | 'warning' | 'error'
+  variant?: VariantType
   containerStyle?: ViewStyle
 }
 
@@ -28,40 +29,12 @@ export function Badge({
 }: BadgeProps) {
   const theme = useTheme()
 
-  const variantStyles = {
-    default: {
-      backgroundColor: backgroundColor || theme.colors.backgroundSecondary,
-      borderColor: borderColor || theme.colors.border,
-      textColor: textColor || theme.colors.text,
-      iconColor: iconColor || theme.colors.text,
-    },
-    primary: {
-      backgroundColor: backgroundColor || theme.colors.backgroundInfo,
-      borderColor: borderColor || theme.colors.primaryLighter,
-      textColor: textColor || theme.colors.primary,
-      iconColor: iconColor || theme.colors.primary,
-    },
-    success: {
-      backgroundColor: backgroundColor || theme.colors.backgroundSuccess,
-      borderColor: borderColor || theme.colors.primaryLighter,
-      textColor: textColor || theme.colors.successDark,
-      iconColor: iconColor || theme.colors.successDark,
-    },
-    warning: {
-      backgroundColor: backgroundColor || theme.colors.backgroundInfo,
-      borderColor: borderColor || theme.colors.primaryLighter,
-      textColor: textColor || theme.colors.warning,
-      iconColor: iconColor || theme.colors.warning,
-    },
-    error: {
-      backgroundColor: backgroundColor || theme.colors.backgroundError,
-      borderColor: borderColor || theme.colors.errorLight,
-      textColor: textColor || theme.colors.error,
-      iconColor: iconColor || theme.colors.error,
-    },
-  }
-
-  const style = variantStyles[variant]
+  const style = getVariantStyles(theme, variant, {
+    backgroundColor,
+    borderColor,
+    textColor,
+    iconColor,
+  })
 
   return (
     <View style={[styles.container, containerStyle]}>

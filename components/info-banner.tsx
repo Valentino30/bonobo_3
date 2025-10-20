@@ -1,6 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useTheme } from '@/contexts/theme-context'
 import { StyleSheet, Text, View } from 'react-native'
+import { getVariantStyles, type VariantType } from '@/utils/badge-variants'
 
 type InfoBannerProps = {
   /** Icon name from MaterialCommunityIcons */
@@ -10,7 +11,7 @@ type InfoBannerProps = {
   /** Banner text content */
   text: string
   /** Visual variant */
-  variant?: 'info' | 'success' | 'warning' | 'error'
+  variant?: Exclude<VariantType, 'default' | 'primary'>
 }
 
 /**
@@ -19,35 +20,7 @@ type InfoBannerProps = {
  */
 export function InfoBanner({ icon = 'lightbulb-on-outline', iconSize = 18, text, variant = 'info' }: InfoBannerProps) {
   const theme = useTheme()
-
-  const variantStyles = {
-    info: {
-      backgroundColor: theme.colors.backgroundInfo,
-      borderColor: theme.colors.primaryLighter,
-      iconColor: theme.colors.primary,
-      textColor: theme.colors.primaryDark,
-    },
-    success: {
-      backgroundColor: theme.colors.backgroundSuccess,
-      borderColor: theme.colors.primaryLighter,
-      iconColor: theme.colors.success,
-      textColor: theme.colors.successDark,
-    },
-    warning: {
-      backgroundColor: theme.colors.backgroundInfo,
-      borderColor: theme.colors.primaryLighter,
-      iconColor: theme.colors.warning,
-      textColor: theme.colors.textSecondary,
-    },
-    error: {
-      backgroundColor: theme.colors.backgroundError,
-      borderColor: theme.colors.errorLight,
-      iconColor: theme.colors.error,
-      textColor: theme.colors.textError,
-    },
-  }
-
-  const style = variantStyles[variant]
+  const style = getVariantStyles(theme, variant)
 
   return (
     <View style={[styles.container, { backgroundColor: style.backgroundColor, borderColor: style.borderColor }]}>

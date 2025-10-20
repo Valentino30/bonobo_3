@@ -2,6 +2,7 @@ import { ThemedText } from '@/components/themed-text'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { StyleSheet, View } from 'react-native'
 import { useTheme } from '@/contexts/theme-context'
+import { getVariantStyles, type VariantType } from '@/utils/badge-variants'
 
 interface InfoCardProps {
   icon?: keyof typeof MaterialCommunityIcons.glyphMap
@@ -9,7 +10,7 @@ interface InfoCardProps {
   iconSize?: number
   title: string
   description: string
-  variant?: 'info' | 'success' | 'warning' | 'error'
+  variant?: Exclude<VariantType, 'default' | 'primary'>
 }
 
 export function InfoCard({
@@ -21,39 +22,7 @@ export function InfoCard({
   variant = 'info',
 }: InfoCardProps) {
   const theme = useTheme()
-
-  const variantStyles = {
-    info: {
-      backgroundColor: theme.colors.backgroundInfo,
-      borderColor: theme.colors.primaryLighter,
-      titleColor: theme.colors.primary,
-      textColor: theme.colors.primaryDark,
-      iconColor: iconColor || theme.colors.primary,
-    },
-    success: {
-      backgroundColor: theme.colors.backgroundSuccess,
-      borderColor: theme.colors.primaryLighter,
-      titleColor: theme.colors.successDark,
-      textColor: theme.colors.successDark,
-      iconColor: iconColor || theme.colors.successDark,
-    },
-    warning: {
-      backgroundColor: theme.colors.backgroundInfo,
-      borderColor: theme.colors.primaryLighter,
-      titleColor: theme.colors.warning,
-      textColor: theme.colors.textSecondary,
-      iconColor: iconColor || theme.colors.warning,
-    },
-    error: {
-      backgroundColor: theme.colors.backgroundError,
-      borderColor: theme.colors.errorLight,
-      titleColor: theme.colors.error,
-      textColor: theme.colors.textError,
-      iconColor: iconColor || theme.colors.error,
-    },
-  }
-
-  const style = variantStyles[variant]
+  const style = getVariantStyles(theme, variant, { iconColor })
 
   return (
     <View
