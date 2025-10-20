@@ -1,5 +1,6 @@
+import { AlertButtonItem } from '@/components/alert-button-item'
 import { useTheme } from '@/contexts/theme-context'
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Modal, StyleSheet, Text, View } from 'react-native'
 
 export interface AlertButton {
   text: string
@@ -13,50 +14,6 @@ interface CustomAlertProps {
   message?: string
   buttons?: AlertButton[]
   onDismiss?: () => void
-}
-
-interface AlertButtonItemProps {
-  button: AlertButton
-  isLast: boolean
-  isSingle: boolean
-  onPress: (button: AlertButton) => void
-}
-
-function AlertButtonItem({ button, isLast, isSingle, onPress }: AlertButtonItemProps) {
-  const theme = useTheme()
-
-  const buttonStyles = {
-    cancel: {
-      background: theme.colors.backgroundInput,
-      text: theme.colors.textTertiary,
-    },
-    destructive: {
-      background: theme.colors.backgroundLight,
-      text: theme.colors.warning,
-    },
-    default: {
-      background: theme.colors.backgroundLight,
-      text: theme.colors.primary,
-    },
-  }
-
-  const styleKey = (button.style === 'cancel' || button.style === 'destructive') ? button.style : 'default'
-  const buttonStyle = buttonStyles[styleKey]
-
-  return (
-    <TouchableOpacity
-      style={[
-        styles.button,
-        { backgroundColor: buttonStyle.background },
-        isSingle && styles.buttonSingle,
-        !isLast && { borderRightWidth: 1, borderRightColor: theme.colors.backgroundSecondary },
-      ]}
-      onPress={() => onPress(button)}
-      activeOpacity={0.8}
-    >
-      <Text style={[styles.buttonText, { color: buttonStyle.text }]}>{button.text}</Text>
-    </TouchableOpacity>
-  )
 }
 
 export function CustomAlert({ visible, title, message, buttons = [{ text: 'OK' }], onDismiss }: CustomAlertProps) {
@@ -132,20 +89,5 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     borderTopWidth: 1,
-  },
-  button: {
-    flex: 1,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonSingle: {
-    borderRightWidth: 0,
-  },
-  buttonText: {
-    fontSize: 15,
-    fontWeight: '500',
-    letterSpacing: 0.2,
   },
 })
