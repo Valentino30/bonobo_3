@@ -5,44 +5,13 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native'
 
 interface DangerZoneCardProps {
-  /**
-   * Title for the danger zone (default: "Danger Zone")
-   */
   title?: string
-
-  /**
-   * Description text explaining the action
-   */
   description: string
-
-  /**
-   * Button text for the destructive action
-   */
   buttonText: string
-
-  /**
-   * Callback when the destructive action button is pressed
-   */
   onPress: () => void
-
-  /**
-   * Icon name from MaterialCommunityIcons (default: "alert-circle-outline")
-   */
   icon?: keyof typeof MaterialCommunityIcons.glyphMap
-
-  /**
-   * Icon size (default: 20)
-   */
   iconSize?: number
-
-  /**
-   * Whether the action is in progress (for loading state)
-   */
   isLoading?: boolean
-
-  /**
-   * Additional custom styles for the container
-   */
   style?: StyleProp<ViewStyle>
 }
 
