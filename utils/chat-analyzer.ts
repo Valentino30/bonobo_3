@@ -29,13 +29,21 @@ function extractFirstName(fullName: string): string {
   return firstWord || fullName // Fallback to original if extraction fails
 }
 
+/**
+ * Count words in a message
+ * Splits by whitespace and filters out empty strings
+ */
+function countWords(text: string): number {
+  return text.trim().split(/\s+/).filter((word) => word.length > 0).length
+}
+
 interface ParticipantStats {
   name: string
   messageCount: number
   averageResponseTime: number
   interestLevel: number
   initiationRate: number // Percentage of conversations initiated by this participant
-  averageMessageLength: number // Average character count per message
+  averageMessageLength: number // Average word count per message
 }
 
 interface ChatAnalysisData {
@@ -214,9 +222,9 @@ function calculateParticipantStats(participantName: string, messages: MessageDat
   // Calculate initiation rate (percentage of conversations started by this participant)
   const initiationRate = calculateInitiationRate(participantName, messages)
 
-  // Calculate average message length (characters)
+  // Calculate average message length (words)
   const averageMessageLength =
-    messageCount > 0 ? Math.round(participantMessages.reduce((sum, m) => sum + m.content.length, 0) / messageCount) : 0
+    messageCount > 0 ? Math.round(participantMessages.reduce((sum, m) => sum + countWords(m.content), 0) / messageCount) : 0
 
   return {
     name: participantName,
@@ -232,8 +240,10 @@ function calculateInterestLevel(messages: MessageData[], averageResponseTime: nu
   if (messages.length === 0) return 0
 
   const responseTimeScore = Math.max(0, 40 - averageResponseTime * 2)
-  const averageMessageLength = messages.reduce((sum, m) => sum + m.content.length, 0) / messages.length
-  const lengthScore = Math.min(30, averageMessageLength / 5)
+  // Calculate average word count per message
+  const averageWordCount = messages.reduce((sum, m) => sum + countWords(m.content), 0) / messages.length
+  // Adjust scoring: typical messages are 5-15 words, so score up to 30 points for 15+ words
+  const lengthScore = Math.min(30, averageWordCount * 2)
   const frequencyScore = Math.min(30, messages.length / 10)
 
   return Math.round(Math.min(100, responseTimeScore + lengthScore + frequencyScore))

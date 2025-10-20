@@ -77,11 +77,11 @@ export const OVERVIEW_CARDS: OverviewCardConfig[] = [
     getParticipants: (analysis) => [
       {
         name: analysis.participant1.name,
-        value: `${analysis.participant1.averageMessageLength} chars`,
+        value: `${analysis.participant1.averageMessageLength} words`,
       },
       {
         name: analysis.participant2.name,
-        value: `${analysis.participant2.averageMessageLength} chars`,
+        value: `${analysis.participant2.averageMessageLength} words`,
       },
     ],
   },
