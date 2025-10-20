@@ -48,7 +48,7 @@ export function AnimatedCard({
   onPressOut: customOnPressOut,
   ...pressableProps
 }: AnimatedCardProps) {
-  const { scale, shake, rotate, handlePressIn, handlePressOut } = useCardAnimation(animationConfig)
+  const { scale, opacity, shake, rotate, handlePressIn, handlePressOut } = useCardAnimation(animationConfig)
 
   const handlePressInWrapper = () => {
     handlePressIn()
@@ -66,6 +66,7 @@ export function AnimatedCard({
         style={[
           containerStyle,
           {
+            opacity,
             transform: [{ scale }, { translateX: shake }, { rotate }],
           },
         ]}

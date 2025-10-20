@@ -4,10 +4,8 @@ import { Animated, Easing } from 'react-native'
 export type CardAnimationConfig = {
   /** Enable entrance animation on mount */
   entranceAnimation?: boolean
-  /** Scale amount for entrance bounce (e.g., 1.02) */
-  entranceScale?: number
-  /** Shake distance in pixels for entrance (e.g., 2) */
-  entranceShake?: number
+  /** Entrance animation delay (ms) - useful for staggered list animations */
+  entranceDelay?: number
   /** Scale amount when pressed (e.g., 0.96) */
   pressScale?: number
   /** Spring damping for press animation */
@@ -25,6 +23,8 @@ export type CardAnimationConfig = {
 export type CardAnimationResult = {
   /** Animated value for scale transform */
   scale: Animated.Value
+  /** Animated value for opacity (fade-in effect) */
+  opacity: Animated.Value
   /** Interpolated translateX value for horizontal shake/jiggle */
   shake: Animated.AnimatedInterpolation<number>
   /** Interpolated rotate value for shake/jiggle rotation */
@@ -59,8 +59,7 @@ export type CardAnimationResult = {
 export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimationResult {
   const {
     entranceAnimation = true,
-    entranceScale = 1.02,
-    entranceShake = 2,
+    entranceDelay = 0,
     pressScale = 0.96,
     springDamping = 15,
     springStiffness = 200,
@@ -69,52 +68,42 @@ export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimatio
     pressShakeIntensity = 1,
   } = config
 
-  const scaleAnim = useRef(new Animated.Value(1)).current
+  const scaleAnim = useRef(new Animated.Value(entranceAnimation ? 0.95 : 1)).current
+  const opacityAnim = useRef(new Animated.Value(entranceAnimation ? 0 : 1)).current
+  const slideAnim = useRef(new Animated.Value(entranceAnimation ? 50 : 0)).current
   const shakeAnim = useRef(new Animated.Value(0)).current
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const shakeLoopRef = useRef<Animated.CompositeAnimation | null>(null)
 
-  // Entrance animation - subtle scale and shake on mount
+  // Entrance animation - slide in from right with fade
   useEffect(() => {
     if (!entranceAnimation) return
 
-    Animated.parallel([
-      Animated.sequence([
-        Animated.timing(scaleAnim, {
-          toValue: entranceScale,
-          duration: 200,
-          easing: Easing.out(Easing.quad),
-          useNativeDriver: true,
-        }),
-        Animated.timing(scaleAnim, {
+    const timeout = setTimeout(() => {
+      Animated.parallel([
+        Animated.timing(opacityAnim, {
           toValue: 1,
-          duration: 200,
-          easing: Easing.inOut(Easing.quad),
+          duration: 300,
+          easing: Easing.out(Easing.ease),
           useNativeDriver: true,
         }),
-      ]),
-      Animated.sequence([
-        Animated.timing(shakeAnim, {
-          toValue: entranceShake,
-          duration: 100,
-          easing: Easing.linear,
-          useNativeDriver: true,
-        }),
-        Animated.timing(shakeAnim, {
-          toValue: -entranceShake,
-          duration: 100,
-          easing: Easing.linear,
-          useNativeDriver: true,
-        }),
-        Animated.timing(shakeAnim, {
+        Animated.spring(slideAnim, {
           toValue: 0,
-          duration: 100,
-          easing: Easing.linear,
+          tension: 50,
+          friction: 7,
           useNativeDriver: true,
         }),
-      ]),
-    ]).start()
-  }, [scaleAnim, shakeAnim, entranceAnimation, entranceScale, entranceShake])
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          tension: 50,
+          friction: 7,
+          useNativeDriver: true,
+        }),
+      ]).start()
+    }, entranceDelay)
+
+    return () => clearTimeout(timeout)
+  }, [scaleAnim, opacityAnim, slideAnim, entranceAnimation, entranceDelay])
 
   const startShake = () => {
     shakeLoopRef.current = Animated.loop(
@@ -208,20 +197,23 @@ export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimatio
     }
   }, [shakeAnim])
 
-  const maxShakeValue = enablePressShake ? pressShakeIntensity : entranceShake
-
-  const shake = shakeAnim.interpolate({
-    inputRange: [-maxShakeValue, 0, maxShakeValue],
-    outputRange: [-2, 0, 2],
-  })
+  // Combine slide-in animation with press shake
+  const shake = Animated.add(
+    slideAnim,
+    shakeAnim.interpolate({
+      inputRange: [-pressShakeIntensity, 0, pressShakeIntensity],
+      outputRange: [-2, 0, 2],
+    })
+  )
 
   const rotate = shakeAnim.interpolate({
-    inputRange: [-maxShakeValue, 0, maxShakeValue],
+    inputRange: [-pressShakeIntensity, 0, pressShakeIntensity],
     outputRange: ['-1deg', '0deg', '1deg'],
   })
 
   return {
     scale: scaleAnim,
+    opacity: opacityAnim,
     shake,
     rotate,
     handlePressIn,
