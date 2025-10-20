@@ -16,15 +16,25 @@ type AnalysisOverviewProps = {
 export function AnalysisOverview({ analysis }: AnalysisOverviewProps) {
   const theme = useTheme()
 
-  const renderCard = (card: (typeof OVERVIEW_CARDS)[number]) => {
+  const renderCard = (card: (typeof OVERVIEW_CARDS)[number], index: number) => {
     // Check if card should be shown
     if (card.shouldShow && !card.shouldShow(analysis)) {
       return null
     }
 
+    const entranceDelay = index * 50
+
     // Render simple stat card
     if (card.type === 'simple' && card.getValue) {
-      return <SimpleStatCard key={card.id} title={card.title} icon={card.icon} value={card.getValue(analysis)} />
+      return (
+        <SimpleStatCard
+          key={card.id}
+          title={card.title}
+          icon={card.icon}
+          value={card.getValue(analysis)}
+          entranceDelay={entranceDelay}
+        />
+      )
     }
 
     // Render comparison card
@@ -37,6 +47,7 @@ export function AnalysisOverview({ analysis }: AnalysisOverviewProps) {
           icon={card.icon}
           description={card.description?.(analysis)}
           participants={card.getParticipants(analysis, colors)}
+          entranceDelay={entranceDelay}
         />
       )
     }
@@ -44,7 +55,7 @@ export function AnalysisOverview({ analysis }: AnalysisOverviewProps) {
     return null
   }
 
-  return <View style={styles.container}>{OVERVIEW_CARDS.map(renderCard)}</View>
+  return <View style={styles.container}>{OVERVIEW_CARDS.map((card, index) => renderCard(card, index))}</View>
 }
 
 const styles = StyleSheet.create({

@@ -8,13 +8,17 @@ interface SimpleStatCardProps {
   title: string
   icon: string
   value: string | number
+  entranceDelay?: number
 }
 
-export function SimpleStatCard({ title, icon, value }: SimpleStatCardProps) {
+export function SimpleStatCard({ title, icon, value, entranceDelay }: SimpleStatCardProps) {
   const theme = useTheme()
 
   return (
-    <AnimatedCard containerStyle={[styles.statCard, { backgroundColor: theme.colors.backgroundLight, borderColor: theme.colors.borderLight, shadowColor: theme.colors.shadow }]}>
+    <AnimatedCard
+      containerStyle={[styles.statCard, { backgroundColor: theme.colors.backgroundLight, borderColor: theme.colors.borderLight, shadowColor: theme.colors.shadow }]}
+      entranceDelay={entranceDelay}
+    >
       <View style={styles.titleRow}>
         <ThemedText style={[styles.cardTitle, { color: theme.colors.textSecondary }]}>{title}</ThemedText>
         <ThemedText style={styles.iconText}>{icon}</ThemedText>

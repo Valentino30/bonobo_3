@@ -1,7 +1,7 @@
-import { ThemedIconButton } from '@/components/themed-icon-button'
-import { ThemedText } from '@/components/themed-text'
 import { AnimatedCard } from '@/components/animated-card'
 import { BottomSheet } from '@/components/bottom-sheet'
+import { ThemedIconButton } from '@/components/themed-icon-button'
+import { ThemedText } from '@/components/themed-text'
 import { useTheme } from '@/contexts/theme-context'
 import { type StoredChat } from '@/utils/chat-storage'
 import { getParticipantInitial } from '@/utils/string-helpers'
@@ -34,11 +34,16 @@ export function ChatCard({ chat, onAnalyze, onDelete, entranceDelay }: ChatCardP
     <>
       <AnimatedCard
         onPress={handleAnalyze}
-        containerStyle={[styles.chatCard, { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow }]}
+        containerStyle={[
+          styles.chatCard,
+          { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow },
+        ]}
         entranceDelay={entranceDelay}
       >
         <View style={[styles.avatar, { backgroundColor: theme.colors.infoLight }]}>
-          <ThemedText style={[styles.avatarText, { color: theme.colors.textWhite }]}>{getParticipantInitial(chat.participants)}</ThemedText>
+          <ThemedText style={[styles.avatarText, { color: theme.colors.textWhite }]}>
+            {getParticipantInitial(chat.participants)}
+          </ThemedText>
         </View>
         <View style={styles.contentContainer}>
           <ThemedText style={[styles.participantName, { color: theme.colors.text }]} numberOfLines={1}>

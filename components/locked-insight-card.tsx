@@ -2,6 +2,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useTheme } from '@/contexts/theme-context'
 import { StyleSheet, Text, View } from 'react-native'
 import { ThemedButton } from '@/components/themed-button'
+import { AnimatedCard } from '@/components/animated-card'
 
 interface LockedInsightCardProps {
   title: string
@@ -13,13 +14,18 @@ interface LockedInsightCardProps {
   onUnlock: () => void
   isLoading?: boolean
   unlockText?: string
+  entranceDelay?: number
 }
 
-export function LockedInsightCard({ title, icon, badge, onUnlock, isLoading, unlockText }: LockedInsightCardProps) {
+export function LockedInsightCard({ title, icon, badge, onUnlock, isLoading, unlockText, entranceDelay }: LockedInsightCardProps) {
   const theme = useTheme()
 
   return (
-    <View style={[styles.card, { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow, borderColor: theme.colors.backgroundSecondary }]}>
+    <AnimatedCard
+      onPress={onUnlock}
+      containerStyle={[styles.card, { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow, borderColor: theme.colors.backgroundSecondary }]}
+      entranceDelay={entranceDelay}
+    >
       {/* Header Section */}
       <View style={styles.headerSection}>
         <View style={styles.header}>
@@ -62,7 +68,7 @@ export function LockedInsightCard({ title, icon, badge, onUnlock, isLoading, unl
           />
         </View>
       </View>
-    </View>
+    </AnimatedCard>
   )
 }
 

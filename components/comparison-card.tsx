@@ -17,14 +17,16 @@ interface ComparisonCardProps {
   icon: string
   participants: ParticipantData[]
   description?: string
+  entranceDelay?: number
 }
 
-export function ComparisonCard({ title, icon, participants, description }: ComparisonCardProps) {
+export function ComparisonCard({ title, icon, participants, description, entranceDelay }: ComparisonCardProps) {
   const theme = useTheme()
   const [isFlipped, setIsFlipped] = useState(false)
   const flipAnimation = useRef(new Animated.Value(0)).current
-  const { scale, shake, rotate, handlePressIn, handlePressOut } = useCardAnimation({
-    entranceAnimation: false,
+  const { scale, opacity, shake, rotate, handlePressIn, handlePressOut } = useCardAnimation({
+    entranceAnimation: true,
+    entranceDelay,
   })
 
   const handleFlip = () => {
@@ -79,6 +81,7 @@ export function ComparisonCard({ title, icon, participants, description }: Compa
         style={[
           styles.cardContainer,
           {
+            opacity,
             transform: [{ scale }, { translateX: shake }, { rotate }],
           },
         ]}
