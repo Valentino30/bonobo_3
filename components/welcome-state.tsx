@@ -39,7 +39,7 @@ export function WelcomeState() {
       </ThemedView>
       <ThemedText style={[styles.title, { color: theme.colors.text }]}>Welcome to Bonobo!</ThemedText>
       <ThemedText style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
-        We're here to help you improve your relationships through AI-powered insights.
+        We&apos;re here to help you improve your relationships through AI-powered insights.
       </ThemedText>
 
       <Animated.View style={[styles.arrowContainer, { transform: [{ translateY: bounceAnim }] }]}>
