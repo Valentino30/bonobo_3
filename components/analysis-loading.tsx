@@ -1,5 +1,6 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { ANALYSIS_LOADING_STEPS } from '@/constants/analysis-loading'
+import { InfoBanner } from '@/components/info-banner'
 import { LoadingProgressBar } from '@/components/loading-progress-bar'
 import { useTheme } from '@/contexts/theme-context'
 import { useLoadingAnimation } from '@/hooks/use-loading-animation'
@@ -33,9 +34,8 @@ export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
       </View>
 
       {/* Bottom Tip */}
-      <View style={[styles.tipContainer, { backgroundColor: theme.colors.backgroundInfo, borderColor: theme.colors.primaryLighter }]}>
-        <MaterialCommunityIcons name="lightbulb-on-outline" size={18} color={theme.colors.primary} />
-        <Text style={[styles.tipText, { color: theme.colors.primaryDark }]}>Analyzing your conversation...</Text>
+      <View style={styles.tipWrapper}>
+        <InfoBanner text="Analyzing your conversation..." />
       </View>
     </View>
   )
@@ -88,19 +88,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.2,
     lineHeight: 20,
   },
-  tipContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  tipWrapper: {
     marginTop: 24,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
-    borderWidth: 1,
-  },
-  tipText: {
-    fontSize: 13,
-    fontWeight: '500',
-    letterSpacing: 0.2,
   },
 })
