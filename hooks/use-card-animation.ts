@@ -68,9 +68,9 @@ export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimatio
     pressShakeIntensity = 1,
   } = config
 
-  const scaleAnim = useRef(new Animated.Value(entranceAnimation ? 0.95 : 1)).current
+  const scaleAnim = useRef(new Animated.Value(1)).current
   const opacityAnim = useRef(new Animated.Value(entranceAnimation ? 0 : 1)).current
-  const slideAnim = useRef(new Animated.Value(entranceAnimation ? -50 : 0)).current
+  const slideAnim = useRef(new Animated.Value(entranceAnimation ? -20 : 0)).current
   const shakeAnim = useRef(new Animated.Value(0)).current
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const shakeLoopRef = useRef<Animated.CompositeAnimation | null>(null)
@@ -83,27 +83,21 @@ export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimatio
       Animated.parallel([
         Animated.timing(opacityAnim, {
           toValue: 1,
-          duration: 300,
-          easing: Easing.out(Easing.ease),
+          duration: 400,
+          easing: Easing.out(Easing.cubic),
           useNativeDriver: true,
         }),
-        Animated.spring(slideAnim, {
+        Animated.timing(slideAnim, {
           toValue: 0,
-          tension: 50,
-          friction: 7,
-          useNativeDriver: true,
-        }),
-        Animated.spring(scaleAnim, {
-          toValue: 1,
-          tension: 50,
-          friction: 7,
+          duration: 400,
+          easing: Easing.out(Easing.cubic),
           useNativeDriver: true,
         }),
       ]).start()
     }, entranceDelay)
 
     return () => clearTimeout(timeout)
-  }, [scaleAnim, opacityAnim, slideAnim, entranceAnimation, entranceDelay])
+  }, [opacityAnim, slideAnim, entranceAnimation, entranceDelay])
 
   const startShake = () => {
     shakeLoopRef.current = Animated.loop(
