@@ -15,13 +15,15 @@ interface CustomAlertProps {
   onDismiss?: () => void
 }
 
-export function CustomAlert({ visible, title, message, buttons = [{ text: 'OK' }], onDismiss }: CustomAlertProps) {
-  const theme = useTheme()
+interface AlertButtonItemProps {
+  button: AlertButton
+  isLast: boolean
+  isSingle: boolean
+  onPress: (button: AlertButton) => void
+}
 
-  const handleButtonPress = (button: AlertButton) => {
-    button.onPress?.()
-    onDismiss?.()
-  }
+function AlertButtonItem({ button, isLast, isSingle, onPress }: AlertButtonItemProps) {
+  const theme = useTheme()
 
   const buttonStyles = {
     cancel: {
@@ -38,9 +40,31 @@ export function CustomAlert({ visible, title, message, buttons = [{ text: 'OK' }
     },
   }
 
-  const getButtonStyles = (style?: string) => {
-    const styleKey = (style === 'cancel' || style === 'destructive') ? style : 'default'
-    return buttonStyles[styleKey]
+  const styleKey = (button.style === 'cancel' || button.style === 'destructive') ? button.style : 'default'
+  const buttonStyle = buttonStyles[styleKey]
+
+  return (
+    <TouchableOpacity
+      style={[
+        styles.button,
+        { backgroundColor: buttonStyle.background },
+        isSingle && styles.buttonSingle,
+        !isLast && { borderRightWidth: 1, borderRightColor: theme.colors.backgroundSecondary },
+      ]}
+      onPress={() => onPress(button)}
+      activeOpacity={0.8}
+    >
+      <Text style={[styles.buttonText, { color: buttonStyle.text }]}>{button.text}</Text>
+    </TouchableOpacity>
+  )
+}
+
+export function CustomAlert({ visible, title, message, buttons = [{ text: 'OK' }], onDismiss }: CustomAlertProps) {
+  const theme = useTheme()
+
+  const handleButtonPress = (button: AlertButton) => {
+    button.onPress?.()
+    onDismiss?.()
   }
 
   return (
@@ -55,24 +79,15 @@ export function CustomAlert({ visible, title, message, buttons = [{ text: 'OK' }
 
           {/* Buttons */}
           <View style={[styles.buttonContainer, { borderTopColor: theme.colors.backgroundSecondary }]}>
-            {buttons.map((button, index) => {
-              const buttonStyle = getButtonStyles(button.style)
-              return (
-                <TouchableOpacity
-                  key={index}
-                  style={[
-                    styles.button,
-                    { backgroundColor: buttonStyle.background },
-                    buttons.length === 1 && styles.buttonSingle,
-                    index < buttons.length - 1 && { borderRightWidth: 1, borderRightColor: theme.colors.backgroundSecondary },
-                  ]}
-                  onPress={() => handleButtonPress(button)}
-                  activeOpacity={0.8}
-                >
-                  <Text style={[styles.buttonText, { color: buttonStyle.text }]}>{button.text}</Text>
-                </TouchableOpacity>
-              )
-            })}
+            {buttons.map((button, index) => (
+              <AlertButtonItem
+                key={index}
+                button={button}
+                isLast={index === buttons.length - 1}
+                isSingle={buttons.length === 1}
+                onPress={handleButtonPress}
+              />
+            ))}
           </View>
         </View>
       </View>
