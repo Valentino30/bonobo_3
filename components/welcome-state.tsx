@@ -1,31 +1,13 @@
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
+import { useBounceAnimation } from '@/hooks/use-bounce-animation'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { useEffect, useRef } from 'react'
 import { Animated, StyleSheet } from 'react-native'
 
 export function WelcomeState() {
   const theme = useTheme()
-  const bounceAnim = useRef(new Animated.Value(0)).current
-
-  // Bouncing animation for the arrow
-  useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(bounceAnim, {
-          toValue: -10,
-          duration: 600,
-          useNativeDriver: true,
-        }),
-        Animated.timing(bounceAnim, {
-          toValue: 0,
-          duration: 600,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start()
-  }, [bounceAnim])
+  const bounceAnim = useBounceAnimation()
 
   return (
     <ThemedView style={styles.welcomeState}>
