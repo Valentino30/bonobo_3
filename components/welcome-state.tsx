@@ -1,13 +1,11 @@
+import { AnimatedIcon } from '@/components/animated-icon'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
-import { useBounceAnimation } from '@/hooks/use-bounce-animation'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { Animated, StyleSheet } from 'react-native'
+import { StyleSheet } from 'react-native'
 
 export function WelcomeState() {
   const theme = useTheme()
-  const bounceAnim = useBounceAnimation()
 
   return (
     <ThemedView style={styles.welcomeState}>
@@ -24,9 +22,15 @@ export function WelcomeState() {
         We&apos;re here to help you improve your relationships through AI-powered insights.
       </ThemedText>
 
-      <Animated.View style={[styles.arrowContainer, { transform: [{ translateY: bounceAnim }] }]}>
-        <MaterialCommunityIcons name="arrow-down" size={48} color={theme.colors.primary} />
-      </Animated.View>
+      <AnimatedIcon
+        icon="arrow-down"
+        animation="bounce"
+        iconSize={48}
+        containerSize={48}
+        iconColor={theme.colors.primary}
+        backgroundColor="transparent"
+        borderColor="transparent"
+      />
     </ThemedView>
   )
 }
@@ -70,10 +74,5 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     letterSpacing: 0.2,
     paddingHorizontal: 10,
-  },
-  arrowContainer: {
-    marginTop: 20,
-    alignItems: 'center',
-    opacity: 0.8,
   },
 })

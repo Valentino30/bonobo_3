@@ -1,42 +1,72 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useTheme } from '@/contexts/theme-context'
+import { useBounceAnimation } from '@/hooks/use-bounce-animation'
+import { usePulseAnimation } from '@/hooks/use-pulse-animation'
 import { Animated, StyleSheet } from 'react-native'
 
+type AnimationType = 'bounce' | 'pulsate' | 'none'
+
 type AnimatedIconProps = {
-  /** Icon name from MaterialCommunityIcons */
   icon: keyof typeof MaterialCommunityIcons.glyphMap
-  /** Size of the icon */
   iconSize?: number
-  /** Size of the container (width and height) */
   containerSize?: number
-  /** Animated value for pulse/scale effect */
+  animation?: AnimationType
+  /** @deprecated Use animation="pulsate" instead */
   pulseAnim?: Animated.Value
-  /** Icon color (defaults to theme primary) */
   iconColor?: string
-  /** Background color (defaults to theme backgroundInfo) */
   backgroundColor?: string
-  /** Border color (defaults to theme primaryLighter) */
   borderColor?: string
 }
 
 /**
- * Animated circular icon with pulse effect
- * Perfect for loading states, status indicators, or drawing attention
+ * Animated circular icon with configurable animation type
+ *
+ * @example
+ * ```tsx
+ * // Bouncing icon
+ * <AnimatedIcon icon="arrow-down" animation="bounce" />
+ *
+ * // Pulsating icon
+ * <AnimatedIcon icon="check" animation="pulsate" />
+ *
+ * // Static icon
+ * <AnimatedIcon icon="alert" animation="none" />
+ * ```
  */
 export function AnimatedIcon({
   icon,
   iconSize = 56,
   containerSize = 96,
-  pulseAnim,
+  animation = 'none',
+  pulseAnim: customPulseAnim,
   iconColor,
   backgroundColor,
   borderColor,
 }: AnimatedIconProps) {
   const theme = useTheme()
+  const bounceAnim = useBounceAnimation()
+  const pulseAnim = usePulseAnimation()
 
   const finalIconColor = iconColor || theme.colors.primary
   const finalBackgroundColor = backgroundColor || theme.colors.backgroundInfo
   const finalBorderColor = borderColor || theme.colors.primaryLighter
+
+  const getTransform = () => {
+    // Support old API with custom pulseAnim (deprecated)
+    if (customPulseAnim) {
+      return [{ scale: customPulseAnim }]
+    }
+
+    // New API with animation type
+    switch (animation) {
+      case 'bounce':
+        return [{ translateY: bounceAnim }]
+      case 'pulsate':
+        return [{ scale: pulseAnim }]
+      default:
+        return undefined
+    }
+  }
 
   return (
     <Animated.View
@@ -48,7 +78,7 @@ export function AnimatedIcon({
           borderRadius: containerSize / 2,
           backgroundColor: finalBackgroundColor,
           borderColor: finalBorderColor,
-          transform: pulseAnim ? [{ scale: pulseAnim }] : undefined,
+          transform: getTransform(),
         },
       ]}
     >
