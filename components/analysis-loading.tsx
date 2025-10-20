@@ -1,75 +1,16 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { ANALYSIS_LOADING_STEPS } from '@/constants/analysis-loading'
+import { LoadingProgressBar } from '@/components/loading-progress-bar'
 import { useTheme } from '@/contexts/theme-context'
-import { useEffect, useState } from 'react'
-import { Animated, Easing, StyleSheet, Text, View } from 'react-native'
+import { useLoadingAnimation } from '@/hooks/use-loading-animation'
+import { Animated, StyleSheet, Text, View } from 'react-native'
 
 export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
   const theme = useTheme()
-  const [currentStep, setCurrentStep] = useState(0)
-  console.log('AnalysisLoading: currentStep', currentStep)
-  const [pulseAnim] = useState(new Animated.Value(1))
-  const [progressAnim] = useState(new Animated.Value(0))
-
-  // Pulse animation for the icon - smooth and steady
-  useEffect(() => {
-    const pulse = Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1.15,
-          duration: 900,
-          easing: Easing.bezier(0.4, 0.0, 0.2, 1),
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 900,
-          easing: Easing.bezier(0.4, 0.0, 0.2, 1),
-          useNativeDriver: true,
-        }),
-      ])
-    )
-    pulse.start()
-    return () => pulse.stop()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  // Progress animation - matches step duration for smooth transition
-  useEffect(() => {
-    Animated.timing(progressAnim, {
-      toValue: (currentStep + 1) / ANALYSIS_LOADING_STEPS.length,
-      duration: 1000,
-      easing: Easing.out(Easing.ease),
-      useNativeDriver: false,
-    }).start()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentStep])
-
-  // Step advancement - each step shows for exactly 1000ms
-  useEffect(() => {
-    const STEP_DURATION = 1000
-
-    if (currentStep < ANALYSIS_LOADING_STEPS.length - 1) {
-      console.log('AnalysisLoading: advancing to step', currentStep + 1)
-      const timeout = setTimeout(() => {
-        setCurrentStep(currentStep + 1)
-      }, STEP_DURATION)
-      return () => clearTimeout(timeout)
-    } else {
-      // Call onComplete after last step is shown for the same duration
-      console.log('AnalysisLoading: completed all steps, calling onComplete')
-      if (onComplete) {
-        const completeTimeout = setTimeout(() => {
-          onComplete()
-        }, STEP_DURATION)
-        return () => clearTimeout(completeTimeout)
-      }
-    }
-  }, [currentStep, onComplete])
-
-  const progressWidth = progressAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0%', '100%'],
+  const { currentStep, pulseAnim, progressWidth } = useLoadingAnimation({
+    stepCount: ANALYSIS_LOADING_STEPS.length,
+    stepDuration: 1000,
+    onComplete,
   })
 
   return (
@@ -88,14 +29,7 @@ export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
         </View>
 
         {/* Progress Bar */}
-        <View style={styles.progressBarContainer}>
-          <View style={[styles.progressBarBackground, { backgroundColor: theme.colors.backgroundSecondary }]}>
-            <Animated.View style={[styles.progressBarFill, { backgroundColor: theme.colors.primary, width: progressWidth }]} />
-          </View>
-          <Text style={[styles.progressText, { color: theme.colors.primary }]}>
-            {currentStep + 1} of {ANALYSIS_LOADING_STEPS.length}
-          </Text>
-        </View>
+        <LoadingProgressBar currentStep={currentStep + 1} totalSteps={ANALYSIS_LOADING_STEPS.length} progressWidth={progressWidth} />
       </View>
 
       {/* Bottom Tip */}
@@ -153,26 +87,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     letterSpacing: 0.2,
     lineHeight: 20,
-  },
-  progressBarContainer: {
-    width: '100%',
-    alignItems: 'center',
-    gap: 10,
-  },
-  progressBarBackground: {
-    width: '100%',
-    height: 6,
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  progressBarFill: {
-    height: '100%',
-    borderRadius: 3,
-  },
-  progressText: {
-    fontSize: 12,
-    fontWeight: '500',
-    letterSpacing: 0.5,
   },
   tipContainer: {
     flexDirection: 'row',
