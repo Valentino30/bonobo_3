@@ -1,9 +1,8 @@
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
-import { AnimatedCard } from '@/components/animated-card'
-import { StyleSheet, View, Animated } from 'react-native'
+import { FlippableCard } from '@/components/flippable-card'
+import { StyleSheet, View } from 'react-native'
 import { useTheme } from '@/contexts/theme-context'
-import { useState, useRef } from 'react'
 
 interface ParticipantData {
   name: string
@@ -22,161 +21,82 @@ interface ComparisonCardProps {
 
 export function ComparisonCard({ title, icon, participants, description, index }: ComparisonCardProps) {
   const theme = useTheme()
-  const [isFlipped, setIsFlipped] = useState(false)
-  const flipAnimation = useRef(new Animated.Value(0)).current
 
-  const handleFlip = () => {
-    if (!description) return // Don't flip if no description
+  const frontContent = (
+    <ThemedView
+      style={[
+        styles.statCard,
+        {
+          backgroundColor: theme.colors.backgroundLight,
+          borderColor: theme.colors.borderLight,
+          shadowColor: theme.colors.shadow,
+        },
+      ]}
+    >
+      <View style={styles.titleRow}>
+        <ThemedText style={[styles.cardTitle, { color: theme.colors.textSecondary }]}>{title}</ThemedText>
+        <ThemedText style={styles.iconText}>{icon}</ThemedText>
+      </View>
+      <View style={[styles.divider, { backgroundColor: theme.colors.backgroundSecondary }]} />
+      <View style={styles.participantRow}>
+        {participants.map((participant, index) => (
+          <View key={index} style={styles.participantItem}>
+            <ThemedText style={[styles.participantName, { color: theme.colors.textTertiary }]} numberOfLines={1}>
+              {participant.name}
+            </ThemedText>
+            <ThemedText style={[styles.participantNumber, { color: theme.colors.text }]}>{participant.value}</ThemedText>
+            {participant.progressValue !== undefined && (
+              <View style={[styles.progressBar, { backgroundColor: theme.colors.borderLight }]}>
+                <View
+                  style={[
+                    styles.progressFill,
+                    {
+                      width: `${participant.progressValue}%`,
+                      backgroundColor: participant.progressColor || theme.colors.info,
+                    },
+                  ]}
+                />
+              </View>
+            )}
+          </View>
+        ))}
+      </View>
+    </ThemedView>
+  )
 
-    Animated.spring(flipAnimation, {
-      toValue: isFlipped ? 0 : 1,
-      friction: 8,
-      tension: 10,
-      useNativeDriver: true,
-    }).start()
-
-    setIsFlipped(!isFlipped)
-  }
-
-  const frontInterpolate = flipAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '180deg'],
-  })
-
-  const backInterpolate = flipAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['180deg', '360deg'],
-  })
-
-  const frontAnimatedStyle = {
-    transform: [{ rotateY: frontInterpolate }],
-  }
-
-  const backAnimatedStyle = {
-    transform: [{ rotateY: backInterpolate }],
-  }
-
-  const frontOpacity = flipAnimation.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [1, 0, 0],
-  })
-
-  const backOpacity = flipAnimation.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [0, 0, 1],
-  })
+  const backContent = description ? (
+    <ThemedView
+      style={[
+        styles.statCard,
+        styles.backCard,
+        {
+          backgroundColor: theme.colors.backgroundLight,
+          borderColor: theme.colors.borderLight,
+          shadowColor: theme.colors.shadow,
+        },
+      ]}
+    >
+      <ThemedText style={[styles.descriptionLarge, { color: theme.colors.text }]}>{description}</ThemedText>
+      <ThemedText style={[styles.tapHint, { color: theme.colors.textTertiary }]}>Tap to see stats</ThemedText>
+    </ThemedView>
+  ) : (
+    frontContent
+  )
 
   return (
-    <AnimatedCard
-      onPress={handleFlip}
+    <FlippableCard
+      front={frontContent}
+      back={backContent}
       index={index}
       containerStyle={styles.cardContainer}
-    >
-      <View style={{ width: '100%', height: '100%' }}>
-        {/* Front of card */}
-        <Animated.View
-          style={[
-            styles.cardFace,
-            frontAnimatedStyle,
-            { opacity: frontOpacity },
-            isFlipped && styles.hiddenFace,
-          ]}
-        >
-          <ThemedView
-            style={[
-              styles.statCard,
-              {
-                backgroundColor: theme.colors.backgroundLight,
-                borderColor: theme.colors.borderLight,
-                shadowColor: theme.colors.shadow,
-              },
-            ]}
-          >
-            <View style={styles.titleRow}>
-              <ThemedText style={[styles.cardTitle, { color: theme.colors.textSecondary }]}>{title}</ThemedText>
-              <ThemedText style={styles.iconText}>{icon}</ThemedText>
-            </View>
-            <View style={[styles.divider, { backgroundColor: theme.colors.backgroundSecondary }]} />
-            <View style={styles.participantRow}>
-              {participants.map((participant, index) => (
-                <View key={index} style={styles.participantItem}>
-                  <ThemedText style={[styles.participantName, { color: theme.colors.textTertiary }]} numberOfLines={1}>
-                    {participant.name}
-                  </ThemedText>
-                  <ThemedText style={[styles.participantNumber, { color: theme.colors.text }]}>
-                    {participant.value}
-                  </ThemedText>
-                  {participant.progressValue !== undefined && (
-                    <View style={[styles.progressBar, { backgroundColor: theme.colors.borderLight }]}>
-                      <View
-                        style={[
-                          styles.progressFill,
-                          {
-                            width: `${participant.progressValue}%`,
-                            backgroundColor: participant.progressColor || theme.colors.info,
-                          },
-                        ]}
-                      />
-                    </View>
-                  )}
-                </View>
-              ))}
-            </View>
-          </ThemedView>
-        </Animated.View>
-
-        {/* Back of card */}
-        {description && (
-          <Animated.View
-            style={[
-              styles.cardFace,
-              styles.cardBack,
-              backAnimatedStyle,
-              { opacity: backOpacity },
-              !isFlipped && styles.hiddenFace,
-            ]}
-          >
-            <ThemedView
-              style={[
-                styles.statCard,
-                styles.backCard,
-                {
-                  backgroundColor: theme.colors.backgroundLight,
-                  borderColor: theme.colors.borderLight,
-                  shadowColor: theme.colors.shadow,
-                },
-              ]}
-            >
-              <ThemedText style={[styles.descriptionLarge, { color: theme.colors.text }]}>{description}</ThemedText>
-              <ThemedText style={[styles.tapHint, { color: theme.colors.textTertiary }]}>Tap to see stats</ThemedText>
-            </ThemedView>
-          </Animated.View>
-        )}
-      </View>
-    </AnimatedCard>
+      height={200}
+    />
   )
 }
 
 const styles = StyleSheet.create({
   cardContainer: {
-    width: '100%',
-    height: 200,
     marginBottom: 12,
-  },
-  cardFace: {
-    width: '100%',
-    height: '100%',
-    backfaceVisibility: 'hidden',
-  },
-  cardBack: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: '100%',
-  },
-  hiddenFace: {
-    pointerEvents: 'none',
   },
   statCard: {
     borderRadius: 12,
@@ -198,20 +118,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
   },
-  iconRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
   cardTitle: {
     fontSize: 14,
     fontWeight: '600',
     letterSpacing: 0.3,
     textTransform: 'uppercase',
-  },
-  flipHint: {
-    fontSize: 16,
-    opacity: 0.5,
   },
   iconText: {
     fontSize: 20,
