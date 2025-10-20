@@ -1,6 +1,6 @@
 import { useTheme } from '@/contexts/theme-context'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { StyleSheet, Text, TextInput, TextInputProps, TextStyle, View, ViewStyle } from 'react-native'
 import { ThemedIconButton } from './themed-icon-button'
 
@@ -35,7 +35,7 @@ export interface ThemedTextInputProps extends Omit<TextInputProps, 'style' | 'pl
   disabled?: boolean
 }
 
-export const ThemedTextInput: React.FC<ThemedTextInputProps> = ({
+export const ThemedTextInput = ({
   variant = 'default',
   size = 'medium',
   password = false,
@@ -49,7 +49,7 @@ export const ThemedTextInput: React.FC<ThemedTextInputProps> = ({
   inputStyle,
   disabled = false,
   ...textInputProps
-}) => {
+}: ThemedTextInputProps) => {
   const theme = useTheme()
   const [showPassword, setShowPassword] = useState(false)
 

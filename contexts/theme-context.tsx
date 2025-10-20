@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, type ReactNode } from 'react'
+import { createContext, useContext, useState, type ReactNode } from 'react'
 import { theme, type Theme } from '@/constants/theme'
 import { colorPalettes, type ColorPalette } from '@/constants/color-palettes'
 
