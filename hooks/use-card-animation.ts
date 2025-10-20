@@ -69,27 +69,35 @@ export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimatio
   } = config
 
   const scaleAnim = useRef(new Animated.Value(1)).current
-  const opacityAnim = useRef(new Animated.Value(1)).current
+  const opacityAnim = useRef(new Animated.Value(entranceAnimation ? 0 : 1)).current
   const slideAnim = useRef(new Animated.Value(entranceAnimation ? -30 : 0)).current
   const shakeAnim = useRef(new Animated.Value(0)).current
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const shakeLoopRef = useRef<Animated.CompositeAnimation | null>(null)
 
-  // Entrance animation - simple slide in from left
+  // Entrance animation - slide in from left with soft blur-like fade
   useEffect(() => {
     if (!entranceAnimation) return
 
     const timeout = setTimeout(() => {
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 350,
-        easing: Easing.out(Easing.quad),
-        useNativeDriver: true,
-      }).start()
+      Animated.parallel([
+        Animated.timing(opacityAnim, {
+          toValue: 1,
+          duration: 450,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 450,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+      ]).start()
     }, entranceDelay)
 
     return () => clearTimeout(timeout)
-  }, [slideAnim, entranceAnimation, entranceDelay])
+  }, [opacityAnim, slideAnim, entranceAnimation, entranceDelay])
 
   const startShake = () => {
     shakeLoopRef.current = Animated.loop(
