@@ -1,7 +1,7 @@
 import { useTheme } from '@/contexts/theme-context'
-import { Animated, Pressable, StyleSheet, Text, View } from 'react-native'
+import { AnimatedCard } from '@/components/animated-card'
+import { Animated, StyleSheet, Text, View } from 'react-native'
 import { useRef, useState } from 'react'
-import { useCardAnimation } from '@/hooks/use-card-animation'
 
 interface FlippableInsightCardProps {
   title: string
@@ -42,11 +42,6 @@ export function FlippableInsightCard({
   const frontHeightRef = useRef<number>(0)
   const backHeightRef = useRef<number>(0)
   const flipAnimation = useRef(new Animated.Value(0)).current
-  const entranceDelay = index !== undefined ? index * 80 : undefined
-  const { scale, opacity, shake, rotate, handlePressIn, handlePressOut } = useCardAnimation({
-    entranceAnimation: true,
-    entranceDelay,
-  })
 
   const handleFlip = () => {
     Animated.spring(flipAnimation, {
@@ -88,17 +83,12 @@ export function FlippableInsightCard({
   })
 
   return (
-    <Pressable onPress={handleFlip} onPressIn={handlePressIn} onPressOut={handlePressOut} style={{ width: '100%' }}>
-      <Animated.View
-        style={[
-          styles.cardContainer,
-          {
-            opacity,
-            transform: [{ scale }, { translateX: shake }, { rotate }],
-            height: containerHeight,
-          },
-        ]}
-      >
+    <AnimatedCard
+      onPress={handleFlip}
+      index={index}
+      containerStyle={[styles.cardContainer, { height: containerHeight }]}
+    >
+      <View style={{ width: '100%', height: '100%' }}>
         {/* Front of card */}
         <Animated.View
           style={[
@@ -215,8 +205,8 @@ export function FlippableInsightCard({
             </View>
           </View>
         </Animated.View>
-      </Animated.View>
-    </Pressable>
+      </View>
+    </AnimatedCard>
   )
 }
 

@@ -1,9 +1,9 @@
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
-import { StyleSheet, View, Animated, Pressable } from 'react-native'
+import { AnimatedCard } from '@/components/animated-card'
+import { StyleSheet, View, Animated } from 'react-native'
 import { useTheme } from '@/contexts/theme-context'
 import { useState, useRef } from 'react'
-import { useCardAnimation } from '@/hooks/use-card-animation'
 
 interface ParticipantData {
   name: string
@@ -24,11 +24,6 @@ export function ComparisonCard({ title, icon, participants, description, index }
   const theme = useTheme()
   const [isFlipped, setIsFlipped] = useState(false)
   const flipAnimation = useRef(new Animated.Value(0)).current
-  const entranceDelay = index !== undefined ? index * 80 : undefined
-  const { scale, opacity, shake, rotate, handlePressIn, handlePressOut } = useCardAnimation({
-    entranceAnimation: true,
-    entranceDelay,
-  })
 
   const handleFlip = () => {
     if (!description) return // Don't flip if no description
@@ -72,21 +67,12 @@ export function ComparisonCard({ title, icon, participants, description, index }
   })
 
   return (
-    <Pressable
+    <AnimatedCard
       onPress={handleFlip}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
-      style={{ width: '100%' }}
+      index={index}
+      containerStyle={styles.cardContainer}
     >
-      <Animated.View
-        style={[
-          styles.cardContainer,
-          {
-            opacity,
-            transform: [{ scale }, { translateX: shake }, { rotate }],
-          },
-        ]}
-      >
+      <View style={{ width: '100%', height: '100%' }}>
         {/* Front of card */}
         <Animated.View
           style={[
@@ -166,8 +152,8 @@ export function ComparisonCard({ title, icon, participants, description, index }
             </ThemedView>
           </Animated.View>
         )}
-      </Animated.View>
-    </Pressable>
+      </View>
+    </AnimatedCard>
   )
 }
 
