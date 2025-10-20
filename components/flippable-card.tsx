@@ -1,18 +1,17 @@
-import { Animated, Pressable, StyleSheet, View, type ViewStyle } from 'react-native'
+import { Animated, Pressable, StyleSheet, type ViewStyle } from 'react-native'
 import { useFlipAnimation } from '@/hooks/use-flip-animation'
-import { type ReactNode, useRef, useState } from 'react'
+import { type ReactNode } from 'react'
 
 interface FlippableCardProps {
   front: ReactNode
   back: ReactNode
   onFlip?: (isFlipped: boolean) => void
   style?: ViewStyle | ViewStyle[]
-  minHeight?: number
 }
 
 /**
- * Flippable card component with automatic height management
- * Measures both front and back content and sets container height to the maximum
+ * Simple flippable card component with flip animation
+ * Uses fixed heights from parent components
  * Does not include entrance or press animations - wrap with AnimatedCard if needed
  *
  * @example
@@ -23,71 +22,35 @@ interface FlippableCardProps {
  * />
  * ```
  */
-export function FlippableCard({ front, back, onFlip, style, minHeight = 300 }: FlippableCardProps) {
-  const [containerHeight, setContainerHeight] = useState<number | undefined>(undefined)
-  const frontHeightRef = useRef<number>(0)
-  const backHeightRef = useRef<number>(0)
-
+export function FlippableCard({ front, back, onFlip, style }: FlippableCardProps) {
   const { isFlipped, handleFlip, frontAnimatedStyle, backAnimatedStyle, frontOpacity, backOpacity } = useFlipAnimation({
     onFlip,
   })
 
-  const handleFrontLayout = (event: any) => {
-    const height = event.nativeEvent.layout.height
-    if (height > 0 && frontHeightRef.current === 0) {
-      frontHeightRef.current = height
-      if (backHeightRef.current > 0) {
-        setContainerHeight(Math.max(frontHeightRef.current, backHeightRef.current, minHeight))
-      }
-    }
-  }
-
-  const handleBackLayout = (event: any) => {
-    const height = event.nativeEvent.layout.height
-    if (height > 0 && backHeightRef.current === 0) {
-      backHeightRef.current = height
-      if (frontHeightRef.current > 0) {
-        setContainerHeight(Math.max(frontHeightRef.current, backHeightRef.current, minHeight))
-      }
-    }
-  }
-
   return (
-    <Pressable onPress={handleFlip} style={[styles.container, style, containerHeight ? { height: containerHeight } : undefined]}>
-      <View style={styles.contentWrapper}>
-        <Animated.View
-          style={[
-            styles.cardFace,
-            frontAnimatedStyle,
-            { opacity: frontOpacity },
-            isFlipped && styles.hiddenFace,
-          ]}
-        >
-          <View
-            style={containerHeight ? { height: containerHeight } : undefined}
-            onLayout={handleFrontLayout}
-          >
-            {front}
-          </View>
-        </Animated.View>
+    <Pressable onPress={handleFlip} style={[styles.container, style]}>
+      <Animated.View
+        style={[
+          styles.cardFace,
+          frontAnimatedStyle,
+          { opacity: frontOpacity },
+          isFlipped && styles.hiddenFace,
+        ]}
+      >
+        {front}
+      </Animated.View>
 
-        <Animated.View
-          style={[
-            styles.cardFace,
-            styles.cardBack,
-            backAnimatedStyle,
-            { opacity: backOpacity },
-            !isFlipped && styles.hiddenFace,
-          ]}
-        >
-          <View
-            style={containerHeight ? { height: containerHeight } : undefined}
-            onLayout={handleBackLayout}
-          >
-            {back}
-          </View>
-        </Animated.View>
-      </View>
+      <Animated.View
+        style={[
+          styles.cardFace,
+          styles.cardBack,
+          backAnimatedStyle,
+          { opacity: backOpacity },
+          !isFlipped && styles.hiddenFace,
+        ]}
+      >
+        {back}
+      </Animated.View>
     </Pressable>
   )
 }
