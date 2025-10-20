@@ -1,5 +1,4 @@
 import { ThemedText } from '@/components/themed-text'
-import { ThemedView } from '@/components/themed-view'
 import { AnimatedCard } from '@/components/animated-card'
 import { StyleSheet, View } from 'react-native'
 import { useTheme } from '@/contexts/theme-context'

@@ -1,94 +1,56 @@
-import { Animated, StyleSheet, View } from 'react-native'
-import { useRef, useState } from 'react'
-import { AnimatedCard } from '@/components/animated-card'
+import { Animated, Pressable, StyleSheet, type ViewStyle } from 'react-native'
 import { useFlipAnimation } from '@/hooks/use-flip-animation'
 import { type ReactNode } from 'react'
 
 interface FlippableCardProps {
   front: ReactNode
   back: ReactNode
-  index?: number
-  containerStyle?: any
-  height?: number
   onFlip?: (isFlipped: boolean) => void
+  style?: ViewStyle | ViewStyle[]
 }
 
 /**
- * Reusable flippable card component with entrance and flip animations
+ * Simple flippable card component that handles flip animation between two children
+ * Does not include entrance or press animations - wrap with AnimatedCard if needed
  *
  * @example
  * ```tsx
  * <FlippableCard
- *   front={<MyFrontContent />}
- *   back={<MyBackContent />}
- *   index={0}
+ *   front={<FrontContent />}
+ *   back={<BackContent />}
  * />
  * ```
  */
-export function FlippableCard({ front, back, index, containerStyle, height, onFlip }: FlippableCardProps) {
-  const [containerHeight, setContainerHeight] = useState<number | undefined>(height)
-  const frontHeightRef = useRef<number>(0)
-  const backHeightRef = useRef<number>(0)
-
+export function FlippableCard({ front, back, onFlip, style }: FlippableCardProps) {
   const { isFlipped, handleFlip, frontAnimatedStyle, backAnimatedStyle, frontOpacity, backOpacity } = useFlipAnimation({
     onFlip,
   })
 
   return (
-    <AnimatedCard
-      onPress={handleFlip}
-      index={index}
-      containerStyle={[styles.container, containerStyle, { height: containerHeight }]}
-    >
-      <View style={{ width: '100%', height: '100%' }}>
-        {/* Front of card */}
-        <Animated.View
-          style={[
-            styles.cardFace,
-            frontAnimatedStyle,
-            { opacity: frontOpacity },
-            isFlipped && styles.hiddenFace,
-          ]}
-          onLayout={(event) => {
-            if (height === undefined) {
-              const layoutHeight = event.nativeEvent.layout.height
-              if (layoutHeight > 0 && frontHeightRef.current === 0) {
-                frontHeightRef.current = layoutHeight
-                if (backHeightRef.current > 0) {
-                  setContainerHeight(Math.max(frontHeightRef.current, backHeightRef.current))
-                }
-              }
-            }
-          }}
-        >
-          {front}
-        </Animated.View>
+    <Pressable onPress={handleFlip} style={[styles.container, style]}>
+      <Animated.View
+        style={[
+          styles.cardFace,
+          frontAnimatedStyle,
+          { opacity: frontOpacity },
+          isFlipped && styles.hiddenFace,
+        ]}
+      >
+        {front}
+      </Animated.View>
 
-        {/* Back of card */}
-        <Animated.View
-          style={[
-            styles.cardFace,
-            styles.cardBack,
-            backAnimatedStyle,
-            { opacity: backOpacity },
-            !isFlipped && styles.hiddenFace,
-          ]}
-          onLayout={(event) => {
-            if (height === undefined) {
-              const layoutHeight = event.nativeEvent.layout.height
-              if (layoutHeight > 0 && backHeightRef.current === 0) {
-                backHeightRef.current = layoutHeight
-                if (frontHeightRef.current > 0) {
-                  setContainerHeight(Math.max(frontHeightRef.current, backHeightRef.current))
-                }
-              }
-            }
-          }}
-        >
-          {back}
-        </Animated.View>
-      </View>
-    </AnimatedCard>
+      <Animated.View
+        style={[
+          styles.cardFace,
+          styles.cardBack,
+          backAnimatedStyle,
+          { opacity: backOpacity },
+          !isFlipped && styles.hiddenFace,
+        ]}
+      >
+        {back}
+      </Animated.View>
+    </Pressable>
   )
 }
 
@@ -98,7 +60,6 @@ const styles = StyleSheet.create({
   },
   cardFace: {
     width: '100%',
-    height: '100%',
     backfaceVisibility: 'hidden',
   },
   cardBack: {

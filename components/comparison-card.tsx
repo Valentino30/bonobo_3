@@ -1,8 +1,9 @@
+import { AnimatedCard } from '@/components/animated-card'
+import { FlippableCard } from '@/components/flippable-card'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
-import { FlippableCard } from '@/components/flippable-card'
-import { StyleSheet, View } from 'react-native'
 import { useTheme } from '@/contexts/theme-context'
+import { StyleSheet, View } from 'react-native'
 
 interface ParticipantData {
   name: string
@@ -95,18 +96,20 @@ export function ComparisonCard({ title, icon, participants, description, index }
       <ThemedText style={[styles.descriptionLarge, { color: theme.colors.text }]}>{description}</ThemedText>
       <ThemedText style={[styles.tapHint, { color: theme.colors.textTertiary }]}>Tap to see stats</ThemedText>
     </ThemedView>
-  ) : (
-    frontContent
-  )
+  ) : null
+
+  if (description) {
+    return (
+      <AnimatedCard index={index} containerStyle={styles.cardContainer}>
+        <FlippableCard front={frontContent} back={backContent!} />
+      </AnimatedCard>
+    )
+  }
 
   return (
-    <FlippableCard
-      front={frontContent}
-      back={backContent}
-      index={index}
-      containerStyle={styles.cardContainer}
-      height={200}
-    />
+    <AnimatedCard index={index} containerStyle={styles.cardContainer}>
+      {frontContent}
+    </AnimatedCard>
   )
 }
 
@@ -118,7 +121,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 20,
     width: '100%',
-    height: '100%',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 4,

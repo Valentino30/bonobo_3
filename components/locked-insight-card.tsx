@@ -1,4 +1,3 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useTheme } from '@/contexts/theme-context'
 import { StyleSheet, Text, View } from 'react-native'
 import { ThemedButton } from '@/components/themed-button'
