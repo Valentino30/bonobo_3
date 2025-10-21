@@ -47,13 +47,12 @@ export function ScreenHeader({ title, showBackButton = true, style, children }: 
 const styles = StyleSheet.create({
   headerTop: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     gap: 8,
-    paddingTop: 4,
   },
   title: {
     flex: 1,
-    includeFontPadding: false,
+    lineHeight: 38,
   },
   childrenContainer: {
     marginTop: 16,
