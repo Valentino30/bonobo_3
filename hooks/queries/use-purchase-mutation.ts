@@ -1,15 +1,56 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { AuthService } from '@/utils/auth-service'
-import { PaymentService } from '@/utils/payment-service'
+import { CurrencyService, type SupportedCurrency } from '@/utils/currency-service'
+import { PaymentService, getPaymentPlans } from '@/utils/payment-service'
 import { StripeService } from '@/utils/stripe-service'
 import { analysisKeys } from './use-analysis-query'
 import { chatKeys } from './use-chats-query'
+
+// Query keys
+export const paymentKeys = {
+  all: ['payment'] as const,
+  plans: () => [...paymentKeys.all, 'plans'] as const,
+}
 
 type PurchaseParams = {
   planId: string
   chatId: string
   onShowAuthScreen?: () => void
   onSwitchToInsightsTab?: () => void
+}
+
+// Query: Payment plans
+export function usePaymentPlansQuery() {
+  return useQuery({
+    queryKey: paymentKeys.plans(),
+    queryFn: async () => {
+      const plans = await getPaymentPlans()
+      console.log('💳 Payment plans loaded:', {
+        oneTime: `${plans.ONE_TIME.currency} ${plans.ONE_TIME.price}`,
+        weekly: `${plans.WEEKLY.currency} ${plans.WEEKLY.price}`,
+        monthly: `${plans.MONTHLY.currency} ${plans.MONTHLY.price}`,
+      })
+      return plans
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes - plans don't change frequently
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  })
+}
+
+// Mutation: Change currency
+export function useCurrencyChangeMutation() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (currency: SupportedCurrency) => {
+      await CurrencyService.setCurrencyOverride(currency)
+      return currency
+    },
+    onSuccess: () => {
+      // Refetch payment plans with new currency
+      queryClient.invalidateQueries({ queryKey: paymentKeys.plans() })
+    },
+  })
 }
 
 // Mutation: Purchase/payment flow

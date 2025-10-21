@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
-import { getPaymentPlans, type PaymentPlan } from '@/utils/payment-service'
-import { CurrencyService, type SupportedCurrency } from '@/utils/currency-service'
+import { useState } from 'react'
+import { type SupportedCurrency } from '@/utils/currency-service'
+import { useCurrencyChangeMutation, usePaymentPlansQuery } from './queries/use-purchase-mutation'
 
 interface UsePaywallOptions {
   visible: boolean
@@ -9,37 +9,20 @@ interface UsePaywallOptions {
 }
 
 export function usePaywall({ visible, onPurchase, onClose }: UsePaywallOptions) {
-  const [paymentPlans, setPaymentPlans] = useState<Record<string, PaymentPlan> | null>(null)
-  const [selectedCurrency, setSelectedCurrency] = useState<SupportedCurrency>('USD')
+  // React Query hooks
+  const { data: paymentPlans } = usePaymentPlansQuery()
+  const currencyChangeMutation = useCurrencyChangeMutation()
+
+  // UI state
   const [showCurrencyPicker, setShowCurrencyPicker] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
 
-  // Load payment plans when modal becomes visible
-  useEffect(() => {
-    if (visible) {
-      loadPaymentPlans()
-      // Reset processing state when modal opens
-      setIsProcessing(false)
-    }
-  }, [visible, selectedCurrency])
-
-  const loadPaymentPlans = async () => {
-    const plans = await getPaymentPlans()
-    setPaymentPlans(plans)
-    setSelectedCurrency(plans.ONE_TIME.currency)
-
-    console.log('💳 Paywall opened - Payment plans:', {
-      oneTime: `${plans.ONE_TIME.currency} ${plans.ONE_TIME.price}`,
-      weekly: `${plans.WEEKLY.currency} ${plans.WEEKLY.price}`,
-      monthly: `${plans.MONTHLY.currency} ${plans.MONTHLY.price}`,
-    })
-  }
+  // Derived state
+  const selectedCurrency = paymentPlans?.ONE_TIME.currency || 'USD'
 
   const handleCurrencyChange = async (currency: SupportedCurrency) => {
-    await CurrencyService.setCurrencyOverride(currency)
-    setSelectedCurrency(currency)
+    await currencyChangeMutation.mutateAsync(currency)
     setShowCurrencyPicker(false)
-    await loadPaymentPlans()
   }
 
   const handlePurchase = async (planId: string) => {
