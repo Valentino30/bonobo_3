@@ -7,7 +7,7 @@ import { StepList } from '@/components/step-list'
 import { ThemedButton } from '@/components/themed-button'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
-import { IMPORT_GUIDE_STEPS } from '@/constants/import-guide'
+import { getImportGuideSteps } from '@/constants/import-guide'
 import { useTheme } from '@/contexts/theme-context'
 import { useTranslation } from '@/hooks/use-translation'
 
@@ -16,6 +16,9 @@ export default function ImportGuideScreen() {
   const router = useRouter()
   const theme = useTheme()
   const { t } = useTranslation()
+
+  // Get fresh translations on every render
+  const importGuideSteps = getImportGuideSteps()
 
   const handleGotIt = () => {
     router.back()
@@ -58,7 +61,7 @@ export default function ImportGuideScreen() {
           />
 
           {/* Steps */}
-          <StepList title={t('importGuide.followSteps')} steps={IMPORT_GUIDE_STEPS} />
+          <StepList title={t('importGuide.followSteps')} steps={importGuideSteps} />
 
           {/* Privacy Notice */}
           <InfoCard icon="shield-check" title={t('privacy.title')} description={t('privacy.message')} variant="info" />
