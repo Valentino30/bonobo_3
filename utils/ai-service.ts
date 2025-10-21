@@ -82,11 +82,20 @@ export async function analyzeChat(chatText: string): Promise<AIInsights> {
 
   // Determine target language for AI response
   const targetLanguage = currentLocale === 'it' ? 'Italian' : 'English'
-  const languageInstruction = `CRITICAL: You MUST respond ONLY in ${targetLanguage.toUpperCase()}. Every single word in the JSON response must be in ${targetLanguage}, including:
-- All "description" fields
-- All "items" and "tips" arrays
-- ALL "type" and "rating" field values
-- NO words from any other language are allowed`
+  const languageInstruction = `CRITICAL LANGUAGE REQUIREMENT: Your ENTIRE JSON response MUST be 100% in ${targetLanguage.toUpperCase()}.
+
+STRICTLY FORBIDDEN:
+${targetLanguage === 'Italian' ? '- ANY English words (e.g., "Secure", "High", "Excellent", "Acts of Service")' : '- ANY Italian words (e.g., "Sicuro", "Alto", "Eccellente", "Atti di Servizio")'}
+- Mixed language responses
+- Translations in parentheses
+
+REQUIRED IN ${targetLanguage.toUpperCase()}:
+- ALL text in "description" fields
+- ALL text in "items" and "tips" arrays
+- ALL values in "type" fields (e.g., attachmentStyle.type, conflictResolution.type, loveLanguage.primary)
+- ALL values in "rating" fields (e.g., reciprocityScore.rating, compatibilityScore.rating, weVsIRatio.rating)
+
+If you use ANY word from the wrong language, the response will be rejected.`
 
   // Field value examples for the target language
   const examples = {
@@ -206,12 +215,27 @@ IMPORTANT: All "items", "tips" arrays must contain ONLY simple text strings, NOT
 
 Focus on communication patterns, emotional dynamics, and relationship health indicators.
 
-REMEMBER: Your response MUST be 100% in ${targetLanguage.toUpperCase()}. Examples of correct ${targetLanguage} terms:
+FINAL LANGUAGE CHECK - BEFORE SUBMITTING YOUR RESPONSE:
+Review EVERY field value in your JSON response and verify it is 100% in ${targetLanguage.toUpperCase()}.
+
+Common mistakes to avoid:
 ${
   targetLanguage === 'Italian'
-    ? '- Use "Sicuro" NOT "Secure"\n- Use "Eccellente" NOT "Excellent"\n- Use "Alto" NOT "High"\n- Use "Atti di Servizio" NOT "Acts of Service"'
-    : '- Use "Secure" NOT "Sicuro"\n- Use "Excellent" NOT "Eccellente"\n- Use "High" NOT "Alto"\n- Use "Acts of Service" NOT "Atti di Servizio"'
-}`
+    ? `- Writing "Secure" instead of "Sicuro"
+- Writing "High" instead of "Alto"
+- Writing "Excellent" instead of "Eccellente"
+- Writing "Acts of Service" instead of "Atti di Servizio"
+- Writing "Good" instead of "Buono"
+- Writing any English words at all`
+    : `- Writing "Sicuro" instead of "Secure"
+- Writing "Alto" instead of "High"
+- Writing "Eccellente" instead of "Excellent"
+- Writing "Atti di Servizio" instead of "Acts of Service"
+- Writing "Buono" instead of "Good"
+- Writing any Italian words at all`
+}
+
+Before you submit, check that attachmentStyle.type, reciprocityScore.rating, compatibilityScore.rating, conflictResolution.type, weVsIRatio.rating, and loveLanguage.primary/secondary are ALL in ${targetLanguage.toUpperCase()}.`
 
     const generatePromise = model.generateContent(prompt)
     const result = (await Promise.race([generatePromise, timeoutPromise])) as any
