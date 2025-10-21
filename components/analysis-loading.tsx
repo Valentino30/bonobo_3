@@ -5,7 +5,7 @@ import { LoadingProgressBar } from '@/components/loading-progress-bar'
 import { ThemedText } from '@/components/themed-text'
 import { ANALYSIS_LOADING_STEPS } from '@/constants/analysis-loading'
 import { useTheme } from '@/contexts/theme-context'
-import { useLoadingAnimation } from '@/hooks/use-loading-animation'
+import { useLoadingAnimation } from '@/hooks/ui/use-loading-animation'
 
 export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
   const theme = useTheme()

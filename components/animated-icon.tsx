@@ -1,8 +1,8 @@
 import { Animated, StyleSheet } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useTheme } from '@/contexts/theme-context'
+import { usePulseAnimation } from '@/hooks/ui/use-pulse-animation'
 import { useSingleBounce } from '@/hooks/ui/use-single-bounce'
-import { usePulseAnimation } from '@/hooks/use-pulse-animation'
 
 type AnimationType = 'bounce' | 'pulsate' | 'none'
 
