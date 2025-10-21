@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { DangerZoneCard } from '@/components/danger-zone-card'
 import { LabelValueCard } from '@/components/label-value-card'
+import { LanguageSelectionCard } from '@/components/language-selection-card'
 import { LoadingScreen } from '@/components/loading-screen'
 import { LoginCard } from '@/components/login-card'
 import { PasswordChangeCard } from '@/components/password-change-card'
@@ -11,10 +13,12 @@ import { ThemedText } from '@/components/themed-text'
 import { useTheme } from '@/contexts/theme-context'
 import { useCustomAlert } from '@/hooks/ui/use-custom-alert'
 import { useProfile } from '@/hooks/use-profile'
+import i18n from '@/i18n/config'
 
 export default function ProfileScreen() {
   const theme = useTheme()
   const { showAlert, AlertComponent } = useCustomAlert()
+  const [, forceUpdate] = useState(0)
 
   const {
     email,
@@ -37,6 +41,11 @@ export default function ProfileScreen() {
     handleLogout,
     handleDeleteAccount,
   } = useProfile({ onShowAlert: showAlert })
+
+  const handleLanguageChange = () => {
+    // Force re-render to update all translations
+    forceUpdate((prev) => prev + 1)
+  }
 
   if (isLoading) {
     return (
@@ -102,7 +111,10 @@ export default function ProfileScreen() {
           <ScreenHeader title="My Profile" style={styles.header} />
 
           {/* Email Section */}
-          <LabelValueCard icon="email-outline" label="Email" value={email} />
+          <LabelValueCard icon="email-outline" label={i18n.t('common.email')} value={email} />
+
+          {/* Language Selection */}
+          <LanguageSelectionCard onLanguageChange={handleLanguageChange} />
 
           {/* Password Change Section */}
           <PasswordChangeCard

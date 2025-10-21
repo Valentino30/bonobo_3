@@ -87,8 +87,11 @@
     "logout": "Esci",
     "deleteAccount": "Elimina Account",
     "changePassword": "Cambia Password",
+    "changeLanguage": "Cambia Lingua",
     "notAuthenticated": "Non connesso",
-    "loginPrompt": "Accedi per sincronizzare i tuoi dati su tutti i dispositivi"
+    "loginPrompt": "Accedi per sincronizzare i tuoi dati su tutti i dispositivi",
+    "languageEnglish": "English",
+    "languageItalian": "Italiano"
   },
   "auth": {
     "emailLabel": "Indirizzo email",

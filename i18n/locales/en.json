@@ -87,8 +87,11 @@
     "logout": "Logout",
     "deleteAccount": "Delete Account",
     "changePassword": "Change Password",
+    "changeLanguage": "Change Language",
     "notAuthenticated": "Not logged in",
-    "loginPrompt": "Login to sync your data across devices"
+    "loginPrompt": "Login to sync your data across devices",
+    "languageEnglish": "English",
+    "languageItalian": "Italiano"
   },
   "auth": {
     "emailLabel": "Email address",
