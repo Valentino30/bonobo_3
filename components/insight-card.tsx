@@ -18,6 +18,7 @@ interface InsightCardProps {
   explanationTitle?: string
   explanationText?: string
   index?: number
+  disableEntranceAnimation?: boolean
 }
 
 export function InsightCard({
@@ -31,6 +32,7 @@ export function InsightCard({
   explanationTitle,
   explanationText,
   index,
+  disableEntranceAnimation = false,
 }: InsightCardProps) {
   const theme = useTheme()
   const itemColor = color || theme.colors.primary
@@ -110,7 +112,7 @@ export function InsightCard({
   if (isFlippable) {
     const entranceDelay = index !== undefined ? index * 80 : undefined
     const { scale, opacity, shake, rotate, handlePressIn, handlePressOut } = useCardAnimation({
-      entranceAnimation: true,
+      entranceAnimation: !disableEntranceAnimation,
       entranceDelay,
     })
 
@@ -145,7 +147,7 @@ export function InsightCard({
       index={index}
       containerStyle={styles.cardContainer}
       animationConfig={{
-        entranceAnimation: true,
+        entranceAnimation: !disableEntranceAnimation,
       }}
     >
       {frontContent}
