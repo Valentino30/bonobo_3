@@ -7,14 +7,6 @@ interface UseAccountCreationOptions {
   onConfirmationRequired?: () => void
 }
 
-interface AccountCreationState {
-  email: string
-  password: string
-  confirmPassword: string
-  isLoading: boolean
-  error: string | null
-}
-
 export function useAccountCreation({ onSuccess, onConfirmationRequired }: UseAccountCreationOptions) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
