@@ -80,11 +80,19 @@ export async function analyzeChat(chatText: string): Promise<AIInsights> {
   const currentLocale = i18n.locale
   console.log('📝 Using locale for AI analysis:', currentLocale)
 
-  // Language-specific instructions and field examples
+  // Language-specific instructions - VERY EXPLICIT
   const languageInstruction =
     currentLocale === 'it'
-      ? 'IMPORTANTE: Rispondi in ITALIANO. Tutte le descrizioni, items, tips, e valori dei campi type/rating devono essere in italiano.'
-      : 'IMPORTANT: Respond in ENGLISH. All descriptions, items, tips, and type/rating field values must be in English.'
+      ? `IMPORTANTE: Rispondi SOLO in ITALIANO. OGNI singola parola nella risposta JSON deve essere in italiano, inclusi:
+- Tutte le "description"
+- Tutti gli "items" e "tips"
+- TUTTI i valori nei campi "type" e "rating" (es. "Sicuro" NON "Secure", "Eccellente" NON "Excellent")
+- NESSUNA parola in inglese è permessa nella risposta.`
+      : `IMPORTANT: Respond ONLY in ENGLISH. Every single word in the JSON response must be in English, including:
+- All "description" fields
+- All "items" and "tips"
+- ALL "type" and "rating" field values (e.g. "Secure" NOT "Sicuro", "Excellent" NOT "Eccellente")
+- NO Italian words are allowed in the response.`
 
   // Language-specific field value examples
   const attachmentStyleTypes =
@@ -196,7 +204,9 @@ Provide a detailed analysis with the following structure (respond ONLY with vali
 
 IMPORTANT: All "items", "tips" arrays must contain ONLY simple text strings, NOT objects. Each item should be a complete sentence or phrase as a string. Do NOT include direct quotes from the conversation - instead describe patterns and themes you observe.
 
-Focus on communication patterns, emotional dynamics, and relationship health indicators.`
+Focus on communication patterns, emotional dynamics, and relationship health indicators.
+
+${currentLocale === 'it' ? 'RICORDA: Ogni parola nella tua risposta DEVE essere in ITALIANO. Usa "Sicuro" non "Secure", "Eccellente" non "Excellent", "Alto" non "High".' : 'REMEMBER: Every word in your response MUST be in ENGLISH. Use "Secure" not "Sicuro", "Excellent" not "Eccellente", "High" not "Alto".'}`
 
     const generatePromise = model.generateContent(prompt)
     const result = (await Promise.race([generatePromise, timeoutPromise])) as any
