@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from 'react-native'
 import { AnimatedCard } from '@/components/animated-card'
 import { ThemedButton } from '@/components/themed-button'
 import { useTheme } from '@/contexts/theme-context'
+import { useTranslation } from '@/hooks/use-translation'
 
 interface LockedInsightCardProps {
   title: string
@@ -26,6 +27,7 @@ export function LockedInsightCard({
   index,
 }: LockedInsightCardProps) {
   const theme = useTheme()
+  const { t } = useTranslation()
 
   return (
     <AnimatedCard
@@ -51,7 +53,7 @@ export function LockedInsightCard({
               { backgroundColor: theme.colors.backgroundInfo, borderColor: theme.colors.primaryLighter },
             ]}
           >
-            <Text style={[styles.premiumBadgeText, { color: theme.colors.primary }]}>PREMIUM</Text>
+            <Text style={[styles.premiumBadgeText, { color: theme.colors.primary }]}>{t('common.premium')}</Text>
           </View>
         </View>
       </View>
@@ -72,8 +74,8 @@ export function LockedInsightCard({
 
           {/* Unlock Button with Icon */}
           <ThemedButton
-            title="UNLOCK WITH AI"
-            loadingTitle="UNLOCKING"
+            title={t('insights.unlockButton')}
+            loadingTitle={t('insights.unlocking')}
             onPress={onUnlock}
             variant="primary"
             size="medium"
