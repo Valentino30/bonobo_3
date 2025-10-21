@@ -199,7 +199,7 @@ export const ThemedTextInput = ({
             onPress={handleRightIconPress}
             variant="ghost"
             size="small"
-            style={styles.rightIcon}
+            style={[styles.rightIcon, { padding: 0 }]}
           />
         )}
       </View>
