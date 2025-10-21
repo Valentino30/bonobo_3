@@ -1,3 +1,9 @@
+import { Platform, ScrollView, StyleSheet, View } from 'react-native'
+
+import { useRouter } from 'expo-router'
+
+import { SafeAreaView } from 'react-native-safe-area-context'
+
 import { Badge } from '@/components/badge'
 import { InfoCard } from '@/components/info-card'
 import { StepList } from '@/components/step-list'
@@ -6,9 +12,6 @@ import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { IMPORT_GUIDE_STEPS } from '@/constants/import-guide'
 import { useTheme } from '@/contexts/theme-context'
-import { useRouter } from 'expo-router'
-import { Platform, ScrollView, StyleSheet, View } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
 
 export default function ImportGuideScreen() {
   const isIOS = Platform.OS === 'ios'

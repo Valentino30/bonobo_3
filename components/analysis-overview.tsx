@@ -1,9 +1,10 @@
+import { StyleSheet, View } from 'react-native'
+
 import { ComparisonCard } from '@/components/comparison-card'
 import { SimpleStatCard } from '@/components/simple-stat-card'
 import { OVERVIEW_CARDS } from '@/constants/analysis-overview'
 import { useTheme } from '@/contexts/theme-context'
 import { type ChatAnalysisData } from '@/hooks/use-chat-analysis'
-import { StyleSheet, View } from 'react-native'
 
 type AnalysisOverviewProps = {
   analysis: ChatAnalysisData

@@ -1,9 +1,10 @@
+import { StyleSheet, View } from 'react-native'
+
 import { InsightCard } from '@/components/insight-card'
 import { LockedInsightCard } from '@/components/locked-insight-card'
 import { INSIGHT_CONFIGS, type InsightConfig } from '@/constants/insights'
 import { useTheme } from '@/contexts/theme-context'
 import { type AIInsights } from '@/utils/ai-service'
-import { StyleSheet, View } from 'react-native'
 
 type AnalysisInsightsProps = {
   aiInsights: AIInsights | null

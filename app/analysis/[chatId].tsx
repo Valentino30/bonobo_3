@@ -1,7 +1,10 @@
+import { ScrollView, StyleSheet, View } from 'react-native'
+
+import { SafeAreaView } from 'react-native-safe-area-context'
+
 import { AnalysisInsights } from '@/components/analysis-insights'
 import { AnalysisLoading } from '@/components/analysis-loading'
 import { AnalysisOverview } from '@/components/analysis-overview'
-import { useCustomAlert } from '@/hooks/use-custom-alert'
 import { PaymentAuthScreen } from '@/components/payment-auth-screen'
 import { Paywall } from '@/components/paywall'
 import { ScreenHeader } from '@/components/screen-header'
@@ -11,8 +14,7 @@ import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
 import { useChatAnalysis } from '@/hooks/use-chat-analysis'
-import { ScrollView, StyleSheet, View } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { useCustomAlert } from '@/hooks/use-custom-alert'
 
 export default function ChatAnalysisScreen() {
   const theme = useTheme()

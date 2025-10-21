@@ -1,5 +1,8 @@
+import { StyleSheet, View } from 'react-native'
+
+import { SafeAreaView } from 'react-native-safe-area-context'
+
 import { ChatList } from '@/components/chat-list'
-import { useCustomAlert } from '@/hooks/use-custom-alert'
 import { LoadingScreen } from '@/components/loading-screen'
 import { ThemedButton } from '@/components/themed-button'
 import { ThemedIconButton } from '@/components/themed-icon-button'
@@ -7,8 +10,7 @@ import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
 import { useChats } from '@/hooks/use-chats'
-import { StyleSheet, View } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { useCustomAlert } from '@/hooks/use-custom-alert'
 
 export default function ChatsScreen() {
   const theme = useTheme()

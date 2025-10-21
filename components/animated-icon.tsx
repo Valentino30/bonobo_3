@@ -1,8 +1,10 @@
+import { Animated, StyleSheet } from 'react-native'
+
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+
 import { useTheme } from '@/contexts/theme-context'
 import { useBounceAnimation } from '@/hooks/use-bounce-animation'
 import { usePulseAnimation } from '@/hooks/use-pulse-animation'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { Animated, StyleSheet } from 'react-native'
 
 type AnimationType = 'bounce' | 'pulsate' | 'none'
 

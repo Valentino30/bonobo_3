@@ -1,5 +1,7 @@
-import { useTheme } from '@/contexts/theme-context'
 import { StyleSheet, Text, TouchableOpacity } from 'react-native'
+
+import { useTheme } from '@/contexts/theme-context'
+
 import { type AlertButton } from './custom-alert'
 
 interface AlertButtonItemProps {

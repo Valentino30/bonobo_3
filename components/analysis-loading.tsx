@@ -1,11 +1,12 @@
+import { StyleSheet, View } from 'react-native'
+
 import { AnimatedIcon } from '@/components/animated-icon'
-import { ANALYSIS_LOADING_STEPS } from '@/constants/analysis-loading'
 import { InfoBanner } from '@/components/info-banner'
 import { LoadingProgressBar } from '@/components/loading-progress-bar'
 import { ThemedText } from '@/components/themed-text'
+import { ANALYSIS_LOADING_STEPS } from '@/constants/analysis-loading'
 import { useTheme } from '@/contexts/theme-context'
 import { useLoadingAnimation } from '@/hooks/use-loading-animation'
-import { StyleSheet, View } from 'react-native'
 
 export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
   const theme = useTheme()

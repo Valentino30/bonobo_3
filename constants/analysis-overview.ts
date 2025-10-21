@@ -18,12 +18,12 @@ export type OverviewCardConfig = {
   getParticipants?: (
     analysis: ChatAnalysisData,
     colors: ThemeColors
-  ) => Array<{
+  ) => {
     name: string
     value: number | string
     progressValue?: number
     progressColor?: string
-  }>
+  }[]
   /** Optional condition to show the card */
   shouldShow?: (analysis: ChatAnalysisData) => boolean
 }

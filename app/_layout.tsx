@@ -1,9 +1,12 @@
-import { ThemeProvider } from '@/contexts/theme-context'
-import { DefaultTheme, ThemeProvider as NavigationThemeProvider } from '@react-navigation/native'
-import { StripeProvider } from '@stripe/stripe-react-native'
+import { LogBox } from 'react-native'
+
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
-import { LogBox } from 'react-native'
+
+import { DefaultTheme, ThemeProvider as NavigationThemeProvider } from '@react-navigation/native'
+import { StripeProvider } from '@stripe/stripe-react-native'
+
+import { ThemeProvider } from '@/contexts/theme-context'
 
 // Ignore Stripe keep awake warning (known development mode issue)
 LogBox.ignoreLogs(['No task registered for key StripeKeepJsAwakeTask', 'Unable to activate keep awake'])

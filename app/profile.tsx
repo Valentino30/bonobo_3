@@ -1,4 +1,7 @@
-import { useCustomAlert } from '@/hooks/use-custom-alert'
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native'
+
+import { SafeAreaView } from 'react-native-safe-area-context'
+
 import { DangerZoneCard } from '@/components/danger-zone-card'
 import { LabelValueCard } from '@/components/label-value-card'
 import { LoadingScreen } from '@/components/loading-screen'
@@ -8,9 +11,8 @@ import { ScreenHeader } from '@/components/screen-header'
 import { ThemedButton } from '@/components/themed-button'
 import { ThemedText } from '@/components/themed-text'
 import { useTheme } from '@/contexts/theme-context'
+import { useCustomAlert } from '@/hooks/use-custom-alert'
 import { useProfile } from '@/hooks/use-profile'
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
 
 export default function ProfileScreen() {
   const theme = useTheme()
