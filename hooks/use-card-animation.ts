@@ -29,6 +29,8 @@ export type CardAnimationResult = {
   scale: Animated.AnimatedMultiplication<number> | Animated.Value
   /** Animated value for opacity (fade-in effect) */
   opacity: Animated.Value
+  /** Animated value for vertical slide entrance */
+  slideY: Animated.Value
   /** Interpolated translateX value for horizontal shake/jiggle */
   shake: Animated.AnimatedInterpolation<number>
   /** Interpolated rotate value for shake/jiggle rotation */
@@ -82,7 +84,7 @@ export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimatio
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const shakeLoopRef = useRef<Animated.CompositeAnimation | null>(null)
 
-  // Entrance animation - slide from left only (no opacity to avoid shadow artifacts)
+  // Entrance animation - slide from top (no opacity to avoid shadow artifacts)
   useEffect(() => {
     if (!entranceAnimation) return
 
@@ -222,14 +224,11 @@ export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimatio
     }
   }, [shakeAnim])
 
-  // Combine slide entrance with press shake
-  const shake = Animated.add(
-    slideAnim,
-    shakeAnim.interpolate({
-      inputRange: [-pressShakeIntensity, 0, pressShakeIntensity],
-      outputRange: [-2, 0, 2],
-    })
-  )
+  // Separate shake from slide (shake is horizontal, slide is vertical)
+  const shake = shakeAnim.interpolate({
+    inputRange: [-pressShakeIntensity, 0, pressShakeIntensity],
+    outputRange: [-2, 0, 2],
+  })
 
   const rotate = shakeAnim.interpolate({
     inputRange: [-pressShakeIntensity, 0, pressShakeIntensity],
@@ -242,6 +241,7 @@ export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimatio
   return {
     scale: combinedScale,
     opacity: opacityAnim,
+    slideY: slideAnim,
     shake,
     rotate,
     handlePressIn,

@@ -111,7 +111,7 @@ export function InsightCard({
   // For flippable cards, use the animation hook directly to avoid nested Pressables
   if (isFlippable) {
     const entranceDelay = index !== undefined ? index * 80 : undefined
-    const { scale, opacity, shake, rotate, handlePressIn, handlePressOut } = useCardAnimation({
+    const { scale, opacity, slideY, shake, rotate, handlePressIn, handlePressOut } = useCardAnimation({
       entranceAnimation: !disableEntranceAnimation,
       entranceDelay,
     })
@@ -122,7 +122,7 @@ export function InsightCard({
           styles.cardContainer,
           {
             opacity,
-            transform: [{ translateX: shake }],
+            transform: [{ translateY: slideY }, { translateX: shake }],
           },
         ]}
       >

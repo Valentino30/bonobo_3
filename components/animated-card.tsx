@@ -49,7 +49,7 @@ export function AnimatedCard({
 }: AnimatedCardProps) {
   const entranceDelay = index !== undefined ? index * STAGGER_DELAY_MS : undefined
 
-  const { scale, opacity, shake, rotate, handlePressIn, handlePressOut } = useCardAnimation({
+  const { scale, opacity, slideY, shake, rotate, handlePressIn, handlePressOut } = useCardAnimation({
     ...animationConfig,
     entranceDelay,
   })
@@ -68,7 +68,7 @@ export function AnimatedCard({
     <Animated.View
       style={{
         opacity,
-        transform: [{ translateX: shake }],
+        transform: [{ translateY: slideY }, { translateX: shake }],
       }}
     >
       <Pressable style={style} onPressIn={handlePressInWrapper} onPressOut={handlePressOutWrapper} {...pressableProps}>
