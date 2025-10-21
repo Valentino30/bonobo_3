@@ -67,7 +67,7 @@ export function AnalysisInsights({
         explanationTitle={explanationTitle}
         explanationText={explanationText}
         index={index}
-        disableEntranceAnimation={loadingInsight !== null}
+        disableEntranceAnimation={true}
       />
     )
   }
