@@ -109,12 +109,26 @@ export function useUnlockInsightMutation() {
         queryClient.setQueryData(chatKeys.detail(chatId), context.previousChat)
       }
     },
-    onSuccess: ({ chatId, insights }) => {
+    onSuccess: async ({ chatId, insightId, insights }) => {
       // Update AI insights cache
       queryClient.setQueryData(analysisKeys.aiInsights(chatId), insights)
 
-      // Invalidate chat to persist changes
-      queryClient.invalidateQueries({ queryKey: chatKeys.detail(chatId) })
+      // Get current chat data from cache
+      const chat = queryClient.getQueryData<StoredChat>(chatKeys.detail(chatId))
+
+      if (chat && chat.analysis) {
+        // Persist to Supabase with updated unlocked insights and AI insights
+        const { ChatStorage } = await import('@/utils/chat-storage')
+        const updatedUnlockedInsights = [...(chat.unlockedInsights || []), insightId]
+        await ChatStorage.updateChatAnalysis(chatId, chat.analysis, insights, updatedUnlockedInsights)
+
+        // Update cache with persisted data (no refetch needed)
+        queryClient.setQueryData<StoredChat>(chatKeys.detail(chatId), {
+          ...chat,
+          aiInsights: insights,
+          unlockedInsights: updatedUnlockedInsights,
+        })
+      }
     },
   })
 }

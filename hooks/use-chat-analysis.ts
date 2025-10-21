@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useAnalysisQuery, useUnlockInsightMutation } from '@/hooks/queries/use-analysis-query'
-import { useChatQuery, useUpdateChatAnalysisMutation } from '@/hooks/queries/use-chats-query'
+import { useChatQuery } from '@/hooks/queries/use-chats-query'
 import { usePurchaseMutation } from '@/hooks/queries/use-purchase-mutation'
 import { getFrequencyLabel } from '@/utils/insight-helpers'
 
@@ -57,7 +57,6 @@ export function useChatAnalysis({ showAlert }: UseChatAnalysisOptions) {
 
   const unlockInsightMutation = useUnlockInsightMutation()
   const purchaseMutation = usePurchaseMutation()
-  const updateAnalysisMutation = useUpdateChatAnalysisMutation()
 
   // Derived state
   const unlockedInsights = new Set(chat?.unlockedInsights || [])
@@ -87,16 +86,7 @@ export function useChatAnalysis({ showAlert }: UseChatAnalysisOptions) {
         insightId,
         chatText: chat.text,
       })
-
-      // Update persistent storage
-      if (analysis) {
-        await updateAnalysisMutation.mutateAsync({
-          chatId,
-          analysis,
-          aiInsights: unlockInsightMutation.data?.insights,
-          unlockedInsights: [...unlockedInsights, insightId],
-        })
-      }
+      // Mutation handles persistence to Supabase in onSuccess
     } catch (error: any) {
       if (error.message === 'NO_ACCESS') {
         setPendingInsightToUnlock(insightId)
