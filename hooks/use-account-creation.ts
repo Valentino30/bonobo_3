@@ -21,27 +21,33 @@ export function useAccountCreation({ onSuccess, onConfirmationRequired }: UseAcc
     setError(null)
   }
 
+  const validateCredentials = (): { isValid: boolean; error?: string } => {
+    if (!email || !password || !confirmPassword) {
+      return { isValid: false, error: 'Please fill in all fields' }
+    }
+
+    if (!validateEmail(email)) {
+      return { isValid: false, error: 'Please enter a valid email address' }
+    }
+
+    if (!validatePassword(password)) {
+      return { isValid: false, error: 'Password must be at least 8 characters' }
+    }
+
+    if (password !== confirmPassword) {
+      return { isValid: false, error: 'Passwords do not match' }
+    }
+
+    return { isValid: true }
+  }
+
   const handleCreateAccount = async () => {
     setError(null)
 
     // Validation
-    if (!email || !password || !confirmPassword) {
-      setError('Please fill in all fields')
-      return { success: false }
-    }
-
-    if (!validateEmail(email)) {
-      setError('Please enter a valid email address')
-      return { success: false }
-    }
-
-    if (!validatePassword(password)) {
-      setError('Password must be at least 8 characters')
-      return { success: false }
-    }
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match')
+    const validation = validateCredentials()
+    if (!validation.isValid) {
+      setError(validation.error!)
       return { success: false }
     }
 
