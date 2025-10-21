@@ -4,34 +4,11 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native'
 
 interface LabelValueCardProps {
-  /**
-   * Icon name from MaterialCommunityIcons
-   */
   icon: keyof typeof MaterialCommunityIcons.glyphMap
-
-  /**
-   * Label text (e.g., "Email", "Phone")
-   */
   label: string
-
-  /**
-   * Value text to display
-   */
   value: string
-
-  /**
-   * Icon size (default: 20)
-   */
   iconSize?: number
-
-  /**
-   * Custom icon color (defaults to theme primary)
-   */
   iconColor?: string
-
-  /**
-   * Additional custom styles for the container
-   */
   style?: StyleProp<ViewStyle>
 }
 

@@ -4,15 +4,10 @@ import { ThemedText } from '@/components/themed-text';
 import { useTheme } from '@/contexts/theme-context';
 
 export interface ThemedTabButtonProps {
-  /** Tab label text */
   label: string;
-  /** Icon name from MaterialCommunityIcons */
   icon: keyof typeof MaterialCommunityIcons.glyphMap;
-  /** Whether this tab is currently active */
   isActive: boolean;
-  /** Click handler */
   onPress: () => void;
-  /** Custom style override */
   style?: ViewStyle;
 }
 

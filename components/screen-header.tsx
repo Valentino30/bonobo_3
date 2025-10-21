@@ -4,24 +4,9 @@ import { useTheme } from '@/contexts/theme-context'
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native'
 
 interface ScreenHeaderProps {
-  /**
-   * The title text to display in the header
-   */
   title: string
-
-  /**
-   * Whether to show the back button (default: true)
-   */
   showBackButton?: boolean
-
-  /**
-   * Additional custom styles for the container
-   */
   style?: StyleProp<ViewStyle>
-
-  /**
-   * Additional content to render after the title (e.g., tabs, buttons)
-   */
   children?: React.ReactNode
 }
 

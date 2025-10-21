@@ -3,9 +3,7 @@ import { ThemedIconButton } from '@/components/themed-icon-button';
 import type { ViewStyle } from 'react-native';
 
 export interface BackButtonProps {
-  /** Custom onPress handler (if not provided, uses router.back()) */
   onPress?: () => void;
-  /** Custom style override */
   style?: ViewStyle;
 }
 

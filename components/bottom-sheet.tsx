@@ -9,11 +9,8 @@ export type BottomSheetAction = {
 }
 
 interface BottomSheetProps {
-  /** Whether the bottom sheet is visible */
   visible: boolean
-  /** Callback when the sheet should be dismissed */
   onDismiss: () => void
-  /** Array of actions to display as buttons */
   actions: BottomSheetAction[]
 }
 

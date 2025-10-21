@@ -4,13 +4,9 @@ import { StyleSheet, Text, View } from 'react-native'
 import { getVariantStyles, type VariantType } from '@/utils/badge-variants'
 
 type InfoBannerProps = {
-  /** Icon name from MaterialCommunityIcons */
   icon?: keyof typeof MaterialCommunityIcons.glyphMap
-  /** Size of the icon */
   iconSize?: number
-  /** Banner text content */
   text: string
-  /** Visual variant */
   variant?: Exclude<VariantType, 'default' | 'primary'>
 }
 

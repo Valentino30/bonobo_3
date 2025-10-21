@@ -6,44 +6,13 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { StyleSheet, View } from 'react-native'
 
 interface PasswordChangeCardProps {
-  /**
-   * Whether to show the password change form (controlled)
-   */
   showForm: boolean
-
-  /**
-   * Callback when form visibility should change
-   */
   onShowFormChange: (show: boolean) => void
-
-  /**
-   * New password value (controlled)
-   */
   newPassword: string
-
-  /**
-   * Callback when new password changes
-   */
   onNewPasswordChange: (password: string) => void
-
-  /**
-   * Confirm password value (controlled)
-   */
   confirmPassword: string
-
-  /**
-   * Callback when confirm password changes
-   */
   onConfirmPasswordChange: (password: string) => void
-
-  /**
-   * Callback when password change is requested
-   */
   onChangePassword: () => Promise<void>
-
-  /**
-   * Whether the password change is in progress (for loading state)
-   */
   isChanging?: boolean
 }
 

@@ -6,54 +6,15 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native'
 
 interface LoginCardProps {
-  /**
-   * Email value (controlled)
-   */
   email: string
-
-  /**
-   * Callback when email changes
-   */
   onEmailChange: (email: string) => void
-
-  /**
-   * Password value (controlled)
-   */
   password: string
-
-  /**
-   * Callback when password changes
-   */
   onPasswordChange: (password: string) => void
-
-  /**
-   * Callback when login button is pressed
-   */
   onLogin: () => void
-
-  /**
-   * Whether login is in progress (for loading state)
-   */
   isLoading?: boolean
-
-  /**
-   * Card title (default: "Welcome Back")
-   */
   title?: string
-
-  /**
-   * Card icon (default: "login-variant")
-   */
   icon?: keyof typeof MaterialCommunityIcons.glyphMap
-
-  /**
-   * Login button text (default: "Login")
-   */
   buttonText?: string
-
-  /**
-   * Additional custom styles for the container
-   */
   style?: StyleProp<ViewStyle>
 }
 

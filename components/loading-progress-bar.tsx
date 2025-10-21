@@ -2,11 +2,8 @@ import { useTheme } from '@/contexts/theme-context'
 import { Animated, StyleSheet, Text, View } from 'react-native'
 
 type LoadingProgressBarProps = {
-  /** Current step (1-based for display) */
   currentStep: number
-  /** Total number of steps */
   totalSteps: number
-  /** Animated progress width ('0%' to '100%') */
   progressWidth: Animated.AnimatedInterpolation<string>
 }
 

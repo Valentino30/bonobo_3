@@ -4,25 +4,15 @@ import { useTheme } from '@/contexts/theme-context';
 import { CurrencyService, type SupportedCurrency } from '@/utils/currency-service';
 
 export interface SubscriptionCardProps {
-  /** Plan name (e.g., "One-Time Analysis", "Weekly", "Monthly") */
   name: string;
-  /** Price in local currency */
   price: number;
-  /** Currency code (e.g., 'USD', 'EUR', 'GBP') */
   currency: SupportedCurrency;
-  /** Plan description */
   description: string;
-  /** Optional highlight text (e.g., "Best value per day!") */
   highlight?: string;
-  /** Whether this is the popular/featured plan */
   isPopular?: boolean;
-  /** Badge text for popular plan (default: "POPULAR") */
   popularBadgeText?: string;
-  /** Click handler */
   onPress: () => void;
-  /** Custom style override */
   style?: ViewStyle;
-  /** Whether the card is disabled (prevents taps) */
   disabled?: boolean;
 }
 
