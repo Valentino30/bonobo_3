@@ -1,9 +1,7 @@
 import { TouchableOpacity, StyleSheet, ViewStyle } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '@/contexts/theme-context';
-
-export type IconButtonVariant = 'default' | 'primary' | 'secondary' | 'ghost';
-export type IconButtonSize = 'small' | 'medium' | 'large';
+import { getIconButtonVariantStyles, getIconButtonSizeStyles, type IconButtonVariant, type IconButtonSize } from '@/utils/icon-button-variants';
 
 export interface ThemedIconButtonProps {
   icon: keyof typeof MaterialCommunityIcons.glyphMap;
@@ -31,67 +29,9 @@ export const ThemedIconButton: React.FC<ThemedIconButtonProps> = ({
   // Determine if button is disabled
   const isDisabled = disabled;
 
-  // Get variant styles
-  const getVariantStyles = (): { iconColor: string; backgroundColor?: string } => {
-    switch (variant) {
-      case 'primary':
-        return {
-          iconColor: theme.colors.primary,
-          backgroundColor: 'transparent',
-        };
-
-      case 'secondary':
-        return {
-          iconColor: theme.colors.textSecondary,
-          backgroundColor: 'transparent',
-        };
-
-      case 'ghost':
-        return {
-          iconColor: theme.colors.textTertiary,
-          backgroundColor: 'transparent',
-        };
-
-      case 'default':
-      default:
-        return {
-          iconColor: theme.colors.text,
-          backgroundColor: 'transparent',
-        };
-    }
-  };
-
-  // Get size values
-  const getSizeValues = (): { iconSize: number; padding: number } => {
-    switch (size) {
-      case 'small':
-        return {
-          iconSize: 18,
-          padding: 6,
-        };
-
-      case 'medium':
-        return {
-          iconSize: 24,
-          padding: 8,
-        };
-
-      case 'large':
-        return {
-          iconSize: 28,
-          padding: 10,
-        };
-
-      default:
-        return {
-          iconSize: 24,
-          padding: 8,
-        };
-    }
-  };
-
-  const variantStyles = getVariantStyles();
-  const sizeValues = getSizeValues();
+  // Get styles from utility functions
+  const variantStyles = getIconButtonVariantStyles(theme, variant);
+  const sizeValues = getIconButtonSizeStyles(size);
 
   return (
     <TouchableOpacity
