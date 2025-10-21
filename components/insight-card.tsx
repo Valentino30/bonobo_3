@@ -111,7 +111,7 @@ export function InsightCard({
         index={index}
         containerStyle={styles.cardContainer}
         animationConfig={{
-          entranceAnimation: true,
+          entranceAnimation: false,
         }}
       >
         <FlippableCard front={frontContent} back={backContent!} />
@@ -124,7 +124,7 @@ export function InsightCard({
       index={index}
       containerStyle={styles.cardContainer}
       animationConfig={{
-        entranceAnimation: true,
+        entranceAnimation: false,
       }}
     >
       {frontContent}
