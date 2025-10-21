@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { usePersistedChats } from '@/hooks/use-persisted-chats'
-import { type AIInsights, analyzeChat } from '@/utils/ai-service'
-import { AuthService } from '@/utils/auth-service'
+import { usePurchase } from '@/hooks/use-purchase'
+import { useUnlockInsight } from '@/hooks/use-unlock-insight'
+import { type AIInsights } from '@/utils/ai-service'
 import { analyzeChatData } from '@/utils/chat-analyzer'
-import { PaymentService } from '@/utils/payment-service'
-import { StripeService } from '@/utils/stripe-service'
+import { getFrequencyLabel } from '@/utils/insight-helpers'
 
 type TabType = 'overview' | 'insights'
 
@@ -56,13 +56,35 @@ export function useChatAnalysis({ showAlert }: UseChatAnalysisOptions) {
   const [showPaywall, setShowPaywall] = useState(false)
   const [showAuthScreen, setShowAuthScreen] = useState(false)
   const [unlockedInsights, setUnlockedInsights] = useState<Set<string>>(new Set())
-  const [loadingInsight, setLoadingInsight] = useState<string | null>(null)
-  const [pendingInsightToUnlock, setPendingInsightToUnlock] = useState<string | null>(null)
 
-  // Debug: Log auth screen changes
-  useEffect(() => {
-    console.log('🔵 showAuthScreen state changed:', showAuthScreen)
-  }, [showAuthScreen])
+  // Use purchase hook (must be before useUnlockInsight to access setPendingInsightToUnlock)
+  const { setPendingInsightToUnlock, handlePurchase } = usePurchase({
+    chatId,
+    showAlert,
+    onShowAuthScreen: () => setShowAuthScreen(true),
+    onSwitchToInsightsTab: () => setActiveTab('insights'),
+    onUnlockInsight: (insightId: string) => {
+      // This will be set later after handleUnlockInsight is defined
+      handleUnlockInsight(insightId)
+    },
+  })
+
+  // Use unlock insight hook
+  const { loadingInsight, handleUnlockInsight } = useUnlockInsight({
+    chatId,
+    chatText: chat?.text || '',
+    aiInsights,
+    unlockedInsights,
+    analysis,
+    setAiInsights,
+    setUnlockedInsights,
+    updateChatAnalysis,
+    showAlert,
+    onShowPaywall: (insightId: string) => {
+      setPendingInsightToUnlock(insightId)
+      setShowPaywall(true)
+    },
+  })
 
   // Load unlocked insights from cached chat data
   useEffect(() => {
@@ -73,230 +95,12 @@ export function useChatAnalysis({ showAlert }: UseChatAnalysisOptions) {
 
   // Helper: Check if an insight is unlocked
   const isInsightUnlocked = (insightId: string): boolean => {
-    const unlocked = unlockedInsights.has(insightId)
-    console.log(`Checking if ${insightId} is unlocked:`, unlocked, 'All unlocked:', Array.from(unlockedInsights))
-    return unlocked
-  }
-
-  // Helper: Get frequency label from count
-  const getFrequencyLabel = (count: number): string => {
-    if (count === 0) return 'None'
-    if (count === 1) return 'Rare'
-    if (count <= 3) return 'Few'
-    if (count <= 7) return 'Occasional'
-    if (count <= 15) return 'Moderate'
-    if (count <= 25) return 'Frequent'
-    return 'Very Frequent'
+    return unlockedInsights.has(insightId)
   }
 
   // Handle tab change
   const handleTabChange = async (tab: TabType) => {
     setActiveTab(tab)
-  }
-
-  // Handle unlock insight
-  const handleUnlockInsight = async (insightId: string) => {
-    console.log('🔓 handleUnlockInsight called for:', insightId)
-    console.log('Current unlockedInsights:', Array.from(unlockedInsights))
-
-    // First access check - show paywall if no access
-    const access = await PaymentService.hasAccess(chatId)
-    console.log('Initial access check result:', access)
-
-    if (!access) {
-      console.log('❌ No access - showing paywall')
-      setPendingInsightToUnlock(insightId)
-      setShowPaywall(true)
-      return
-    }
-
-    // Has access - unlock this specific insight
-    if (unlockedInsights.has(insightId)) {
-      console.log('✅ Insight already unlocked')
-      return
-    }
-
-    console.log('🔄 Starting unlock process...')
-    setLoadingInsight(insightId)
-
-    try {
-      // Triple-check access
-      const reconfirmAccess = await PaymentService.hasAccess(chatId)
-      console.log('🔒 Re-confirming access before unlock:', reconfirmAccess)
-
-      if (!reconfirmAccess) {
-        console.error('❌ Access verification failed - aborting unlock')
-        setLoadingInsight(null)
-        setShowPaywall(true)
-        showAlert('Access Required', 'Please complete payment to unlock insights')
-        return
-      }
-
-      // Generate AI insights if needed
-      let insights = aiInsights
-      if (!aiInsights && chat) {
-        console.log('📊 Generating AI insights...')
-        insights = await analyzeChat(chat.text)
-        setAiInsights(insights)
-        console.log('✅ AI insights generated')
-
-        // Assign one-time purchase to chat (skip for subscriptions)
-        const hasSubscription = await PaymentService.hasActiveSubscription()
-        if (!hasSubscription) {
-          console.log('🔗 Assigning one-time entitlement to chat...')
-          try {
-            await PaymentService.assignAnalysisToChat(chatId)
-            console.log('✅ Entitlement assigned to chat')
-          } catch (assignError) {
-            console.error('❌ Failed to assign entitlement:', assignError)
-            setLoadingInsight(null)
-            setShowPaywall(true)
-            showAlert(
-              'Payment Verification Failed',
-              'Could not verify your payment. Please try again or contact support.'
-            )
-            return
-          }
-        } else {
-          console.log('ℹ️ Subscription active - no need to assign to chat')
-        }
-      }
-
-      // Final verification
-      const finalAccessCheck = await PaymentService.hasAccess(chatId)
-      if (!finalAccessCheck) {
-        console.error('❌ Final access check failed after assignment')
-        setLoadingInsight(null)
-        setShowPaywall(true)
-        showAlert('Access Verification Failed', 'Could not verify access. Please try again.')
-        return
-      }
-
-      // Mark insight as unlocked and persist
-      const newUnlockedInsights = new Set([...unlockedInsights, insightId])
-      console.log('New unlockedInsights:', Array.from(newUnlockedInsights))
-      setUnlockedInsights(newUnlockedInsights)
-
-      // Save to storage
-      if (analysis) {
-        console.log('💾 Saving to storage...')
-        await updateChatAnalysis(chatId, analysis, insights || undefined, Array.from(newUnlockedInsights))
-        console.log('✅ Saved to storage')
-      } else {
-        console.warn('⚠️ No analysis to save!')
-      }
-
-      console.log('🎉 Unlock complete!')
-    } catch (err) {
-      console.error('❌ Error Unlocking Insight:', err)
-      showAlert(
-        'Failed to Unlock Insight',
-        "Don't worry, this can happen sometimes due to the AI being overloaded. Simply try again in a few seconds."
-      )
-    } finally {
-      setLoadingInsight(null)
-    }
-  }
-
-  // Handle purchase
-  const handlePurchase = async (planId: string) => {
-    try {
-      console.log('💳 Starting payment for plan:', planId, 'chatId:', chatId)
-
-      const result = await StripeService.initializePayment(planId, chatId as string)
-      console.log('💳 Payment result:', result)
-
-      if (result.success) {
-        console.log('✅ Payment sheet returned success')
-
-        const paymentIntentId = result.paymentIntentId
-        setShowPaywall(false)
-        showAlert('Payment Processing', 'Your payment is being processed. You can unlock insights in a moment.')
-
-        // Check authentication
-        const isAuthenticated = await AuthService.isAuthenticated()
-        console.log('🔐 User authenticated:', isAuthenticated)
-
-        if (!isAuthenticated) {
-          console.log('📝 Showing auth screen (showAuthScreen = true)')
-          setShowAuthScreen(true)
-        } else {
-          console.log('✅ Already authenticated, switching to insights tab')
-          setActiveTab('insights')
-        }
-
-        // Poll for entitlement
-        console.log('⏳ Polling for entitlement creation...')
-        const maxAttempts = 10
-        const pollInterval = 1000
-
-        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-          console.log(`🔄 Polling attempt ${attempt}/${maxAttempts}`)
-
-          if (attempt > 1) {
-            await new Promise((resolve) => setTimeout(resolve, pollInterval))
-          } else {
-            await new Promise((resolve) => setTimeout(resolve, 500))
-          }
-
-          const hasAccess = await PaymentService.hasAccess(chatId)
-          console.log(`🔍 Attempt ${attempt}: hasAccess =`, hasAccess)
-
-          if (hasAccess) {
-            console.log('✅ Entitlement found! Payment confirmed.')
-            showAlert('🎉 Payment Successful!', 'Unlocking your insight now...')
-
-            if (pendingInsightToUnlock) {
-              console.log('🔓 Auto-unlocking pending insight:', pendingInsightToUnlock)
-              setTimeout(() => handleUnlockInsight(pendingInsightToUnlock), 500)
-              setPendingInsightToUnlock(null)
-            }
-            break
-          }
-
-          // Manual verification fallback
-          if (attempt === maxAttempts) {
-            console.warn('⚠️ Entitlement not found after polling - attempting manual verification')
-
-            if (paymentIntentId) {
-              console.log('🔧 Calling manual verification fallback...')
-              const verified = await PaymentService.verifyPayment(paymentIntentId, planId, chatId)
-
-              if (verified) {
-                console.log('✅ Manual verification succeeded!')
-                showAlert('🎉 Payment Verified!', 'Unlocking your insight now...')
-
-                if (pendingInsightToUnlock) {
-                  console.log('🔓 Auto-unlocking pending insight:', pendingInsightToUnlock)
-                  setTimeout(() => handleUnlockInsight(pendingInsightToUnlock), 500)
-                  setPendingInsightToUnlock(null)
-                }
-              } else {
-                console.error('❌ Manual verification failed')
-                showAlert(
-                  '⏳ Payment Processing',
-                  'Your payment was successful but verification is taking longer than expected. Please wait a moment and try unlocking again. If the problem persists, contact support.'
-                )
-              }
-            } else {
-              console.error('❌ No payment intent ID available for manual verification')
-              showAlert(
-                '⏳ Payment Processing',
-                'Your payment was successful but verification is taking longer than expected. Please wait a moment and try unlocking again. If the problem persists, contact support.'
-              )
-            }
-          }
-        }
-      } else {
-        console.log('❌ Payment failed or cancelled')
-        if (result.error) {
-          showAlert('Payment Failed', result.error)
-        }
-      }
-    } catch (error) {
-      console.error('💥 Purchase error:', error)
-      showAlert('Error', 'Failed to process payment. Please try again.')
-    }
   }
 
   // Handle successful authentication

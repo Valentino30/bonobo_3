@@ -17,7 +17,7 @@ type UseUnlockInsightOptions = {
     unlockedInsights?: string[]
   ) => Promise<void>
   showAlert: (title: string, message: string) => void
-  onShowPaywall: () => void
+  onShowPaywall: (insightId: string) => void
 }
 
 export function useUnlockInsight(options: UseUnlockInsightOptions) {
@@ -41,7 +41,7 @@ export function useUnlockInsight(options: UseUnlockInsightOptions) {
     const access = await PaymentService.hasAccess(chatId)
 
     if (!access) {
-      onShowPaywall()
+      onShowPaywall(insightId)
       return
     }
 
@@ -58,7 +58,7 @@ export function useUnlockInsight(options: UseUnlockInsightOptions) {
 
       if (!reconfirmAccess) {
         setLoadingInsight(null)
-        onShowPaywall()
+        onShowPaywall(insightId)
         showAlert('Access Required', 'Please complete payment to unlock insights')
         return
       }
@@ -76,7 +76,7 @@ export function useUnlockInsight(options: UseUnlockInsightOptions) {
             await PaymentService.assignAnalysisToChat(chatId)
           } catch (assignError) {
             setLoadingInsight(null)
-            onShowPaywall()
+            onShowPaywall(insightId)
             showAlert(
               'Payment Verification Failed',
               'Could not verify your payment. Please try again or contact support.'
@@ -90,7 +90,7 @@ export function useUnlockInsight(options: UseUnlockInsightOptions) {
       const finalAccessCheck = await PaymentService.hasAccess(chatId)
       if (!finalAccessCheck) {
         setLoadingInsight(null)
-        onShowPaywall()
+        onShowPaywall(insightId)
         showAlert('Access Verification Failed', 'Could not verify access. Please try again.')
         return
       }
