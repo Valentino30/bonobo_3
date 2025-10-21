@@ -1,7 +1,7 @@
+import { StyleSheet, Text, View } from 'react-native'
 import { AnimatedCard } from '@/components/animated-card'
 import { FlippableCard } from '@/components/flippable-card'
 import { useTheme } from '@/contexts/theme-context'
-import { StyleSheet, Text, View } from 'react-native'
 
 interface InsightCardProps {
   title: string
@@ -17,6 +17,7 @@ interface InsightCardProps {
   explanationTitle?: string
   explanationText?: string
   index?: number
+  disableEntranceAnimation?: boolean
 }
 
 export function InsightCard({
@@ -30,6 +31,7 @@ export function InsightCard({
   explanationTitle,
   explanationText,
   index,
+  disableEntranceAnimation = false,
 }: InsightCardProps) {
   const theme = useTheme()
   const itemColor = color || theme.colors.primary
@@ -107,14 +109,22 @@ export function InsightCard({
 
   if (isFlippable) {
     return (
-      <AnimatedCard index={index} containerStyle={styles.cardContainer}>
+      <AnimatedCard
+        index={index}
+        containerStyle={styles.cardContainer}
+        animationConfig={{ entranceAnimation: !disableEntranceAnimation }}
+      >
         <FlippableCard front={frontContent} back={backContent!} />
       </AnimatedCard>
     )
   }
 
   return (
-    <AnimatedCard index={index} containerStyle={styles.cardContainer}>
+    <AnimatedCard
+      index={index}
+      containerStyle={styles.cardContainer}
+      animationConfig={{ entranceAnimation: !disableEntranceAnimation }}
+    >
       {frontContent}
     </AnimatedCard>
   )
