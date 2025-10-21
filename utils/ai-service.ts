@@ -80,35 +80,35 @@ export async function analyzeChat(chatText: string): Promise<AIInsights> {
   const currentLocale = i18n.locale
   console.log('📝 Using locale for AI analysis:', currentLocale)
 
-  // Language-specific instructions - VERY EXPLICIT
-  const languageInstruction =
-    currentLocale === 'it'
-      ? `IMPORTANTE: Rispondi SOLO in ITALIANO. OGNI singola parola nella risposta JSON deve essere in italiano, inclusi:
-- Tutte le "description"
-- Tutti gli "items" e "tips"
-- TUTTI i valori nei campi "type" e "rating" (es. "Sicuro" NON "Secure", "Eccellente" NON "Excellent")
-- NESSUNA parola in inglese è permessa nella risposta.`
-      : `IMPORTANT: Respond ONLY in ENGLISH. Every single word in the JSON response must be in English, including:
+  // Determine target language for AI response
+  const targetLanguage = currentLocale === 'it' ? 'Italian' : 'English'
+  const languageInstruction = `CRITICAL: You MUST respond ONLY in ${targetLanguage.toUpperCase()}. Every single word in the JSON response must be in ${targetLanguage}, including:
 - All "description" fields
-- All "items" and "tips"
-- ALL "type" and "rating" field values (e.g. "Secure" NOT "Sicuro", "Excellent" NOT "Eccellente")
-- NO Italian words are allowed in the response.`
+- All "items" and "tips" arrays
+- ALL "type" and "rating" field values
+- NO words from any other language are allowed`
 
-  // Language-specific field value examples
-  const attachmentStyleTypes =
-    currentLocale === 'it' ? 'Sicuro/Ansioso/Evitante/Timoroso' : 'Secure/Anxious/Avoidant/Fearful'
-  const reciprocityRatings = currentLocale === 'it' ? 'Scarso/Discreto/Buono/Eccellente' : 'Poor/Fair/Good/Excellent'
-  const compatibilityRatings =
-    currentLocale === 'it' ? 'Bassa/Moderata/Alta/Molto Alta/Eccellente' : 'Low/Moderate/High/Very High/Excellent'
-  const conflictTypes =
-    currentLocale === 'it'
-      ? 'Collaborativo/Competitivo/Accomodante/Evitante/Compromissorio'
-      : 'Collaborative/Competitive/Accommodating/Avoiding/Compromising'
-  const weVsIRatings = currentLocale === 'it' ? 'Basso/Moderato/Alto/Molto Alto' : 'Low/Moderate/High/Very High'
-  const loveLanguages =
-    currentLocale === 'it'
-      ? 'Parole di Affermazione/Tempo di Qualità/Contatto Fisico/Atti di Servizio/Ricevere Regali'
-      : 'Words of Affirmation/Quality Time/Physical Touch/Acts of Service/Receiving Gifts'
+  // Field value examples for the target language
+  const examples = {
+    Italian: {
+      attachmentStyle: 'Sicuro/Ansioso/Evitante/Timoroso',
+      reciprocity: 'Scarso/Discreto/Buono/Eccellente',
+      compatibility: 'Bassa/Moderata/Alta/Molto Alta/Eccellente',
+      conflictType: 'Collaborativo/Competitivo/Accomodante/Evitante/Compromissorio',
+      weVsI: 'Basso/Moderato/Alto/Molto Alto',
+      loveLanguage: 'Parole di Affermazione/Tempo di Qualità/Contatto Fisico/Atti di Servizio/Ricevere Regali',
+    },
+    English: {
+      attachmentStyle: 'Secure/Anxious/Avoidant/Fearful',
+      reciprocity: 'Poor/Fair/Good/Excellent',
+      compatibility: 'Low/Moderate/High/Very High/Excellent',
+      conflictType: 'Collaborative/Competitive/Accommodating/Avoiding/Compromising',
+      weVsI: 'Low/Moderate/High/Very High',
+      loveLanguage: 'Words of Affirmation/Quality Time/Physical Touch/Acts of Service/Receiving Gifts',
+    },
+  }
+
+  const langExamples = examples[targetLanguage]
 
   // Add timeout to prevent infinite hanging
   const timeoutPromise = new Promise((_, reject) => {
@@ -147,13 +147,13 @@ Provide a detailed analysis with the following structure (respond ONLY with vali
     "items": [<array of 3-4 SIMPLE STRING specific examples>]
   },
   "attachmentStyle": {
-    "type": "<${attachmentStyleTypes}>",
+    "type": "<${langExamples.attachmentStyle}>",
     "description": "<AI-generated SIMPLE STRING explanation of the attachment style based on this chat>",
     "items": [<array of 3 SIMPLE STRING supporting observations>]
   },
   "reciprocityScore": {
     "percentage": <0-100>,
-    "rating": "<${reciprocityRatings}>",
+    "rating": "<${langExamples.reciprocity}>",
     "description": "<AI-generated SIMPLE STRING summary of give-and-take balance>",
     "items": [<array of 3 SIMPLE STRING specific examples about balance>]
   },
@@ -169,7 +169,7 @@ Provide a detailed analysis with the following structure (respond ONLY with vali
   },
   "compatibilityScore": {
     "percentage": <0-100>,
-    "rating": "<${compatibilityRatings}>",
+    "rating": "<${langExamples.compatibility}>",
     "description": "<AI-generated SIMPLE STRING summary of compatibility>",
     "items": [<array of 3 SIMPLE STRING specific observations about compatibility>]
   },
@@ -179,7 +179,7 @@ Provide a detailed analysis with the following structure (respond ONLY with vali
     "tips": [<array of 4 SIMPLE STRING actionable tips>]
   },
   "conflictResolution": {
-    "type": "<${conflictTypes}>",
+    "type": "<${langExamples.conflictType}>",
     "description": "<AI-generated SIMPLE STRING explanation of how conflicts are handled>",
     "items": [<array of 3 SIMPLE STRING specific examples of conflict resolution patterns>]
   },
@@ -190,13 +190,13 @@ Provide a detailed analysis with the following structure (respond ONLY with vali
   },
   "weVsIRatio": {
     "percentage": <0-100, percentage of "we" language vs "I" language>,
-    "rating": "<${weVsIRatings}>",
+    "rating": "<${langExamples.weVsI}>",
     "description": "<AI-generated SIMPLE STRING summary of collective vs individual language usage>",
     "items": [<array of 3 SIMPLE STRING observations about "we" vs "I" language patterns>]
   },
   "loveLanguage": {
-    "primary": "<${loveLanguages}>",
-    "secondary": "<${loveLanguages}>",
+    "primary": "<${langExamples.loveLanguage}>",
+    "secondary": "<${langExamples.loveLanguage}>",
     "description": "<AI-generated SIMPLE STRING explanation of the dominant love language patterns>",
     "items": [<array of 3 SIMPLE STRING specific examples showing the love language>]
   }
@@ -206,7 +206,12 @@ IMPORTANT: All "items", "tips" arrays must contain ONLY simple text strings, NOT
 
 Focus on communication patterns, emotional dynamics, and relationship health indicators.
 
-${currentLocale === 'it' ? 'RICORDA: Ogni parola nella tua risposta DEVE essere in ITALIANO. Usa "Sicuro" non "Secure", "Eccellente" non "Excellent", "Alto" non "High".' : 'REMEMBER: Every word in your response MUST be in ENGLISH. Use "Secure" not "Sicuro", "Excellent" not "Eccellente", "High" not "Alto".'}`
+REMEMBER: Your response MUST be 100% in ${targetLanguage.toUpperCase()}. Examples of correct ${targetLanguage} terms:
+${
+  targetLanguage === 'Italian'
+    ? '- Use "Sicuro" NOT "Secure"\n- Use "Eccellente" NOT "Excellent"\n- Use "Alto" NOT "High"\n- Use "Atti di Servizio" NOT "Acts of Service"'
+    : '- Use "Secure" NOT "Sicuro"\n- Use "Excellent" NOT "Eccellente"\n- Use "High" NOT "Alto"\n- Use "Acts of Service" NOT "Atti di Servizio"'
+}`
 
     const generatePromise = model.generateContent(prompt)
     const result = (await Promise.race([generatePromise, timeoutPromise])) as any
