@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native'
 import { InsightCard } from '@/components/insight-card'
 import { LockedInsightCard } from '@/components/locked-insight-card'
-import { INSIGHT_CONFIGS, type InsightConfig } from '@/constants/insights'
+import { type InsightConfig, getInsightConfigs } from '@/constants/insights'
 import { useTheme } from '@/contexts/theme-context'
 import { type AIInsights } from '@/utils/ai-service'
 
@@ -25,6 +25,7 @@ export function AnalysisInsights({
   getFrequencyLabel,
 }: AnalysisInsightsProps) {
   const theme = useTheme()
+  const insightConfigs = getInsightConfigs()
 
   // Render individual insight card (unlocked or locked)
   const renderInsightCard = (config: InsightConfig, index: number) => {
@@ -76,9 +77,7 @@ export function AnalysisInsights({
     )
   }
 
-  return (
-    <View style={styles.container}>{INSIGHT_CONFIGS.map((config, index) => renderInsightCard(config, index))}</View>
-  )
+  return <View style={styles.container}>{insightConfigs.map((config, index) => renderInsightCard(config, index))}</View>
 }
 
 const styles = StyleSheet.create({

@@ -26,8 +26,9 @@ export type InsightConfig = {
 /**
  * Configuration for all AI-powered insights
  * Each insight includes metadata for display and educational explanations
+ * Returns fresh translations on each call to support language switching
  */
-export const INSIGHT_CONFIGS: InsightConfig[] = [
+export const getInsightConfigs = (): InsightConfig[] => [
   {
     id: 'redFlags',
     icon: '🚩',
@@ -191,3 +192,9 @@ export const INSIGHT_CONFIGS: InsightConfig[] = [
     getItems: (insights) => insights.relationshipTips.tips,
   },
 ]
+
+/**
+ * @deprecated Use getInsightConfigs() instead to get fresh translations
+ * This constant is kept for backwards compatibility but won't update when language changes
+ */
+export const INSIGHT_CONFIGS = getInsightConfigs()

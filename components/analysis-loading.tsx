@@ -3,14 +3,16 @@ import { AnimatedIcon } from '@/components/animated-icon'
 import { InfoBanner } from '@/components/info-banner'
 import { LoadingProgressBar } from '@/components/loading-progress-bar'
 import { ThemedText } from '@/components/themed-text'
-import { ANALYSIS_LOADING_STEPS } from '@/constants/analysis-loading'
+import { getAnalysisLoadingSteps } from '@/constants/analysis-loading'
 import { useTheme } from '@/contexts/theme-context'
 import { useLoadingAnimation } from '@/hooks/ui/use-loading-animation'
+import i18n from '@/i18n/config'
 
 export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
   const theme = useTheme()
+  const steps = getAnalysisLoadingSteps()
   const { currentStep, progressWidth } = useLoadingAnimation({
-    stepCount: ANALYSIS_LOADING_STEPS.length,
+    stepCount: steps.length,
     stepDuration: 1000,
     onComplete,
   })
@@ -30,30 +32,26 @@ export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
       >
         {/* Animated Icon */}
         <View style={styles.iconWrapper}>
-          <AnimatedIcon icon={ANALYSIS_LOADING_STEPS[currentStep].icon} animation="pulsate" />
+          <AnimatedIcon icon={steps[currentStep].icon} animation="pulsate" />
         </View>
 
         {/* Title and Subtitle */}
         <View style={styles.textContainer}>
           <ThemedText style={styles.title} lightColor={theme.colors.text}>
-            {ANALYSIS_LOADING_STEPS[currentStep].title}
+            {steps[currentStep].title}
           </ThemedText>
           <ThemedText style={styles.subtitle} lightColor={theme.colors.textTertiary}>
-            {ANALYSIS_LOADING_STEPS[currentStep].subtitle}
+            {steps[currentStep].subtitle}
           </ThemedText>
         </View>
 
         {/* Progress Bar */}
-        <LoadingProgressBar
-          currentStep={currentStep + 1}
-          totalSteps={ANALYSIS_LOADING_STEPS.length}
-          progressWidth={progressWidth}
-        />
+        <LoadingProgressBar currentStep={currentStep + 1} totalSteps={steps.length} progressWidth={progressWidth} />
       </View>
 
       {/* Bottom Tip */}
       <View style={styles.tipWrapper}>
-        <InfoBanner text="Analyzing your conversation..." />
+        <InfoBanner text={i18n.t('analysis.loading')} />
       </View>
     </View>
   )

@@ -9,8 +9,10 @@ export type LoadingStep = {
 /**
  * Loading steps shown during chat analysis
  * Each step displays for 1000ms with smooth transitions
+ *
+ * Returns a function to allow dynamic translation updates when language changes
  */
-export const ANALYSIS_LOADING_STEPS: LoadingStep[] = [
+export const getAnalysisLoadingSteps = (): LoadingStep[] => [
   {
     title: i18n.t('analysis.loadingSteps.readingTitle'),
     subtitle: i18n.t('analysis.loadingSteps.readingSubtitle'),
@@ -27,3 +29,7 @@ export const ANALYSIS_LOADING_STEPS: LoadingStep[] = [
     icon: 'brain',
   },
 ]
+
+// Deprecated: Use getAnalysisLoadingSteps() instead
+// Keeping for backwards compatibility during migration
+export const ANALYSIS_LOADING_STEPS = getAnalysisLoadingSteps()
