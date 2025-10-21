@@ -9,6 +9,7 @@ import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
 import { useCustomAlert } from '@/hooks/ui/use-custom-alert'
 import { useChats } from '@/hooks/use-chats'
+import i18n from '@/i18n/config'
 
 export default function ChatsScreen() {
   const theme = useTheme()
@@ -23,7 +24,7 @@ export default function ChatsScreen() {
     return (
       <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background }]}>
         <ThemedView style={styles.loadingContainer}>
-          <LoadingScreen icon="database-search" title="Loading Chats" subtitle="Fetching your conversations..." />
+          <LoadingScreen icon="database-search" title={i18n.t('chats.loading')} subtitle={i18n.t('chats.fetching')} />
         </ThemedView>
       </SafeAreaView>
     )
@@ -52,7 +53,7 @@ export default function ChatsScreen() {
         <ChatList chats={chats} onAnalyzeChat={handleAnalyzeChat} onDeleteChat={deleteChat} />
 
         <ThemedButton
-          title="Import Chat"
+          title={i18n.t('chats.importButton')}
           onPress={handleNavigateToImportGuide}
           variant="primary"
           size="large"

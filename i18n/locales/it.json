@@ -1,0 +1,145 @@
+{
+  "common": {
+    "cancel": "Annulla",
+    "delete": "Elimina",
+    "loading": "Caricamento...",
+    "email": "Email",
+    "password": "Password",
+    "update": "Aggiorna",
+    "gotIt": "HO CAPITO",
+    "maybeLater": "Forse Dopo",
+    "pleaseWait": "Attendere prego..."
+  },
+  "navigation": {
+    "chats": "Le Tue Chat",
+    "analysis": "Analisi",
+    "profile": "Il Mio Profilo",
+    "importGuide": "Guida all'Importazione"
+  },
+  "chats": {
+    "title": "Le Tue Chat",
+    "loading": "Caricamento Chat",
+    "fetching": "Recupero delle tue conversazioni...",
+    "empty": "Nessuna chat ancora",
+    "emptyDescription": "Importa una chat di WhatsApp per iniziare",
+    "importButton": "Importa Chat",
+    "analyzeButton": "Analizza",
+    "deleteConfirmTitle": "Elimina Chat",
+    "deleteConfirmMessage": "Sei sicuro di voler eliminare questa chat?",
+    "clearAllTitle": "Cancella Tutti i Dati",
+    "clearAllMessage": "Rimuovi tutte le chat e le informazioni dal tuo dispositivo.",
+    "clearAllButton": "Cancella Dati"
+  },
+  "importGuide": {
+    "title": "Come Importare Chat WhatsApp",
+    "subtitle": "Segui questi passaggi:",
+    "supportNote": "Attualmente supporta solo WhatsApp",
+    "step1": "Apri WhatsApp e vai alla chat che vuoi analizzare",
+    "step2": "Tocca i tre puntini (⋮) in alto a destra",
+    "step3": "Seleziona 'Altro' → 'Esporta chat'",
+    "step4": "Scegli 'Senza media'",
+    "step5": "Seleziona questa app (Bonobo) dal menu di condivisione"
+  },
+  "analysis": {
+    "title": "Analisi",
+    "loading": "Analizzando la tua conversazione...",
+    "tabs": {
+      "overview": "Panoramica",
+      "insights": "Approfondimenti"
+    },
+    "overview": {
+      "messageCount": "Messaggi",
+      "participants": "Partecipanti"
+    },
+    "insights": {
+      "title": "Approfondimenti AI",
+      "unlockButton": "SBLOCCA CON AI",
+      "unlocking": "SBLOCCANDO",
+      "locked": "Bloccato",
+      "redFlags": "Segnali d'Allarme",
+      "greenFlags": "Segnali Positivi",
+      "attachmentStyle": "Stile di Attaccamento",
+      "reciprocityScore": "Punteggio di Reciprocità",
+      "compliments": "Complimenti",
+      "criticism": "Critiche e Conflitti",
+      "compatibilityScore": "Punteggio di Compatibilità",
+      "relationshipTips": "Consigli per la Relazione"
+    }
+  },
+  "profile": {
+    "title": "Il Mio Profilo",
+    "loading": "Caricamento Profilo",
+    "settings": "Impostazioni",
+    "login": "Accedi",
+    "logout": "Esci",
+    "deleteAccount": "Elimina Account",
+    "changePassword": "Cambia Password",
+    "notAuthenticated": "Non connesso",
+    "loginPrompt": "Accedi per sincronizzare i tuoi dati su tutti i dispositivi"
+  },
+  "auth": {
+    "emailLabel": "Indirizzo email",
+    "emailPlaceholder": "tuo@email.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Minimo 8 caratteri",
+    "confirmPasswordLabel": "Conferma password",
+    "confirmPasswordPlaceholder": "Reinserisci la tua password",
+    "newPasswordLabel": "Nuova password (min. 8 caratteri)",
+    "confirmNewPasswordLabel": "Conferma nuova password",
+    "loginButton": "Accedi",
+    "createAccountButton": "Crea Account e Continua",
+    "updatePasswordButton": "Aggiorna",
+    "logoutTitle": "Esci",
+    "logoutMessage": "Sei sicuro di voler uscire?",
+    "deleteAccountTitle": "Elimina Account",
+    "deleteAccountMessage": "Elimina permanentemente il tuo account e tutti i dati. Questa azione non può essere annullata.",
+    "deleteAccountWarning": "Questo eliminerà permanentemente il tuo account e TUTTI i dati associati incluse chat, acquisti e approfondimenti. Questa azione NON PUÒ essere annullata.",
+    "deleteAccountFinalWarning": "Sei Assolutamente Sicuro?",
+    "deleteAccountFinalMessage": "Questa è la tua ultima possibilità di annullare. Tutti i tuoi dati saranno eliminati permanentemente.",
+    "deleteEverythingButton": "Elimina Tutto",
+    "missingCredentials": "Credenziali Mancanti",
+    "missingCredentialsMessage": "Inserisci la tua email e password",
+    "missingPasswordFieldsMessage": "Compila tutti i campi password",
+    "passwordTooShort": "Password Troppo Corta",
+    "passwordTooShortMessage": "La password deve essere di almeno 8 caratteri",
+    "passwordMismatch": "Password Non Corrispondenti",
+    "passwordMismatchMessage": "Le password non corrispondono",
+    "loginFailed": "Accesso Fallito",
+    "updateFailed": "Aggiornamento Fallito",
+    "passwordUpdated": "Password Aggiornata",
+    "passwordUpdatedMessage": "La tua password è stata aggiornata con successo",
+    "accountDeleted": "Account Eliminato",
+    "accountDeletedMessage": "Il tuo account e tutti i dati sono stati eliminati permanentemente."
+  },
+  "paywall": {
+    "title": "Sblocca Approfondimenti AI",
+    "subtitle": "Ottieni un'analisi approfondita della relazione con l'intelligenza artificiale avanzata",
+    "secureTitle": "Proteggi il Tuo Acquisto",
+    "secureSubtitle": "Crea un account per accedere ai tuoi approfondimenti da qualsiasi dispositivo e mantenere i tuoi acquisti al sicuro",
+    "secureSubtitleShort": "Crea un account per accedere ai tuoi approfondimenti da qualsiasi dispositivo",
+    "oneTime": "Acquisto Una Tantum",
+    "weekly": "Pass Settimanale",
+    "monthly": "Pass Mensile",
+    "bestValue": "Miglior valore giornaliero!",
+    "maxFlexibility": "Massima flessibilità!",
+    "purchaseButton": "Acquista",
+    "currencyPicker": "Cambia Valuta"
+  },
+  "privacy": {
+    "title": "La Tua Privacy È Importante",
+    "message": "Tutti i dati delle chat sono archiviati in modo sicuro sul tuo dispositivo. Non carichiamo mai le tue conversazioni sui nostri server. L'analisi AI viene eseguita utilizzando richieste crittografate.",
+    "dataSecure": "I tuoi dati sono privati e sicuri. Utilizziamo la tua email solo per aiutarti ad accedere al tuo account."
+  },
+  "errors": {
+    "generic": "Si è verificato un errore",
+    "networkError": "Errore di rete. Controlla la tua connessione.",
+    "tryAgain": "Riprova",
+    "error": "Errore"
+  },
+  "alerts": {
+    "success": "Successo",
+    "error": "Errore",
+    "warning": "Avviso",
+    "info": "Info"
+  }
+}
