@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { AuthService } from '@/utils/auth-service'
 import { validateEmail, validatePassword } from '@/utils/validation'
+import { useSignupMutation } from './queries/use-auth-query'
 
 interface UseAccountCreationOptions {
   onSuccess: () => void
@@ -8,10 +8,13 @@ interface UseAccountCreationOptions {
 }
 
 export function useAccountCreation({ onSuccess, onConfirmationRequired }: UseAccountCreationOptions) {
+  // React Query hook
+  const signupMutation = useSignupMutation()
+
+  // Form state
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const clearForm = () => {
@@ -51,39 +54,8 @@ export function useAccountCreation({ onSuccess, onConfirmationRequired }: UseAcc
       return { success: false }
     }
 
-    setIsLoading(true)
-
     try {
-      // Create the account - Supabase will handle duplicate email errors
-      const result = await AuthService.signUpWithEmail(email, password)
-
-      if (!result.success) {
-        setError(result.error || 'Failed to create account')
-        setIsLoading(false)
-        return { success: false }
-      }
-
-      // Success! Log the result
-      console.log('✅ Account creation result:', {
-        success: result.success,
-        hasUser: !!result.user,
-        hasSession: !!result.session,
-        userId: result.user?.id,
-        userEmail: result.user?.email,
-      })
-
-      // Check if session was created (email confirmation may be required)
-      if (!result.session) {
-        console.warn('⚠️ No session created - email confirmation required')
-        setError('Account created but email confirmation is required. Please check your email and then login.')
-        setIsLoading(false)
-
-        if (onConfirmationRequired) {
-          onConfirmationRequired()
-        }
-
-        return { success: false, requiresConfirmation: true }
-      }
+      const result = await signupMutation.mutateAsync({ email, password })
 
       // Clear form
       clearForm()
@@ -93,11 +65,22 @@ export function useAccountCreation({ onSuccess, onConfirmationRequired }: UseAcc
 
       return { success: true, user: result.user }
     } catch (error) {
+      // Handle confirmation required error
+      if (error instanceof Error && error.message === 'CONFIRMATION_REQUIRED') {
+        setError('Account created but email confirmation is required. Please check your email and then login.')
+
+        if (onConfirmationRequired) {
+          onConfirmationRequired()
+        }
+
+        return { success: false, requiresConfirmation: true }
+      }
+
+      // Handle other errors
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
+      setError(errorMessage)
       console.error('Account creation error:', error)
-      setError('An unexpected error occurred')
       return { success: false }
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -108,7 +91,7 @@ export function useAccountCreation({ onSuccess, onConfirmationRequired }: UseAcc
     setPassword,
     confirmPassword,
     setConfirmPassword,
-    isLoading,
+    isLoading: signupMutation.isPending,
     error,
     setError,
     handleCreateAccount,

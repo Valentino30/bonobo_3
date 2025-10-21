@@ -20,6 +20,41 @@ export function useProfileQuery() {
   })
 }
 
+// Signup mutation
+export function useSignupMutation() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ email, password }: { email: string; password: string }) => {
+      const result = await AuthService.signUpWithEmail(email, password)
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to create account')
+      }
+
+      console.log('✅ Account creation result:', {
+        success: result.success,
+        hasUser: !!result.user,
+        hasSession: !!result.session,
+        userId: result.user?.id,
+        userEmail: result.user?.email,
+      })
+
+      // Check if session was created (email confirmation may be required)
+      if (!result.session) {
+        console.warn('⚠️ No session created - email confirmation required')
+        throw new Error('CONFIRMATION_REQUIRED')
+      }
+
+      return result
+    },
+    onSuccess: async () => {
+      // Refetch profile after successful signup
+      await queryClient.invalidateQueries({ queryKey: authKeys.profile() })
+    },
+  })
+}
+
 // Login mutation
 export function useLoginMutation() {
   const queryClient = useQueryClient()
