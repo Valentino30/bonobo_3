@@ -2,42 +2,25 @@ import { useEffect, useRef } from 'react'
 import { Animated, Easing } from 'react-native'
 
 export type CardAnimationConfig = {
-  /** Enable entrance animation on mount */
   entranceAnimation?: boolean
-  /** Enable fade-in animation on mount (can be used independently of entranceAnimation) */
   fadeInAnimation?: boolean
-  /** Enable scale-in animation on mount (can be used independently of entranceAnimation) */
   scaleInAnimation?: boolean
-  /** Entrance animation delay (ms) - useful for staggered list animations */
   entranceDelay?: number
-  /** Scale amount when pressed (e.g., 0.96) */
   pressScale?: number
-  /** Spring damping for press animation */
   springDamping?: number
-  /** Spring stiffness for press animation */
   springStiffness?: number
-  /** Enable delayed shake loop on long press */
   enablePressShake?: boolean
-  /** Delay before shake starts on press (ms) */
   pressShakeDelay?: number
-  /** Shake intensity for press shake (e.g., 1 for subtle, 2 for more) */
   pressShakeIntensity?: number
 }
 
 export type CardAnimationResult = {
-  /** Animated value for scale transform */
   scale: Animated.AnimatedMultiplication<number> | Animated.Value
-  /** Animated value for opacity (fade-in effect) */
   opacity: Animated.Value
-  /** Animated value for vertical slide entrance */
   slideY: Animated.Value
-  /** Interpolated translateX value for horizontal shake/jiggle */
   shake: Animated.AnimatedInterpolation<number>
-  /** Interpolated rotate value for shake/jiggle rotation */
   rotate: Animated.AnimatedInterpolation<string>
-  /** Call when press starts */
   handlePressIn: () => void
-  /** Call when press ends */
   handlePressOut: () => void
 }
 
