@@ -4,7 +4,6 @@ import { type DropdownOption, ThemedDropdown } from '@/components/themed-dropdow
 import { ThemedText } from '@/components/themed-text'
 import { useTheme } from '@/contexts/theme-context'
 import { useTranslation } from '@/hooks/use-translation'
-import { setLocale } from '@/i18n/config'
 
 const LANGUAGES: DropdownOption[] = [
   { value: 'en', label: '🇬🇧 English' },
@@ -13,11 +12,7 @@ const LANGUAGES: DropdownOption[] = [
 
 export function LanguageSelectionCard() {
   const theme = useTheme()
-  const { t, locale } = useTranslation()
-
-  const handleLanguageChange = (newLocale: string) => {
-    setLocale(newLocale)
-  }
+  const { t, locale, changeLanguage } = useTranslation()
 
   return (
     <View style={styles.section}>
@@ -37,7 +32,7 @@ export function LanguageSelectionCard() {
           </ThemedText>
         </View>
 
-        <ThemedDropdown value={locale} options={LANGUAGES} onValueChange={handleLanguageChange} />
+        <ThemedDropdown value={locale} options={LANGUAGES} onValueChange={changeLanguage} />
       </View>
     </View>
   )

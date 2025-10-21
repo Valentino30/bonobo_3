@@ -1,9 +1,10 @@
 import React, { ReactNode, createContext, useCallback, useEffect, useMemo, useState } from 'react'
-import i18n, { subscribeToLocaleChange } from '@/i18n/config'
+import i18n, { setLocale as setI18nLocale, subscribeToLocaleChange } from '@/i18n/config'
 
 export interface TranslationContextType {
   locale: string
   t: (key: string, params?: Record<string, any>) => string
+  changeLanguage: (locale: string) => void
 }
 
 export const TranslationContext = createContext<TranslationContextType | undefined>(undefined)
@@ -27,8 +28,13 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
     return i18n.t(key, params)
   }, [])
 
+  // Change language function
+  const changeLanguage = useCallback((newLocale: string) => {
+    setI18nLocale(newLocale)
+  }, [])
+
   // Memoize the context value - it updates when locale changes
-  const value = useMemo(() => ({ locale, t }), [locale, t])
+  const value = useMemo(() => ({ locale, t, changeLanguage }), [locale, t, changeLanguage])
 
   return <TranslationContext.Provider value={value}>{children}</TranslationContext.Provider>
 }
