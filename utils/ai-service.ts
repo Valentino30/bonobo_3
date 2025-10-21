@@ -1,46 +1,8 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import i18n from '@/i18n/config'
 
 // Initialize Gemini client
 const genAI = new GoogleGenerativeAI(process.env.EXPO_PUBLIC_GEMINI_API_KEY || '')
-
-/**
- * Detects the language of the chat text by analyzing common words
- * Returns 'it' for Italian, 'en' for English (default)
- */
-function detectChatLanguage(chatText: string): 'it' | 'en' {
-  const sample = chatText.substring(0, 2000).toLowerCase()
-
-  // Common Italian words/patterns that don't appear in English
-  const italianIndicators = [
-    'che ',
-    'non ',
-    'sono ',
-    'della ',
-    'degli ',
-    'anche ',
-    'perché',
-    'però',
-    'già',
-    'così',
-    'può',
-    'più',
-    'è stato',
-    'va bene',
-    'grazie',
-    'prego',
-    'ciao',
-    'buongiorno',
-    'buonasera',
-  ]
-
-  // Count Italian indicators
-  const italianCount = italianIndicators.reduce((count, indicator) => {
-    return count + (sample.match(new RegExp(indicator, 'g'))?.length || 0)
-  }, 0)
-
-  // If we find significant Italian indicators, it's Italian
-  return italianCount > 3 ? 'it' : 'en'
-}
 
 export interface AIInsights {
   redFlags: {
@@ -114,13 +76,13 @@ export async function analyzeChat(chatText: string): Promise<AIInsights> {
   console.log('API Key present:', !!process.env.EXPO_PUBLIC_GEMINI_API_KEY)
   console.log('Chat text length:', chatText.length)
 
-  // Detect the language of the chat
-  const chatLanguage = detectChatLanguage(chatText)
-  console.log('📝 Detected chat language:', chatLanguage)
+  // Use current app locale for AI analysis
+  const currentLocale = i18n.locale
+  console.log('📝 Using locale for AI analysis:', currentLocale)
 
   // Language-specific instructions
   const languageInstruction =
-    chatLanguage === 'it'
+    currentLocale === 'it'
       ? 'IMPORTANTE: Rispondi in ITALIANO. Tutte le descrizioni, items, e tips devono essere in italiano.'
       : 'IMPORTANT: Respond in ENGLISH. All descriptions, items, and tips must be in English.'
 
