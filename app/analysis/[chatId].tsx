@@ -11,14 +11,14 @@ import { ThemedButton } from '@/components/themed-button'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
-import { useChatAnalysis } from '@/hooks/use-chat-analysis'
+import { useChatAnalysisV2 } from '@/hooks/use-chat-analysis-v2'
 import { useCustomAlert } from '@/hooks/use-custom-alert'
 
 export default function ChatAnalysisScreen() {
   const theme = useTheme()
   const { showAlert, AlertComponent } = useCustomAlert()
 
-  // All business logic encapsulated in custom hook
+  // All business logic encapsulated in custom hook (React Query version)
   const {
     chat,
     chatId,
@@ -42,7 +42,7 @@ export default function ChatAnalysisScreen() {
     handleNavigateToChats,
     setShowPaywall,
     setShowAuthScreen,
-  } = useChatAnalysis({ showAlert })
+  } = useChatAnalysisV2({ showAlert })
 
   // Show loading animation
   if (chatsLoading || !analysis || showLoadingAnimation) {

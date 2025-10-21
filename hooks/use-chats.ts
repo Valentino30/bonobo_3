@@ -1,12 +1,12 @@
-import { useShareIntent } from '@/hooks/use-share-intent'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Platform } from 'react-native'
+import { useLocalSearchParams, useRouter } from 'expo-router'
+import { usePersistedChatsV2 } from '@/hooks/use-persisted-chats-v2'
 import { useShareImport } from '@/hooks/use-share-import'
-import { usePersistedChats } from '@/hooks/use-persisted-chats'
+import { useShareIntent } from '@/hooks/use-share-intent'
 import { type StoredChat } from '@/utils/chat-storage'
 import { createShareImportAlerts } from '@/utils/share-import-alerts'
 import { parseWhatsAppChat } from '@/utils/whatsapp-parser'
-import { useLocalSearchParams, useRouter } from 'expo-router'
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { Platform } from 'react-native'
 
 type UseChatsOptions = {
   showAlert: (title: string, message: string, buttons?: { text: string; onPress?: () => void }[]) => void
@@ -20,7 +20,7 @@ export function useChats({ showAlert }: UseChatsOptions) {
   const router = useRouter()
   const { shareData, hasShareData, clearShareData } = useShareIntent()
   const { device, reload } = useLocalSearchParams<{ device?: string; reload?: string }>()
-  const { chats, addChat: persistAddChat, deleteChat, isLoading, refreshChats } = usePersistedChats()
+  const { chats, addChat: persistAddChat, deleteChat, isLoading, refreshChats } = usePersistedChatsV2()
   const [manualInput, setManualInput] = useState('')
   const hasReloadedRef = useRef(false)
 
