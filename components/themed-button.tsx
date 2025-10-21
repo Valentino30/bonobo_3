@@ -38,12 +38,12 @@ const BouncingDots: React.FC<{ color: string }> = ({ color }) => {
         Animated.delay(delay),
         Animated.timing(animatedValue, {
           toValue: -3,
-          duration: 150,
+          duration: 300,
           useNativeDriver: true,
         }),
         Animated.timing(animatedValue, {
           toValue: 0,
-          duration: 150,
+          duration: 300,
           useNativeDriver: true,
         }),
       ])
@@ -52,8 +52,8 @@ const BouncingDots: React.FC<{ color: string }> = ({ color }) => {
     const animation = Animated.loop(
       Animated.parallel([
         createBounceAnimation(bounce1, 0),
-        createBounceAnimation(bounce2, 150),
-        createBounceAnimation(bounce3, 300),
+        createBounceAnimation(bounce2, 200),
+        createBounceAnimation(bounce3, 400),
       ])
     )
 
