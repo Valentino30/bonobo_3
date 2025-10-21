@@ -7,11 +7,11 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native'
-import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { ThemedButton } from '@/components/themed-button'
 import { EmailPasswordForm } from '@/components/email-password-form'
 import { InfoBanner } from '@/components/info-banner'
+import { ModalHeader } from '@/components/modal-header'
 import { useTheme } from '@/contexts/theme-context'
 import { useCustomAlert } from '@/hooks/use-custom-alert'
 import { useAccountCreation } from '@/hooks/use-account-creation'
@@ -80,16 +80,11 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
               bounces={true}
               keyboardShouldPersistTaps="handled"
             >
-            {/* Header */}
-            <View style={styles.header}>
-              <Text style={styles.emoji}>🔐</Text>
-              <ThemedText type="title" style={styles.title}>
-                Secure Your Purchase
-              </ThemedText>
-              <ThemedText style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
-                Create an account to access your insights from any device and keep your purchases safe
-              </ThemedText>
-            </View>
+            <ModalHeader
+              emoji="🔐"
+              title="Secure Your Purchase"
+              subtitle="Create an account to access your insights from any device and keep your purchases safe"
+            />
 
             {/* Error Message */}
             {error && (
@@ -159,26 +154,6 @@ const styles = StyleSheet.create({
     paddingBottom: Platform.OS === 'ios' ? 60 : 80,
     paddingHorizontal: 20,
     flexGrow: 1,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  emoji: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 16,
-    textAlign: 'center',
-    paddingHorizontal: 20,
-    lineHeight: 22,
   },
   errorContainer: {
     borderRadius: 8,

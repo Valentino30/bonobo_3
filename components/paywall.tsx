@@ -2,6 +2,7 @@ import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { ThemedButton } from '@/components/themed-button'
 import { SubscriptionCard } from '@/components/subscription-card'
+import { ModalHeader } from '@/components/modal-header'
 import { useTheme } from '@/contexts/theme-context'
 import { getPaymentPlans, type PaymentPlan } from '@/utils/payment-service'
 import { CurrencyService, CURRENCY_PRICING, type SupportedCurrency } from '@/utils/currency-service'
@@ -84,14 +85,11 @@ export function Paywall({ visible, onClose, onPurchase }: PaywallProps) {
             showsVerticalScrollIndicator={false}
             bounces={true}
           >
-            {/* Header */}
-            <View style={styles.header}>
-              <Text style={styles.emoji}>🔮</Text>
-              <ThemedText type="title" style={styles.title}>
-                Unlock AI Insights
-              </ThemedText>
-              <ThemedText style={[styles.subtitle, { color: theme.colors.textSecondary }]}>Get deep relationship analysis powered by advanced AI</ThemedText>
-            </View>
+            <ModalHeader
+              emoji="🔮"
+              title="Unlock AI Insights"
+              subtitle="Get deep relationship analysis powered by advanced AI"
+            />
 
             {/* Currency Selector */}
             <TouchableOpacity
@@ -218,25 +216,6 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingTop: 32,
     paddingBottom: 40,
-    paddingHorizontal: 20,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 32,
-  },
-  emoji: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 16,
-    textAlign: 'center',
     paddingHorizontal: 20,
   },
   plansContainer: {
