@@ -76,12 +76,11 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
       ]}
     >
       {loading ? (
-        <>
-          <Text style={[styles.text, variantStyles.text, sizeStyles.text, uppercase && styles.uppercase, textStyle]}>
-            {loadingTitle || title}
-          </Text>
-          <LoadingText color={String(variantStyles.text.color)} />
-        </>
+        <LoadingText
+          text={loadingTitle || title}
+          textStyle={StyleSheet.flatten([styles.text, variantStyles.text, sizeStyles.text, uppercase && styles.uppercase, textStyle])}
+          color={String(variantStyles.text.color)}
+        />
       ) : (
         <>
           {icon && iconPosition === 'left' && (
