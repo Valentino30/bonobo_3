@@ -23,10 +23,14 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  // Translation function that always uses current locale from i18n instance
-  const t = useCallback((key: string, params?: Record<string, any>) => {
-    return i18n.t(key, params)
-  }, [])
+  // Translation function - recreated when locale changes to force re-renders
+  const t = useCallback(
+    (key: string, params?: Record<string, any>) => {
+      return i18n.t(key, params)
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [locale]
+  )
 
   // Change language function
   const changeLanguage = useCallback((newLocale: string) => {
