@@ -26,6 +26,20 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
   const theme = useTheme()
   const { showAlert, AlertComponent } = useCustomAlert()
 
+  const handleSuccess = () => {
+    // Close modal and navigate back
+    onSuccess()
+
+    // Show confirmation with custom alert after navigation
+    setTimeout(() => {
+      showAlert(
+        'Account Created Successfully!',
+        'Your account has been created and your purchases have been securely linked to it.',
+        [{ text: 'Great!' }]
+      )
+    }, 500)
+  }
+
   const {
     email,
     setEmail,
@@ -36,26 +50,10 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
     isLoading,
     error,
     setError,
-    handleCreateAccount: createAccount,
+    handleCreateAccount,
   } = useAccountCreation({
-    onSuccess: () => {
-      // Call onSuccess to close modal and navigate back
-      onSuccess()
-
-      // Show confirmation with custom alert after navigation
-      setTimeout(() => {
-        showAlert(
-          'Account Created Successfully!',
-          'Your account has been created and your purchases have been securely linked to it.',
-          [{ text: 'Great!' }]
-        )
-      }, 500)
-    },
+    onSuccess: handleSuccess,
   })
-
-  const handleCreateAccount = async () => {
-    await createAccount()
-  }
 
 
   // Debug log when modal visibility changes
