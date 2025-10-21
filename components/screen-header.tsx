@@ -1,7 +1,7 @@
+import { type StyleProp, StyleSheet, View, type ViewStyle } from 'react-native'
 import { BackButton } from '@/components/back-button'
 import { ThemedText } from '@/components/themed-text'
 import { useTheme } from '@/contexts/theme-context'
-import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native'
 
 interface ScreenHeaderProps {
   title: string
@@ -47,11 +47,13 @@ export function ScreenHeader({ title, showBackButton = true, style, children }: 
 const styles = StyleSheet.create({
   headerTop: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: 8,
+    paddingTop: 4,
   },
   title: {
     flex: 1,
+    includeFontPadding: false,
   },
   childrenContainer: {
     marginTop: 16,
