@@ -1,7 +1,7 @@
-import { useTheme } from '@/contexts/theme-context'
 import { StyleSheet, Text, View } from 'react-native'
-import { ThemedButton } from '@/components/themed-button'
 import { AnimatedCard } from '@/components/animated-card'
+import { ThemedButton } from '@/components/themed-button'
+import { useTheme } from '@/contexts/theme-context'
 
 interface LockedInsightCardProps {
   title: string
@@ -29,7 +29,6 @@ export function LockedInsightCard({
 
   return (
     <AnimatedCard
-      onPress={onUnlock}
       containerStyle={[
         styles.card,
         {
