@@ -1,4 +1,4 @@
-import * as Localization from 'expo-localization'
+import { getLocales } from 'expo-localization'
 import { I18n } from 'i18n-js'
 import en from './locales/en.json'
 import it from './locales/it.json'
@@ -9,9 +9,12 @@ const i18n = new I18n({
   it,
 })
 
+// Get device locale (getLocales returns an array, we use the first one)
+const deviceLocale = getLocales()[0]?.languageCode ?? 'en'
+
 // Set the locale based on device settings
 // Falls back to 'en' if device locale is not supported
-i18n.locale = Localization.locale
+i18n.locale = deviceLocale
 i18n.enableFallback = true
 i18n.defaultLocale = 'en'
 
