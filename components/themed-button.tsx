@@ -1,8 +1,8 @@
 import { useTheme } from '@/contexts/theme-context'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { StyleSheet, Text, TextStyle, TouchableOpacity, ViewStyle } from 'react-native'
+import { StyleSheet, Text, TextStyle, TouchableOpacity, ViewStyle, Animated, View } from 'react-native'
 import { getButtonVariantStyles, getButtonSizeStyles, getButtonShadowStyles, getButtonAlignmentStyles, type ButtonAlign } from '@/utils/button-variants'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
 export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'ghost' | 'outline'
 
@@ -27,6 +27,50 @@ export interface ThemedButtonProps {
   align?: ButtonAlign
 }
 
+const BouncingDots: React.FC<{ color: string }> = ({ color }) => {
+  const bounce1 = useRef(new Animated.Value(0)).current
+  const bounce2 = useRef(new Animated.Value(0)).current
+  const bounce3 = useRef(new Animated.Value(0)).current
+
+  useEffect(() => {
+    const createBounceAnimation = (animatedValue: Animated.Value, delay: number) => {
+      return Animated.sequence([
+        Animated.delay(delay),
+        Animated.timing(animatedValue, {
+          toValue: -3,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+        Animated.timing(animatedValue, {
+          toValue: 0,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+      ])
+    }
+
+    const animation = Animated.loop(
+      Animated.parallel([
+        createBounceAnimation(bounce1, 0),
+        createBounceAnimation(bounce2, 150),
+        createBounceAnimation(bounce3, 300),
+      ])
+    )
+
+    animation.start()
+
+    return () => animation.stop()
+  }, [bounce1, bounce2, bounce3])
+
+  return (
+    <View style={styles.dotsContainer}>
+      <Animated.Text style={[styles.dot, { color, transform: [{ translateY: bounce1 }] }]}>.</Animated.Text>
+      <Animated.Text style={[styles.dot, { color, transform: [{ translateY: bounce2 }] }]}>.</Animated.Text>
+      <Animated.Text style={[styles.dot, { color, transform: [{ translateY: bounce3 }] }]}>.</Animated.Text>
+    </View>
+  )
+}
+
 export const ThemedButton: React.FC<ThemedButtonProps> = ({
   title,
   onPress,
@@ -46,21 +90,6 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
   align = 'center',
 }) => {
   const theme = useTheme()
-  const [dotCount, setDotCount] = useState(0)
-
-  // Animate loading dots
-  useEffect(() => {
-    if (!loading) {
-      setDotCount(0)
-      return
-    }
-
-    const interval = setInterval(() => {
-      setDotCount((prev) => (prev + 1) % 4)
-    }, 500)
-
-    return () => clearInterval(interval)
-  }, [loading])
 
   // Determine if button is disabled or loading
   const isDisabled = disabled || loading
@@ -91,9 +120,12 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
       ]}
     >
       {loading ? (
-        <Text style={[styles.text, variantStyles.text, sizeStyles.text, uppercase && styles.uppercase, textStyle]}>
-          {loadingTitle || title}{'.'.repeat(dotCount)}
-        </Text>
+        <>
+          <Text style={[styles.text, variantStyles.text, sizeStyles.text, uppercase && styles.uppercase, textStyle]}>
+            {loadingTitle || title}
+          </Text>
+          <BouncingDots color={String(variantStyles.text.color)} />
+        </>
       ) : (
         <>
           {icon && iconPosition === 'left' && (
@@ -136,5 +168,13 @@ const styles = StyleSheet.create({
   },
   iconRight: {
     marginLeft: 8,
+  },
+  dotsContainer: {
+    flexDirection: 'row',
+    marginLeft: 4,
+  },
+  dot: {
+    fontSize: 16,
+    fontWeight: '600',
   },
 })
