@@ -1,6 +1,7 @@
-import { supabase } from './supabase'
+import type { Session, User } from '@supabase/supabase-js'
+import i18n from '@/i18n/config'
 import { getDeviceId } from './device-id'
-import type { User, Session } from '@supabase/supabase-js'
+import { supabase } from './supabase'
 
 export interface AuthResult {
   success: boolean
@@ -37,11 +38,11 @@ export class AuthService {
         // Provide user-friendly error messages
         let userMessage = error.message
         if (error.message.includes('already registered')) {
-          userMessage = 'This email is already registered. Please sign in instead.'
+          userMessage = i18n.t('authErrors.emailAlreadyRegistered')
         } else if (error.message.includes('Password should be')) {
-          userMessage = 'Password must be at least 6 characters long.'
+          userMessage = i18n.t('authErrors.passwordTooShortError')
         } else if (error.message.includes('Invalid email')) {
-          userMessage = 'Please enter a valid email address.'
+          userMessage = i18n.t('authErrors.invalidEmail')
         }
 
         return {
@@ -53,7 +54,7 @@ export class AuthService {
       if (!data.user) {
         return {
           success: false,
-          error: 'Failed to create user account',
+          error: i18n.t('authErrors.failedToCreateAccount'),
         }
       }
 
@@ -89,7 +90,7 @@ export class AuthService {
       console.log('⚠️ Sign up error:', error)
       return {
         success: false,
-        error: 'Unable to create account. Please check your connection and try again.',
+        error: i18n.t('authErrors.connectionError'),
       }
     }
   }
@@ -112,9 +113,9 @@ export class AuthService {
         // Provide user-friendly error messages
         let userMessage = error.message
         if (error.message.includes('Invalid login credentials')) {
-          userMessage = 'Incorrect email or password. Please try again.'
+          userMessage = i18n.t('authErrors.incorrectCredentials')
         } else if (error.message.includes('Email not confirmed')) {
-          userMessage = 'Please verify your email address before signing in.'
+          userMessage = i18n.t('authErrors.emailNotConfirmed')
         }
 
         return {
@@ -138,7 +139,7 @@ export class AuthService {
       console.log('⚠️ Sign in error:', error)
       return {
         success: false,
-        error: 'Unable to sign in. Please check your connection and try again.',
+        error: i18n.t('authErrors.signInConnectionError'),
       }
     }
   }
@@ -154,7 +155,7 @@ export class AuthService {
         console.log('⚠️ Sign out failed:', error.message)
         return {
           success: false,
-          error: 'Unable to sign out. Please try again.',
+          error: i18n.t('authErrors.signOutError'),
         }
       }
 
@@ -167,7 +168,7 @@ export class AuthService {
       console.log('⚠️ Sign out error:', error)
       return {
         success: false,
-        error: 'Unable to sign out. Please try again.',
+        error: i18n.t('authErrors.signOutError'),
       }
     }
   }
@@ -185,7 +186,7 @@ export class AuthService {
         console.log('⚠️ Password update failed:', error.message)
         return {
           success: false,
-          error: 'Unable to update password. Please try again.',
+          error: i18n.t('authErrors.updatePasswordError'),
         }
       }
 
@@ -199,7 +200,7 @@ export class AuthService {
       console.log('⚠️ Password update error:', error)
       return {
         success: false,
-        error: 'Unable to update password. Please try again.',
+        error: i18n.t('authErrors.updatePasswordError'),
       }
     }
   }
@@ -217,7 +218,7 @@ export class AuthService {
       if (!user) {
         return {
           success: false,
-          error: 'No user logged in',
+          error: i18n.t('authErrors.noUserLoggedIn'),
         }
       }
 
@@ -232,7 +233,7 @@ export class AuthService {
         console.log('⚠️ Account deletion failed:', rpcError.message)
         return {
           success: false,
-          error: 'Unable to delete account. Please try again or contact support.',
+          error: i18n.t('authErrors.deleteAccountError'),
         }
       }
 
@@ -245,7 +246,7 @@ export class AuthService {
       console.log('⚠️ Account deletion error:', error)
       return {
         success: false,
-        error: 'Unable to delete account. Please try again or contact support.',
+        error: i18n.t('authErrors.deleteAccountError'),
       }
     }
   }

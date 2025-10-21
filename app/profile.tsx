@@ -50,7 +50,11 @@ export default function ProfileScreen() {
   if (isLoading) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-        <LoadingScreen icon="account" title="Loading Profile" subtitle="Please wait..." />
+        <LoadingScreen
+          icon="account"
+          title={i18n.t('profileScreen.loadingTitle')}
+          subtitle={i18n.t('common.pleaseWait')}
+        />
       </SafeAreaView>
     )
   }
@@ -72,7 +76,7 @@ export default function ProfileScreen() {
             keyboardShouldPersistTaps="handled"
           >
             {/* Header with Back Button */}
-            <ScreenHeader title="Login" style={styles.header} />
+            <ScreenHeader title={i18n.t('profileScreen.loginScreenTitle')} style={styles.header} />
 
             {/* Login Form */}
             <LoginCard
@@ -87,7 +91,7 @@ export default function ProfileScreen() {
             {/* Info Text */}
             <View style={styles.section}>
               <ThemedText style={[styles.infoText, { color: theme.colors.textTertiary }]}>
-                Don&apos;t have an account? Create one after making a purchase to save your insights.
+                {i18n.t('profileScreen.accountCreationInfo')}
               </ThemedText>
             </View>
           </ScrollView>
@@ -108,7 +112,7 @@ export default function ProfileScreen() {
           keyboardShouldPersistTaps="handled"
         >
           {/* Header with Back Button */}
-          <ScreenHeader title="My Profile" style={styles.header} />
+          <ScreenHeader title={i18n.t('profileScreen.profileTitle')} style={styles.header} />
 
           {/* Email Section */}
           <LabelValueCard icon="email-outline" label={i18n.t('common.email')} value={email} />
@@ -131,7 +135,7 @@ export default function ProfileScreen() {
           {/* Logout Button */}
           <View style={styles.section}>
             <ThemedButton
-              title="Logout"
+              title={i18n.t('profile.logout')}
               onPress={handleLogout}
               variant="secondary"
               size="large"
@@ -144,8 +148,8 @@ export default function ProfileScreen() {
 
           {/* Delete Account Section */}
           <DangerZoneCard
-            description="Permanently delete your account and all data. This cannot be undone."
-            buttonText="Delete Account"
+            description={i18n.t('auth.deleteAccountMessage')}
+            buttonText={i18n.t('profile.deleteAccount')}
             onPress={handleDeleteAccount}
           />
         </ScrollView>

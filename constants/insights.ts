@@ -1,3 +1,4 @@
+import i18n from '@/i18n/config'
 import { type AIInsights } from '@/utils/ai-service'
 
 export type InsightBadge = {
@@ -30,13 +31,12 @@ export const INSIGHT_CONFIGS: InsightConfig[] = [
   {
     id: 'redFlags',
     icon: '🚩',
-    title: 'Red Flags',
-    unlockText: 'What are the warning signs?',
-    explanationTitle: 'Pattern Recognition',
-    explanationText:
-      'We analyze subtle patterns in how conflicts start, how boundaries are respected, and whether concerns get dismissed or heard. What seems like small moments can reveal larger dynamics worth addressing early.',
+    title: i18n.t('insights.redFlags.title'),
+    unlockText: i18n.t('insights.redFlags.unlockText'),
+    explanationTitle: i18n.t('insights.redFlags.explanationTitle'),
+    explanationText: i18n.t('insights.redFlags.explanationText'),
     getBadge: (insights) => ({
-      text: `${insights.redFlags.count} Found`,
+      text: i18n.t('insights.redFlags.badgeText', { count: insights.redFlags.count }),
       colorKey: 'error',
     }),
     getItems: (insights) => insights.redFlags.items,
@@ -44,13 +44,12 @@ export const INSIGHT_CONFIGS: InsightConfig[] = [
   {
     id: 'greenFlags',
     icon: '✅',
-    title: 'Green Flags',
-    unlockText: 'What are the positive signs?',
-    explanationTitle: 'Strength Indicators',
-    explanationText:
-      'Beyond obvious positivity, we look for signs of emotional safety, mutual support during stress, and how you handle vulnerability. These patterns predict long-term relationship satisfaction better than chemistry alone.',
+    title: i18n.t('insights.greenFlags.title'),
+    unlockText: i18n.t('insights.greenFlags.unlockText'),
+    explanationTitle: i18n.t('insights.greenFlags.explanationTitle'),
+    explanationText: i18n.t('insights.greenFlags.explanationText'),
     getBadge: (insights) => ({
-      text: `${insights.greenFlags.count} Found`,
+      text: i18n.t('insights.greenFlags.badgeText', { count: insights.greenFlags.count }),
       colorKey: 'success',
     }),
     getItems: (insights) => insights.greenFlags.items,
@@ -58,13 +57,15 @@ export const INSIGHT_CONFIGS: InsightConfig[] = [
   {
     id: 'compatibilityScore',
     icon: '💯',
-    title: 'Compatibility Score',
-    unlockText: 'How compatible are you?',
-    explanationTitle: 'Beyond Surface Level',
-    explanationText:
-      'This score weighs communication rhythm, conflict resolution styles, and emotional reciprocity - not just shared interests. High compatibility means less friction in daily interactions, though growth is always possible with awareness.',
+    title: i18n.t('insights.compatibilityScore.title'),
+    unlockText: i18n.t('insights.compatibilityScore.unlockText'),
+    explanationTitle: i18n.t('insights.compatibilityScore.explanationTitle'),
+    explanationText: i18n.t('insights.compatibilityScore.explanationText'),
     getBadge: (insights) => ({
-      text: `${insights.compatibilityScore.percentage}% ${insights.compatibilityScore.rating}`,
+      text: i18n.t('insights.compatibilityScore.badgeText', {
+        percentage: insights.compatibilityScore.percentage,
+        rating: insights.compatibilityScore.rating,
+      }),
       colorKey: 'primary',
     }),
     getItems: (insights) => insights.compatibilityScore.items,
@@ -72,11 +73,10 @@ export const INSIGHT_CONFIGS: InsightConfig[] = [
   {
     id: 'loveLanguage',
     icon: '❤️',
-    title: 'Love Language',
-    unlockText: 'How do you show love?',
-    explanationTitle: 'Communication Preferences',
-    explanationText:
-      "We detect whether you show affection through words, actions, or quality time. Mismatched love languages cause 'invisible effort' - you're trying, but your partner can't feel it. Alignment multiplies impact.",
+    title: i18n.t('insights.loveLanguage.title'),
+    unlockText: i18n.t('insights.loveLanguage.unlockText'),
+    explanationTitle: i18n.t('insights.loveLanguage.explanationTitle'),
+    explanationText: i18n.t('insights.loveLanguage.explanationText'),
     getBadge: (insights) => ({
       text: insights.loveLanguage.primary,
       colorKey: 'error',
@@ -86,13 +86,12 @@ export const INSIGHT_CONFIGS: InsightConfig[] = [
   {
     id: 'weVsIRatio',
     icon: '👥',
-    title: '"We" vs "I" Language',
-    unlockText: 'How connected are you?',
-    explanationTitle: 'Linguistic Insight',
-    explanationText:
-      'Research shows couples who naturally use "we" language have lower stress hormones during conflicts and stay together longer. But too much can indicate codependency - the sweet spot balances partnership with individuality.',
+    title: i18n.t('insights.weVsIRatio.title'),
+    unlockText: i18n.t('insights.weVsIRatio.unlockText'),
+    explanationTitle: i18n.t('insights.weVsIRatio.explanationTitle'),
+    explanationText: i18n.t('insights.weVsIRatio.explanationText'),
     getBadge: (insights) => ({
-      text: `${insights.weVsIRatio.percentage}% "We"`,
+      text: i18n.t('insights.weVsIRatio.badgeText', { percentage: insights.weVsIRatio.percentage }),
       colorKey: 'primary',
     }),
     getItems: (insights) => insights.weVsIRatio.items,
@@ -100,13 +99,12 @@ export const INSIGHT_CONFIGS: InsightConfig[] = [
   {
     id: 'sharedInterests',
     icon: '🎯',
-    title: 'Shared Interests',
-    unlockText: 'What do you have in common?',
-    explanationTitle: 'The Novelty Factor',
-    explanationText:
-      'Shared interests matter less than you think - but shared curiosity matters more. Couples who explore new things together maintain attraction longer than those who just share existing hobbies. Growth > overlap.',
+    title: i18n.t('insights.sharedInterests.title'),
+    unlockText: i18n.t('insights.sharedInterests.unlockText'),
+    explanationTitle: i18n.t('insights.sharedInterests.explanationTitle'),
+    explanationText: i18n.t('insights.sharedInterests.explanationText'),
     getBadge: (insights) => ({
-      text: `${insights.sharedInterests.count} Found`,
+      text: i18n.t('insights.sharedInterests.badgeText', { count: insights.sharedInterests.count }),
       colorKey: 'success',
     }),
     getItems: (insights) => insights.sharedInterests.items,
@@ -114,13 +112,15 @@ export const INSIGHT_CONFIGS: InsightConfig[] = [
   {
     id: 'reciprocityScore',
     icon: '⚖️',
-    title: 'Reciprocity Score',
-    unlockText: 'How balanced is this relationship?',
-    explanationTitle: 'The Effort Ratio',
-    explanationText:
-      'We track who initiates, who asks questions, and who does emotional labor. Perfect 50/50 is rare - but imbalances over 70/30 often breed resentment. Awareness of patterns is the first step to rebalancing.',
+    title: i18n.t('insights.reciprocityScore.title'),
+    unlockText: i18n.t('insights.reciprocityScore.unlockText'),
+    explanationTitle: i18n.t('insights.reciprocityScore.explanationTitle'),
+    explanationText: i18n.t('insights.reciprocityScore.explanationText'),
     getBadge: (insights) => ({
-      text: `${insights.reciprocityScore.percentage}% ${insights.reciprocityScore.rating}`,
+      text: i18n.t('insights.reciprocityScore.badgeText', {
+        percentage: insights.reciprocityScore.percentage,
+        rating: insights.reciprocityScore.rating,
+      }),
       colorKey: 'primary',
     }),
     getItems: (insights) => insights.reciprocityScore.items,
@@ -128,11 +128,10 @@ export const INSIGHT_CONFIGS: InsightConfig[] = [
   {
     id: 'attachmentStyle',
     icon: '🔗',
-    title: 'Attachment Style',
-    unlockText: "What's the attachment pattern?",
-    explanationTitle: 'Your Relationship Blueprint',
-    explanationText:
-      "Your attachment style, formed in childhood, shapes how you handle closeness and conflict today. Anxious-avoidant pairings create push-pull dynamics. But attachment isn't fixed - with awareness, you can develop more secure patterns.",
+    title: i18n.t('insights.attachmentStyle.title'),
+    unlockText: i18n.t('insights.attachmentStyle.unlockText'),
+    explanationTitle: i18n.t('insights.attachmentStyle.explanationTitle'),
+    explanationText: i18n.t('insights.attachmentStyle.explanationText'),
     getBadge: (insights) => ({
       text: insights.attachmentStyle.type,
       colorKey: 'info',
@@ -142,11 +141,10 @@ export const INSIGHT_CONFIGS: InsightConfig[] = [
   {
     id: 'compliments',
     icon: '💐',
-    title: 'Compliments',
-    unlockText: 'How often do they compliment?',
-    explanationTitle: 'The 5:1 Magic Ratio',
-    explanationText:
-      "Gottman's research found stable couples maintain 5 positive interactions for every negative one. We analyze compliment frequency, specificity, and timing. Generic praise matters less than noticing specific efforts.",
+    title: i18n.t('insights.compliments.title'),
+    unlockText: i18n.t('insights.compliments.unlockText'),
+    explanationTitle: i18n.t('insights.compliments.explanationTitle'),
+    explanationText: i18n.t('insights.compliments.explanationText'),
     getBadge: (insights, getFrequencyLabel) => ({
       text: getFrequencyLabel(insights.compliments.count),
       colorKey: 'success',
@@ -156,11 +154,10 @@ export const INSIGHT_CONFIGS: InsightConfig[] = [
   {
     id: 'criticism',
     icon: '⚠️',
-    title: 'Criticism',
-    unlockText: 'Are there critical moments?',
-    explanationTitle: 'The Four Horsemen',
-    explanationText:
-      'Gottman identifies criticism (attacking character vs behavior) as a relationship killer. We detect patterns of contempt, defensiveness, and stonewalling - the warning signs before relationships end. Early detection allows course correction.',
+    title: i18n.t('insights.criticism.title'),
+    unlockText: i18n.t('insights.criticism.unlockText'),
+    explanationTitle: i18n.t('insights.criticism.explanationTitle'),
+    explanationText: i18n.t('insights.criticism.explanationText'),
     getBadge: (insights, getFrequencyLabel) => ({
       text: getFrequencyLabel(insights.criticism.count),
       colorKey: 'warning',
@@ -170,11 +167,10 @@ export const INSIGHT_CONFIGS: InsightConfig[] = [
   {
     id: 'conflictResolution',
     icon: '🤝',
-    title: 'Conflict Resolution',
-    unlockText: 'How do you handle disagreements?',
-    explanationTitle: 'Repair Attempts',
-    explanationText:
-      "During conflict, we track 'repair attempts' - small gestures to de-escalate tension. Successful couples make and accept these bids 86% of the time. Failed repairs predict breakups more accurately than the conflict itself.",
+    title: i18n.t('insights.conflictResolution.title'),
+    unlockText: i18n.t('insights.conflictResolution.unlockText'),
+    explanationTitle: i18n.t('insights.conflictResolution.explanationTitle'),
+    explanationText: i18n.t('insights.conflictResolution.explanationText'),
     getBadge: (insights) => ({
       text: insights.conflictResolution.type,
       colorKey: 'info',
@@ -184,13 +180,12 @@ export const INSIGHT_CONFIGS: InsightConfig[] = [
   {
     id: 'relationshipTips',
     icon: '💡',
-    title: 'Relationship Tips',
-    unlockText: 'What can you improve?',
-    explanationTitle: 'Targeted Interventions',
-    explanationText:
-      'Based on your specific patterns, we suggest micro-adjustments with outsized impact. Small changes in how you respond during stress or ask questions can shift relationship trajectories significantly over time.',
+    title: i18n.t('insights.relationshipTips.title'),
+    unlockText: i18n.t('insights.relationshipTips.unlockText'),
+    explanationTitle: i18n.t('insights.relationshipTips.explanationTitle'),
+    explanationText: i18n.t('insights.relationshipTips.explanationText'),
     getBadge: (insights) => ({
-      text: `${insights.relationshipTips.count} Tips`,
+      text: i18n.t('insights.relationshipTips.badgeText', { count: insights.relationshipTips.count }),
       colorKey: 'primary',
     }),
     getItems: (insights) => insights.relationshipTips.tips,

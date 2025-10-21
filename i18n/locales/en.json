@@ -60,6 +60,14 @@
   "analysis": {
     "title": "Analysis",
     "loading": "Analyzing your conversation...",
+    "loadingSteps": {
+      "readingTitle": "Reading Messages",
+      "readingSubtitle": "Parsing conversation data",
+      "calculatingTitle": "Calculating Stats",
+      "calculatingSubtitle": "Analyzing patterns",
+      "generatingTitle": "Generating Insights",
+      "generatingSubtitle": "Preparing your results"
+    },
     "tabs": {
       "overview": "Overview",
       "insights": "Insights"
@@ -166,7 +174,7 @@
     "tryAgain": "Try Again"
   },
   "import": {
-    "successTitle": "Chat Imported Successfully! 🥳",
+    "successTitle": "🎉 Chat Imported Successfully!",
     "successMessage": "Chat between {{participants}} with {{count}} messages has been imported.",
     "zipExtractionFailedTitle": "ZIP Extraction Failed",
     "zipExtractionFailedMessage": "Could not extract chat content from the ZIP file. Please try exporting the chat as \"Without Media\" or use manual import.",
@@ -175,5 +183,144 @@
     "noTextDataTitle": "Import Error",
     "noTextDataMessage": "No text data was found in the shared content. Please try exporting the chat again or use manual import.",
     "tryManualImport": "Try Manual Import"
+  },
+  "insights": {
+    "redFlags": {
+      "title": "Red Flags",
+      "unlockText": "What are the warning signs?",
+      "explanationTitle": "Pattern Recognition",
+      "explanationText": "We analyze subtle patterns in how conflicts start, how boundaries are respected, and whether concerns get dismissed or heard. What seems like small moments can reveal larger dynamics worth addressing early.",
+      "badgeText": "{{count}} Found"
+    },
+    "greenFlags": {
+      "title": "Green Flags",
+      "unlockText": "What are the positive signs?",
+      "explanationTitle": "Strength Indicators",
+      "explanationText": "Beyond obvious positivity, we look for signs of emotional safety, mutual support during stress, and how you handle vulnerability. These patterns predict long-term relationship satisfaction better than chemistry alone.",
+      "badgeText": "{{count}} Found"
+    },
+    "compatibilityScore": {
+      "title": "Compatibility Score",
+      "unlockText": "How compatible are you?",
+      "explanationTitle": "Beyond Surface Level",
+      "explanationText": "This score weighs communication rhythm, conflict resolution styles, and emotional reciprocity - not just shared interests. High compatibility means less friction in daily interactions, though growth is always possible with awareness.",
+      "badgeText": "{{percentage}}% {{rating}}"
+    },
+    "loveLanguage": {
+      "title": "Love Language",
+      "unlockText": "How do you show love?",
+      "explanationTitle": "Communication Preferences",
+      "explanationText": "We detect whether you show affection through words, actions, or quality time. Mismatched love languages cause 'invisible effort' - you're trying, but your partner can't feel it. Alignment multiplies impact."
+    },
+    "weVsIRatio": {
+      "title": "\"We\" vs \"I\" Language",
+      "unlockText": "How connected are you?",
+      "explanationTitle": "Linguistic Insight",
+      "explanationText": "Research shows couples who naturally use \"we\" language have lower stress hormones during conflicts and stay together longer. But too much can indicate codependency - the sweet spot balances partnership with individuality.",
+      "badgeText": "{{percentage}}% \"We\""
+    },
+    "sharedInterests": {
+      "title": "Shared Interests",
+      "unlockText": "What do you have in common?",
+      "explanationTitle": "The Novelty Factor",
+      "explanationText": "Shared interests matter less than you think - but shared curiosity matters more. Couples who explore new things together maintain attraction longer than those who just share existing hobbies. Growth > overlap.",
+      "badgeText": "{{count}} Found"
+    },
+    "reciprocityScore": {
+      "title": "Reciprocity Score",
+      "unlockText": "How balanced is this relationship?",
+      "explanationTitle": "The Effort Ratio",
+      "explanationText": "We track who initiates, who asks questions, and who does emotional labor. Perfect 50/50 is rare - but imbalances over 70/30 often breed resentment. Awareness of patterns is the first step to rebalancing.",
+      "badgeText": "{{percentage}}% {{rating}}"
+    },
+    "attachmentStyle": {
+      "title": "Attachment Style",
+      "unlockText": "What's the attachment pattern?",
+      "explanationTitle": "Your Relationship Blueprint",
+      "explanationText": "Your attachment style, formed in childhood, shapes how you handle closeness and conflict today. Anxious-avoidant pairings create push-pull dynamics. But attachment isn't fixed - with awareness, you can develop more secure patterns."
+    },
+    "compliments": {
+      "title": "Compliments",
+      "unlockText": "How often do they compliment?",
+      "explanationTitle": "The 5:1 Magic Ratio",
+      "explanationText": "Gottman's research found stable couples maintain 5 positive interactions for every negative one. We analyze compliment frequency, specificity, and timing. Generic praise matters less than noticing specific efforts."
+    },
+    "criticism": {
+      "title": "Criticism",
+      "unlockText": "Are there critical moments?",
+      "explanationTitle": "The Four Horsemen",
+      "explanationText": "Gottman identifies criticism (attacking character vs behavior) as a relationship killer. We detect patterns of contempt, defensiveness, and stonewalling - the warning signs before relationships end. Early detection allows course correction."
+    },
+    "conflictResolution": {
+      "title": "Conflict Resolution",
+      "unlockText": "How do you handle disagreements?",
+      "explanationTitle": "Repair Attempts",
+      "explanationText": "During conflict, we track 'repair attempts' - small gestures to de-escalate tension. Successful couples make and accept these bids 86% of the time. Failed repairs predict breakups more accurately than the conflict itself."
+    },
+    "relationshipTips": {
+      "title": "Relationship Tips",
+      "unlockText": "What can you improve?",
+      "explanationTitle": "Targeted Interventions",
+      "explanationText": "Based on your specific patterns, we suggest micro-adjustments with outsized impact. Small changes in how you respond during stress or ask questions can shift relationship trajectories significantly over time.",
+      "badgeText": "{{count}} Tips"
+    }
+  },
+  "passwordChange": {
+    "buttonTitle": "Change Password",
+    "cardTitle": "Update Password",
+    "cancel": "Cancel"
+  },
+  "dangerZone": {
+    "defaultTitle": "Danger Zone"
+  },
+  "paywallFeatures": {
+    "title": "What you'll get:",
+    "aiInsights": "AI-powered relationship insights",
+    "compatibilityAnalysis": "Personalized compatibility analysis",
+    "relationshipTips": "Actionable relationship tips",
+    "currency": "Currency:"
+  },
+  "analysisScreen": {
+    "chatNotFoundTitle": "Chat Not Found",
+    "chatNotFoundMessage": "The requested chat could not be found.",
+    "backToChats": "Back to Chats",
+    "analysisErrorTitle": "Analysis Error",
+    "goBack": "Go Back",
+    "screenTitle": "Chat Analysis"
+  },
+  "profileScreen": {
+    "loginScreenTitle": "Login",
+    "accountCreationInfo": "Don't have an account? Create one after making a purchase to save your insights.",
+    "loadingTitle": "Loading Profile",
+    "profileTitle": "My Profile"
+  },
+  "authErrors": {
+    "emailAlreadyRegistered": "This email is already registered. Please sign in instead.",
+    "passwordTooShortError": "Password must be at least 6 characters long.",
+    "invalidEmail": "Please enter a valid email address.",
+    "failedToCreateAccount": "Failed to create user account",
+    "connectionError": "Unable to create account. Please check your connection and try again.",
+    "incorrectCredentials": "Incorrect email or password. Please try again.",
+    "emailNotConfirmed": "Please verify your email address before signing in.",
+    "signInConnectionError": "Unable to sign in. Please check your connection and try again.",
+    "signOutError": "Unable to sign out. Please try again.",
+    "updatePasswordError": "Unable to update password. Please try again.",
+    "deleteAccountError": "Unable to delete account. Please try again or contact support.",
+    "noUserLoggedIn": "No user logged in"
+  },
+  "analysisErrors": {
+    "failedToUnlock": "Failed to Unlock Insight",
+    "failedToUnlockMessage": "Don't worry, this can happen sometimes due to the AI being overloaded. Simply try again in a few seconds.",
+    "paymentProcessing": "Payment Processing",
+    "paymentProcessingMessage": "Your payment is being processed. You can unlock insights in a moment.",
+    "paymentSuccessful": "🎉 Payment Successful!",
+    "paymentSuccessfulMessage": "Unlocking your insight now...",
+    "verificationTimeout": "⏳ Payment Processing",
+    "verificationTimeoutMessage": "Your payment was successful but verification is taking longer than expected. Please wait a moment and try unlocking again. If the problem persists, contact support.",
+    "paymentFailed": "Payment Failed",
+    "accountCreatedSuccess": "🎉 Account Created!",
+    "accountCreatedSuccessMessage": "Your purchases are now secure and accessible from any device",
+    "accountCreatedTitle": "Account Created Successfully!",
+    "accountCreatedSubtitle": "Your account has been created and your purchases have been securely linked to it."
   }
 }

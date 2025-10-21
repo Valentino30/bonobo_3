@@ -60,6 +60,14 @@
   "analysis": {
     "title": "Analisi",
     "loading": "Analizzando la tua conversazione...",
+    "loadingSteps": {
+      "readingTitle": "Lettura Messaggi",
+      "readingSubtitle": "Analisi dei dati della conversazione",
+      "calculatingTitle": "Calcolo Statistiche",
+      "calculatingSubtitle": "Analisi dei modelli",
+      "generatingTitle": "Generazione Approfondimenti",
+      "generatingSubtitle": "Preparazione dei risultati"
+    },
     "tabs": {
       "overview": "Panoramica",
       "insights": "Approfondimenti"
@@ -166,7 +174,7 @@
     "tryAgain": "Riprova"
   },
   "import": {
-    "successTitle": "Chat Importata con Successo! 🥳",
+    "successTitle": "🎉 Chat Importata con Successo!",
     "successMessage": "Chat tra {{participants}} con {{count}} messaggi è stata importata.",
     "zipExtractionFailedTitle": "Estrazione ZIP Fallita",
     "zipExtractionFailedMessage": "Impossibile estrarre il contenuto della chat dal file ZIP. Prova ad esportare la chat come \"Senza media\" o usa l'importazione manuale.",
@@ -175,5 +183,144 @@
     "noTextDataTitle": "Errore di Importazione",
     "noTextDataMessage": "Nessun dato di testo trovato nel contenuto condiviso. Prova ad esportare nuovamente la chat o usa l'importazione manuale.",
     "tryManualImport": "Prova Importazione Manuale"
+  },
+  "insights": {
+    "redFlags": {
+      "title": "Segnali d'Allarme",
+      "unlockText": "Quali sono i segnali di avvertimento?",
+      "explanationTitle": "Riconoscimento dei Modelli",
+      "explanationText": "Analizziamo i modelli sottili di come iniziano i conflitti, come vengono rispettati i confini e se le preoccupazioni vengono ignorate o ascoltate. Ciò che sembra essere piccoli momenti può rivelare dinamiche più grandi che vale la pena affrontare presto.",
+      "badgeText": "{{count}} Trovati"
+    },
+    "greenFlags": {
+      "title": "Segnali Positivi",
+      "unlockText": "Quali sono i segnali positivi?",
+      "explanationTitle": "Indicatori di Forza",
+      "explanationText": "Oltre alla positività ovvia, cerchiamo segni di sicurezza emotiva, supporto reciproco durante lo stress e come gestite la vulnerabilità. Questi modelli predicono la soddisfazione relazionale a lungo termine meglio della sola chimica.",
+      "badgeText": "{{count}} Trovati"
+    },
+    "compatibilityScore": {
+      "title": "Punteggio di Compatibilità",
+      "unlockText": "Quanto siete compatibili?",
+      "explanationTitle": "Oltre la Superficie",
+      "explanationText": "Questo punteggio valuta il ritmo di comunicazione, gli stili di risoluzione dei conflitti e la reciprocità emotiva - non solo gli interessi condivisi. Un'alta compatibilità significa meno attrito nelle interazioni quotidiane, anche se la crescita è sempre possibile con consapevolezza.",
+      "badgeText": "{{percentage}}% {{rating}}"
+    },
+    "loveLanguage": {
+      "title": "Linguaggio d'Amore",
+      "unlockText": "Come mostri amore?",
+      "explanationTitle": "Preferenze di Comunicazione",
+      "explanationText": "Rileviamo se mostri affetto attraverso parole, azioni o tempo di qualità. Linguaggi d'amore non corrispondenti causano 'sforzo invisibile' - stai provando, ma il tuo partner non lo sente. L'allineamento moltiplica l'impatto."
+    },
+    "weVsIRatio": {
+      "title": "Linguaggio \"Noi\" vs \"Io\"",
+      "unlockText": "Quanto siete connessi?",
+      "explanationTitle": "Intuizione Linguistica",
+      "explanationText": "La ricerca mostra che le coppie che usano naturalmente il linguaggio \"noi\" hanno ormoni dello stress più bassi durante i conflitti e restano insieme più a lungo. Ma troppo può indicare codipendenza - il punto ottimale bilancia la partnership con l'individualità.",
+      "badgeText": "{{percentage}}% \"Noi\""
+    },
+    "sharedInterests": {
+      "title": "Interessi Condivisi",
+      "unlockText": "Cosa avete in comune?",
+      "explanationTitle": "Il Fattore Novità",
+      "explanationText": "Gli interessi condivisi contano meno di quanto pensi - ma la curiosità condivisa conta di più. Le coppie che esplorano cose nuove insieme mantengono l'attrazione più a lungo di quelle che condividono solo hobby esistenti. Crescita > sovrapposizione.",
+      "badgeText": "{{count}} Trovati"
+    },
+    "reciprocityScore": {
+      "title": "Punteggio di Reciprocità",
+      "unlockText": "Quanto è equilibrata questa relazione?",
+      "explanationTitle": "Il Rapporto di Sforzo",
+      "explanationText": "Tracciamo chi inizia, chi fa domande e chi fa il lavoro emotivo. Il perfetto 50/50 è raro - ma gli squilibri oltre il 70/30 spesso generano risentimento. La consapevolezza dei modelli è il primo passo per riequilibrare.",
+      "badgeText": "{{percentage}}% {{rating}}"
+    },
+    "attachmentStyle": {
+      "title": "Stile di Attaccamento",
+      "unlockText": "Qual è il modello di attaccamento?",
+      "explanationTitle": "Il Tuo Progetto Relazionale",
+      "explanationText": "Il tuo stile di attaccamento, formato nell'infanzia, modella come gestisci la vicinanza e il conflitto oggi. Gli abbinamenti ansioso-evitante creano dinamiche di attrazione-repulsione. Ma l'attaccamento non è fisso - con consapevolezza, puoi sviluppare modelli più sicuri."
+    },
+    "compliments": {
+      "title": "Complimenti",
+      "unlockText": "Quanto spesso fanno complimenti?",
+      "explanationTitle": "Il Rapporto Magico 5:1",
+      "explanationText": "La ricerca di Gottman ha scoperto che le coppie stabili mantengono 5 interazioni positive per ogni negativa. Analizziamo la frequenza, la specificità e il tempismo dei complimenti. Le lodi generiche contano meno del notare sforzi specifici."
+    },
+    "criticism": {
+      "title": "Critiche",
+      "unlockText": "Ci sono momenti critici?",
+      "explanationTitle": "I Quattro Cavalieri",
+      "explanationText": "Gottman identifica la critica (attaccare il carattere vs il comportamento) come un killer relazionale. Rileviamo modelli di disprezzo, difensività e stonewalling - i segnali di avvertimento prima che le relazioni finiscano. Il rilevamento precoce consente la correzione di rotta."
+    },
+    "conflictResolution": {
+      "title": "Risoluzione dei Conflitti",
+      "unlockText": "Come gestite i disaccordi?",
+      "explanationTitle": "Tentativi di Riparazione",
+      "explanationText": "Durante il conflitto, tracciamo i 'tentativi di riparazione' - piccoli gesti per ridurre la tensione. Le coppie di successo fanno e accettano queste offerte l'86% delle volte. Le riparazioni fallite predicono le rotture più accuratamente del conflitto stesso."
+    },
+    "relationshipTips": {
+      "title": "Consigli per la Relazione",
+      "unlockText": "Cosa puoi migliorare?",
+      "explanationTitle": "Interventi Mirati",
+      "explanationText": "Basandoci sui tuoi modelli specifici, suggeriamo micro-aggiustamenti con un impatto enorme. Piccoli cambiamenti nel modo in cui rispondi durante lo stress o fai domande possono cambiare significativamente le traiettorie relazionali nel tempo.",
+      "badgeText": "{{count}} Consigli"
+    }
+  },
+  "passwordChange": {
+    "buttonTitle": "Cambia Password",
+    "cardTitle": "Aggiorna Password",
+    "cancel": "Annulla"
+  },
+  "dangerZone": {
+    "defaultTitle": "Zona di Pericolo"
+  },
+  "paywallFeatures": {
+    "title": "Cosa otterrai:",
+    "aiInsights": "Approfondimenti relazionali basati su AI",
+    "compatibilityAnalysis": "Analisi di compatibilità personalizzata",
+    "relationshipTips": "Consigli relazionali attuabili",
+    "currency": "Valuta:"
+  },
+  "analysisScreen": {
+    "chatNotFoundTitle": "Chat Non Trovata",
+    "chatNotFoundMessage": "La chat richiesta non è stata trovata.",
+    "backToChats": "Torna alle Chat",
+    "analysisErrorTitle": "Errore di Analisi",
+    "goBack": "Indietro",
+    "screenTitle": "Analisi Chat"
+  },
+  "profileScreen": {
+    "loginScreenTitle": "Accedi",
+    "accountCreationInfo": "Non hai un account? Creane uno dopo aver effettuato un acquisto per salvare i tuoi approfondimenti.",
+    "loadingTitle": "Caricamento Profilo",
+    "profileTitle": "Il Mio Profilo"
+  },
+  "authErrors": {
+    "emailAlreadyRegistered": "Questa email è già registrata. Effettua l'accesso invece.",
+    "passwordTooShortError": "La password deve essere lunga almeno 6 caratteri.",
+    "invalidEmail": "Inserisci un indirizzo email valido.",
+    "failedToCreateAccount": "Impossibile creare l'account utente",
+    "connectionError": "Impossibile creare l'account. Controlla la tua connessione e riprova.",
+    "incorrectCredentials": "Email o password errata. Riprova.",
+    "emailNotConfirmed": "Verifica il tuo indirizzo email prima di accedere.",
+    "signInConnectionError": "Impossibile accedere. Controlla la tua connessione e riprova.",
+    "signOutError": "Impossibile uscire. Riprova.",
+    "updatePasswordError": "Impossibile aggiornare la password. Riprova.",
+    "deleteAccountError": "Impossibile eliminare l'account. Riprova o contatta l'assistenza.",
+    "noUserLoggedIn": "Nessun utente connesso"
+  },
+  "analysisErrors": {
+    "failedToUnlock": "Impossibile Sbloccare l'Approfondimento",
+    "failedToUnlockMessage": "Non preoccuparti, questo può succedere a volte a causa del sovraccarico dell'AI. Riprova tra qualche secondo.",
+    "paymentProcessing": "Elaborazione Pagamento",
+    "paymentProcessingMessage": "Il tuo pagamento è in elaborazione. Potrai sbloccare gli approfondimenti tra un momento.",
+    "paymentSuccessful": "🎉 Pagamento Riuscito!",
+    "paymentSuccessfulMessage": "Sblocco del tuo approfondimento in corso...",
+    "verificationTimeout": "⏳ Elaborazione Pagamento",
+    "verificationTimeoutMessage": "Il tuo pagamento è andato a buon fine ma la verifica sta richiedendo più tempo del previsto. Attendi un momento e riprova a sbloccare. Se il problema persiste, contatta l'assistenza.",
+    "paymentFailed": "Pagamento Fallito",
+    "accountCreatedSuccess": "🎉 Account Creato!",
+    "accountCreatedSuccessMessage": "I tuoi acquisti sono ora sicuri e accessibili da qualsiasi dispositivo",
+    "accountCreatedTitle": "Account Creato con Successo!",
+    "accountCreatedSubtitle": "Il tuo account è stato creato e i tuoi acquisti sono stati collegati in modo sicuro."
   }
 }

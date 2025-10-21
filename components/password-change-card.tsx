@@ -1,9 +1,10 @@
+import { StyleSheet, View } from 'react-native'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { ThemedButton } from '@/components/themed-button'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedTextInput } from '@/components/themed-text-input'
 import { useTheme } from '@/contexts/theme-context'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { StyleSheet, View } from 'react-native'
+import i18n from '@/i18n/config'
 
 interface PasswordChangeCardProps {
   showForm: boolean
@@ -61,7 +62,7 @@ export function PasswordChangeCard({
     return (
       <View style={styles.section}>
         <ThemedButton
-          title="Change Password"
+          title={i18n.t('passwordChange.buttonTitle')}
           onPress={() => onShowFormChange(true)}
           variant="secondary"
           size="large"
@@ -84,13 +85,15 @@ export function PasswordChangeCard({
       >
         <View style={[styles.passwordHeader, { borderBottomColor: theme.colors.borderLight }]}>
           <MaterialCommunityIcons name="lock-outline" size={18} color={theme.colors.primary} />
-          <ThemedText style={[styles.passwordHeaderText, { color: theme.colors.text }]}>Update Password</ThemedText>
+          <ThemedText style={[styles.passwordHeaderText, { color: theme.colors.text }]}>
+            {i18n.t('passwordChange.cardTitle')}
+          </ThemedText>
         </View>
 
         <View style={styles.passwordForm}>
           <ThemedTextInput
             {...inputProps}
-            placeholder="New password (min. 8 characters)"
+            placeholder={i18n.t('auth.newPasswordLabel')}
             value={newPassword}
             onChangeText={onNewPasswordChange}
             icon="lock-outline"
@@ -98,7 +101,7 @@ export function PasswordChangeCard({
 
           <ThemedTextInput
             {...inputProps}
-            placeholder="Confirm new password"
+            placeholder={i18n.t('auth.confirmNewPasswordLabel')}
             value={confirmPassword}
             onChangeText={onConfirmPasswordChange}
             icon="lock-check-outline"
@@ -106,7 +109,7 @@ export function PasswordChangeCard({
 
           <View style={styles.passwordButtons}>
             <ThemedButton
-              title="Cancel"
+              title={i18n.t('common.cancel')}
               onPress={handleCancel}
               variant="secondary"
               size="medium"
@@ -114,7 +117,7 @@ export function PasswordChangeCard({
               style={{ flex: 1 }}
             />
             <ThemedButton
-              title="Update"
+              title={i18n.t('common.update')}
               onPress={onChangePassword}
               variant="primary"
               size="medium"

@@ -3,6 +3,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useAnalysisQuery, useUnlockInsightMutation } from '@/hooks/queries/use-analysis-query'
 import { useChatQuery } from '@/hooks/queries/use-chats-query'
 import { usePurchaseMutation } from '@/hooks/queries/use-purchase-mutation'
+import i18n from '@/i18n/config'
 import { getFrequencyLabel } from '@/utils/insight-helpers'
 
 type TabType = 'overview' | 'insights'
@@ -93,10 +94,7 @@ export function useChatAnalysis({ showAlert }: UseChatAnalysisOptions) {
         setPendingInsightToUnlock(insightId)
         setShowPaywall(true)
       } else {
-        showAlert(
-          'Failed to Unlock Insight',
-          "Don't worry, this can happen sometimes due to the AI being overloaded. Simply try again in a few seconds."
-        )
+        showAlert(i18n.t('analysisErrors.failedToUnlock'), i18n.t('analysisErrors.failedToUnlockMessage'))
       }
     } finally {
       setPendingInsightToUnlock(null)
@@ -111,7 +109,7 @@ export function useChatAnalysis({ showAlert }: UseChatAnalysisOptions) {
         chatId,
       })
 
-      showAlert('Payment Processing', 'Your payment is being processed. You can unlock insights in a moment.')
+      showAlert(i18n.t('analysisErrors.paymentProcessing'), i18n.t('analysisErrors.paymentProcessingMessage'))
 
       if (result.requiresAuth) {
         setShowAuthScreen(true)
@@ -120,7 +118,7 @@ export function useChatAnalysis({ showAlert }: UseChatAnalysisOptions) {
       }
 
       if (result.success) {
-        showAlert('🎉 Payment Successful!', 'Unlocking your insight now...')
+        showAlert(i18n.t('analysisErrors.paymentSuccessful'), i18n.t('analysisErrors.paymentSuccessfulMessage'))
 
         // Unlock pending insight after successful payment
         if (pendingInsightToUnlock) {
@@ -130,12 +128,9 @@ export function useChatAnalysis({ showAlert }: UseChatAnalysisOptions) {
       }
     } catch (error: any) {
       if (error.message === 'VERIFICATION_TIMEOUT') {
-        showAlert(
-          '⏳ Payment Processing',
-          'Your payment was successful but verification is taking longer than expected. Please wait a moment and try unlocking again. If the problem persists, contact support.'
-        )
+        showAlert(i18n.t('analysisErrors.verificationTimeout'), i18n.t('analysisErrors.verificationTimeoutMessage'))
       } else {
-        showAlert('Payment Failed', error.message || 'Failed to process payment. Please try again.')
+        showAlert(i18n.t('analysisErrors.paymentFailed'), error.message || i18n.t('analysisErrors.paymentFailed'))
       }
     }
   }
@@ -144,7 +139,7 @@ export function useChatAnalysis({ showAlert }: UseChatAnalysisOptions) {
   const handleAuthSuccess = () => {
     setShowAuthScreen(false)
     setActiveTab('insights')
-    showAlert('🎉 Account Created!', 'Your purchases are now secure and accessible from any device')
+    showAlert(i18n.t('analysisErrors.accountCreatedSuccess'), i18n.t('analysisErrors.accountCreatedSuccessMessage'))
   }
 
   // Handler: Loading animation complete

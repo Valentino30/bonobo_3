@@ -7,6 +7,7 @@ import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
 import { useCustomAlert } from '@/hooks/ui/use-custom-alert'
 import { useAccountCreation } from '@/hooks/use-account-creation'
+import i18n from '@/i18n/config'
 
 interface PaymentAuthScreenProps {
   visible: boolean
@@ -24,11 +25,9 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
 
     // Show confirmation with custom alert after navigation
     setTimeout(() => {
-      showAlert(
-        'Account Created Successfully!',
-        'Your account has been created and your purchases have been securely linked to it.',
-        [{ text: 'Great!' }]
-      )
+      showAlert(i18n.t('analysisErrors.accountCreatedTitle'), i18n.t('analysisErrors.accountCreatedSubtitle'), [
+        { text: i18n.t('alerts.great') },
+      ])
     }, 500)
   }
 
@@ -74,8 +73,8 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
             >
               <ModalHeader
                 emoji="🔐"
-                title="Secure Your Purchase"
-                subtitle="Create an account to access your insights from any device and keep your purchases safe"
+                title={i18n.t('paywall.secureTitle')}
+                subtitle={i18n.t('paywall.secureSubtitle')}
               />
 
               {error && <InfoBanner icon="alert-circle" text={error} variant="error" />}
@@ -94,16 +93,12 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
                   showLabels
                 />
 
-                <InfoBanner
-                  icon="lock"
-                  text="Your data is private and secure. We only use your email to help you access your account."
-                  variant="success"
-                />
+                <InfoBanner icon="lock" text={i18n.t('privacy.dataSecure')} variant="success" />
               </View>
 
               {/* Create Account Button */}
               <ThemedButton
-                title="Create Account & Continue"
+                title={i18n.t('auth.createAccountButton')}
                 onPress={handleCreateAccount}
                 variant="primary"
                 size="large"

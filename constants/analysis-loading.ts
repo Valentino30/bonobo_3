@@ -1,3 +1,5 @@
+import i18n from '@/i18n/config'
+
 export type LoadingStep = {
   title: string
   subtitle: string
@@ -10,18 +12,18 @@ export type LoadingStep = {
  */
 export const ANALYSIS_LOADING_STEPS: LoadingStep[] = [
   {
-    title: 'Reading Messages',
-    subtitle: 'Parsing conversation data',
+    title: i18n.t('analysis.loadingSteps.readingTitle'),
+    subtitle: i18n.t('analysis.loadingSteps.readingSubtitle'),
     icon: 'message-processing',
   },
   {
-    title: 'Calculating Stats',
-    subtitle: 'Analyzing patterns',
+    title: i18n.t('analysis.loadingSteps.calculatingTitle'),
+    subtitle: i18n.t('analysis.loadingSteps.calculatingSubtitle'),
     icon: 'chart-box',
   },
   {
-    title: 'Generating Insights',
-    subtitle: 'Preparing your results',
+    title: i18n.t('analysis.loadingSteps.generatingTitle'),
+    subtitle: i18n.t('analysis.loadingSteps.generatingSubtitle'),
     icon: 'brain',
   },
 ]

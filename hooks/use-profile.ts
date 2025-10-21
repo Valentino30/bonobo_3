@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useRouter } from 'expo-router'
+import i18n from '@/i18n/config'
 import {
   useChangePasswordMutation,
   useDeleteAccountMutation,
@@ -71,7 +72,9 @@ export function useProfile({ onShowAlert }: UseProfileOptions): UseProfileReturn
 
   const handleLogin = async () => {
     if (!loginEmail || !loginPassword) {
-      onShowAlert('Missing Credentials', 'Please enter your email and password', [{ text: 'OK' }])
+      onShowAlert(i18n.t('auth.missingCredentials'), i18n.t('auth.missingCredentialsMessage'), [
+        { text: i18n.t('alerts.ok') },
+      ])
       return
     }
 
@@ -80,51 +83,63 @@ export function useProfile({ onShowAlert }: UseProfileOptions): UseProfileReturn
       // Successfully logged in - redirect to chats and force reload
       router.replace('/chats?reload=true')
     } catch (error) {
-      onShowAlert('Login Failed', error instanceof Error ? error.message : 'Failed to login', [{ text: 'OK' }])
+      onShowAlert(i18n.t('auth.loginFailed'), error instanceof Error ? error.message : i18n.t('auth.loginFailed'), [
+        { text: i18n.t('alerts.ok') },
+      ])
     }
   }
 
   const handleChangePassword = async () => {
     if (!newPassword || !confirmPassword) {
-      onShowAlert('Missing Credentials', 'Please fill in all password fields', [{ text: 'OK' }])
+      onShowAlert(i18n.t('auth.missingCredentials'), i18n.t('auth.missingPasswordFieldsMessage'), [
+        { text: i18n.t('alerts.ok') },
+      ])
       return
     }
 
     if (newPassword.length < 8) {
-      onShowAlert('Password Too Short', 'Password must be at least 8 characters', [{ text: 'OK' }])
+      onShowAlert(i18n.t('auth.passwordTooShort'), i18n.t('auth.passwordTooShortMessage'), [
+        { text: i18n.t('alerts.ok') },
+      ])
       return
     }
 
     if (newPassword !== confirmPassword) {
-      onShowAlert('Password Mismatch', 'Passwords do not match', [{ text: 'OK' }])
+      onShowAlert(i18n.t('auth.passwordMismatch'), i18n.t('auth.passwordMismatchMessage'), [
+        { text: i18n.t('alerts.ok') },
+      ])
       return
     }
 
     try {
       await changePasswordMutation.mutateAsync(newPassword)
-      onShowAlert('Password Updated', 'Your password has been updated successfully', [{ text: 'Great!' }])
+      onShowAlert(i18n.t('auth.passwordUpdated'), i18n.t('auth.passwordUpdatedMessage'), [
+        { text: i18n.t('alerts.great') },
+      ])
       setShowPasswordChange(false)
       setNewPassword('')
       setConfirmPassword('')
     } catch (error) {
-      onShowAlert('Update Failed', error instanceof Error ? error.message : 'Failed to update password', [
-        { text: 'OK' },
+      onShowAlert(i18n.t('auth.updateFailed'), error instanceof Error ? error.message : i18n.t('auth.updateFailed'), [
+        { text: i18n.t('alerts.ok') },
       ])
     }
   }
 
   const handleLogout = () => {
-    onShowAlert('Logout', 'Are you sure you want to logout?', [
-      { text: 'Cancel' },
+    onShowAlert(i18n.t('auth.logoutTitle'), i18n.t('auth.logoutMessage'), [
+      { text: i18n.t('common.cancel') },
       {
-        text: 'Logout',
+        text: i18n.t('profile.logout'),
         onPress: async () => {
           try {
             await logoutMutation.mutateAsync()
             // Redirect to chats and force reload (will show empty state since user logged out)
             router.replace('/chats?reload=true')
           } catch (error) {
-            onShowAlert('Error', error instanceof Error ? error.message : 'Failed to logout', [{ text: 'OK' }])
+            onShowAlert(i18n.t('errors.error'), error instanceof Error ? error.message : i18n.t('errors.generic'), [
+              { text: i18n.t('alerts.ok') },
+            ])
           }
         },
       },
@@ -132,43 +147,37 @@ export function useProfile({ onShowAlert }: UseProfileOptions): UseProfileReturn
   }
 
   const handleDeleteAccount = () => {
-    onShowAlert(
-      'Delete Account',
-      'This will permanently delete your account and ALL associated data including chats, purchases, and insights. This action CANNOT be undone.',
-      [
-        { text: 'Cancel' },
-        {
-          text: 'Delete',
-          onPress: () => {
-            // Add delay before showing second confirmation to allow first alert to close
-            setTimeout(() => {
-              onShowAlert(
-                'Are You Absolutely Sure?',
-                'This is your last chance to cancel. All your data will be permanently deleted.',
-                [
-                  { text: 'Cancel' },
-                  {
-                    text: 'Delete Everything',
-                    onPress: async () => {
-                      try {
-                        await deleteAccountMutation.mutateAsync()
-                        onShowAlert('Account Deleted', 'Your account and all data have been permanently deleted.', [
-                          { text: 'OK', onPress: () => router.replace('/chats?reload=true') },
-                        ])
-                      } catch (error) {
-                        onShowAlert('Error', error instanceof Error ? error.message : 'Failed to delete account', [
-                          { text: 'OK' },
-                        ])
-                      }
-                    },
-                  },
-                ]
-              )
-            }, 300)
-          },
+    onShowAlert(i18n.t('auth.deleteAccountTitle'), i18n.t('auth.deleteAccountWarning'), [
+      { text: i18n.t('common.cancel') },
+      {
+        text: i18n.t('common.delete'),
+        onPress: () => {
+          // Add delay before showing second confirmation to allow first alert to close
+          setTimeout(() => {
+            onShowAlert(i18n.t('auth.deleteAccountFinalWarning'), i18n.t('auth.deleteAccountFinalMessage'), [
+              { text: i18n.t('common.cancel') },
+              {
+                text: i18n.t('auth.deleteEverythingButton'),
+                onPress: async () => {
+                  try {
+                    await deleteAccountMutation.mutateAsync()
+                    onShowAlert(i18n.t('auth.accountDeleted'), i18n.t('auth.accountDeletedMessage'), [
+                      { text: i18n.t('alerts.ok'), onPress: () => router.replace('/chats?reload=true') },
+                    ])
+                  } catch (error) {
+                    onShowAlert(
+                      i18n.t('errors.error'),
+                      error instanceof Error ? error.message : i18n.t('errors.generic'),
+                      [{ text: i18n.t('alerts.ok') }]
+                    )
+                  }
+                },
+              },
+            ])
+          }, 300)
         },
-      ]
-    )
+      },
+    ])
   }
 
   return {

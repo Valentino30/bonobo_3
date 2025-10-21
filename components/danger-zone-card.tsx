@@ -1,8 +1,9 @@
+import { type StyleProp, StyleSheet, View, type ViewStyle } from 'react-native'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { ThemedButton } from '@/components/themed-button'
 import { ThemedText } from '@/components/themed-text'
 import { useTheme } from '@/contexts/theme-context'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native'
+import i18n from '@/i18n/config'
 
 interface DangerZoneCardProps {
   title?: string
@@ -37,7 +38,7 @@ interface DangerZoneCardProps {
  * />
  */
 export function DangerZoneCard({
-  title = 'Danger Zone',
+  title = i18n.t('dangerZone.defaultTitle'),
   description,
   buttonText,
   onPress,

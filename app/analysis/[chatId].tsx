@@ -13,6 +13,7 @@ import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
 import { useCustomAlert } from '@/hooks/ui/use-custom-alert'
 import { useChatAnalysis } from '@/hooks/use-chat-analysis'
+import i18n from '@/i18n/config'
 
 export default function ChatAnalysisScreen() {
   const theme = useTheme()
@@ -58,11 +59,16 @@ export default function ChatAnalysisScreen() {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <ThemedView style={styles.content}>
-          <ThemedText type="title">Chat Not Found</ThemedText>
+          <ThemedText type="title">{i18n.t('analysisScreen.chatNotFoundTitle')}</ThemedText>
           <ThemedText style={[styles.errorText, { color: theme.colors.warning }]}>
-            The requested chat could not be found.
+            {i18n.t('analysisScreen.chatNotFoundMessage')}
           </ThemedText>
-          <ThemedButton title="Back to Chats" onPress={handleNavigateToChats} variant="primary" size="large" />
+          <ThemedButton
+            title={i18n.t('analysisScreen.backToChats')}
+            onPress={handleNavigateToChats}
+            variant="primary"
+            size="large"
+          />
         </ThemedView>
       </SafeAreaView>
     )
@@ -73,9 +79,9 @@ export default function ChatAnalysisScreen() {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <ThemedView style={styles.content}>
-          <ThemedText type="title">Analysis Error</ThemedText>
+          <ThemedText type="title">{i18n.t('analysisScreen.analysisErrorTitle')}</ThemedText>
           <ThemedText style={[styles.errorText, { color: theme.colors.warning }]}>{error}</ThemedText>
-          <ThemedButton title="Go Back" onPress={handleGoBack} variant="primary" size="large" />
+          <ThemedButton title={i18n.t('analysisScreen.goBack')} onPress={handleGoBack} variant="primary" size="large" />
         </ThemedView>
       </SafeAreaView>
     )
@@ -84,12 +90,15 @@ export default function ChatAnalysisScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]} edges={['top']}>
       {/* Fixed Header */}
-      <ScreenHeader title="Chat Analysis" style={[styles.header, { backgroundColor: theme.colors.background }]}>
+      <ScreenHeader
+        title={i18n.t('analysisScreen.screenTitle')}
+        style={[styles.header, { backgroundColor: theme.colors.background }]}
+      >
         {/* Tab Navigation */}
         <TabNavigation
           tabs={[
-            { id: 'overview', label: 'Overview', icon: 'chart-box-outline' },
-            { id: 'insights', label: 'Insights', icon: 'auto-fix' },
+            { id: 'overview', label: i18n.t('analysis.tabs.overview'), icon: 'chart-box-outline' },
+            { id: 'insights', label: i18n.t('analysis.tabs.insights'), icon: 'auto-fix' },
           ]}
           activeTab={activeTab}
           onTabChange={handleTabChange}
