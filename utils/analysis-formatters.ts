@@ -21,13 +21,13 @@ export function getInitiationDescription(analysis: ChatAnalysisData): string {
 
   if (rate1 > rate2) {
     return i18n.locale === 'it'
-      ? `Questo indica che ${analysis.participant1.name} avvia le conversazioni più spesso di ${analysis.participant2.name}, il che può suggerire un livello più alto di interesse o desiderio di interagire.`
+      ? `Questo indica che ${analysis.participant1.name} avvia le conversazioni più spesso di ${analysis.participant2.name}, il che può suggerire un livello di coinvolgimento più elevato.`
       : `This indicates that ${analysis.participant1.name} starts conversations more often than ${analysis.participant2.name}, which may suggest a higher level of interest or eagerness to engage.`
   }
 
   if (rate2 > rate1) {
     return i18n.locale === 'it'
-      ? `Questo indica che ${analysis.participant2.name} avvia le conversazioni più spesso di ${analysis.participant1.name}, il che può suggerire un livello più alto di interesse o desiderio di interagire.`
+      ? `Questo indica che ${analysis.participant2.name} avvia le conversazioni più spesso di ${analysis.participant1.name}, il che può suggerire un livello di coinvolgimento più elevato.`
       : `This indicates that ${analysis.participant2.name} starts conversations more often than ${analysis.participant1.name}, which may suggest a higher level of interest or eagerness to engage.`
   }
 
@@ -47,13 +47,13 @@ export function getInterestDescription(analysis: ChatAnalysisData): string {
 
   if (level1 > level2) {
     return i18n.locale === 'it'
-      ? `${analysis.participant1.name} mostra un punteggio di coinvolgimento complessivo più alto (${level1}%) rispetto a ${analysis.participant2.name} (${level2}%), basato su tempo di risposta, lunghezza dei messaggi e frequenza. Questo suggerisce che ${analysis.participant1.name} potrebbe essere più coinvolto nella conversazione.`
+      ? `${analysis.participant1.name} mostra un punteggio di coinvolgimento più elevato (${level1}%) rispetto a ${analysis.participant2.name} (${level2}%), basato su tempo di risposta, lunghezza dei messaggi e frequenza, suggerendo un livello di interesse maggiore.`
       : `${analysis.participant1.name} shows a higher overall engagement score (${level1}%) compared to ${analysis.participant2.name} (${level2}%), based on response time, message length, and frequency. This suggests ${analysis.participant1.name} may be more invested in the conversation.`
   }
 
   if (level2 > level1) {
     return i18n.locale === 'it'
-      ? `${analysis.participant2.name} mostra un punteggio di coinvolgimento complessivo più alto (${level2}%) rispetto a ${analysis.participant1.name} (${level1}%), basato su tempo di risposta, lunghezza dei messaggi e frequenza. Questo suggerisce che ${analysis.participant2.name} potrebbe essere più coinvolto nella conversazione.`
+      ? `${analysis.participant2.name} mostra un punteggio di coinvolgimento più elevato (${level2}%) rispetto a ${analysis.participant1.name} (${level1}%), basato su tempo di risposta, lunghezza dei messaggi e frequenza, suggerendo un livello di interesse maggiore.`
       : `${analysis.participant2.name} shows a higher overall engagement score (${level2}%) compared to ${analysis.participant1.name} (${level1}%), based on response time, message length, and frequency. This suggests ${analysis.participant2.name} may be more invested in the conversation.`
   }
 
