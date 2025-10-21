@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { StyleSheet, View } from 'react-native'
-import { Picker } from '@react-native-picker/picker'
+import { ThemedButton } from '@/components/themed-button'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
@@ -11,8 +11,8 @@ interface LanguageSelectionCardProps {
 }
 
 const LANGUAGES = [
-  { value: 'en', label: 'English' },
-  { value: 'it', label: 'Italiano' },
+  { value: 'en', label: 'English', icon: 'check' as const },
+  { value: 'it', label: 'Italiano', icon: 'check' as const },
 ]
 
 export function LanguageSelectionCard({ onLanguageChange }: LanguageSelectionCardProps) {
@@ -36,19 +36,19 @@ export function LanguageSelectionCard({ onLanguageChange }: LanguageSelectionCar
         <ThemedText style={[styles.title, { color: theme.colors.text }]}>{i18n.t('profile.changeLanguage')}</ThemedText>
       </View>
 
-      <View
-        style={[styles.pickerContainer, { backgroundColor: theme.colors.background, borderColor: theme.colors.border }]}
-      >
-        <Picker
-          selectedValue={currentLocale}
-          onValueChange={handleLanguageChange}
-          style={[styles.picker, { color: theme.colors.text }]}
-          dropdownIconColor={theme.colors.text}
-        >
-          {LANGUAGES.map((lang) => (
-            <Picker.Item key={lang.value} label={lang.label} value={lang.value} color={theme.colors.text} />
-          ))}
-        </Picker>
+      <View style={styles.buttonContainer}>
+        {LANGUAGES.map((lang) => (
+          <ThemedButton
+            key={lang.value}
+            title={lang.label}
+            onPress={() => handleLanguageChange(lang.value)}
+            variant={currentLocale === lang.value ? 'primary' : 'secondary'}
+            size="medium"
+            icon={currentLocale === lang.value ? lang.icon : undefined}
+            iconPosition="right"
+            fullWidth
+          />
+        ))}
       </View>
     </ThemedView>
   )
@@ -62,18 +62,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   header: {
-    marginBottom: 12,
+    marginBottom: 16,
   },
   title: {
     fontSize: 18,
     fontWeight: '600',
   },
-  pickerContainer: {
-    borderRadius: 8,
-    borderWidth: 1,
-    overflow: 'hidden',
-  },
-  picker: {
-    height: 50,
+  buttonContainer: {
+    gap: 12,
   },
 })
