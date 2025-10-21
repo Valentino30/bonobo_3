@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import {
   Modal,
   ScrollView,
@@ -54,12 +53,6 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
   } = useAccountCreation({
     onSuccess: handleSuccess,
   })
-
-
-  // Debug log when modal visibility changes
-  useEffect(() => {
-    console.log('PaymentAuthScreen visible:', visible)
-  }, [visible])
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
