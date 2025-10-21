@@ -11,18 +11,24 @@ import i18n, { subscribeToLocaleChange } from '@/i18n/config'
  * return <Text>{t('common.hello')}</Text>
  */
 export const useTranslation = () => {
-  const [, forceUpdate] = useState(0)
+  const [locale, setLocale] = useState(i18n.locale)
 
   useEffect(() => {
     const unsubscribe = subscribeToLocaleChange(() => {
-      forceUpdate((prev) => prev + 1)
+      setLocale(i18n.locale)
     })
 
     return unsubscribe
   }, [])
 
+  // Create a wrapper function that always uses the current i18n instance
+  // This ensures fresh translations on every call
+  const t = (key: string, params?: Record<string, any>) => {
+    return i18n.t(key, params)
+  }
+
   return {
-    t: i18n.t.bind(i18n),
-    locale: i18n.locale,
+    t,
+    locale,
   }
 }
