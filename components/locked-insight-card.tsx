@@ -74,8 +74,8 @@ export function LockedInsightCard({
 
           {/* Unlock Button with Icon */}
           <ThemedButton
-            title={t('insights.unlockButton')}
-            loadingTitle={t('insights.unlocking')}
+            title={t('analysis.insights.unlockButton')}
+            loadingTitle={t('analysis.insights.unlocking')}
             onPress={onUnlock}
             variant="primary"
             size="medium"
