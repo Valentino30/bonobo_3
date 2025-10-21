@@ -1,5 +1,19 @@
+import { useContext } from 'react'
+import { TranslationContext } from '@/contexts/translation-context'
+
 /**
- * Re-export useTranslation from the context for convenience
- * This allows existing imports to work without changes
+ * Hook that provides translation function with automatic re-render on locale change
+ *
+ * @returns Object with translation function and current locale
+ *
+ * @example
+ * const { t, locale } = useTranslation()
+ * return <Text>{t('common.hello')}</Text>
  */
-export { useTranslation } from '@/contexts/translation-context'
+export function useTranslation() {
+  const context = useContext(TranslationContext)
+  if (context === undefined) {
+    throw new Error('useTranslation must be used within a TranslationProvider')
+  }
+  return context
+}

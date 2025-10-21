@@ -1,4 +1,5 @@
 import { type ChatAnalysisData } from '@/hooks/use-chat-analysis'
+import i18n from '@/i18n/config'
 import { formatResponseTime, getInitiationDescription, getInterestDescription } from '@/utils/analysis-formatters'
 
 type ThemeColors = {
@@ -32,103 +33,111 @@ export type OverviewCardConfig = {
  * Configuration for all overview analysis cards
  * Defines the data to display and how to format it
  */
-export const OVERVIEW_CARDS: OverviewCardConfig[] = [
-  {
-    id: 'totalMessages',
-    type: 'simple',
-    title: 'Total Messages',
-    icon: '💬',
-    getValue: (analysis) => analysis.totalMessages,
-  },
-  {
-    id: 'messagesPerParticipant',
-    type: 'comparison',
-    title: 'Messages per Participant',
-    icon: '👥',
-    getParticipants: (analysis) => [
-      {
-        name: analysis.participant1.name,
-        value: analysis.participant1.messageCount,
-      },
-      {
-        name: analysis.participant2.name,
-        value: analysis.participant2.messageCount,
-      },
-    ],
-  },
-  {
-    id: 'responseTime',
-    type: 'comparison',
-    title: 'Average Response Time',
-    icon: '⏱️',
-    getParticipants: (analysis) => [
-      {
-        name: analysis.participant1.name,
-        value: formatResponseTime(analysis.participant1.averageResponseTime),
-      },
-      {
-        name: analysis.participant2.name,
-        value: formatResponseTime(analysis.participant2.averageResponseTime),
-      },
-    ],
-  },
-  {
-    id: 'messageLength',
-    type: 'comparison',
-    title: 'Average Message Length',
-    icon: '📝',
-    getParticipants: (analysis) => [
-      {
-        name: analysis.participant1.name,
-        value: `${analysis.participant1.averageMessageLength} words`,
-      },
-      {
-        name: analysis.participant2.name,
-        value: `${analysis.participant2.averageMessageLength} words`,
-      },
-    ],
-  },
-  {
-    id: 'initiationRate',
-    type: 'comparison',
-    title: 'Initiation Rate',
-    icon: '🚀',
-    description: getInitiationDescription,
-    getParticipants: (analysis, colors) => [
-      {
-        name: analysis.participant1.name,
-        value: `${analysis.participant1.initiationRate}%`,
-        progressValue: analysis.participant1.initiationRate,
-        progressColor: colors.info,
-      },
-      {
-        name: analysis.participant2.name,
-        value: `${analysis.participant2.initiationRate ?? 0}%`,
-        progressValue: analysis.participant2.initiationRate ?? 0,
-        progressColor: colors.error,
-      },
-    ],
-    shouldShow: (analysis) => analysis.participant1.initiationRate !== undefined,
-  },
-  {
-    id: 'interestLevel',
-    type: 'comparison',
-    title: 'Interest Level',
-    icon: '❤️',
-    description: getInterestDescription,
-    getParticipants: (analysis, colors) => [
-      {
-        name: analysis.participant1.name,
-        value: `${analysis.participant1.interestLevel}%`,
-        progressValue: analysis.participant1.interestLevel,
-        progressColor: colors.info,
-      },
-      {
-        name: analysis.participant2.name,
-        value: `${analysis.participant2.interestLevel}%`,
-        progressValue: analysis.participant2.interestLevel,
-        progressColor: colors.error,
-      },
-    ],
-  },
-]
+export function getOverviewCards(): OverviewCardConfig[] {
+  return [
+    {
+      id: 'totalMessages',
+      type: 'simple',
+      title: i18n.t('analysis.overview.totalMessages'),
+      icon: '💬',
+      getValue: (analysis) => analysis.totalMessages,
+    },
+    {
+      id: 'messagesPerParticipant',
+      type: 'comparison',
+      title: i18n.t('analysis.overview.messagesPerParticipant'),
+      icon: '👥',
+      getParticipants: (analysis) => [
+        {
+          name: analysis.participant1.name,
+          value: analysis.participant1.messageCount,
+        },
+        {
+          name: analysis.participant2.name,
+          value: analysis.participant2.messageCount,
+        },
+      ],
+    },
+    {
+      id: 'responseTime',
+      type: 'comparison',
+      title: i18n.t('analysis.overview.averageResponseTime'),
+      icon: '⏱️',
+      getParticipants: (analysis) => [
+        {
+          name: analysis.participant1.name,
+          value: formatResponseTime(analysis.participant1.averageResponseTime),
+        },
+        {
+          name: analysis.participant2.name,
+          value: formatResponseTime(analysis.participant2.averageResponseTime),
+        },
+      ],
+    },
+    {
+      id: 'messageLength',
+      type: 'comparison',
+      title: i18n.t('analysis.overview.averageMessageLength'),
+      icon: '📝',
+      getParticipants: (analysis) => [
+        {
+          name: analysis.participant1.name,
+          value: `${analysis.participant1.averageMessageLength} ${i18n.t('analysis.overview.words')}`,
+        },
+        {
+          name: analysis.participant2.name,
+          value: `${analysis.participant2.averageMessageLength} ${i18n.t('analysis.overview.words')}`,
+        },
+      ],
+    },
+    {
+      id: 'initiationRate',
+      type: 'comparison',
+      title: i18n.t('analysis.overview.initiationRate'),
+      icon: '🚀',
+      description: getInitiationDescription,
+      getParticipants: (analysis, colors) => [
+        {
+          name: analysis.participant1.name,
+          value: `${analysis.participant1.initiationRate}%`,
+          progressValue: analysis.participant1.initiationRate,
+          progressColor: colors.info,
+        },
+        {
+          name: analysis.participant2.name,
+          value: `${analysis.participant2.initiationRate ?? 0}%`,
+          progressValue: analysis.participant2.initiationRate ?? 0,
+          progressColor: colors.error,
+        },
+      ],
+      shouldShow: (analysis) => analysis.participant1.initiationRate !== undefined,
+    },
+    {
+      id: 'interestLevel',
+      type: 'comparison',
+      title: i18n.t('analysis.overview.interestLevel'),
+      icon: '❤️',
+      description: getInterestDescription,
+      getParticipants: (analysis, colors) => [
+        {
+          name: analysis.participant1.name,
+          value: `${analysis.participant1.interestLevel}%`,
+          progressValue: analysis.participant1.interestLevel,
+          progressColor: colors.info,
+        },
+        {
+          name: analysis.participant2.name,
+          value: `${analysis.participant2.interestLevel}%`,
+          progressValue: analysis.participant2.interestLevel,
+          progressColor: colors.error,
+        },
+      ],
+    },
+  ]
+}
+
+/**
+ * Backwards-compatible export
+ * @deprecated Use getOverviewCards() instead to ensure fresh translations
+ */
+export const OVERVIEW_CARDS = getOverviewCards()

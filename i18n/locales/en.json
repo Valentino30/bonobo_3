@@ -74,7 +74,14 @@
     },
     "overview": {
       "messageCount": "Messages",
-      "participants": "Participants"
+      "participants": "Participants",
+      "totalMessages": "Total Messages",
+      "messagesPerParticipant": "Messages per Participant",
+      "averageResponseTime": "Average Response Time",
+      "averageMessageLength": "Average Message Length",
+      "initiationRate": "Initiation Rate",
+      "interestLevel": "Interest Level",
+      "words": "words"
     },
     "insights": {
       "title": "AI Insights",

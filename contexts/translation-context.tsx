@@ -1,12 +1,12 @@
-import React, { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import React, { ReactNode, createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import i18n, { subscribeToLocaleChange } from '@/i18n/config'
 
-interface TranslationContextType {
+export interface TranslationContextType {
   locale: string
   t: (key: string, params?: Record<string, any>) => string
 }
 
-const TranslationContext = createContext<TranslationContextType | undefined>(undefined)
+export const TranslationContext = createContext<TranslationContextType | undefined>(undefined)
 
 export function TranslationProvider({ children }: { children: ReactNode }) {
   const [locale, setLocale] = useState(i18n.locale)
@@ -33,12 +33,4 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
   const value = useMemo(() => ({ locale, t }), [locale, t])
 
   return <TranslationContext.Provider value={value}>{children}</TranslationContext.Provider>
-}
-
-export function useTranslation() {
-  const context = useContext(TranslationContext)
-  if (context === undefined) {
-    throw new Error('useTranslation must be used within a TranslationProvider')
-  }
-  return context
 }

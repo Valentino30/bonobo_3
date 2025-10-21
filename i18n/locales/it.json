@@ -74,7 +74,14 @@
     },
     "overview": {
       "messageCount": "Messaggi",
-      "participants": "Partecipanti"
+      "participants": "Partecipanti",
+      "totalMessages": "Messaggi Totali",
+      "messagesPerParticipant": "Messaggi per Partecipante",
+      "averageResponseTime": "Tempo di Risposta Medio",
+      "averageMessageLength": "Lunghezza Media Messaggio",
+      "initiationRate": "Tasso di Iniziativa",
+      "interestLevel": "Livello di Interesse",
+      "words": "parole"
     },
     "insights": {
       "title": "Approfondimenti AI",

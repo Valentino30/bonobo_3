@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native'
 import { ComparisonCard } from '@/components/comparison-card'
 import { SimpleStatCard } from '@/components/simple-stat-card'
-import { OVERVIEW_CARDS } from '@/constants/analysis-overview'
+import { getOverviewCards } from '@/constants/analysis-overview'
 import { useTheme } from '@/contexts/theme-context'
 import { type ChatAnalysisData } from '@/hooks/use-chat-analysis'
 
@@ -15,8 +15,9 @@ type AnalysisOverviewProps = {
  */
 export function AnalysisOverview({ analysis }: AnalysisOverviewProps) {
   const theme = useTheme()
+  const overviewCards = getOverviewCards()
 
-  const renderCard = (card: (typeof OVERVIEW_CARDS)[number], index: number) => {
+  const renderCard = (card: ReturnType<typeof getOverviewCards>[number], index: number) => {
     // Check if card should be shown
     if (card.shouldShow && !card.shouldShow(analysis)) {
       return null
@@ -53,7 +54,7 @@ export function AnalysisOverview({ analysis }: AnalysisOverviewProps) {
     return null
   }
 
-  return <View style={styles.container}>{OVERVIEW_CARDS.map((card, index) => renderCard(card, index))}</View>
+  return <View style={styles.container}>{overviewCards.map((card, index) => renderCard(card, index))}</View>
 }
 
 const styles = StyleSheet.create({
