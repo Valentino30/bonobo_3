@@ -133,15 +133,9 @@ export function useChatAnalysis({ showAlert }: UseChatAnalysisOptions) {
 
   // Main analysis effect
   useEffect(() => {
-    console.log('Analysis screen - chatId:', chatId)
-    console.log('Analysis screen - chats count:', chats.length)
-    console.log('Analysis screen - chats loading:', chatsLoading)
-    console.log('Analysis screen - chat found:', !!chat)
-    console.log('Analysis screen - cached analysis:', !!chat?.analysis)
-
     // Reset state when chatId changes
     if (previousChatIdRef.current !== chatId) {
-      console.log('ChatId changed, resetting all state')
+      console.log('ChatId changed, resetting state')
       setUnlockedInsights(new Set())
       setAiInsights(null)
       setAnalysis(null)
@@ -153,16 +147,11 @@ export function useChatAnalysis({ showAlert }: UseChatAnalysisOptions) {
 
     // Wait for chats to load
     if (chatsLoading) {
-      console.log('Chats still loading, waiting...')
       return
     }
 
     if (!chat) {
-      console.log('Chat not found for ID:', chatId)
-      console.log(
-        'Available chat IDs:',
-        chats.map((c) => c.id)
-      )
+      console.error('Chat not found for ID:', chatId)
       setError('Chat not found')
       setIsAnalyzing(false)
       return
@@ -172,17 +161,14 @@ export function useChatAnalysis({ showAlert }: UseChatAnalysisOptions) {
 
     // Skip if analysis already loaded
     if (analysis) {
-      console.log('Analysis already loaded, skipping')
       return
     }
 
     // Load cached analysis
     if (chat.analysis && !analysis) {
-      console.log('Using cached basic analysis')
       setAnalysis(chat.analysis)
 
       if (chat.aiInsights) {
-        console.log('Loading cached AI insights')
         setAiInsights(chat.aiInsights)
       }
 
@@ -192,7 +178,6 @@ export function useChatAnalysis({ showAlert }: UseChatAnalysisOptions) {
 
     // Perform basic analysis if needed
     if (!isAnalyzing) {
-      console.log('No cached analysis found, performing basic analysis only')
       setIsAnalyzing(true)
 
       const performBasicAnalysis = async () => {
@@ -200,7 +185,7 @@ export function useChatAnalysis({ showAlert }: UseChatAnalysisOptions) {
           const basicAnalysis = await analyzeChatData(chat.text)
           analysisRef.current = basicAnalysis
           await updateChatAnalysis(chatId, basicAnalysis)
-          console.log('Basic analysis complete and cached')
+          console.log('Basic analysis complete')
         } catch (err) {
           console.error('Analysis error:', err)
           setError(err instanceof Error ? err.message : 'Failed to analyze chat')
