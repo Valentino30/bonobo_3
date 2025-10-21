@@ -1,6 +1,6 @@
+import { AuthService } from '@/utils/auth-service'
 import { useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
-import { AuthService } from '@/utils/auth-service'
 
 export interface UseProfileReturn {
   // Auth state
@@ -33,7 +33,7 @@ export interface UseProfileReturn {
 }
 
 export interface UseProfileOptions {
-  onShowAlert: (title: string, message: string, buttons: Array<{ text: string; onPress?: () => void }>) => void
+  onShowAlert: (title: string, message: string, buttons: { text: string; onPress?: () => void }[]) => void
 }
 
 export function useProfile({ onShowAlert }: UseProfileOptions): UseProfileReturn {
@@ -78,7 +78,7 @@ export function useProfile({ onShowAlert }: UseProfileOptions): UseProfileReturn
 
   const handleLogin = async () => {
     if (!loginEmail || !loginPassword) {
-      onShowAlert('Missing Information', 'Please enter your email and password', [{ text: 'OK' }])
+      onShowAlert('Missing Credentials', 'Please enter your email and password', [{ text: 'OK' }])
       return
     }
 
@@ -98,7 +98,7 @@ export function useProfile({ onShowAlert }: UseProfileOptions): UseProfileReturn
 
   const handleChangePassword = async () => {
     if (!newPassword || !confirmPassword) {
-      onShowAlert('Missing Information', 'Please fill in all password fields', [{ text: 'OK' }])
+      onShowAlert('Missing Credentials', 'Please fill in all password fields', [{ text: 'OK' }])
       return
     }
 
