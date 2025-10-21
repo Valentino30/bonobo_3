@@ -1,7 +1,7 @@
 import { useTheme } from '@/contexts/theme-context'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { ActivityIndicator, StyleSheet, Text, TextStyle, TouchableOpacity, ViewStyle } from 'react-native'
-import { getButtonVariantStyles, getButtonSizeStyles, getButtonShadowStyles } from '@/utils/button-variants'
+import { getButtonVariantStyles, getButtonSizeStyles, getButtonShadowStyles, getButtonAlignmentStyles, type ButtonAlign } from '@/utils/button-variants'
 
 export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'ghost' | 'outline'
 
@@ -22,7 +22,7 @@ export interface ThemedButtonProps {
   activeOpacity?: number
   uppercase?: boolean
   shadow?: boolean
-  align?: 'left' | 'center' | 'right'
+  align?: ButtonAlign
 }
 
 export const ThemedButton: React.FC<ThemedButtonProps> = ({
@@ -51,22 +51,10 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
   const variantStyles = getButtonVariantStyles(theme, variant, isDisabled)
   const sizeStyles = getButtonSizeStyles(size)
   const shadowStyles = getButtonShadowStyles(theme, shadow, variant)
+  const alignmentStyles = getButtonAlignmentStyles(align)
 
   // Icon color
   const iconColor = variantStyles.text.color
-
-  // Get alignment style
-  const getAlignmentStyle = (): ViewStyle => {
-    switch (align) {
-      case 'left':
-        return { justifyContent: 'flex-start' }
-      case 'right':
-        return { justifyContent: 'flex-end' }
-      case 'center':
-      default:
-        return { justifyContent: 'center' }
-    }
-  }
 
   return (
     <TouchableOpacity
@@ -78,7 +66,7 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
         variantStyles.container,
         sizeStyles.container,
         shadowStyles,
-        getAlignmentStyle(),
+        alignmentStyles,
         fullWidth && styles.fullWidth,
         isDisabled && styles.disabled,
         style,

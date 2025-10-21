@@ -2,6 +2,8 @@ import { type Theme } from '@/constants/theme'
 import { type ViewStyle, type TextStyle } from 'react-native'
 import type { ButtonVariant, ButtonSize } from '@/components/themed-button'
 
+export type ButtonAlign = 'left' | 'center' | 'right'
+
 interface ButtonVariantStyles {
   container: ViewStyle
   text: TextStyle
@@ -132,4 +134,14 @@ export function getButtonShadowStyles(
     shadowRadius: 4,
     elevation: 3,
   }
+}
+
+export function getButtonAlignmentStyles(align: ButtonAlign): ViewStyle {
+  const alignments: Record<ButtonAlign, ViewStyle> = {
+    left: { justifyContent: 'flex-start' },
+    center: { justifyContent: 'center' },
+    right: { justifyContent: 'flex-end' },
+  }
+
+  return alignments[align]
 }
