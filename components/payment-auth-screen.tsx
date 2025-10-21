@@ -11,6 +11,7 @@ import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { ThemedButton } from '@/components/themed-button'
 import { EmailPasswordForm } from '@/components/email-password-form'
+import { InfoBanner } from '@/components/info-banner'
 import { useTheme } from '@/contexts/theme-context'
 import { useCustomAlert } from '@/hooks/use-custom-alert'
 import { useAccountCreation } from '@/hooks/use-account-creation'
@@ -98,24 +99,24 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
             )}
 
             {/* Form */}
-            <EmailPasswordForm
-              email={email}
-              onEmailChange={(text) => createOnChangeHandler(setEmail)(text.trim())}
-              password={password}
-              onPasswordChange={createOnChangeHandler(setPassword)}
-              confirmPassword={confirmPassword}
-              onConfirmPasswordChange={createOnChangeHandler(setConfirmPassword)}
-              disabled={isLoading}
-              variant="filled"
-              showLabels
-            />
+            <View style={styles.formContainer}>
+              <EmailPasswordForm
+                email={email}
+                onEmailChange={(text) => createOnChangeHandler(setEmail)(text.trim())}
+                password={password}
+                onPasswordChange={createOnChangeHandler(setPassword)}
+                confirmPassword={confirmPassword}
+                onConfirmPasswordChange={createOnChangeHandler(setConfirmPassword)}
+                disabled={isLoading}
+                variant="filled"
+                showLabels
+              />
 
-            {/* Privacy Notice */}
-            <View style={[styles.privacyNotice, { backgroundColor: theme.colors.backgroundSuccess }]}>
-              <Text style={styles.lockIcon}>🔒</Text>
-              <ThemedText style={[styles.privacyText, { color: theme.colors.textSuccess }]}>
-                Your data is private and secure. We only use your email to help you access your account.
-              </ThemedText>
+              <InfoBanner
+                icon="lock"
+                text="Your data is private and secure. We only use your email to help you access your account."
+                variant="success"
+              />
             </View>
 
             {/* Create Account Button */}
@@ -188,20 +189,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
   },
-  privacyNotice: {
-    flexDirection: 'row',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 24,
-    alignItems: 'center',
-  },
-  lockIcon: {
-    fontSize: 20,
-    marginRight: 8,
-  },
-  privacyText: {
-    fontSize: 12,
-    flex: 1,
-    lineHeight: 16,
+  formContainer: {
+    gap: 16,
+    marginBottom: 16,
   },
 })
