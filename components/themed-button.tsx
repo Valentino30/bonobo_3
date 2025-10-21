@@ -50,7 +50,10 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
 
   // Animate loading dots
   useEffect(() => {
-    if (!loading) return
+    if (!loading) {
+      setDotCount(0)
+      return
+    }
 
     const interval = setInterval(() => {
       setDotCount((prev) => (prev + 1) % 4)
