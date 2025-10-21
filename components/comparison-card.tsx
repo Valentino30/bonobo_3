@@ -1,10 +1,11 @@
+import { Animated, StyleSheet, View } from 'react-native'
 import { AnimatedCard } from '@/components/animated-card'
 import { FlippableCard } from '@/components/flippable-card'
 import { ParticipantStat } from '@/components/participant-stat'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
-import { StyleSheet, View } from 'react-native'
+import { useCardAnimation } from '@/hooks/use-card-animation'
 
 interface ParticipantData {
   name: string
@@ -23,6 +24,12 @@ interface ComparisonCardProps {
 
 export function ComparisonCard({ title, icon, participants, description, index }: ComparisonCardProps) {
   const theme = useTheme()
+
+  // Always call hooks unconditionally
+  const entranceDelay = index !== undefined ? index * 80 : undefined
+  const { scale, opacity, slideY, shake, rotate, handlePressIn, handlePressOut } = useCardAnimation({
+    entranceDelay,
+  })
 
   const frontContent = (
     <ThemedView
@@ -67,9 +74,18 @@ export function ComparisonCard({ title, icon, participants, description, index }
 
   if (description) {
     return (
-      <AnimatedCard index={index} containerStyle={styles.cardContainer}>
-        <FlippableCard front={frontContent} back={backContent!} />
-      </AnimatedCard>
+      <Animated.View
+        style={[styles.cardContainer, { opacity, transform: [{ translateY: slideY }, { translateX: shake }] }]}
+      >
+        <Animated.View style={{ transform: [{ scale }, { rotate }] }}>
+          <FlippableCard
+            front={frontContent}
+            back={backContent!}
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+          />
+        </Animated.View>
+      </Animated.View>
     )
   }
 
@@ -96,6 +112,7 @@ const styles = StyleSheet.create({
   },
   backCard: {
     justifyContent: 'center',
+    minHeight: 200,
   },
   titleRow: {
     flexDirection: 'row',
