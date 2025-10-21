@@ -1,7 +1,8 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { Animated, StyleSheet, Text, View } from 'react-native'
 import { AnimatedCard } from '@/components/animated-card'
 import { FlippableCard } from '@/components/flippable-card'
 import { useTheme } from '@/contexts/theme-context'
+import { useCardAnimation } from '@/hooks/use-card-animation'
 
 interface InsightCardProps {
   title: string
@@ -105,17 +106,37 @@ export function InsightCard({
     </View>
   ) : null
 
+  // For flippable cards, use the animation hook directly to avoid nested Pressables
   if (isFlippable) {
+    const entranceDelay = index !== undefined ? index * 80 : undefined
+    const { scale, opacity, shake, rotate, handlePressIn, handlePressOut } = useCardAnimation({
+      entranceAnimation: true,
+      entranceDelay,
+    })
+
     return (
-      <AnimatedCard
-        index={index}
-        containerStyle={styles.cardContainer}
-        animationConfig={{
-          entranceAnimation: true,
-        }}
+      <Animated.View
+        style={[
+          styles.cardContainer,
+          {
+            opacity,
+            transform: [{ translateX: shake }],
+          },
+        ]}
       >
-        <FlippableCard front={frontContent} back={backContent!} />
-      </AnimatedCard>
+        <Animated.View
+          style={{
+            transform: [{ scale }, { rotate }],
+          }}
+        >
+          <FlippableCard
+            front={frontContent}
+            back={backContent!}
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+          />
+        </Animated.View>
+      </Animated.View>
     )
   }
 

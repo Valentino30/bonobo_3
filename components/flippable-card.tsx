@@ -1,12 +1,14 @@
+import { type ReactNode } from 'react'
 import { Animated, Pressable, StyleSheet, type ViewStyle } from 'react-native'
 import { useFlipAnimation } from '@/hooks/use-flip-animation'
-import { type ReactNode } from 'react'
 
 interface FlippableCardProps {
   front: ReactNode
   back: ReactNode
   onFlip?: (isFlipped: boolean) => void
   style?: ViewStyle | ViewStyle[]
+  onPressIn?: () => void
+  onPressOut?: () => void
 }
 
 /**
@@ -22,13 +24,13 @@ interface FlippableCardProps {
  * />
  * ```
  */
-export function FlippableCard({ front, back, onFlip, style }: FlippableCardProps) {
+export function FlippableCard({ front, back, onFlip, style, onPressIn, onPressOut }: FlippableCardProps) {
   const { isFlipped, handleFlip, frontAnimatedStyle, backAnimatedStyle, frontOpacity, backOpacity } = useFlipAnimation({
     onFlip,
   })
 
   return (
-    <Pressable onPress={handleFlip} style={[styles.container, style]}>
+    <Pressable onPress={handleFlip} onPressIn={onPressIn} onPressOut={onPressOut} style={[styles.container, style]}>
       <Animated.View
         style={[styles.cardFace, frontAnimatedStyle, { opacity: frontOpacity }, isFlipped && styles.hiddenFace]}
       >
