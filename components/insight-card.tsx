@@ -113,7 +113,7 @@ export function InsightCard({
         index={index}
         containerStyle={styles.cardContainer}
         animationConfig={{
-          entranceAnimation: !disableEntranceAnimation,
+          entranceAnimation: false,
           scaleInAnimation: disableEntranceAnimation,
         }}
       >
@@ -127,7 +127,7 @@ export function InsightCard({
       index={index}
       containerStyle={styles.cardContainer}
       animationConfig={{
-        entranceAnimation: !disableEntranceAnimation,
+        entranceAnimation: false,
         scaleInAnimation: disableEntranceAnimation,
       }}
     >
