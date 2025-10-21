@@ -2,7 +2,7 @@ import { Animated, StyleSheet, Text, View } from 'react-native'
 import { AnimatedCard } from '@/components/animated-card'
 import { FlippableCard } from '@/components/flippable-card'
 import { useTheme } from '@/contexts/theme-context'
-import { useCardAnimation } from '@/hooks/use-card-animation'
+import { useCardAnimation } from '@/hooks/ui/use-card-animation'
 
 interface InsightCardProps {
   title: string

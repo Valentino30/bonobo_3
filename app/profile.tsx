@@ -9,7 +9,7 @@ import { ScreenHeader } from '@/components/screen-header'
 import { ThemedButton } from '@/components/themed-button'
 import { ThemedText } from '@/components/themed-text'
 import { useTheme } from '@/contexts/theme-context'
-import { useCustomAlert } from '@/hooks/use-custom-alert'
+import { useCustomAlert } from '@/hooks/ui/use-custom-alert'
 import { useProfile } from '@/hooks/use-profile'
 
 export default function ProfileScreen() {

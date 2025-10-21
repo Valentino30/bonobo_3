@@ -7,8 +7,8 @@ import { ThemedIconButton } from '@/components/themed-icon-button'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
+import { useCustomAlert } from '@/hooks/ui/use-custom-alert'
 import { useChats } from '@/hooks/use-chats'
-import { useCustomAlert } from '@/hooks/use-custom-alert'
 
 export default function ChatsScreen() {
   const theme = useTheme()

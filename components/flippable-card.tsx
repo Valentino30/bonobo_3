@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react'
 import { Animated, Pressable, StyleSheet, type ViewStyle } from 'react-native'
-import { useFlipAnimation } from '@/hooks/use-flip-animation'
+import { useFlipAnimation } from '@/hooks/ui/use-flip-animation'
 
 interface FlippableCardProps {
   front: ReactNode

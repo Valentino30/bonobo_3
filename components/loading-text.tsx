@@ -1,5 +1,5 @@
-import { View, Animated, StyleSheet, TextStyle, Text } from 'react-native'
-import { useStaggeredBounce } from '@/hooks/use-staggered-bounce'
+import { Animated, StyleSheet, Text, TextStyle, View } from 'react-native'
+import { useStaggeredBounce } from '@/hooks/ui/use-staggered-bounce'
 
 interface LoadingTextProps {
   text: string

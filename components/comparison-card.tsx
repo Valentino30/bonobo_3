@@ -5,7 +5,7 @@ import { ParticipantStat } from '@/components/participant-stat'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
-import { useCardAnimation } from '@/hooks/use-card-animation'
+import { useCardAnimation } from '@/hooks/ui/use-card-animation'
 
 interface ParticipantData {
   name: string

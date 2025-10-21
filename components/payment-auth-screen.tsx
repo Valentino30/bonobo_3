@@ -1,11 +1,11 @@
-import { Modal, ScrollView, StyleSheet, View, KeyboardAvoidingView, Platform } from 'react-native'
-import { ThemedView } from '@/components/themed-view'
-import { ThemedButton } from '@/components/themed-button'
+import { KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, View } from 'react-native'
 import { EmailPasswordForm } from '@/components/email-password-form'
 import { InfoBanner } from '@/components/info-banner'
 import { ModalHeader } from '@/components/modal-header'
+import { ThemedButton } from '@/components/themed-button'
+import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
-import { useCustomAlert } from '@/hooks/use-custom-alert'
+import { useCustomAlert } from '@/hooks/ui/use-custom-alert'
 import { useAccountCreation } from '@/hooks/use-account-creation'
 
 interface PaymentAuthScreenProps {

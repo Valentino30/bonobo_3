@@ -11,8 +11,8 @@ import { ThemedButton } from '@/components/themed-button'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
+import { useCustomAlert } from '@/hooks/ui/use-custom-alert'
 import { useChatAnalysis } from '@/hooks/use-chat-analysis'
-import { useCustomAlert } from '@/hooks/use-custom-alert'
 
 export default function ChatAnalysisScreen() {
   const theme = useTheme()
