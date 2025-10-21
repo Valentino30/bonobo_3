@@ -1,10 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import { usePersistedChats } from '@/hooks/use-persisted-chats'
-import { usePurchase } from '@/hooks/use-purchase'
-import { useUnlockInsight } from '@/hooks/use-unlock-insight'
-import { type AIInsights } from '@/utils/ai-service'
-import { analyzeChatData } from '@/utils/chat-analyzer'
+import { useAnalysisQuery, useUnlockInsightMutation } from '@/hooks/queries/use-analysis-query'
+import { useChatQuery, useUpdateChatAnalysisMutation } from '@/hooks/queries/use-chats-query'
+import { usePurchaseMutation } from '@/hooks/queries/use-purchase-mutation'
 import { getFrequencyLabel } from '@/utils/insight-helpers'
 
 type TabType = 'overview' | 'insights'
@@ -35,173 +33,149 @@ type UseChatAnalysisOptions = {
 
 /**
  * Comprehensive hook that manages all business logic for chat analysis
- * Handles analysis, AI insights, payments, and authentication
+ * Refactored to use React Query for data fetching and caching
  */
 export function useChatAnalysis({ showAlert }: UseChatAnalysisOptions) {
   const router = useRouter()
   const { chatId } = useLocalSearchParams<{ chatId: string }>()
-  const { chats, isLoading: chatsLoading, updateChatAnalysis } = usePersistedChats()
-  const analysisRef = useRef<ChatAnalysisData | null>(null)
-  const previousChatIdRef = useRef<string | null>(null)
 
-  const chat = chats.find((c) => c.id === chatId)
-
-  // State management
-  const [analysis, setAnalysis] = useState<ChatAnalysisData | null>(null)
-  const [aiInsights, setAiInsights] = useState<AIInsights | null>(null)
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [showLoadingAnimation, setShowLoadingAnimation] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  // UI state
   const [activeTab, setActiveTab] = useState<TabType>('overview')
   const [showPaywall, setShowPaywall] = useState(false)
   const [showAuthScreen, setShowAuthScreen] = useState(false)
-  const [unlockedInsights, setUnlockedInsights] = useState<Set<string>>(new Set())
+  const [showLoadingAnimation, setShowLoadingAnimation] = useState(true)
+  const [pendingInsightToUnlock, setPendingInsightToUnlock] = useState<string | null>(null)
 
-  // Use purchase hook (must be before useUnlockInsight to access setPendingInsightToUnlock)
-  const { setPendingInsightToUnlock, handlePurchase } = usePurchase({
-    chatId,
-    showAlert,
-    onShowAuthScreen: () => setShowAuthScreen(true),
-    onSwitchToInsightsTab: () => setActiveTab('insights'),
-    onUnlockInsight: (insightId: string) => {
-      // This will be set later after handleUnlockInsight is defined
-      handleUnlockInsight(insightId)
-    },
-  })
+  // React Query hooks
+  const { data: chat, isLoading: chatsLoading, error: chatError } = useChatQuery(chatId)
 
-  // Use unlock insight hook
-  const { loadingInsight, handleUnlockInsight } = useUnlockInsight({
-    chatId,
-    chatText: chat?.text || '',
-    aiInsights,
-    unlockedInsights,
-    analysis,
-    setAiInsights,
-    setUnlockedInsights,
-    updateChatAnalysis,
-    showAlert,
-    onShowPaywall: (insightId: string) => {
-      setPendingInsightToUnlock(insightId)
-      setShowPaywall(true)
-    },
-  })
+  const {
+    data: analysis,
+    isLoading: isAnalyzing,
+    error: analysisError,
+  } = useAnalysisQuery(chatId, chat?.text || '', !!chat)
 
-  // Load unlocked insights from cached chat data
-  useEffect(() => {
-    if (chat?.unlockedInsights) {
-      setUnlockedInsights(new Set(chat.unlockedInsights))
-    }
-  }, [chat])
+  const unlockInsightMutation = useUnlockInsightMutation()
+  const purchaseMutation = usePurchaseMutation()
+  const updateAnalysisMutation = useUpdateChatAnalysisMutation()
+
+  // Derived state
+  const unlockedInsights = new Set(chat?.unlockedInsights || [])
+  const aiInsights = chat?.aiInsights || null
+  const error = chatError?.message || analysisError?.message || null
+  const loadingInsight = unlockInsightMutation.isPending ? pendingInsightToUnlock : null
 
   // Helper: Check if an insight is unlocked
   const isInsightUnlocked = (insightId: string): boolean => {
     return unlockedInsights.has(insightId)
   }
 
-  // Handle tab change
+  // Handler: Change tab
   const handleTabChange = async (tab: TabType) => {
     setActiveTab(tab)
   }
 
-  // Handle successful authentication
+  // Handler: Unlock insight
+  const handleUnlockInsight = async (insightId: string) => {
+    if (!chat) return
+
+    setPendingInsightToUnlock(insightId)
+
+    try {
+      await unlockInsightMutation.mutateAsync({
+        chatId,
+        insightId,
+        chatText: chat.text,
+      })
+
+      // Update persistent storage
+      if (analysis) {
+        await updateAnalysisMutation.mutateAsync({
+          chatId,
+          analysis,
+          aiInsights: unlockInsightMutation.data?.insights,
+          unlockedInsights: [...unlockedInsights, insightId],
+        })
+      }
+    } catch (error: any) {
+      if (error.message === 'NO_ACCESS') {
+        setPendingInsightToUnlock(insightId)
+        setShowPaywall(true)
+      } else {
+        showAlert(
+          'Failed to Unlock Insight',
+          "Don't worry, this can happen sometimes due to the AI being overloaded. Simply try again in a few seconds."
+        )
+      }
+    } finally {
+      setPendingInsightToUnlock(null)
+    }
+  }
+
+  // Handler: Purchase
+  const handlePurchase = async (planId: string) => {
+    try {
+      const result = await purchaseMutation.mutateAsync({
+        planId,
+        chatId,
+      })
+
+      showAlert('Payment Processing', 'Your payment is being processed. You can unlock insights in a moment.')
+
+      if (result.requiresAuth) {
+        setShowAuthScreen(true)
+      } else {
+        setActiveTab('insights')
+      }
+
+      if (result.success) {
+        showAlert('🎉 Payment Successful!', 'Unlocking your insight now...')
+
+        // Unlock pending insight after successful payment
+        if (pendingInsightToUnlock) {
+          setTimeout(() => handleUnlockInsight(pendingInsightToUnlock), 500)
+          setPendingInsightToUnlock(null)
+        }
+      }
+    } catch (error: any) {
+      if (error.message === 'VERIFICATION_TIMEOUT') {
+        showAlert(
+          '⏳ Payment Processing',
+          'Your payment was successful but verification is taking longer than expected. Please wait a moment and try unlocking again. If the problem persists, contact support.'
+        )
+      } else {
+        showAlert('Payment Failed', error.message || 'Failed to process payment. Please try again.')
+      }
+    }
+  }
+
+  // Handler: Auth success
   const handleAuthSuccess = () => {
     setShowAuthScreen(false)
     setActiveTab('insights')
     showAlert('🎉 Account Created!', 'Your purchases are now secure and accessible from any device')
   }
 
-  // Handle loading animation complete
+  // Handler: Loading animation complete
   const handleLoadingComplete = () => {
-    console.log('AnalysisLoading complete')
-    setIsAnalyzing(false)
     setShowLoadingAnimation(false)
-    if (analysisRef.current) {
-      setAnalysis(analysisRef.current)
-      analysisRef.current = null
-    }
   }
 
-  // Handle back navigation
+  // Handler: Go back
   const handleGoBack = () => {
     router.back()
   }
 
-  // Handle navigate to chats
+  // Handler: Navigate to chats
   const handleNavigateToChats = () => {
     router.push('/chats' as any)
   }
-
-  // Main analysis effect
-  useEffect(() => {
-    // Reset state when chatId changes
-    if (previousChatIdRef.current !== chatId) {
-      console.log('ChatId changed, resetting state')
-      setUnlockedInsights(new Set())
-      setAiInsights(null)
-      setAnalysis(null)
-      setIsAnalyzing(false)
-      setError(null)
-      setShowLoadingAnimation(true)
-      previousChatIdRef.current = chatId
-    }
-
-    // Wait for chats to load
-    if (chatsLoading) {
-      return
-    }
-
-    if (!chat) {
-      console.error('Chat not found for ID:', chatId)
-      setError('Chat not found')
-      setIsAnalyzing(false)
-      return
-    }
-
-    setError(null)
-
-    // Skip if analysis already loaded
-    if (analysis) {
-      return
-    }
-
-    // Load cached analysis
-    if (chat.analysis && !analysis) {
-      setAnalysis(chat.analysis)
-
-      if (chat.aiInsights) {
-        setAiInsights(chat.aiInsights)
-      }
-
-      setIsAnalyzing(false)
-      return
-    }
-
-    // Perform basic analysis if needed
-    if (!isAnalyzing) {
-      setIsAnalyzing(true)
-
-      const performBasicAnalysis = async () => {
-        try {
-          const basicAnalysis = await analyzeChatData(chat.text)
-          analysisRef.current = basicAnalysis
-          await updateChatAnalysis(chatId, basicAnalysis)
-          console.log('Basic analysis complete')
-        } catch (err) {
-          console.error('Analysis error:', err)
-          setError(err instanceof Error ? err.message : 'Failed to analyze chat')
-          setIsAnalyzing(false)
-        }
-      }
-
-      performBasicAnalysis()
-    }
-  }, [chat, chatId, chats, chatsLoading, updateChatAnalysis, analysis, isAnalyzing])
 
   return {
     // Data
     chat,
     chatId,
-    chats,
+    chats: [], // Not needed with individual chat query
     chatsLoading,
     analysis,
     aiInsights,

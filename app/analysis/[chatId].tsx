@@ -11,7 +11,7 @@ import { ThemedButton } from '@/components/themed-button'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
-import { useChatAnalysisV2 } from '@/hooks/use-chat-analysis-v2'
+import { useChatAnalysis } from '@/hooks/use-chat-analysis'
 import { useCustomAlert } from '@/hooks/use-custom-alert'
 
 export default function ChatAnalysisScreen() {
@@ -42,7 +42,7 @@ export default function ChatAnalysisScreen() {
     handleNavigateToChats,
     setShowPaywall,
     setShowAuthScreen,
-  } = useChatAnalysisV2({ showAlert })
+  } = useChatAnalysis({ showAlert })
 
   // Show loading animation
   if (chatsLoading || !analysis || showLoadingAnimation) {
