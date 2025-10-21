@@ -6,6 +6,8 @@ export type CardAnimationConfig = {
   entranceAnimation?: boolean
   /** Enable fade-in animation on mount (can be used independently of entranceAnimation) */
   fadeInAnimation?: boolean
+  /** Enable scale-in animation on mount (can be used independently of entranceAnimation) */
+  scaleInAnimation?: boolean
   /** Entrance animation delay (ms) - useful for staggered list animations */
   entranceDelay?: number
   /** Scale amount when pressed (e.g., 0.96) */
@@ -24,7 +26,7 @@ export type CardAnimationConfig = {
 
 export type CardAnimationResult = {
   /** Animated value for scale transform */
-  scale: Animated.Value
+  scale: Animated.AnimatedMultiplication<number> | Animated.Value
   /** Animated value for opacity (fade-in effect) */
   opacity: Animated.Value
   /** Interpolated translateX value for horizontal shake/jiggle */
@@ -62,6 +64,7 @@ export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimatio
   const {
     entranceAnimation = true,
     fadeInAnimation = false,
+    scaleInAnimation = false,
     entranceDelay = 0,
     pressScale = 0.96,
     springDamping = 15,
@@ -71,7 +74,8 @@ export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimatio
     pressShakeIntensity = 1,
   } = config
 
-  const scaleAnim = useRef(new Animated.Value(1)).current
+  const pressScaleAnim = useRef(new Animated.Value(1)).current
+  const entranceScaleAnim = useRef(new Animated.Value(scaleInAnimation ? 0.8 : 1)).current
   const opacityAnim = useRef(new Animated.Value(fadeInAnimation ? 0 : 1)).current
   const slideAnim = useRef(new Animated.Value(entranceAnimation ? -30 : 0)).current
   const shakeAnim = useRef(new Animated.Value(0)).current
@@ -109,6 +113,22 @@ export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimatio
 
     return () => clearTimeout(timeout)
   }, [opacityAnim, fadeInAnimation, entranceDelay])
+
+  // Scale-in animation - can be used independently (avoids shadow artifacts from opacity)
+  useEffect(() => {
+    if (!scaleInAnimation) return
+
+    const timeout = setTimeout(() => {
+      Animated.spring(entranceScaleAnim, {
+        toValue: 1,
+        useNativeDriver: true,
+        damping: 20,
+        stiffness: 150,
+      }).start()
+    }, entranceDelay)
+
+    return () => clearTimeout(timeout)
+  }, [entranceScaleAnim, scaleInAnimation, entranceDelay])
 
   const startShake = () => {
     shakeLoopRef.current = Animated.loop(
@@ -153,7 +173,7 @@ export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimatio
 
   const handlePressIn = () => {
     // Scale down immediately
-    Animated.spring(scaleAnim, {
+    Animated.spring(pressScaleAnim, {
       toValue: pressScale,
       useNativeDriver: true,
       damping: springDamping,
@@ -181,7 +201,7 @@ export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimatio
     }
 
     // Scale back to normal
-    Animated.spring(scaleAnim, {
+    Animated.spring(pressScaleAnim, {
       toValue: 1,
       useNativeDriver: true,
       damping: springDamping,
@@ -216,8 +236,11 @@ export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimatio
     outputRange: ['-1deg', '0deg', '1deg'],
   })
 
+  // Combine entrance scale with press scale (multiply them together)
+  const combinedScale = Animated.multiply(entranceScaleAnim, pressScaleAnim)
+
   return {
-    scale: scaleAnim,
+    scale: combinedScale,
     opacity: opacityAnim,
     shake,
     rotate,
