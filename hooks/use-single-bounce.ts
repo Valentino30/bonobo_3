@@ -1,13 +1,13 @@
 import { useEffect, useRef } from 'react'
 import { Animated } from 'react-native'
 
-interface UseBounceAnimationOptions {
+interface UseSingleBounceOptions {
   distance?: number
   duration?: number
 }
 
 /**
- * Hook for creating a bouncing animation
+ * Hook for creating a single element bouncing animation
  * Returns an animated value that bounces up and down continuously
  *
  * @param options - Configuration for the bounce animation
@@ -16,14 +16,14 @@ interface UseBounceAnimationOptions {
  *
  * @example
  * ```tsx
- * const bounceAnim = useBounceAnimation({ distance: -15, duration: 500 })
+ * const bounceAnim = useSingleBounce({ distance: -15, duration: 500 })
  *
  * <Animated.View style={{ transform: [{ translateY: bounceAnim }] }}>
  *   <Icon />
  * </Animated.View>
  * ```
  */
-export function useBounceAnimation({ distance = -10, duration = 600 }: UseBounceAnimationOptions = {}) {
+export function useSingleBounce({ distance = -10, duration = 600 }: UseSingleBounceOptions = {}) {
   const bounceAnim = useRef(new Animated.Value(0)).current
 
   useEffect(() => {

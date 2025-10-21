@@ -1,7 +1,7 @@
 import { Animated, StyleSheet } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useTheme } from '@/contexts/theme-context'
-import { useBounceAnimation } from '@/hooks/use-bounce-animation'
+import { useSingleBounce } from '@/hooks/use-single-bounce'
 import { usePulseAnimation } from '@/hooks/use-pulse-animation'
 
 type AnimationType = 'bounce' | 'pulsate' | 'none'
@@ -41,7 +41,7 @@ export function AnimatedIcon({
   borderColor,
 }: AnimatedIconProps) {
   const theme = useTheme()
-  const bounceAnim = useBounceAnimation()
+  const bounceAnim = useSingleBounce()
   const pulseAnim = usePulseAnimation()
 
   const finalIconColor = iconColor || theme.colors.primary

@@ -1,14 +1,14 @@
 import { useEffect, useRef } from 'react'
 import { Animated } from 'react-native'
 
-interface UseBouncingAnimationOptions {
+interface UseStaggeredBounceOptions {
   dotCount?: number
   bounceHeight?: number
   bounceDuration?: number
   staggerDelay?: number
 }
 
-export function useBouncingAnimation(options: UseBouncingAnimationOptions = {}) {
+export function useStaggeredBounce(options: UseStaggeredBounceOptions = {}) {
   const { dotCount = 3, bounceHeight = -3, bounceDuration = 300, staggerDelay = 200 } = options
 
   const animatedValues = useRef(Array.from({ length: dotCount }, () => new Animated.Value(0))).current

@@ -1,5 +1,5 @@
 import { View, Animated, StyleSheet, TextStyle, Text } from 'react-native'
-import { useBouncingAnimation } from '@/hooks/use-bouncing-animation'
+import { useStaggeredBounce } from '@/hooks/use-staggered-bounce'
 
 interface LoadingTextProps {
   text: string
@@ -22,7 +22,7 @@ export const LoadingText: React.FC<LoadingTextProps> = ({
   staggerDelay = 200,
   dotStyle,
 }) => {
-  const bounceValues = useBouncingAnimation({
+  const bounceValues = useStaggeredBounce({
     dotCount,
     bounceHeight,
     bounceDuration,
