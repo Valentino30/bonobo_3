@@ -80,11 +80,27 @@ export async function analyzeChat(chatText: string): Promise<AIInsights> {
   const currentLocale = i18n.locale
   console.log('📝 Using locale for AI analysis:', currentLocale)
 
-  // Language-specific instructions
+  // Language-specific instructions and field examples
   const languageInstruction =
     currentLocale === 'it'
-      ? 'IMPORTANTE: Rispondi in ITALIANO. Tutte le descrizioni, items, e tips devono essere in italiano.'
-      : 'IMPORTANT: Respond in ENGLISH. All descriptions, items, and tips must be in English.'
+      ? 'IMPORTANTE: Rispondi in ITALIANO. Tutte le descrizioni, items, tips, e valori dei campi type/rating devono essere in italiano.'
+      : 'IMPORTANT: Respond in ENGLISH. All descriptions, items, tips, and type/rating field values must be in English.'
+
+  // Language-specific field value examples
+  const attachmentStyleTypes =
+    currentLocale === 'it' ? 'Sicuro/Ansioso/Evitante/Timoroso' : 'Secure/Anxious/Avoidant/Fearful'
+  const reciprocityRatings = currentLocale === 'it' ? 'Scarso/Discreto/Buono/Eccellente' : 'Poor/Fair/Good/Excellent'
+  const compatibilityRatings =
+    currentLocale === 'it' ? 'Bassa/Moderata/Alta/Molto Alta/Eccellente' : 'Low/Moderate/High/Very High/Excellent'
+  const conflictTypes =
+    currentLocale === 'it'
+      ? 'Collaborativo/Competitivo/Accomodante/Evitante/Compromissorio'
+      : 'Collaborative/Competitive/Accommodating/Avoiding/Compromising'
+  const weVsIRatings = currentLocale === 'it' ? 'Basso/Moderato/Alto/Molto Alto' : 'Low/Moderate/High/Very High'
+  const loveLanguages =
+    currentLocale === 'it'
+      ? 'Parole di Affermazione/Tempo di Qualità/Contatto Fisico/Atti di Servizio/Ricevere Regali'
+      : 'Words of Affirmation/Quality Time/Physical Touch/Acts of Service/Receiving Gifts'
 
   // Add timeout to prevent infinite hanging
   const timeoutPromise = new Promise((_, reject) => {
@@ -114,38 +130,38 @@ Provide a detailed analysis with the following structure (respond ONLY with vali
 {
   "redFlags": {
     "count": <number>,
-    "description": "<AI-generated SIMPLE STRING summary of concerns, e.g. 'Communication patterns show some areas that need attention'>",
-    "items": [<array of 3-4 SIMPLE STRING specific examples, e.g. "Delayed responses during important discussions">]
+    "description": "<AI-generated SIMPLE STRING summary of concerns>",
+    "items": [<array of 3-4 SIMPLE STRING specific examples>]
   },
   "greenFlags": {
     "count": <number>,
-    "description": "<AI-generated SIMPLE STRING summary of positives, e.g. 'Strong foundation of healthy communication habits'>",
-    "items": [<array of 3-4 SIMPLE STRING specific examples, e.g. "Regular check-ins and thoughtful questions">]
+    "description": "<AI-generated SIMPLE STRING summary of positives>",
+    "items": [<array of 3-4 SIMPLE STRING specific examples>]
   },
   "attachmentStyle": {
-    "type": "<Secure/Anxious/Avoidant/Fearful>",
+    "type": "<${attachmentStyleTypes}>",
     "description": "<AI-generated SIMPLE STRING explanation of the attachment style based on this chat>",
     "items": [<array of 3 SIMPLE STRING supporting observations>]
   },
   "reciprocityScore": {
     "percentage": <0-100>,
-    "rating": "<Poor/Fair/Good/Excellent>",
+    "rating": "<${reciprocityRatings}>",
     "description": "<AI-generated SIMPLE STRING summary of give-and-take balance>",
     "items": [<array of 3 SIMPLE STRING specific examples about balance>]
   },
   "compliments": {
     "count": <total number>,
     "description": "<AI-generated SIMPLE STRING summary of compliment patterns>",
-    "items": [<array of 3-4 SIMPLE STRING observations about compliment themes, e.g. "Frequently compliments appearance and style", "Often expresses appreciation for thoughtfulness">]
+    "items": [<array of 3-4 SIMPLE STRING observations about compliment themes>]
   },
   "criticism": {
     "count": <total number>,
     "description": "<AI-generated SIMPLE STRING summary of criticism patterns>",
-    "items": [<array of 3-4 SIMPLE STRING observations about criticism themes, e.g. "Occasional frustration about listening habits", "Sometimes uses harsh tone during disagreements">]
+    "items": [<array of 3-4 SIMPLE STRING observations about criticism themes>]
   },
   "compatibilityScore": {
     "percentage": <0-100>,
-    "rating": "<Low/Moderate/High/Very High/Excellent>",
+    "rating": "<${compatibilityRatings}>",
     "description": "<AI-generated SIMPLE STRING summary of compatibility>",
     "items": [<array of 3 SIMPLE STRING specific observations about compatibility>]
   },
@@ -155,26 +171,26 @@ Provide a detailed analysis with the following structure (respond ONLY with vali
     "tips": [<array of 4 SIMPLE STRING actionable tips>]
   },
   "conflictResolution": {
-    "type": "<Collaborative/Competitive/Accommodating/Avoiding/Compromising>",
+    "type": "<${conflictTypes}>",
     "description": "<AI-generated SIMPLE STRING explanation of how conflicts are handled>",
     "items": [<array of 3 SIMPLE STRING specific examples of conflict resolution patterns>]
   },
   "sharedInterests": {
     "count": <number of distinct shared interests>,
     "description": "<AI-generated SIMPLE STRING summary of common interests and activities>",
-    "items": [<array of 3-5 SIMPLE STRING specific shared interests mentioned, e.g. "Movies and TV shows", "Travel and adventure", "Cooking and trying new restaurants">]
+    "items": [<array of 3-5 SIMPLE STRING specific shared interests mentioned>]
   },
   "weVsIRatio": {
     "percentage": <0-100, percentage of "we" language vs "I" language>,
-    "rating": "<Low/Moderate/High/Very High>",
+    "rating": "<${weVsIRatings}>",
     "description": "<AI-generated SIMPLE STRING summary of collective vs individual language usage>",
-    "items": [<array of 3 SIMPLE STRING observations about "we" vs "I" language patterns, e.g. "Frequently uses 'we' when discussing future plans", "Tends to use 'I' when discussing personal feelings">]
+    "items": [<array of 3 SIMPLE STRING observations about "we" vs "I" language patterns>]
   },
   "loveLanguage": {
-    "primary": "<Words of Affirmation/Quality Time/Physical Touch/Acts of Service/Receiving Gifts>",
-    "secondary": "<Words of Affirmation/Quality Time/Physical Touch/Acts of Service/Receiving Gifts>",
+    "primary": "<${loveLanguages}>",
+    "secondary": "<${loveLanguages}>",
     "description": "<AI-generated SIMPLE STRING explanation of the dominant love language patterns>",
-    "items": [<array of 3 SIMPLE STRING specific examples showing the love language, e.g. "Frequently expresses appreciation verbally", "Often suggests spending time together", "Regularly offers help with tasks">]
+    "items": [<array of 3 SIMPLE STRING specific examples showing the love language>]
   }
 }
 
