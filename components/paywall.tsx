@@ -4,10 +4,9 @@ import { ThemedButton } from '@/components/themed-button'
 import { SubscriptionCard } from '@/components/subscription-card'
 import { ModalHeader } from '@/components/modal-header'
 import { useTheme } from '@/contexts/theme-context'
-import { getPaymentPlans, type PaymentPlan } from '@/utils/payment-service'
-import { CurrencyService, CURRENCY_PRICING, type SupportedCurrency } from '@/utils/currency-service'
+import { usePaywall } from '@/hooks/use-paywall'
+import { CURRENCY_PRICING, type SupportedCurrency } from '@/utils/currency-service'
 import { Modal, ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native'
-import { useState, useEffect } from 'react'
 
 interface PaywallProps {
   visible: boolean
@@ -17,63 +16,21 @@ interface PaywallProps {
 
 export function Paywall({ visible, onClose, onPurchase }: PaywallProps) {
   const theme = useTheme()
-  const [paymentPlans, setPaymentPlans] = useState<Record<string, PaymentPlan> | null>(null)
-  const [selectedCurrency, setSelectedCurrency] = useState<SupportedCurrency>('USD')
-  const [showCurrencyPicker, setShowCurrencyPicker] = useState(false)
-  const [isProcessing, setIsProcessing] = useState(false)
-
-  // Load payment plans
-  useEffect(() => {
-    if (visible) {
-      loadPaymentPlans()
-      // Reset processing state when modal opens
-      setIsProcessing(false)
-    }
-  }, [visible, selectedCurrency])
-
-  const loadPaymentPlans = async () => {
-    const plans = await getPaymentPlans()
-    setPaymentPlans(plans)
-    setSelectedCurrency(plans.ONE_TIME.currency)
-
-    console.log('💳 Paywall opened - Payment plans:', {
-      oneTime: `${plans.ONE_TIME.currency} ${plans.ONE_TIME.price}`,
-      weekly: `${plans.WEEKLY.currency} ${plans.WEEKLY.price}`,
-      monthly: `${plans.MONTHLY.currency} ${plans.MONTHLY.price}`,
-    })
-  }
-
-  const handleCurrencyChange = async (currency: SupportedCurrency) => {
-    await CurrencyService.setCurrencyOverride(currency)
-    setSelectedCurrency(currency)
-    setShowCurrencyPicker(false)
-    await loadPaymentPlans()
-  }
+  const {
+    paymentPlans,
+    selectedCurrency,
+    showCurrencyPicker,
+    setShowCurrencyPicker,
+    isProcessing,
+    handleCurrencyChange,
+    handlePurchase,
+  } = usePaywall({ visible, onPurchase, onClose })
 
   if (!paymentPlans) {
     return null
   }
 
   const PAYMENT_PLANS = paymentPlans
-
-  const handlePurchase = async (planId: string) => {
-    // Prevent multiple payment sheets from opening
-    if (isProcessing) {
-      console.log('⚠️ Payment already in progress, ignoring duplicate tap')
-      return
-    }
-
-    console.log('💳 Starting payment flow for plan:', planId)
-    setIsProcessing(true)
-
-    try {
-      // Error handling is done by the parent component
-      await onPurchase(planId)
-      onClose()
-    } finally {
-      setIsProcessing(false)
-    }
-  }
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
