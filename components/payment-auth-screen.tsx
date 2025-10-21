@@ -15,6 +15,7 @@ import { ThemedTextInput } from '@/components/themed-text-input'
 import { useTheme } from '@/contexts/theme-context'
 import { AuthService } from '@/utils/auth-service'
 import { useCustomAlert } from '@/hooks/use-custom-alert'
+import { validateEmail, validatePassword } from '@/utils/validation'
 
 interface PaymentAuthScreenProps {
   visible: boolean
@@ -30,16 +31,6 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { showAlert, AlertComponent } = useCustomAlert()
-
-  const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return emailRegex.test(email)
-  }
-
-  const validatePassword = (password: string): boolean => {
-    // Minimum 8 characters
-    return password.length >= 8
-  }
 
   const handleCreateAccount = async () => {
     setError(null)
