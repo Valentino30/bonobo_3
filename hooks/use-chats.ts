@@ -24,10 +24,7 @@ export function useChats({ showAlert }: UseChatsOptions) {
   const [manualInput, setManualInput] = useState('')
   const hasReloadedRef = useRef(false)
 
-  // Create alert configurations for share imports (with clearShareData)
-  const alerts = useMemo(() => createShareImportAlerts(clearShareData), [clearShareData])
-
-  // Create alert configurations for manual imports (without clearShareData)
+  // Create alert configurations for manual text imports (without clearShareData callback)
   const manualAlerts = useMemo(() => createShareImportAlerts(), [])
 
   // Determine which platform to show instructions for
