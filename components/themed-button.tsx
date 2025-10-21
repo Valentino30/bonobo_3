@@ -1,7 +1,8 @@
 import { useTheme } from '@/contexts/theme-context'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { ActivityIndicator, StyleSheet, Text, TextStyle, TouchableOpacity, ViewStyle } from 'react-native'
+import { StyleSheet, Text, TextStyle, TouchableOpacity, ViewStyle } from 'react-native'
 import { getButtonVariantStyles, getButtonSizeStyles, getButtonShadowStyles, getButtonAlignmentStyles, type ButtonAlign } from '@/utils/button-variants'
+import { useEffect, useState } from 'react'
 
 export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'ghost' | 'outline'
 
@@ -45,6 +46,18 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
   align = 'center',
 }) => {
   const theme = useTheme()
+  const [dotCount, setDotCount] = useState(0)
+
+  // Animate loading dots
+  useEffect(() => {
+    if (!loading) return
+
+    const interval = setInterval(() => {
+      setDotCount((prev) => (prev + 1) % 4)
+    }, 500)
+
+    return () => clearInterval(interval)
+  }, [loading])
 
   // Determine if button is disabled or loading
   const isDisabled = disabled || loading
@@ -75,14 +88,9 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
       ]}
     >
       {loading ? (
-        <>
-          <ActivityIndicator color={iconColor} size={sizeStyles.iconSize} style={loadingTitle && styles.iconLeft} />
-          {loadingTitle && (
-            <Text style={[styles.text, variantStyles.text, sizeStyles.text, uppercase && styles.uppercase, textStyle]}>
-              {loadingTitle}
-            </Text>
-          )}
-        </>
+        <Text style={[styles.text, variantStyles.text, sizeStyles.text, uppercase && styles.uppercase, textStyle]}>
+          {loadingTitle || title}{'.'.repeat(dotCount)}
+        </Text>
       ) : (
         <>
           {icon && iconPosition === 'left' && (
