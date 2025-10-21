@@ -3,6 +3,45 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 // Initialize Gemini client
 const genAI = new GoogleGenerativeAI(process.env.EXPO_PUBLIC_GEMINI_API_KEY || '')
 
+/**
+ * Detects the language of the chat text by analyzing common words
+ * Returns 'it' for Italian, 'en' for English (default)
+ */
+function detectChatLanguage(chatText: string): 'it' | 'en' {
+  const sample = chatText.substring(0, 2000).toLowerCase()
+
+  // Common Italian words/patterns that don't appear in English
+  const italianIndicators = [
+    'che ',
+    'non ',
+    'sono ',
+    'della ',
+    'degli ',
+    'anche ',
+    'perché',
+    'però',
+    'già',
+    'così',
+    'può',
+    'più',
+    'è stato',
+    'va bene',
+    'grazie',
+    'prego',
+    'ciao',
+    'buongiorno',
+    'buonasera',
+  ]
+
+  // Count Italian indicators
+  const italianCount = italianIndicators.reduce((count, indicator) => {
+    return count + (sample.match(new RegExp(indicator, 'g'))?.length || 0)
+  }, 0)
+
+  // If we find significant Italian indicators, it's Italian
+  return italianCount > 3 ? 'it' : 'en'
+}
+
 export interface AIInsights {
   redFlags: {
     count: number
@@ -75,6 +114,16 @@ export async function analyzeChat(chatText: string): Promise<AIInsights> {
   console.log('API Key present:', !!process.env.EXPO_PUBLIC_GEMINI_API_KEY)
   console.log('Chat text length:', chatText.length)
 
+  // Detect the language of the chat
+  const chatLanguage = detectChatLanguage(chatText)
+  console.log('📝 Detected chat language:', chatLanguage)
+
+  // Language-specific instructions
+  const languageInstruction =
+    chatLanguage === 'it'
+      ? 'IMPORTANTE: Rispondi in ITALIANO. Tutte le descrizioni, items, e tips devono essere in italiano.'
+      : 'IMPORTANT: Respond in ENGLISH. All descriptions, items, and tips must be in English.'
+
   // Add timeout to prevent infinite hanging
   const timeoutPromise = new Promise((_, reject) => {
     setTimeout(() => reject(new Error('AI request timed out after 30 seconds')), 30000)
@@ -93,6 +142,8 @@ export async function analyzeChat(chatText: string): Promise<AIInsights> {
     console.log('📤 Sending request to Gemini...')
 
     const prompt = `You are an expert relationship counselor analyzing a WhatsApp chat conversation. Analyze the following chat and provide detailed insights in JSON format.
+
+${languageInstruction}
 
 Chat content:
 ${chatText.substring(0, 10000)} ${chatText.length > 10000 ? '...(truncated)' : ''}
