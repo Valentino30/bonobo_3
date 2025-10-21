@@ -31,14 +31,27 @@
     "clearAllButton": "Clear Data"
   },
   "importGuide": {
-    "title": "How to Import WhatsApp Chats",
-    "subtitle": "Follow these steps:",
+    "title": "How to Import",
+    "subtitle": "WhatsApp Chat Export Guide",
+    "intro": "Import your WhatsApp conversation to analyze your relationship dynamics and communication patterns.",
     "supportNote": "Currently supporting WhatsApp only",
-    "step1": "Open WhatsApp and go to the chat you want to analyze",
-    "step2": "Tap the three dots (⋮) in the top right",
-    "step3": "Select 'More' → 'Export chat'",
-    "step4": "Choose 'Without Media'",
-    "step5": "Select this app (Bonobo) from the share menu"
+    "platformIOS": "Instructions for iOS",
+    "platformAndroid": "Instructions for Android",
+    "followSteps": "Follow these steps:",
+    "steps": {
+      "step1Title": "Open WhatsApp",
+      "step1Description": "Open the WhatsApp app",
+      "step2Title": "Open Chat",
+      "step2Description": "Enter the chat you want to analyze",
+      "step3TitleIOS": "Export Chat",
+      "step3DescriptionIOS": "Tap on the contact or group name at the top of the chat, scroll all the way down and tap \"Export Chat\"",
+      "step3TitleAndroid": "Export Chat",
+      "step3DescriptionAndroid": "Tap the three dots (⋮) and select \"More\" → \"Export Chat\"",
+      "step4Title": "Without Media",
+      "step4Description": "Choose \"Without Media\" when prompted (media files are not needed for analysis)",
+      "step5Title": "Share to Bonobo",
+      "step5Description": "Select \"Bonobo\" from the share menu to import the chat"
+    }
   },
   "analysis": {
     "title": "Analysis",

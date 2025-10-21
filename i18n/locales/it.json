@@ -31,14 +31,27 @@
     "clearAllButton": "Cancella Dati"
   },
   "importGuide": {
-    "title": "Come Importare Chat WhatsApp",
-    "subtitle": "Segui questi passaggi:",
+    "title": "Come Importare",
+    "subtitle": "Guida all'Esportazione Chat WhatsApp",
+    "intro": "Importa la tua conversazione WhatsApp per analizzare le dinamiche della relazione e i modelli di comunicazione.",
     "supportNote": "Attualmente supporta solo WhatsApp",
-    "step1": "Apri WhatsApp e vai alla chat che vuoi analizzare",
-    "step2": "Tocca i tre puntini (⋮) in alto a destra",
-    "step3": "Seleziona 'Altro' → 'Esporta chat'",
-    "step4": "Scegli 'Senza media'",
-    "step5": "Seleziona questa app (Bonobo) dal menu di condivisione"
+    "platformIOS": "Istruzioni per iOS",
+    "platformAndroid": "Istruzioni per Android",
+    "followSteps": "Segui questi passaggi:",
+    "steps": {
+      "step1Title": "Apri WhatsApp",
+      "step1Description": "Apri l'app WhatsApp",
+      "step2Title": "Apri Chat",
+      "step2Description": "Entra nella chat che vuoi analizzare",
+      "step3TitleIOS": "Esporta Chat",
+      "step3DescriptionIOS": "Tocca sul nome del contatto o del gruppo in alto nella chat, scorri fino in fondo e tocca \"Esporta chat\"",
+      "step3TitleAndroid": "Esporta Chat",
+      "step3DescriptionAndroid": "Tocca i tre puntini (⋮) e seleziona \"Altro\" → \"Esporta chat\"",
+      "step4Title": "Senza Media",
+      "step4Description": "Scegli \"Senza media\" quando richiesto (i file multimediali non sono necessari per l'analisi)",
+      "step5Title": "Condividi con Bonobo",
+      "step5Description": "Seleziona \"Bonobo\" dal menu di condivisione per importare la chat"
+    }
   },
   "analysis": {
     "title": "Analisi",

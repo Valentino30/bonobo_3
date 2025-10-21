@@ -9,6 +9,7 @@ import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { IMPORT_GUIDE_STEPS } from '@/constants/import-guide'
 import { useTheme } from '@/contexts/theme-context'
+import i18n from '@/i18n/config'
 
 export default function ImportGuideScreen() {
   const isIOS = Platform.OS === 'ios'
@@ -25,22 +26,24 @@ export default function ImportGuideScreen() {
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           {/* Title */}
           <View style={styles.titleSection}>
-            <ThemedText style={[styles.title, { color: theme.colors.darkOverlay }]}>How to Import</ThemedText>
+            <ThemedText style={[styles.title, { color: theme.colors.darkOverlay }]}>
+              {i18n.t('importGuide.title')}
+            </ThemedText>
             <ThemedText style={[styles.subtitle, { color: theme.colors.primary }]}>
-              WhatsApp Chat Export Guide
+              {i18n.t('importGuide.subtitle')}
             </ThemedText>
           </View>
 
           {/* Introduction */}
           <View style={styles.section}>
             <ThemedText style={[styles.intro, { color: theme.colors.primaryAccent }]}>
-              Import your WhatsApp conversation to analyze your relationship dynamics and communication patterns.
+              {i18n.t('importGuide.intro')}
             </ThemedText>
             <Badge
               icon="whatsapp"
               iconSize={20}
               iconColor="#25D366"
-              text="Currently supporting WhatsApp only"
+              text={i18n.t('importGuide.supportNote')}
               variant="success"
               containerStyle={{ paddingHorizontal: 0, paddingBottom: 0 }}
             />
@@ -49,25 +52,25 @@ export default function ImportGuideScreen() {
           {/* Platform Badge */}
           <Badge
             icon={isIOS ? 'apple' : 'android'}
-            text={`Instructions for ${isIOS ? 'iOS' : 'Android'}`}
+            text={isIOS ? i18n.t('importGuide.platformIOS') : i18n.t('importGuide.platformAndroid')}
             variant="primary"
           />
 
           {/* Steps */}
-          <StepList title="Follow these steps:" steps={IMPORT_GUIDE_STEPS} />
+          <StepList title={i18n.t('importGuide.followSteps')} steps={IMPORT_GUIDE_STEPS} />
 
           {/* Privacy Notice */}
           <InfoCard
             icon="shield-check"
-            title="Your Privacy Matters"
-            description="All chat data is stored securely on your device. We never upload your conversations to our servers. AI analysis is performed using encrypted requests."
+            title={i18n.t('privacy.title')}
+            description={i18n.t('privacy.message')}
             variant="info"
           />
 
           {/* CTA Button */}
           <View style={styles.ctaButtonContainer}>
             <ThemedButton
-              title="GOT IT"
+              title={i18n.t('common.gotIt')}
               onPress={handleGotIt}
               variant="primary"
               size="large"
