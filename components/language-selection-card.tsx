@@ -11,8 +11,8 @@ interface LanguageSelectionCardProps {
 }
 
 const LANGUAGES: DropdownOption[] = [
-  { value: 'en', label: 'English' },
-  { value: 'it', label: 'Italiano' },
+  { value: 'en', label: '🇬🇧 English' },
+  { value: 'it', label: '🇮🇹 Italiano' },
 ]
 
 export function LanguageSelectionCard({ onLanguageChange }: LanguageSelectionCardProps) {
