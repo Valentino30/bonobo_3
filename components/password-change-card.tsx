@@ -50,6 +50,13 @@ export function PasswordChangeCard({
     onConfirmPasswordChange('')
   }
 
+  const inputProps = {
+    autoCapitalize: 'none' as const,
+    autoCorrect: false,
+    password: true,
+    fullWidth: true,
+  }
+
   if (!showForm) {
     return (
       <View style={styles.section}>
@@ -83,31 +90,22 @@ export function PasswordChangeCard({
         </View>
 
         <View style={styles.passwordForm}>
-          {/* New Password */}
           <ThemedTextInput
+            {...inputProps}
             placeholder="New password (min. 8 characters)"
             value={newPassword}
             onChangeText={onNewPasswordChange}
-            autoCapitalize="none"
-            autoCorrect={false}
-            password
             icon="lock-outline"
-            fullWidth
           />
 
-          {/* Confirm Password */}
           <ThemedTextInput
+            {...inputProps}
             placeholder="Confirm new password"
             value={confirmPassword}
             onChangeText={onConfirmPasswordChange}
-            autoCapitalize="none"
-            autoCorrect={false}
-            password
             icon="lock-check-outline"
-            fullWidth
           />
 
-          {/* Buttons */}
           <View style={styles.passwordButtons}>
             <ThemedButton
               title="Cancel"

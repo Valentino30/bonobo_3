@@ -46,6 +46,13 @@ export function LoginCard({
 }: LoginCardProps) {
   const theme = useTheme()
 
+  const inputProps = {
+    autoCapitalize: 'none' as const,
+    autoCorrect: false,
+    size: 'large' as const,
+    fullWidth: true,
+  }
+
   return (
     <View style={styles.section}>
       <View
@@ -64,33 +71,24 @@ export function LoginCard({
         </View>
 
         <View style={styles.loginForm}>
-          {/* Email Input */}
           <ThemedTextInput
+            {...inputProps}
             placeholder="Email address"
             value={email}
             onChangeText={onEmailChange}
-            autoCapitalize="none"
-            autoCorrect={false}
             keyboardType="email-address"
             icon="email-outline"
-            size="large"
-            fullWidth
           />
 
-          {/* Password Input */}
           <ThemedTextInput
+            {...inputProps}
             placeholder="Password"
             value={password}
             onChangeText={onPasswordChange}
-            autoCapitalize="none"
-            autoCorrect={false}
             password
             icon="lock-outline"
-            size="large"
-            fullWidth
           />
 
-          {/* Login Button */}
           <ThemedButton
             title={buttonText}
             onPress={onLogin}
