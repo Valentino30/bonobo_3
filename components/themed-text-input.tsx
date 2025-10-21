@@ -1,12 +1,10 @@
 import { useTheme } from '@/contexts/theme-context'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useState } from 'react'
-import { StyleSheet, Text, TextInput, TextInputProps, TextStyle, View, ViewStyle } from 'react-native'
+import { StyleSheet, TextInput, TextInputProps, TextStyle, View, ViewStyle } from 'react-native'
 import { ThemedIconButton } from './themed-icon-button'
-
-export type TextInputVariant = 'default' | 'outlined' | 'filled'
-
-export type TextInputSize = 'small' | 'medium' | 'large'
+import { getTextInputVariantStyles, getTextInputSizeStyles, type TextInputVariant, type TextInputSize } from '@/utils/text-input-variants'
+import { InfoBanner } from './info-banner'
 
 export interface ThemedTextInputProps extends Omit<TextInputProps, 'style' | 'placeholderTextColor'> {
   variant?: TextInputVariant
@@ -41,102 +39,13 @@ export const ThemedTextInput = ({
   const theme = useTheme()
   const [showPassword, setShowPassword] = useState(false)
 
-  // Get variant styles
-  const getVariantStyles = (): ViewStyle => {
-    const baseStyle: ViewStyle = {
-      backgroundColor: theme.colors.background,
-      borderWidth: 1,
-      borderColor: error ? theme.colors.error : theme.colors.border,
-    }
-
-    switch (variant) {
-      case 'outlined':
-        return {
-          ...baseStyle,
-          backgroundColor: 'transparent',
-        }
-
-      case 'filled':
-        return {
-          ...baseStyle,
-          backgroundColor: theme.colors.backgroundLight,
-        }
-
-      case 'default':
-      default:
-        return baseStyle
-    }
-  }
-
-  // Get size styles
-  const getSizeStyles = (): { container: ViewStyle; text: TextStyle; iconSize: number } => {
-    switch (size) {
-      case 'small':
-        return {
-          container: {
-            minHeight: 40,
-            paddingVertical: 8,
-            paddingHorizontal: 12,
-            borderRadius: 8,
-          },
-          text: {
-            fontSize: 14,
-          },
-          iconSize: 18,
-        }
-
-      case 'medium':
-        return {
-          container: {
-            minHeight: 48,
-            paddingVertical: 12,
-            paddingHorizontal: 16,
-            borderRadius: 12,
-          },
-          text: {
-            fontSize: 15,
-          },
-          iconSize: 20,
-        }
-
-      case 'large':
-        return {
-          container: {
-            minHeight: 56,
-            paddingVertical: 16,
-            paddingHorizontal: 20,
-            borderRadius: 12,
-          },
-          text: {
-            fontSize: 16,
-          },
-          iconSize: 22,
-        }
-
-      default:
-        return {
-          container: {
-            minHeight: 48,
-            paddingVertical: 12,
-            paddingHorizontal: 16,
-            borderRadius: 12,
-          },
-          text: {
-            fontSize: 15,
-          },
-          iconSize: 20,
-        }
-    }
-  }
-
-  const variantStyles = getVariantStyles()
-  const sizeStyles = getSizeStyles()
+  // Get styles from utility functions
+  const variantStyles = getTextInputVariantStyles(theme, variant, error)
+  const sizeStyles = getTextInputSizeStyles(size)
 
   // Determine if we should show right icon or password toggle
   const shouldShowRightIcon = rightIcon || password
-  const rightIconName = password
-    ? (showPassword ? 'eye-off-outline' : 'eye-outline')
-    : rightIcon
+  const rightIconName = password ? (showPassword ? 'eye-off-outline' : 'eye-outline') : rightIcon
 
   const handleRightIconPress = () => {
     if (password) {
@@ -148,14 +57,7 @@ export const ThemedTextInput = ({
 
   return (
     <View style={[fullWidth && styles.fullWidth, containerStyle]}>
-      <View
-        style={[
-          styles.container,
-          variantStyles,
-          sizeStyles.container,
-          disabled && styles.disabled,
-        ]}
-      >
+      <View style={[styles.container, variantStyles, sizeStyles.container, disabled && styles.disabled]}>
         {/* Left Icon */}
         {icon && (
           <MaterialCommunityIcons
@@ -168,12 +70,7 @@ export const ThemedTextInput = ({
 
         {/* Text Input */}
         <TextInput
-          style={[
-            styles.input,
-            sizeStyles.text,
-            { color: theme.colors.text },
-            inputStyle,
-          ]}
+          style={[styles.input, sizeStyles.text, { color: theme.colors.text }, inputStyle]}
           placeholderTextColor={theme.colors.textPlaceholder}
           editable={!disabled}
           secureTextEntry={password && !showPassword}
@@ -195,15 +92,7 @@ export const ThemedTextInput = ({
       {/* Error Message */}
       {error && errorMessage && (
         <View style={styles.errorContainer}>
-          <MaterialCommunityIcons
-            name="alert-circle-outline"
-            size={14}
-            color={theme.colors.error}
-            style={styles.errorIcon}
-          />
-          <Text style={[styles.errorText, { color: theme.colors.error }]}>
-            {errorMessage}
-          </Text>
+          <InfoBanner icon="alert-circle-outline" iconSize={14} text={errorMessage} variant="error" />
         </View>
       )}
     </View>
@@ -232,16 +121,6 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   errorContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
     marginTop: 6,
-    paddingHorizontal: 4,
-  },
-  errorIcon: {
-    marginRight: 4,
-  },
-  errorText: {
-    fontSize: 13,
-    lineHeight: 18,
   },
 })
