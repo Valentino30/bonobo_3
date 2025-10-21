@@ -24,8 +24,11 @@ export function useChats({ showAlert }: UseChatsOptions) {
   const [manualInput, setManualInput] = useState('')
   const hasReloadedRef = useRef(false)
 
-  // Create alert configurations
+  // Create alert configurations for share imports (with clearShareData)
   const alerts = useMemo(() => createShareImportAlerts(clearShareData), [clearShareData])
+
+  // Create alert configurations for manual imports (without clearShareData)
+  const manualAlerts = useMemo(() => createShareImportAlerts(), [])
 
   // Determine which platform to show instructions for
   const showPlatform = device || Platform.OS
@@ -84,7 +87,7 @@ export function useChats({ showAlert }: UseChatsOptions) {
       const participantNames =
         parsedData.participants.length > 0 ? parsedData.participants.join(' & ') : 'Unknown participants'
 
-      const config = alerts.manualImportSuccess(participantNames, parsedData.messageCount)
+      const config = manualAlerts.success(participantNames, parsedData.messageCount)
       showAlert(config.title, config.message, config.buttons)
     }
   }

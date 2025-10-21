@@ -17,14 +17,14 @@ export type AlertConfig = {
 /**
  * Creates alert configurations for share import scenarios
  */
-export function createShareImportAlerts(clearShareData: () => void) {
+export function createShareImportAlerts(clearShareData?: () => void) {
   return {
     success: (participantNames: string, messageCount: number): AlertConfig => ({
-      title: 'Chat Imported Successfully!',
+      title: 'Chat Imported Successfully! 🥳',
       message: `Chat between ${participantNames} with ${messageCount} messages has been imported.`,
       buttons: [
         {
-          text: 'OK',
+          text: 'Great!',
           onPress: clearShareData,
         },
       ],
@@ -67,12 +67,6 @@ export function createShareImportAlerts(clearShareData: () => void) {
           onPress: clearShareData,
         },
       ],
-    }),
-
-    manualImportSuccess: (participantNames: string, messageCount: number): AlertConfig => ({
-      title: 'Chat Imported Successfully!',
-      message: `Chat between ${participantNames} with ${messageCount} messages has been imported.`,
-      buttons: [{ text: 'OK' }],
     }),
   }
 }
