@@ -1,33 +1,22 @@
-import { useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { type DropdownOption, ThemedDropdown } from '@/components/themed-dropdown'
 import { ThemedText } from '@/components/themed-text'
 import { useTheme } from '@/contexts/theme-context'
 import { useTranslation } from '@/hooks/use-translation'
-import { getCurrentLocale, setLocale } from '@/i18n/config'
-
-interface LanguageSelectionCardProps {
-  onLanguageChange?: (locale: string) => void
-}
+import { setLocale } from '@/i18n/config'
 
 const LANGUAGES: DropdownOption[] = [
   { value: 'en', label: '🇬🇧 English' },
   { value: 'it', label: '🇮🇹 Italiano' },
 ]
 
-export function LanguageSelectionCard({ onLanguageChange }: LanguageSelectionCardProps) {
+export function LanguageSelectionCard() {
   const theme = useTheme()
-  const { t } = useTranslation()
-  const [currentLocale, setCurrentLocale] = useState(getCurrentLocale())
+  const { t, locale } = useTranslation()
 
-  const handleLanguageChange = (locale: string) => {
-    setLocale(locale)
-    setCurrentLocale(locale)
-
-    if (onLanguageChange) {
-      onLanguageChange(locale)
-    }
+  const handleLanguageChange = (newLocale: string) => {
+    setLocale(newLocale)
   }
 
   return (
@@ -48,7 +37,7 @@ export function LanguageSelectionCard({ onLanguageChange }: LanguageSelectionCar
           </ThemedText>
         </View>
 
-        <ThemedDropdown value={currentLocale} options={LANGUAGES} onValueChange={handleLanguageChange} />
+        <ThemedDropdown value={locale} options={LANGUAGES} onValueChange={handleLanguageChange} />
       </View>
     </View>
   )

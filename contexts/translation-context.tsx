@@ -17,19 +17,17 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
       setLocale(i18n.locale)
     })
 
-    return unsubscribe
+    return () => {
+      unsubscribe()
+    }
   }, [])
 
-  // Translation function that always uses current locale
-  // useCallback ensures this function reference is stable
-  const t = useCallback(
-    (key: string, params?: Record<string, any>) => {
-      return i18n.t(key, params)
-    },
-    [locale]
-  ) // Recreate when locale changes
+  // Translation function that always uses current locale from i18n instance
+  const t = useCallback((key: string, params?: Record<string, any>) => {
+    return i18n.t(key, params)
+  }, [])
 
-  // Memoize the context value to prevent unnecessary re-renders
+  // Memoize the context value - it updates when locale changes
   const value = useMemo(() => ({ locale, t }), [locale, t])
 
   return <TranslationContext.Provider value={value}>{children}</TranslationContext.Provider>
