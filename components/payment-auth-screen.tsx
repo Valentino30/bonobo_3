@@ -54,6 +54,21 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
     onSuccess: handleSuccess,
   })
 
+  // Common input props
+  const inputProps = {
+    autoCapitalize: 'none' as const,
+    autoCorrect: false,
+    disabled: isLoading,
+    variant: 'filled' as const,
+    fullWidth: true,
+  }
+
+  // Helper to create onChange handler that clears errors
+  const createOnChangeHandler = (setter: (value: string) => void) => (text: string) => {
+    setter(text)
+    setError(null)
+  }
+
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View style={[styles.overlay, { backgroundColor: theme.colors.backgroundOverlay }]}>
@@ -93,63 +108,39 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
 
             {/* Form */}
             <View style={styles.formContainer}>
-              {/* Email Input */}
               <View style={styles.inputGroup}>
                 <ThemedText style={[styles.label, { color: theme.colors.textDark }]}>Email Address</ThemedText>
                 <ThemedTextInput
+                  {...inputProps}
                   placeholder="your@email.com"
                   value={email}
-                  onChangeText={(text) => {
-                    setEmail(text.trim())
-                    setError(null)
-                  }}
-                  autoCapitalize="none"
-                  autoCorrect={false}
+                  onChangeText={(text) => createOnChangeHandler(setEmail)(text.trim())}
                   keyboardType="email-address"
-                  disabled={isLoading}
                   icon="email-outline"
-                  variant="filled"
-                  fullWidth
                 />
               </View>
 
-              {/* Password Input */}
               <View style={styles.inputGroup}>
                 <ThemedText style={[styles.label, { color: theme.colors.textDark }]}>Password</ThemedText>
                 <ThemedTextInput
+                  {...inputProps}
                   placeholder="Minimum 8 characters"
                   value={password}
-                  onChangeText={(text) => {
-                    setPassword(text)
-                    setError(null)
-                  }}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  disabled={isLoading}
+                  onChangeText={createOnChangeHandler(setPassword)}
                   password
                   icon="lock-outline"
-                  variant="filled"
-                  fullWidth
                 />
               </View>
 
-              {/* Confirm Password Input */}
               <View style={styles.inputGroup}>
                 <ThemedText style={[styles.label, { color: theme.colors.textDark }]}>Confirm Password</ThemedText>
                 <ThemedTextInput
+                  {...inputProps}
                   placeholder="Re-enter your password"
                   value={confirmPassword}
-                  onChangeText={(text) => {
-                    setConfirmPassword(text)
-                    setError(null)
-                  }}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  disabled={isLoading}
+                  onChangeText={createOnChangeHandler(setConfirmPassword)}
                   password
                   icon="lock-check-outline"
-                  variant="filled"
-                  fullWidth
                 />
               </View>
             </View>
