@@ -4,6 +4,8 @@ import { Animated, Easing } from 'react-native'
 export type CardAnimationConfig = {
   /** Enable entrance animation on mount */
   entranceAnimation?: boolean
+  /** Enable fade-in animation on mount (can be used independently of entranceAnimation) */
+  fadeInAnimation?: boolean
   /** Entrance animation delay (ms) - useful for staggered list animations */
   entranceDelay?: number
   /** Scale amount when pressed (e.g., 0.96) */
@@ -59,6 +61,7 @@ export type CardAnimationResult = {
 export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimationResult {
   const {
     entranceAnimation = true,
+    fadeInAnimation = false,
     entranceDelay = 0,
     pressScale = 0.96,
     springDamping = 15,
@@ -69,7 +72,7 @@ export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimatio
   } = config
 
   const scaleAnim = useRef(new Animated.Value(1)).current
-  const opacityAnim = useRef(new Animated.Value(1)).current
+  const opacityAnim = useRef(new Animated.Value(fadeInAnimation ? 0 : 1)).current
   const slideAnim = useRef(new Animated.Value(entranceAnimation ? -30 : 0)).current
   const shakeAnim = useRef(new Animated.Value(0)).current
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -90,6 +93,22 @@ export function useCardAnimation(config: CardAnimationConfig = {}): CardAnimatio
 
     return () => clearTimeout(timeout)
   }, [slideAnim, entranceAnimation, entranceDelay])
+
+  // Fade-in animation - can be used independently
+  useEffect(() => {
+    if (!fadeInAnimation) return
+
+    const timeout = setTimeout(() => {
+      Animated.timing(opacityAnim, {
+        toValue: 1,
+        duration: 400,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }).start()
+    }, entranceDelay)
+
+    return () => clearTimeout(timeout)
+  }, [opacityAnim, fadeInAnimation, entranceDelay])
 
   const startShake = () => {
     shakeLoopRef.current = Animated.loop(
