@@ -86,6 +86,7 @@ export const ThemedTextInput = ({
       case 'small':
         return {
           container: {
+            minHeight: 40,
             paddingVertical: 8,
             paddingHorizontal: 12,
             borderRadius: 8,
@@ -99,6 +100,7 @@ export const ThemedTextInput = ({
       case 'medium':
         return {
           container: {
+            minHeight: 48,
             paddingVertical: 12,
             paddingHorizontal: 16,
             borderRadius: 12,
@@ -112,6 +114,7 @@ export const ThemedTextInput = ({
       case 'large':
         return {
           container: {
+            minHeight: 56,
             paddingVertical: 16,
             paddingHorizontal: 20,
             borderRadius: 12,
@@ -125,6 +128,7 @@ export const ThemedTextInput = ({
       default:
         return {
           container: {
+            minHeight: 48,
             paddingVertical: 12,
             paddingHorizontal: 16,
             borderRadius: 12,
