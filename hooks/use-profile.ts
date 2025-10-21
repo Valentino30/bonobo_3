@@ -1,6 +1,12 @@
-import { AuthService } from '@/utils/auth-service'
+import { useState } from 'react'
 import { useRouter } from 'expo-router'
-import { useEffect, useState } from 'react'
+import {
+  useChangePasswordMutation,
+  useDeleteAccountMutation,
+  useLoginMutation,
+  useLogoutMutation,
+  useProfileQuery,
+} from './queries/use-auth-query'
 
 export interface UseProfileReturn {
   // Auth state
@@ -39,41 +45,28 @@ export interface UseProfileOptions {
 export function useProfile({ onShowAlert }: UseProfileOptions): UseProfileReturn {
   const router = useRouter()
 
-  // Auth state
-  const [email, setEmail] = useState('')
-  const [isLoading, setIsLoading] = useState(true)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  // React Query hooks
+  const { data: user, isLoading, refetch } = useProfileQuery()
+  const loginMutation = useLoginMutation()
+  const changePasswordMutation = useChangePasswordMutation()
+  const logoutMutation = useLogoutMutation()
+  const deleteAccountMutation = useDeleteAccountMutation()
 
-  // Login state
+  // Login form state
   const [loginEmail, setLoginEmail] = useState('')
   const [loginPassword, setLoginPassword] = useState('')
-  const [isLoggingIn, setIsLoggingIn] = useState(false)
 
-  // Password change state
+  // Password change form state
   const [showPasswordChange, setShowPasswordChange] = useState(false)
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [isChangingPassword, setIsChangingPassword] = useState(false)
 
-  // Load user profile
-  useEffect(() => {
-    loadProfile()
-  }, [])
+  // Derived state
+  const email = user?.email || ''
+  const isAuthenticated = !!(user && user.email)
 
   const loadProfile = async () => {
-    setIsLoading(true)
-    const user = await AuthService.getCurrentUser()
-
-    if (!user || !user.email) {
-      // Not authenticated - show login screen
-      setIsAuthenticated(false)
-      setIsLoading(false)
-      return
-    }
-
-    setEmail(user.email)
-    setIsAuthenticated(true)
-    setIsLoading(false)
+    await refetch()
   }
 
   const handleLogin = async () => {
@@ -82,17 +75,12 @@ export function useProfile({ onShowAlert }: UseProfileOptions): UseProfileReturn
       return
     }
 
-    setIsLoggingIn(true)
-
-    const result = await AuthService.signInWithEmail(loginEmail, loginPassword)
-
-    setIsLoggingIn(false)
-
-    if (result.success) {
+    try {
+      await loginMutation.mutateAsync({ email: loginEmail, password: loginPassword })
       // Successfully logged in - redirect to chats and force reload
       router.replace('/chats?reload=true')
-    } else {
-      onShowAlert('Login Failed', result.error || 'Failed to login', [{ text: 'OK' }])
+    } catch (error) {
+      onShowAlert('Login Failed', error instanceof Error ? error.message : 'Failed to login', [{ text: 'OK' }])
     }
   }
 
@@ -112,19 +100,16 @@ export function useProfile({ onShowAlert }: UseProfileOptions): UseProfileReturn
       return
     }
 
-    setIsChangingPassword(true)
-
-    const result = await AuthService.updatePassword(newPassword)
-
-    setIsChangingPassword(false)
-
-    if (result.success) {
+    try {
+      await changePasswordMutation.mutateAsync(newPassword)
       onShowAlert('Password Updated', 'Your password has been updated successfully', [{ text: 'Great!' }])
       setShowPasswordChange(false)
       setNewPassword('')
       setConfirmPassword('')
-    } else {
-      onShowAlert('Update Failed', result.error || 'Failed to update password', [{ text: 'OK' }])
+    } catch (error) {
+      onShowAlert('Update Failed', error instanceof Error ? error.message : 'Failed to update password', [
+        { text: 'OK' },
+      ])
     }
   }
 
@@ -134,12 +119,12 @@ export function useProfile({ onShowAlert }: UseProfileOptions): UseProfileReturn
       {
         text: 'Logout',
         onPress: async () => {
-          const result = await AuthService.signOut()
-          if (result.success) {
+          try {
+            await logoutMutation.mutateAsync()
             // Redirect to chats and force reload (will show empty state since user logged out)
             router.replace('/chats?reload=true')
-          } else {
-            onShowAlert('Error', result.error || 'Failed to logout', [{ text: 'OK' }])
+          } catch (error) {
+            onShowAlert('Error', error instanceof Error ? error.message : 'Failed to logout', [{ text: 'OK' }])
           }
         },
       },
@@ -165,16 +150,15 @@ export function useProfile({ onShowAlert }: UseProfileOptions): UseProfileReturn
                   {
                     text: 'Delete Everything',
                     onPress: async () => {
-                      setIsLoading(true)
-                      const result = await AuthService.deleteAccount()
-                      setIsLoading(false)
-
-                      if (result.success) {
+                      try {
+                        await deleteAccountMutation.mutateAsync()
                         onShowAlert('Account Deleted', 'Your account and all data have been permanently deleted.', [
                           { text: 'OK', onPress: () => router.replace('/chats?reload=true') },
                         ])
-                      } else {
-                        onShowAlert('Error', result.error || 'Failed to delete account', [{ text: 'OK' }])
+                      } catch (error) {
+                        onShowAlert('Error', error instanceof Error ? error.message : 'Failed to delete account', [
+                          { text: 'OK' },
+                        ])
                       }
                     },
                   },
@@ -198,7 +182,7 @@ export function useProfile({ onShowAlert }: UseProfileOptions): UseProfileReturn
     setLoginEmail,
     loginPassword,
     setLoginPassword,
-    isLoggingIn,
+    isLoggingIn: loginMutation.isPending,
 
     // Password change state
     showPasswordChange,
@@ -207,7 +191,7 @@ export function useProfile({ onShowAlert }: UseProfileOptions): UseProfileReturn
     setNewPassword,
     confirmPassword,
     setConfirmPassword,
-    isChangingPassword,
+    isChangingPassword: changePasswordMutation.isPending,
 
     // Handlers
     handleLogin,
