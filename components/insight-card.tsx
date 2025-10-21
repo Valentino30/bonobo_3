@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { AnimatedCard } from '@/components/animated-card'
 import { FlippableCard } from '@/components/flippable-card'
 import { useTheme } from '@/contexts/theme-context'
@@ -17,7 +17,6 @@ interface InsightCardProps {
   explanationTitle?: string
   explanationText?: string
   index?: number
-  disableEntranceAnimation?: boolean
 }
 
 export function InsightCard({
@@ -31,7 +30,6 @@ export function InsightCard({
   explanationTitle,
   explanationText,
   index,
-  disableEntranceAnimation = false,
 }: InsightCardProps) {
   const theme = useTheme()
   const itemColor = color || theme.colors.primary
@@ -113,8 +111,7 @@ export function InsightCard({
         index={index}
         containerStyle={styles.cardContainer}
         animationConfig={{
-          entranceAnimation: false,
-          scaleInAnimation: disableEntranceAnimation,
+          entranceAnimation: true,
         }}
       >
         <FlippableCard front={frontContent} back={backContent!} />
@@ -127,8 +124,7 @@ export function InsightCard({
       index={index}
       containerStyle={styles.cardContainer}
       animationConfig={{
-        entranceAnimation: false,
-        scaleInAnimation: disableEntranceAnimation,
+        entranceAnimation: true,
       }}
     >
       {frontContent}
