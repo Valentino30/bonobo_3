@@ -3,7 +3,7 @@ import { ThemedText } from '@/components/themed-text'
 import { ThemedTextInput } from '@/components/themed-text-input'
 import type { TextInputSize, TextInputVariant } from '@/components/themed-text-input'
 import { useTheme } from '@/contexts/theme-context'
-import i18n from '@/i18n/config'
+import { useTranslation } from '@/hooks/use-translation'
 
 interface EmailPasswordFormProps {
   email: string
@@ -57,6 +57,7 @@ export function EmailPasswordForm({
   showLabels = false,
 }: EmailPasswordFormProps) {
   const theme = useTheme()
+  const { t } = useTranslation()
 
   const inputProps = {
     autoCapitalize: 'none' as const,
@@ -71,10 +72,10 @@ export function EmailPasswordForm({
     <View style={styles.container}>
       {showLabels ? (
         <View style={styles.inputGroup}>
-          <ThemedText style={[styles.label, { color: theme.colors.textDark }]}>{i18n.t('auth.emailLabel')}</ThemedText>
+          <ThemedText style={[styles.label, { color: theme.colors.textDark }]}>{t('auth.emailLabel')}</ThemedText>
           <ThemedTextInput
             {...inputProps}
-            placeholder={i18n.t('auth.emailPlaceholder')}
+            placeholder={t('auth.emailPlaceholder')}
             value={email}
             onChangeText={onEmailChange}
             keyboardType="email-address"
@@ -84,7 +85,7 @@ export function EmailPasswordForm({
       ) : (
         <ThemedTextInput
           {...inputProps}
-          placeholder={i18n.t('auth.emailLabel')}
+          placeholder={t('auth.emailLabel')}
           value={email}
           onChangeText={onEmailChange}
           keyboardType="email-address"
@@ -94,12 +95,10 @@ export function EmailPasswordForm({
 
       {showLabels ? (
         <View style={styles.inputGroup}>
-          <ThemedText style={[styles.label, { color: theme.colors.textDark }]}>
-            {i18n.t('auth.passwordLabel')}
-          </ThemedText>
+          <ThemedText style={[styles.label, { color: theme.colors.textDark }]}>{t('auth.passwordLabel')}</ThemedText>
           <ThemedTextInput
             {...inputProps}
-            placeholder={i18n.t('auth.passwordPlaceholder')}
+            placeholder={t('auth.passwordPlaceholder')}
             value={password}
             onChangeText={onPasswordChange}
             password
@@ -109,7 +108,7 @@ export function EmailPasswordForm({
       ) : (
         <ThemedTextInput
           {...inputProps}
-          placeholder={i18n.t('auth.passwordLabel')}
+          placeholder={t('auth.passwordLabel')}
           value={password}
           onChangeText={onPasswordChange}
           password
@@ -122,11 +121,11 @@ export function EmailPasswordForm({
         (showLabels ? (
           <View style={styles.inputGroup}>
             <ThemedText style={[styles.label, { color: theme.colors.textDark }]}>
-              {i18n.t('auth.confirmPasswordLabel')}
+              {t('auth.confirmPasswordLabel')}
             </ThemedText>
             <ThemedTextInput
               {...inputProps}
-              placeholder={i18n.t('auth.confirmPasswordPlaceholder')}
+              placeholder={t('auth.confirmPasswordPlaceholder')}
               value={confirmPassword}
               onChangeText={onConfirmPasswordChange}
               password
@@ -136,7 +135,7 @@ export function EmailPasswordForm({
         ) : (
           <ThemedTextInput
             {...inputProps}
-            placeholder={i18n.t('auth.confirmPasswordLabel')}
+            placeholder={t('auth.confirmPasswordLabel')}
             value={confirmPassword}
             onChangeText={onConfirmPasswordChange}
             password

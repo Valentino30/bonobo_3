@@ -20,6 +20,18 @@ i18n.locale = selectedLocale
 i18n.enableFallback = true
 i18n.defaultLocale = 'en'
 
+// Locale change notification system
+const localeChangeListeners = new Set<() => void>()
+
+export const subscribeToLocaleChange = (listener: () => void) => {
+  localeChangeListeners.add(listener)
+  return () => localeChangeListeners.delete(listener)
+}
+
+const notifyLocaleChange = () => {
+  localeChangeListeners.forEach((listener) => listener())
+}
+
 // Helper function to get current locale
 export const getCurrentLocale = (): string => {
   return i18n.locale
@@ -28,6 +40,7 @@ export const getCurrentLocale = (): string => {
 // Helper function to change locale
 export const setLocale = (locale: string) => {
   i18n.locale = locale
+  notifyLocaleChange()
 }
 
 // Export the configured i18n instance

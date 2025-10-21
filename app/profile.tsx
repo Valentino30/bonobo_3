@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { DangerZoneCard } from '@/components/danger-zone-card'
@@ -13,12 +12,12 @@ import { ThemedText } from '@/components/themed-text'
 import { useTheme } from '@/contexts/theme-context'
 import { useCustomAlert } from '@/hooks/ui/use-custom-alert'
 import { useProfile } from '@/hooks/use-profile'
-import i18n from '@/i18n/config'
+import { useTranslation } from '@/hooks/use-translation'
 
 export default function ProfileScreen() {
   const theme = useTheme()
+  const { t } = useTranslation()
   const { showAlert, AlertComponent } = useCustomAlert()
-  const [, forceUpdate] = useState(0)
 
   const {
     email,
@@ -42,19 +41,10 @@ export default function ProfileScreen() {
     handleDeleteAccount,
   } = useProfile({ onShowAlert: showAlert })
 
-  const handleLanguageChange = () => {
-    // Force re-render to update all translations
-    forceUpdate((prev) => prev + 1)
-  }
-
   if (isLoading) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-        <LoadingScreen
-          icon="account"
-          title={i18n.t('profileScreen.loadingTitle')}
-          subtitle={i18n.t('common.pleaseWait')}
-        />
+        <LoadingScreen icon="account" title={t('profileScreen.loadingTitle')} subtitle={t('common.pleaseWait')} />
       </SafeAreaView>
     )
   }
@@ -76,7 +66,7 @@ export default function ProfileScreen() {
             keyboardShouldPersistTaps="handled"
           >
             {/* Header with Back Button */}
-            <ScreenHeader title={i18n.t('profileScreen.loginScreenTitle')} style={styles.header} />
+            <ScreenHeader title={t('profileScreen.loginScreenTitle')} style={styles.header} />
 
             {/* Login Form */}
             <LoginCard
@@ -91,7 +81,7 @@ export default function ProfileScreen() {
             {/* Info Text */}
             <View style={styles.section}>
               <ThemedText style={[styles.infoText, { color: theme.colors.textTertiary }]}>
-                {i18n.t('profileScreen.accountCreationInfo')}
+                {t('profileScreen.accountCreationInfo')}
               </ThemedText>
             </View>
           </ScrollView>
@@ -112,13 +102,13 @@ export default function ProfileScreen() {
           keyboardShouldPersistTaps="handled"
         >
           {/* Header with Back Button */}
-          <ScreenHeader title={i18n.t('profileScreen.profileTitle')} style={styles.header} />
+          <ScreenHeader title={t('profileScreen.profileTitle')} style={styles.header} />
 
           {/* Email Section */}
-          <LabelValueCard icon="email-outline" label={i18n.t('common.email')} value={email} />
+          <LabelValueCard icon="email-outline" label={t('common.email')} value={email} />
 
           {/* Language Selection */}
-          <LanguageSelectionCard onLanguageChange={handleLanguageChange} />
+          <LanguageSelectionCard />
 
           {/* Password Change Section */}
           <PasswordChangeCard
@@ -135,7 +125,7 @@ export default function ProfileScreen() {
           {/* Logout Button */}
           <View style={styles.section}>
             <ThemedButton
-              title={i18n.t('profile.logout')}
+              title={t('profile.logout')}
               onPress={handleLogout}
               variant="secondary"
               size="large"
@@ -148,8 +138,8 @@ export default function ProfileScreen() {
 
           {/* Delete Account Section */}
           <DangerZoneCard
-            description={i18n.t('auth.deleteAccountMessage')}
-            buttonText={i18n.t('profile.deleteAccount')}
+            description={t('auth.deleteAccountMessage')}
+            buttonText={t('profile.deleteAccount')}
             onPress={handleDeleteAccount}
           />
         </ScrollView>

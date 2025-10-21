@@ -3,7 +3,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { ThemedButton } from '@/components/themed-button'
 import { ThemedText } from '@/components/themed-text'
 import { useTheme } from '@/contexts/theme-context'
-import i18n from '@/i18n/config'
+import { useTranslation } from '@/hooks/use-translation'
 
 interface DangerZoneCardProps {
   title?: string
@@ -38,7 +38,7 @@ interface DangerZoneCardProps {
  * />
  */
 export function DangerZoneCard({
-  title = i18n.t('dangerZone.defaultTitle'),
+  title,
   description,
   buttonText,
   onPress,
@@ -48,6 +48,8 @@ export function DangerZoneCard({
   style,
 }: DangerZoneCardProps) {
   const theme = useTheme()
+  const { t } = useTranslation()
+  const displayTitle = title ?? t('dangerZone.defaultTitle')
 
   return (
     <View style={styles.section}>
@@ -63,7 +65,7 @@ export function DangerZoneCard({
       >
         <View style={styles.dangerHeader}>
           <MaterialCommunityIcons name={icon} size={iconSize} color={theme.colors.textDanger} />
-          <ThemedText style={[styles.dangerTitle, { color: theme.colors.textDanger }]}>{title}</ThemedText>
+          <ThemedText style={[styles.dangerTitle, { color: theme.colors.textDanger }]}>{displayTitle}</ThemedText>
         </View>
         <ThemedText style={[styles.dangerDescription, { color: theme.colors.textSecondary }]}>{description}</ThemedText>
         <ThemedButton

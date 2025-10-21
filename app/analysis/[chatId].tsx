@@ -13,10 +13,11 @@ import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
 import { useCustomAlert } from '@/hooks/ui/use-custom-alert'
 import { useChatAnalysis } from '@/hooks/use-chat-analysis'
-import i18n from '@/i18n/config'
+import { useTranslation } from '@/hooks/use-translation'
 
 export default function ChatAnalysisScreen() {
   const theme = useTheme()
+  const { t } = useTranslation()
   const { showAlert, AlertComponent } = useCustomAlert()
 
   // All business logic encapsulated in custom hook (React Query version)
@@ -59,12 +60,12 @@ export default function ChatAnalysisScreen() {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <ThemedView style={styles.content}>
-          <ThemedText type="title">{i18n.t('analysisScreen.chatNotFoundTitle')}</ThemedText>
+          <ThemedText type="title">{t('analysisScreen.chatNotFoundTitle')}</ThemedText>
           <ThemedText style={[styles.errorText, { color: theme.colors.warning }]}>
-            {i18n.t('analysisScreen.chatNotFoundMessage')}
+            {t('analysisScreen.chatNotFoundMessage')}
           </ThemedText>
           <ThemedButton
-            title={i18n.t('analysisScreen.backToChats')}
+            title={t('analysisScreen.backToChats')}
             onPress={handleNavigateToChats}
             variant="primary"
             size="large"
@@ -79,9 +80,9 @@ export default function ChatAnalysisScreen() {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <ThemedView style={styles.content}>
-          <ThemedText type="title">{i18n.t('analysisScreen.analysisErrorTitle')}</ThemedText>
+          <ThemedText type="title">{t('analysisScreen.analysisErrorTitle')}</ThemedText>
           <ThemedText style={[styles.errorText, { color: theme.colors.warning }]}>{error}</ThemedText>
-          <ThemedButton title={i18n.t('analysisScreen.goBack')} onPress={handleGoBack} variant="primary" size="large" />
+          <ThemedButton title={t('analysisScreen.goBack')} onPress={handleGoBack} variant="primary" size="large" />
         </ThemedView>
       </SafeAreaView>
     )
@@ -91,14 +92,14 @@ export default function ChatAnalysisScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]} edges={['top']}>
       {/* Fixed Header */}
       <ScreenHeader
-        title={i18n.t('analysisScreen.screenTitle')}
+        title={t('analysisScreen.screenTitle')}
         style={[styles.header, { backgroundColor: theme.colors.background }]}
       >
         {/* Tab Navigation */}
         <TabNavigation
           tabs={[
-            { id: 'overview', label: i18n.t('analysis.tabs.overview'), icon: 'chart-box-outline' },
-            { id: 'insights', label: i18n.t('analysis.tabs.insights'), icon: 'auto-fix' },
+            { id: 'overview', label: t('analysis.tabs.overview'), icon: 'chart-box-outline' },
+            { id: 'insights', label: t('analysis.tabs.insights'), icon: 'auto-fix' },
           ]}
           activeTab={activeTab}
           onTabChange={handleTabChange}

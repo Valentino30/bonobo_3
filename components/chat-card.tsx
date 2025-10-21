@@ -5,7 +5,7 @@ import { BottomSheet } from '@/components/bottom-sheet'
 import { ThemedIconButton } from '@/components/themed-icon-button'
 import { ThemedText } from '@/components/themed-text'
 import { useTheme } from '@/contexts/theme-context'
-import i18n from '@/i18n/config'
+import { useTranslation } from '@/hooks/use-translation'
 import { type StoredChat } from '@/utils/chat-storage'
 import { getParticipantInitial } from '@/utils/string-helpers'
 
@@ -18,6 +18,7 @@ interface ChatCardProps {
 
 export function ChatCard({ chat, onAnalyze, onDelete, index }: ChatCardProps) {
   const theme = useTheme()
+  const { t } = useTranslation()
   const [showMenu, setShowMenu] = useState(false)
 
   const handleAnalyze = () => {
@@ -34,8 +35,8 @@ export function ChatCard({ chat, onAnalyze, onDelete, index }: ChatCardProps) {
   const messageCount = chat.messageCount || 0
   const messageCountText =
     messageCount === 1
-      ? i18n.t('chats.messageCountSingular', { count: messageCount })
-      : i18n.t('chats.messageCount', { count: messageCount })
+      ? t('chats.messageCountSingular', { count: messageCount })
+      : t('chats.messageCount', { count: messageCount })
 
   return (
     <>
@@ -54,7 +55,7 @@ export function ChatCard({ chat, onAnalyze, onDelete, index }: ChatCardProps) {
         </View>
         <View style={styles.contentContainer}>
           <ThemedText style={[styles.participantName, { color: theme.colors.text }]} numberOfLines={1}>
-            {chat.participants?.join(' & ') || i18n.t('chats.unknownParticipants')}
+            {chat.participants?.join(' & ') || t('chats.unknownParticipants')}
           </ThemedText>
           <ThemedText style={[styles.messageCount, { color: theme.colors.textTertiary }]}>
             {messageCountText}
@@ -79,12 +80,12 @@ export function ChatCard({ chat, onAnalyze, onDelete, index }: ChatCardProps) {
         onDismiss={() => setShowMenu(false)}
         actions={[
           {
-            title: i18n.t('chats.deleteChat'),
+            title: t('chats.deleteChat'),
             onPress: handleDelete,
             variant: 'destructive',
           },
           {
-            title: i18n.t('common.cancel'),
+            title: t('common.cancel'),
             onPress: () => setShowMenu(false),
             variant: 'secondary',
           },

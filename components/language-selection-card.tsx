@@ -4,7 +4,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { type DropdownOption, ThemedDropdown } from '@/components/themed-dropdown'
 import { ThemedText } from '@/components/themed-text'
 import { useTheme } from '@/contexts/theme-context'
-import i18n, { getCurrentLocale, setLocale } from '@/i18n/config'
+import { useTranslation } from '@/hooks/use-translation'
+import { getCurrentLocale, setLocale } from '@/i18n/config'
 
 interface LanguageSelectionCardProps {
   onLanguageChange?: (locale: string) => void
@@ -17,6 +18,7 @@ const LANGUAGES: DropdownOption[] = [
 
 export function LanguageSelectionCard({ onLanguageChange }: LanguageSelectionCardProps) {
   const theme = useTheme()
+  const { t } = useTranslation()
   const [currentLocale, setCurrentLocale] = useState(getCurrentLocale())
 
   const handleLanguageChange = (locale: string) => {
@@ -42,7 +44,7 @@ export function LanguageSelectionCard({ onLanguageChange }: LanguageSelectionCar
         <View style={styles.header}>
           <MaterialCommunityIcons name="translate" size={20} color={theme.colors.primary} />
           <ThemedText style={[styles.label, { color: theme.colors.textTertiary }]}>
-            {i18n.t('profile.changeLanguage')}
+            {t('profile.changeLanguage')}
           </ThemedText>
         </View>
 

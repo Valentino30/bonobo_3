@@ -9,12 +9,13 @@ import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { IMPORT_GUIDE_STEPS } from '@/constants/import-guide'
 import { useTheme } from '@/contexts/theme-context'
-import i18n from '@/i18n/config'
+import { useTranslation } from '@/hooks/use-translation'
 
 export default function ImportGuideScreen() {
   const isIOS = Platform.OS === 'ios'
   const router = useRouter()
   const theme = useTheme()
+  const { t } = useTranslation()
 
   const handleGotIt = () => {
     router.back()
@@ -27,23 +28,23 @@ export default function ImportGuideScreen() {
           {/* Title */}
           <View style={styles.titleSection}>
             <ThemedText style={[styles.title, { color: theme.colors.darkOverlay }]}>
-              {i18n.t('importGuide.title')}
+              {t('importGuide.title')}
             </ThemedText>
             <ThemedText style={[styles.subtitle, { color: theme.colors.primary }]}>
-              {i18n.t('importGuide.subtitle')}
+              {t('importGuide.subtitle')}
             </ThemedText>
           </View>
 
           {/* Introduction */}
           <View style={styles.section}>
             <ThemedText style={[styles.intro, { color: theme.colors.primaryAccent }]}>
-              {i18n.t('importGuide.intro')}
+              {t('importGuide.intro')}
             </ThemedText>
             <Badge
               icon="whatsapp"
               iconSize={20}
               iconColor="#25D366"
-              text={i18n.t('importGuide.supportNote')}
+              text={t('importGuide.supportNote')}
               variant="success"
               containerStyle={{ paddingHorizontal: 0, paddingBottom: 0 }}
             />
@@ -52,25 +53,20 @@ export default function ImportGuideScreen() {
           {/* Platform Badge */}
           <Badge
             icon={isIOS ? 'apple' : 'android'}
-            text={isIOS ? i18n.t('importGuide.platformIOS') : i18n.t('importGuide.platformAndroid')}
+            text={isIOS ? t('importGuide.platformIOS') : t('importGuide.platformAndroid')}
             variant="primary"
           />
 
           {/* Steps */}
-          <StepList title={i18n.t('importGuide.followSteps')} steps={IMPORT_GUIDE_STEPS} />
+          <StepList title={t('importGuide.followSteps')} steps={IMPORT_GUIDE_STEPS} />
 
           {/* Privacy Notice */}
-          <InfoCard
-            icon="shield-check"
-            title={i18n.t('privacy.title')}
-            description={i18n.t('privacy.message')}
-            variant="info"
-          />
+          <InfoCard icon="shield-check" title={t('privacy.title')} description={t('privacy.message')} variant="info" />
 
           {/* CTA Button */}
           <View style={styles.ctaButtonContainer}>
             <ThemedButton
-              title={i18n.t('common.gotIt')}
+              title={t('common.gotIt')}
               onPress={handleGotIt}
               variant="primary"
               size="large"

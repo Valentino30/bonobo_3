@@ -7,7 +7,7 @@ import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
 import { useCustomAlert } from '@/hooks/ui/use-custom-alert'
 import { useAccountCreation } from '@/hooks/use-account-creation'
-import i18n from '@/i18n/config'
+import { useTranslation } from '@/hooks/use-translation'
 
 interface PaymentAuthScreenProps {
   visible: boolean
@@ -17,6 +17,7 @@ interface PaymentAuthScreenProps {
 
 export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthScreenProps) {
   const theme = useTheme()
+  const { t } = useTranslation()
   const { showAlert, AlertComponent } = useCustomAlert()
 
   const handleSuccess = () => {
@@ -25,8 +26,8 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
 
     // Show confirmation with custom alert after navigation
     setTimeout(() => {
-      showAlert(i18n.t('analysisErrors.accountCreatedTitle'), i18n.t('analysisErrors.accountCreatedSubtitle'), [
-        { text: i18n.t('alerts.great') },
+      showAlert(t('analysisErrors.accountCreatedTitle'), t('analysisErrors.accountCreatedSubtitle'), [
+        { text: t('alerts.great') },
       ])
     }, 500)
   }
@@ -71,11 +72,7 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
               bounces={true}
               keyboardShouldPersistTaps="handled"
             >
-              <ModalHeader
-                emoji="🔐"
-                title={i18n.t('paywall.secureTitle')}
-                subtitle={i18n.t('paywall.secureSubtitle')}
-              />
+              <ModalHeader emoji="🔐" title={t('paywall.secureTitle')} subtitle={t('paywall.secureSubtitle')} />
 
               {error && <InfoBanner icon="alert-circle" text={error} variant="error" />}
 
@@ -93,12 +90,12 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
                   showLabels
                 />
 
-                <InfoBanner icon="lock" text={i18n.t('privacy.dataSecure')} variant="success" />
+                <InfoBanner icon="lock" text={t('privacy.dataSecure')} variant="success" />
               </View>
 
               {/* Create Account Button */}
               <ThemedButton
-                title={i18n.t('auth.createAccountButton')}
+                title={t('auth.createAccountButton')}
                 onPress={handleCreateAccount}
                 variant="primary"
                 size="large"

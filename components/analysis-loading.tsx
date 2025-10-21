@@ -6,10 +6,11 @@ import { ThemedText } from '@/components/themed-text'
 import { getAnalysisLoadingSteps } from '@/constants/analysis-loading'
 import { useTheme } from '@/contexts/theme-context'
 import { useLoadingAnimation } from '@/hooks/ui/use-loading-animation'
-import i18n from '@/i18n/config'
+import { useTranslation } from '@/hooks/use-translation'
 
 export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
   const theme = useTheme()
+  const { t } = useTranslation()
   const steps = getAnalysisLoadingSteps()
   const { currentStep, progressWidth } = useLoadingAnimation({
     stepCount: steps.length,
@@ -51,7 +52,7 @@ export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
 
       {/* Bottom Tip */}
       <View style={styles.tipWrapper}>
-        <InfoBanner text={i18n.t('analysis.loading')} />
+        <InfoBanner text={t('analysis.loading')} />
       </View>
     </View>
   )

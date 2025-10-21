@@ -6,7 +6,7 @@ import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
 import { usePaywall } from '@/hooks/use-paywall'
-import i18n from '@/i18n/config'
+import { useTranslation } from '@/hooks/use-translation'
 import { CURRENCY_PRICING, type SupportedCurrency } from '@/utils/currency-service'
 
 interface PaywallProps {
@@ -17,6 +17,7 @@ interface PaywallProps {
 
 export function Paywall({ visible, onClose, onPurchase }: PaywallProps) {
   const theme = useTheme()
+  const { t } = useTranslation()
   const {
     paymentPlans,
     selectedCurrency,
@@ -43,14 +44,14 @@ export function Paywall({ visible, onClose, onPurchase }: PaywallProps) {
             showsVerticalScrollIndicator={false}
             bounces={true}
           >
-            <ModalHeader emoji="🔮" title={i18n.t('paywall.title')} subtitle={i18n.t('paywall.subtitle')} />
+            <ModalHeader emoji="🔮" title={t('paywall.title')} subtitle={t('paywall.subtitle')} />
 
             {/* Currency Selector */}
             <TouchableOpacity
               style={[styles.currencySelector, { backgroundColor: theme.colors.backgroundInput }]}
               onPress={() => setShowCurrencyPicker(!showCurrencyPicker)}
             >
-              <ThemedText style={styles.currencyLabel}>{i18n.t('paywallFeatures.currency')}</ThemedText>
+              <ThemedText style={styles.currencyLabel}>{t('paywallFeatures.currency')}</ThemedText>
               <View style={styles.currencyValue}>
                 <ThemedText style={styles.currencyText}>
                   {CURRENCY_PRICING[selectedCurrency].symbol} {selectedCurrency}
@@ -102,7 +103,7 @@ export function Paywall({ visible, onClose, onPurchase }: PaywallProps) {
                 price={PAYMENT_PLANS.WEEKLY.price}
                 currency={PAYMENT_PLANS.WEEKLY.currency}
                 description={PAYMENT_PLANS.WEEKLY.description}
-                highlight={i18n.t('paywall.bestValue')}
+                highlight={t('paywall.bestValue')}
                 isPopular
                 onPress={() => handlePurchase(PAYMENT_PLANS.WEEKLY.id)}
                 disabled={isProcessing}
@@ -114,7 +115,7 @@ export function Paywall({ visible, onClose, onPurchase }: PaywallProps) {
                 price={PAYMENT_PLANS.MONTHLY.price}
                 currency={PAYMENT_PLANS.MONTHLY.currency}
                 description={PAYMENT_PLANS.MONTHLY.description}
-                highlight={i18n.t('paywall.maxFlexibility')}
+                highlight={t('paywall.maxFlexibility')}
                 onPress={() => handlePurchase(PAYMENT_PLANS.MONTHLY.id)}
                 disabled={isProcessing}
               />
@@ -122,36 +123,30 @@ export function Paywall({ visible, onClose, onPurchase }: PaywallProps) {
 
             {/* Features */}
             <View style={[styles.featuresContainer, { backgroundColor: theme.colors.backgroundInput }]}>
-              <ThemedText style={styles.featuresTitle}>{i18n.t('paywallFeatures.title')}</ThemedText>
+              <ThemedText style={styles.featuresTitle}>{t('paywallFeatures.title')}</ThemedText>
               <View style={styles.feature}>
                 <Text style={styles.featureIcon}>✨</Text>
                 <ThemedText style={[styles.featureText, { color: theme.colors.textSecondary }]}>
-                  {i18n.t('paywallFeatures.aiInsights')}
+                  {t('paywallFeatures.aiInsights')}
                 </ThemedText>
               </View>
               <View style={styles.feature}>
                 <Text style={styles.featureIcon}>🎯</Text>
                 <ThemedText style={[styles.featureText, { color: theme.colors.textSecondary }]}>
-                  {i18n.t('paywallFeatures.compatibilityAnalysis')}
+                  {t('paywallFeatures.compatibilityAnalysis')}
                 </ThemedText>
               </View>
               <View style={styles.feature}>
                 <Text style={styles.featureIcon}>💡</Text>
                 <ThemedText style={[styles.featureText, { color: theme.colors.textSecondary }]}>
-                  {i18n.t('paywallFeatures.relationshipTips')}
+                  {t('paywallFeatures.relationshipTips')}
                 </ThemedText>
               </View>
             </View>
 
             {/* Close Button */}
             <View style={styles.closeButtonContainer}>
-              <ThemedButton
-                title={i18n.t('common.maybeLater')}
-                onPress={onClose}
-                variant="ghost"
-                size="medium"
-                fullWidth
-              />
+              <ThemedButton title={t('common.maybeLater')} onPress={onClose} variant="ghost" size="medium" fullWidth />
             </View>
           </ScrollView>
         </ThemedView>
