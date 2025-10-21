@@ -56,6 +56,10 @@ export function AnalysisInsights({
     const badge = config.getBadge(aiInsights, getFrequencyLabel)
     const items = config.getItems(aiInsights)
 
+    // Disable entrance animation only when actively unlocking (loadingInsight !== null)
+    // On initial page load (loadingInsight === null), show entrance animation
+    const disableAnimation = loadingInsight !== null
+
     return (
       <InsightCard
         key={id}
@@ -67,7 +71,7 @@ export function AnalysisInsights({
         explanationTitle={explanationTitle}
         explanationText={explanationText}
         index={index}
-        disableEntranceAnimation={true}
+        disableEntranceAnimation={disableAnimation}
       />
     )
   }
