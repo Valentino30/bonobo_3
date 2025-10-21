@@ -7,35 +7,20 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'ghost' | 
 export type ButtonSize = 'small' | 'medium' | 'large'
 
 export interface ThemedButtonProps {
-  /** Button text content */
   title: string
-  /** Click handler */
   onPress: () => void
-  /** Visual variant of the button */
   variant?: ButtonVariant
-  /** Size of the button */
   size?: ButtonSize
-  /** Disabled state */
   disabled?: boolean
-  /** Loading state (shows spinner) */
   loading?: boolean
-  /** Icon name from MaterialCommunityIcons */
   icon?: keyof typeof MaterialCommunityIcons.glyphMap
-  /** Icon position */
   iconPosition?: 'left' | 'right'
-  /** Full width button */
   fullWidth?: boolean
-  /** Custom style override */
   style?: ViewStyle
-  /** Custom text style override */
   textStyle?: TextStyle
-  /** Active opacity (default 0.7) */
   activeOpacity?: number
-  /** Uppercase text transform */
   uppercase?: boolean
-  /** Show shadow effect */
   shadow?: boolean
-  /** Text alignment */
   align?: 'left' | 'center' | 'right'
 }
 

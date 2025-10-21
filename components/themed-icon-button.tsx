@@ -6,21 +6,13 @@ export type IconButtonVariant = 'default' | 'primary' | 'secondary' | 'ghost';
 export type IconButtonSize = 'small' | 'medium' | 'large';
 
 export interface ThemedIconButtonProps {
-  /** Icon name from MaterialCommunityIcons */
   icon: keyof typeof MaterialCommunityIcons.glyphMap;
-  /** Click handler (optionally receives event) */
   onPress: (event?: any) => void;
-  /** Visual variant of the button */
   variant?: IconButtonVariant;
-  /** Size of the button */
   size?: IconButtonSize;
-  /** Disabled state */
   disabled?: boolean;
-  /** Custom style override */
   style?: ViewStyle;
-  /** Active opacity (default 0.7) */
   activeOpacity?: number;
-  /** Hit slop for better touch target */
   hitSlop?: { top: number; bottom: number; left: number; right: number };
 }
 

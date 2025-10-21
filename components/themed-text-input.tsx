@@ -9,29 +9,17 @@ export type TextInputVariant = 'default' | 'outlined' | 'filled'
 export type TextInputSize = 'small' | 'medium' | 'large'
 
 export interface ThemedTextInputProps extends Omit<TextInputProps, 'style' | 'placeholderTextColor'> {
-  /** Visual variant of the input */
   variant?: TextInputVariant
-  /** Size of the input */
   size?: TextInputSize
-  /** Password input (shows/hides toggle button) */
   password?: boolean
-  /** Icon name from MaterialCommunityIcons (left side) */
   icon?: keyof typeof MaterialCommunityIcons.glyphMap
-  /** Icon name from MaterialCommunityIcons (right side) */
   rightIcon?: keyof typeof MaterialCommunityIcons.glyphMap
-  /** Right icon press handler */
   onRightIconPress?: () => void
-  /** Error state */
   error?: boolean
-  /** Error message to display */
   errorMessage?: string
-  /** Full width input */
   fullWidth?: boolean
-  /** Custom container style override */
   containerStyle?: ViewStyle
-  /** Custom input style override */
   inputStyle?: TextStyle
-  /** Disabled state */
   disabled?: boolean
 }
 

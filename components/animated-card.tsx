@@ -3,19 +3,12 @@ import { type ReactNode } from 'react'
 import { Animated, Pressable, type PressableProps, type ViewStyle } from 'react-native'
 
 interface AnimatedCardProps extends Omit<PressableProps, 'style' | 'onPressIn' | 'onPressOut'> {
-  /** Child components to render inside the animated card */
   children: ReactNode
-  /** Optional style for the Pressable wrapper */
   style?: ViewStyle | ViewStyle[]
-  /** Optional style for the Animated.View container */
   containerStyle?: ViewStyle | ViewStyle[]
-  /** Animation configuration (uses sensible defaults if not provided) */
   animationConfig?: CardAnimationConfig
-  /** Index for staggered animations (will be multiplied by 80ms) */
   index?: number
-  /** Custom onPressIn handler (will be called after animation) */
   onPressIn?: () => void
-  /** Custom onPressOut handler (will be called after animation) */
   onPressOut?: () => void
 }
 
