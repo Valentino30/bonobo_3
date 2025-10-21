@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import {
   Modal,
   ScrollView,
@@ -13,9 +13,8 @@ import { ThemedView } from '@/components/themed-view'
 import { ThemedButton } from '@/components/themed-button'
 import { ThemedTextInput } from '@/components/themed-text-input'
 import { useTheme } from '@/contexts/theme-context'
-import { AuthService } from '@/utils/auth-service'
 import { useCustomAlert } from '@/hooks/use-custom-alert'
-import { validateEmail, validatePassword } from '@/utils/validation'
+import { useAccountCreation } from '@/hooks/use-account-creation'
 
 interface PaymentAuthScreenProps {
   visible: boolean
@@ -25,71 +24,21 @@ interface PaymentAuthScreenProps {
 
 export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthScreenProps) {
   const theme = useTheme()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const { showAlert, AlertComponent } = useCustomAlert()
 
-  const handleCreateAccount = async () => {
-    setError(null)
-
-    // Validation
-    if (!email || !password || !confirmPassword) {
-      setError('Please fill in all fields')
-      return
-    }
-
-    if (!validateEmail(email)) {
-      setError('Please enter a valid email address')
-      return
-    }
-
-    if (!validatePassword(password)) {
-      setError('Password must be at least 8 characters')
-      return
-    }
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match')
-      return
-    }
-
-    setIsLoading(true)
-
-    try {
-      // Create the account - Supabase will handle duplicate email errors
-      const result = await AuthService.signUpWithEmail(email, password)
-
-      if (!result.success) {
-        setError(result.error || 'Failed to create account')
-        setIsLoading(false)
-        return
-      }
-
-      // Success! Log the result
-      console.log('✅ Account creation result:', {
-        success: result.success,
-        hasUser: !!result.user,
-        hasSession: !!result.session,
-        userId: result.user?.id,
-        userEmail: result.user?.email,
-      })
-
-      // Check if session was created (email confirmation may be required)
-      if (!result.session) {
-        console.warn('⚠️ No session created - email confirmation required')
-        setError('Account created but email confirmation is required. Please check your email and then login.')
-        setIsLoading(false)
-        return
-      }
-
-      // Clear form and close modal first
-      setEmail('')
-      setPassword('')
-      setConfirmPassword('')
-
+  const {
+    email,
+    setEmail,
+    password,
+    setPassword,
+    confirmPassword,
+    setConfirmPassword,
+    isLoading,
+    error,
+    setError,
+    handleCreateAccount: createAccount,
+  } = useAccountCreation({
+    onSuccess: () => {
       // Call onSuccess to close modal and navigate back
       onSuccess()
 
@@ -101,12 +50,11 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
           [{ text: 'Great!' }]
         )
       }, 500)
-    } catch (error) {
-      console.error('Account creation error:', error)
-      setError('An unexpected error occurred')
-    } finally {
-      setIsLoading(false)
-    }
+    },
+  })
+
+  const handleCreateAccount = async () => {
+    await createAccount()
   }
 
 
