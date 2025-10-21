@@ -2,7 +2,7 @@ import { useTheme } from '@/contexts/theme-context'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { StyleSheet, Text, TextStyle, TouchableOpacity, ViewStyle, Animated, View } from 'react-native'
 import { getButtonVariantStyles, getButtonSizeStyles, getButtonShadowStyles, getButtonAlignmentStyles, type ButtonAlign } from '@/utils/button-variants'
-import { useEffect, useRef } from 'react'
+import { useBouncingAnimation } from '@/hooks/use-bouncing-animation'
 
 export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'ghost' | 'outline'
 
@@ -28,45 +28,20 @@ export interface ThemedButtonProps {
 }
 
 const BouncingDots: React.FC<{ color: string }> = ({ color }) => {
-  const bounce1 = useRef(new Animated.Value(0)).current
-  const bounce2 = useRef(new Animated.Value(0)).current
-  const bounce3 = useRef(new Animated.Value(0)).current
-
-  useEffect(() => {
-    const createBounceAnimation = (animatedValue: Animated.Value, delay: number) => {
-      return Animated.sequence([
-        Animated.delay(delay),
-        Animated.timing(animatedValue, {
-          toValue: -3,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.timing(animatedValue, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ])
-    }
-
-    const animation = Animated.loop(
-      Animated.parallel([
-        createBounceAnimation(bounce1, 0),
-        createBounceAnimation(bounce2, 200),
-        createBounceAnimation(bounce3, 400),
-      ])
-    )
-
-    animation.start()
-
-    return () => animation.stop()
-  }, [bounce1, bounce2, bounce3])
+  const bounceValues = useBouncingAnimation({
+    dotCount: 3,
+    bounceHeight: -3,
+    bounceDuration: 300,
+    staggerDelay: 200,
+  })
 
   return (
     <View style={styles.dotsContainer}>
-      <Animated.Text style={[styles.dot, { color, transform: [{ translateY: bounce1 }] }]}>.</Animated.Text>
-      <Animated.Text style={[styles.dot, { color, transform: [{ translateY: bounce2 }] }]}>.</Animated.Text>
-      <Animated.Text style={[styles.dot, { color, transform: [{ translateY: bounce3 }] }]}>.</Animated.Text>
+      {bounceValues.map((bounceValue, index) => (
+        <Animated.Text key={index} style={[styles.dot, { color, transform: [{ translateY: bounceValue }] }]}>
+          .
+        </Animated.Text>
+      ))}
     </View>
   )
 }
