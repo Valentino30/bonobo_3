@@ -14,6 +14,7 @@ export interface ThemedButtonProps {
   size?: ButtonSize
   disabled?: boolean
   loading?: boolean
+  loadingTitle?: string
   icon?: keyof typeof MaterialCommunityIcons.glyphMap
   iconPosition?: 'left' | 'right'
   fullWidth?: boolean
@@ -32,6 +33,7 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
   size = 'medium',
   disabled = false,
   loading = false,
+  loadingTitle,
   icon,
   iconPosition = 'left',
   fullWidth = false,
@@ -73,7 +75,14 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={iconColor} size={sizeStyles.iconSize} />
+        <>
+          <ActivityIndicator color={iconColor} size={sizeStyles.iconSize} style={loadingTitle && styles.iconLeft} />
+          {loadingTitle && (
+            <Text style={[styles.text, variantStyles.text, sizeStyles.text, uppercase && styles.uppercase, textStyle]}>
+              {loadingTitle}
+            </Text>
+          )}
+        </>
       ) : (
         <>
           {icon && iconPosition === 'left' && (
