@@ -333,10 +333,7 @@
   },
   "aiPrompt": {
     "languageName": "Italiano",
-    "languageInstruction": "CRITICO: La tua intera risposta JSON DEVE essere 100% in Italiano. Ogni singolo campo, valore, descrizione, elemento e suggerimento deve essere scritto in Italiano.",
-    "forbiddenLanguages": "Inglese, Spagnolo, Francese, Tedesco o qualsiasi altra lingua non italiana",
-    "exampleForbidden": "Secure, High, Excellent, Acts of Service, Good",
-    "exampleRequired": "Sicuro, Alto, Eccellente, Atti di Servizio, Buono",
+    "languageInstruction": "CRITICO: La tua intera risposta JSON DEVE essere 100% in Italiano. Ogni singolo campo, valore, descrizione, elemento e suggerimento deve essere scritto in Italiano. Devi usare SOLO i valori esatti specificati nel prompt.",
     "attachmentStyleValues": "Sicuro/Ansioso/Evitante/Timoroso",
     "reciprocityValues": "Scarso/Discreto/Buono/Eccellente",
     "compatibilityValues": "Bassa/Moderata/Alta/Molto Alta/Eccellente",

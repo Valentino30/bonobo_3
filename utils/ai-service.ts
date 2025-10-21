@@ -80,9 +80,6 @@ export async function analyzeChat(chatText: string): Promise<AIInsights> {
   // Get all language-specific values from i18n
   const languageName = i18n.t('aiPrompt.languageName')
   const languageInstruction = i18n.t('aiPrompt.languageInstruction')
-  const forbiddenLanguages = i18n.t('aiPrompt.forbiddenLanguages')
-  const exampleForbidden = i18n.t('aiPrompt.exampleForbidden')
-  const exampleRequired = i18n.t('aiPrompt.exampleRequired')
 
   // Get the actual tag values in the current language
   const attachmentStyleValues = i18n.t('aiPrompt.attachmentStyleValues')
@@ -112,15 +109,6 @@ export async function analyzeChat(chatText: string): Promise<AIInsights> {
     const prompt = `You are an expert relationship counselor analyzing a WhatsApp chat conversation. Analyze the following chat and provide detailed insights in JSON format.
 
 ${languageInstruction}
-
-STRICTLY FORBIDDEN:
-- Using words from: ${forbiddenLanguages}
-- Mixed language responses
-- Translations in parentheses
-- Examples of FORBIDDEN words: ${exampleForbidden}
-
-REQUIRED - You MUST use these exact ${languageName} words:
-- ${exampleRequired}
 
 Chat content:
 ${chatText.substring(0, 10000)} ${chatText.length > 10000 ? '...(truncated)' : ''}
@@ -202,9 +190,8 @@ IMPORTANT:
 FINAL CHECK BEFORE SUBMISSION:
 Review EVERY field value and verify:
 1. ALL text is in ${languageName}
-2. The "type" and "rating" fields use ONLY the values listed above
-3. NO words from forbidden languages (${exampleForbidden})
-4. Check: attachmentStyle.type, reciprocityScore.rating, compatibilityScore.rating, conflictResolution.type, weVsIRatio.rating, loveLanguage.primary, loveLanguage.secondary`
+2. The "type" and "rating" fields use ONLY the exact values listed above (e.g., attachmentStyle.type MUST be one of: ${attachmentStyleValues})
+3. Check these critical fields: attachmentStyle.type, reciprocityScore.rating, compatibilityScore.rating, conflictResolution.type, weVsIRatio.rating, loveLanguage.primary, loveLanguage.secondary`
 
     const generatePromise = model.generateContent(prompt)
     const result = (await Promise.race([generatePromise, timeoutPromise])) as any

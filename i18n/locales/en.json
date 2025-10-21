@@ -333,10 +333,7 @@
   },
   "aiPrompt": {
     "languageName": "English",
-    "languageInstruction": "CRITICAL: Your ENTIRE JSON response MUST be 100% in English. Every single field, value, description, item, and tip must be written in English.",
-    "forbiddenLanguages": "Italian, Spanish, French, German, or any other non-English language",
-    "exampleForbidden": "Sicuro, Alto, Eccellente, Atti di Servizio, Buono",
-    "exampleRequired": "Secure, High, Excellent, Acts of Service, Good",
+    "languageInstruction": "CRITICAL: Your ENTIRE JSON response MUST be 100% in English. Every single field, value, description, item, and tip must be written in English. You must use ONLY the exact tag values specified in the prompt.",
     "attachmentStyleValues": "Secure/Anxious/Avoidant/Fearful",
     "reciprocityValues": "Poor/Fair/Good/Excellent",
     "compatibilityValues": "Low/Moderate/High/Very High/Excellent",
