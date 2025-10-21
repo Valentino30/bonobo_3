@@ -76,7 +76,7 @@ export function useChatAnalysis({ showAlert }: UseChatAnalysisOptions) {
 
   // Handler: Unlock insight
   const handleUnlockInsight = async (insightId: string) => {
-    if (!chat) return
+    if (!chat || !analysis) return
 
     setPendingInsightToUnlock(insightId)
 
@@ -85,6 +85,7 @@ export function useChatAnalysis({ showAlert }: UseChatAnalysisOptions) {
         chatId,
         insightId,
         chatText: chat.text,
+        analysis,
       })
       // Mutation handles persistence to Supabase in onSuccess
     } catch (error: any) {

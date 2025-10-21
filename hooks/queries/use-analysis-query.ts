@@ -57,12 +57,20 @@ export function useAIInsightsQuery(chatId: string, chatText: string, enabled: bo
   })
 }
 
+// Mutation parameters type
+export type UnlockInsightParams = {
+  chatId: string
+  insightId: string
+  chatText: string
+  analysis: any
+}
+
 // Mutation: Unlock insight
 export function useUnlockInsightMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ chatId, insightId, chatText }: { chatId: string; insightId: string; chatText: string }) => {
+    mutationFn: async ({ chatId, insightId, chatText, analysis }: UnlockInsightParams) => {
       console.log('🔐 Starting unlock mutation:', { chatId, insightId })
 
       // Check access
@@ -94,7 +102,7 @@ export function useUnlockInsightMutation() {
       }
 
       console.log('✅ Mutation function completed successfully')
-      return { chatId, insightId, insights }
+      return { chatId, insightId, insights, analysis }
     },
     onMutate: async ({ chatId, insightId }) => {
       console.log('🎯 onMutate: Optimistically updating cache', { chatId, insightId })
@@ -132,8 +140,8 @@ export function useUnlockInsightMutation() {
         queryClient.setQueryData(chatKeys.detail(chatId), context.previousChat)
       }
     },
-    onSuccess: async ({ chatId, insightId, insights }) => {
-      console.log('🔓 Unlock insight mutation succeeded:', { chatId, insightId })
+    onSuccess: async ({ chatId, insightId, insights, analysis }) => {
+      console.log('🔓 Unlock insight mutation succeeded:', { chatId, insightId, hasAnalysis: !!analysis })
 
       // Update AI insights cache
       queryClient.setQueryData(analysisKeys.aiInsights(chatId), insights)
@@ -144,10 +152,10 @@ export function useUnlockInsightMutation() {
       console.log('📦 Current chat cache:', {
         chatId,
         unlockedInsights: chat?.unlockedInsights,
-        hasAnalysis: !!chat?.analysis,
+        hasAnalysis: !!analysis,
       })
 
-      if (chat && chat.analysis) {
+      if (chat && analysis) {
         // Persist to Supabase with updated unlocked insights and AI insights
         const { ChatStorage } = await import('@/utils/chat-storage')
         // Don't add insightId again if it's already in the array from optimistic update
@@ -157,18 +165,24 @@ export function useUnlockInsightMutation() {
 
         console.log('💾 Persisting to Supabase:', { chatId, updatedUnlockedInsights })
 
-        await ChatStorage.updateChatAnalysis(chatId, chat.analysis, insights, updatedUnlockedInsights)
+        await ChatStorage.updateChatAnalysis(chatId, analysis, insights, updatedUnlockedInsights)
 
         console.log('✅ Persisted successfully, updating cache')
 
         // Update cache with persisted data (no refetch needed)
         queryClient.setQueryData<StoredChat>(chatKeys.detail(chatId), {
           ...chat,
+          analysis,
           aiInsights: insights,
           unlockedInsights: updatedUnlockedInsights,
         })
 
         console.log('✅ Cache updated with persisted data')
+      } else {
+        console.log('⚠️ Skipping persistence - missing chat or analysis:', {
+          hasChat: !!chat,
+          hasAnalysis: !!analysis,
+        })
       }
     },
   })
