@@ -1,8 +1,8 @@
 import { useTheme } from '@/contexts/theme-context'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { StyleSheet, Text, TextStyle, TouchableOpacity, ViewStyle, Animated, View } from 'react-native'
+import { StyleSheet, Text, TextStyle, TouchableOpacity, ViewStyle } from 'react-native'
 import { getButtonVariantStyles, getButtonSizeStyles, getButtonShadowStyles, getButtonAlignmentStyles, type ButtonAlign } from '@/utils/button-variants'
-import { useBouncingAnimation } from '@/hooks/use-bouncing-animation'
+import { LoadingText } from '@/components/loading-text'
 
 export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'ghost' | 'outline'
 
@@ -25,25 +25,6 @@ export interface ThemedButtonProps {
   uppercase?: boolean
   shadow?: boolean
   align?: ButtonAlign
-}
-
-const BouncingDots: React.FC<{ color: string }> = ({ color }) => {
-  const bounceValues = useBouncingAnimation({
-    dotCount: 3,
-    bounceHeight: -3,
-    bounceDuration: 300,
-    staggerDelay: 200,
-  })
-
-  return (
-    <View style={styles.dotsContainer}>
-      {bounceValues.map((bounceValue, index) => (
-        <Animated.Text key={index} style={[styles.dot, { color, transform: [{ translateY: bounceValue }] }]}>
-          .
-        </Animated.Text>
-      ))}
-    </View>
-  )
 }
 
 export const ThemedButton: React.FC<ThemedButtonProps> = ({
@@ -99,7 +80,7 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
           <Text style={[styles.text, variantStyles.text, sizeStyles.text, uppercase && styles.uppercase, textStyle]}>
             {loadingTitle || title}
           </Text>
-          <BouncingDots color={String(variantStyles.text.color)} />
+          <LoadingText color={String(variantStyles.text.color)} />
         </>
       ) : (
         <>
@@ -143,13 +124,5 @@ const styles = StyleSheet.create({
   },
   iconRight: {
     marginLeft: 8,
-  },
-  dotsContainer: {
-    flexDirection: 'row',
-    marginLeft: 4,
-  },
-  dot: {
-    fontSize: 16,
-    fontWeight: '600',
   },
 })
