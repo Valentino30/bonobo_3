@@ -28,7 +28,11 @@
     "deleteConfirmMessage": "Sei sicuro di voler eliminare questa chat?",
     "clearAllTitle": "Cancella Tutti i Dati",
     "clearAllMessage": "Rimuovi tutte le chat e le informazioni dal tuo dispositivo.",
-    "clearAllButton": "Cancella Dati"
+    "clearAllButton": "Cancella Dati",
+    "unknownParticipants": "Partecipanti sconosciuti",
+    "messageCount": "{{count}} messaggi",
+    "messageCountSingular": "{{count}} messaggio",
+    "deleteChat": "Elimina Chat"
   },
   "importGuide": {
     "title": "Come Importare",

@@ -1,12 +1,13 @@
+import { useState } from 'react'
+import { StyleSheet, View } from 'react-native'
 import { AnimatedCard } from '@/components/animated-card'
 import { BottomSheet } from '@/components/bottom-sheet'
 import { ThemedIconButton } from '@/components/themed-icon-button'
 import { ThemedText } from '@/components/themed-text'
 import { useTheme } from '@/contexts/theme-context'
+import i18n from '@/i18n/config'
 import { type StoredChat } from '@/utils/chat-storage'
 import { getParticipantInitial } from '@/utils/string-helpers'
-import { useState } from 'react'
-import { StyleSheet, View } from 'react-native'
 
 interface ChatCardProps {
   chat: StoredChat
@@ -30,6 +31,12 @@ export function ChatCard({ chat, onAnalyze, onDelete, index }: ChatCardProps) {
     }
   }
 
+  const messageCount = chat.messageCount || 0
+  const messageCountText =
+    messageCount === 1
+      ? i18n.t('chats.messageCountSingular', { count: messageCount })
+      : i18n.t('chats.messageCount', { count: messageCount })
+
   return (
     <>
       <AnimatedCard
@@ -47,10 +54,10 @@ export function ChatCard({ chat, onAnalyze, onDelete, index }: ChatCardProps) {
         </View>
         <View style={styles.contentContainer}>
           <ThemedText style={[styles.participantName, { color: theme.colors.text }]} numberOfLines={1}>
-            {chat.participants?.join(' & ') || 'Unknown participants'}
+            {chat.participants?.join(' & ') || i18n.t('chats.unknownParticipants')}
           </ThemedText>
           <ThemedText style={[styles.messageCount, { color: theme.colors.textTertiary }]}>
-            {chat.messageCount || 0} messages
+            {messageCountText}
           </ThemedText>
         </View>
         {onDelete && (
@@ -72,12 +79,12 @@ export function ChatCard({ chat, onAnalyze, onDelete, index }: ChatCardProps) {
         onDismiss={() => setShowMenu(false)}
         actions={[
           {
-            title: 'Delete Chat',
+            title: i18n.t('chats.deleteChat'),
             onPress: handleDelete,
             variant: 'destructive',
           },
           {
-            title: 'Cancel',
+            title: i18n.t('common.cancel'),
             onPress: () => setShowMenu(false),
             variant: 'secondary',
           },

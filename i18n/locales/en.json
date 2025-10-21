@@ -28,7 +28,11 @@
     "deleteConfirmMessage": "Are you sure you want to delete this chat?",
     "clearAllTitle": "Clear All Data",
     "clearAllMessage": "Remove all chats and insights from your device.",
-    "clearAllButton": "Clear Data"
+    "clearAllButton": "Clear Data",
+    "unknownParticipants": "Unknown participants",
+    "messageCount": "{{count}} messages",
+    "messageCountSingular": "{{count}} message",
+    "deleteChat": "Delete Chat"
   },
   "importGuide": {
     "title": "How to Import",
