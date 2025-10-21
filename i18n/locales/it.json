@@ -330,5 +330,18 @@
     "accountCreatedSuccessMessage": "I tuoi acquisti sono ora sicuri e accessibili da qualsiasi dispositivo",
     "accountCreatedTitle": "Account Creato con Successo!",
     "accountCreatedSubtitle": "Il tuo account è stato creato e i tuoi acquisti sono stati collegati in modo sicuro."
+  },
+  "aiPrompt": {
+    "languageName": "Italiano",
+    "languageInstruction": "CRITICO: La tua intera risposta JSON DEVE essere 100% in Italiano. Ogni singolo campo, valore, descrizione, elemento e suggerimento deve essere scritto in Italiano.",
+    "forbiddenLanguages": "Inglese, Spagnolo, Francese, Tedesco o qualsiasi altra lingua non italiana",
+    "exampleForbidden": "Secure, High, Excellent, Acts of Service, Good",
+    "exampleRequired": "Sicuro, Alto, Eccellente, Atti di Servizio, Buono",
+    "attachmentStyleValues": "Sicuro/Ansioso/Evitante/Timoroso",
+    "reciprocityValues": "Scarso/Discreto/Buono/Eccellente",
+    "compatibilityValues": "Bassa/Moderata/Alta/Molto Alta/Eccellente",
+    "conflictTypeValues": "Collaborativo/Competitivo/Accomodante/Evitante/Compromissorio",
+    "weVsIValues": "Basso/Moderato/Alto/Molto Alto",
+    "loveLanguageValues": "Parole di Affermazione/Tempo di Qualità/Contatto Fisico/Atti di Servizio/Ricevere Regali"
   }
 }

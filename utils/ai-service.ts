@@ -75,49 +75,22 @@ export async function analyzeChat(chatText: string): Promise<AIInsights> {
   console.log('🤖 Starting AI analysis...')
   console.log('API Key present:', !!process.env.EXPO_PUBLIC_GEMINI_API_KEY)
   console.log('Chat text length:', chatText.length)
+  console.log('📝 Using locale for AI analysis:', i18n.locale)
 
-  // Use current app locale for AI analysis
-  const currentLocale = i18n.locale
-  console.log('📝 Using locale for AI analysis:', currentLocale)
+  // Get all language-specific values from i18n
+  const languageName = i18n.t('aiPrompt.languageName')
+  const languageInstruction = i18n.t('aiPrompt.languageInstruction')
+  const forbiddenLanguages = i18n.t('aiPrompt.forbiddenLanguages')
+  const exampleForbidden = i18n.t('aiPrompt.exampleForbidden')
+  const exampleRequired = i18n.t('aiPrompt.exampleRequired')
 
-  // Determine target language for AI response
-  const targetLanguage = currentLocale === 'it' ? 'Italian' : 'English'
-  const languageInstruction = `CRITICAL LANGUAGE REQUIREMENT: Your ENTIRE JSON response MUST be 100% in ${targetLanguage.toUpperCase()}.
-
-STRICTLY FORBIDDEN:
-${targetLanguage === 'Italian' ? '- ANY English words (e.g., "Secure", "High", "Excellent", "Acts of Service")' : '- ANY Italian words (e.g., "Sicuro", "Alto", "Eccellente", "Atti di Servizio")'}
-- Mixed language responses
-- Translations in parentheses
-
-REQUIRED IN ${targetLanguage.toUpperCase()}:
-- ALL text in "description" fields
-- ALL text in "items" and "tips" arrays
-- ALL values in "type" fields (e.g., attachmentStyle.type, conflictResolution.type, loveLanguage.primary)
-- ALL values in "rating" fields (e.g., reciprocityScore.rating, compatibilityScore.rating, weVsIRatio.rating)
-
-If you use ANY word from the wrong language, the response will be rejected.`
-
-  // Field value examples for the target language
-  const examples = {
-    Italian: {
-      attachmentStyle: 'Sicuro/Ansioso/Evitante/Timoroso',
-      reciprocity: 'Scarso/Discreto/Buono/Eccellente',
-      compatibility: 'Bassa/Moderata/Alta/Molto Alta/Eccellente',
-      conflictType: 'Collaborativo/Competitivo/Accomodante/Evitante/Compromissorio',
-      weVsI: 'Basso/Moderato/Alto/Molto Alto',
-      loveLanguage: 'Parole di Affermazione/Tempo di Qualità/Contatto Fisico/Atti di Servizio/Ricevere Regali',
-    },
-    English: {
-      attachmentStyle: 'Secure/Anxious/Avoidant/Fearful',
-      reciprocity: 'Poor/Fair/Good/Excellent',
-      compatibility: 'Low/Moderate/High/Very High/Excellent',
-      conflictType: 'Collaborative/Competitive/Accommodating/Avoiding/Compromising',
-      weVsI: 'Low/Moderate/High/Very High',
-      loveLanguage: 'Words of Affirmation/Quality Time/Physical Touch/Acts of Service/Receiving Gifts',
-    },
-  }
-
-  const langExamples = examples[targetLanguage]
+  // Get the actual tag values in the current language
+  const attachmentStyleValues = i18n.t('aiPrompt.attachmentStyleValues')
+  const reciprocityValues = i18n.t('aiPrompt.reciprocityValues')
+  const compatibilityValues = i18n.t('aiPrompt.compatibilityValues')
+  const conflictTypeValues = i18n.t('aiPrompt.conflictTypeValues')
+  const weVsIValues = i18n.t('aiPrompt.weVsIValues')
+  const loveLanguageValues = i18n.t('aiPrompt.loveLanguageValues')
 
   // Add timeout to prevent infinite hanging
   const timeoutPromise = new Promise((_, reject) => {
@@ -140,6 +113,15 @@ If you use ANY word from the wrong language, the response will be rejected.`
 
 ${languageInstruction}
 
+STRICTLY FORBIDDEN:
+- Using words from: ${forbiddenLanguages}
+- Mixed language responses
+- Translations in parentheses
+- Examples of FORBIDDEN words: ${exampleForbidden}
+
+REQUIRED - You MUST use these exact ${languageName} words:
+- ${exampleRequired}
+
 Chat content:
 ${chatText.substring(0, 10000)} ${chatText.length > 10000 ? '...(truncated)' : ''}
 
@@ -147,95 +129,82 @@ Provide a detailed analysis with the following structure (respond ONLY with vali
 {
   "redFlags": {
     "count": <number>,
-    "description": "<AI-generated SIMPLE STRING summary of concerns>",
-    "items": [<array of 3-4 SIMPLE STRING specific examples>]
+    "description": "<AI-generated summary in ${languageName}>",
+    "items": [<array of 3-4 specific examples in ${languageName}>]
   },
   "greenFlags": {
     "count": <number>,
-    "description": "<AI-generated SIMPLE STRING summary of positives>",
-    "items": [<array of 3-4 SIMPLE STRING specific examples>]
+    "description": "<AI-generated summary in ${languageName}>",
+    "items": [<array of 3-4 specific examples in ${languageName}>]
   },
   "attachmentStyle": {
-    "type": "<${langExamples.attachmentStyle}>",
-    "description": "<AI-generated SIMPLE STRING explanation of the attachment style based on this chat>",
-    "items": [<array of 3 SIMPLE STRING supporting observations>]
+    "type": "<MUST be one of: ${attachmentStyleValues}>",
+    "description": "<AI-generated explanation in ${languageName}>",
+    "items": [<array of 3 supporting observations in ${languageName}>]
   },
   "reciprocityScore": {
     "percentage": <0-100>,
-    "rating": "<${langExamples.reciprocity}>",
-    "description": "<AI-generated SIMPLE STRING summary of give-and-take balance>",
-    "items": [<array of 3 SIMPLE STRING specific examples about balance>]
+    "rating": "<MUST be one of: ${reciprocityValues}>",
+    "description": "<AI-generated summary in ${languageName}>",
+    "items": [<array of 3 specific examples in ${languageName}>]
   },
   "compliments": {
     "count": <total number>,
-    "description": "<AI-generated SIMPLE STRING summary of compliment patterns>",
-    "items": [<array of 3-4 SIMPLE STRING observations about compliment themes>]
+    "description": "<AI-generated summary in ${languageName}>",
+    "items": [<array of 3-4 observations in ${languageName}>]
   },
   "criticism": {
     "count": <total number>,
-    "description": "<AI-generated SIMPLE STRING summary of criticism patterns>",
-    "items": [<array of 3-4 SIMPLE STRING observations about criticism themes>]
+    "description": "<AI-generated summary in ${languageName}>",
+    "items": [<array of 3-4 observations in ${languageName}>]
   },
   "compatibilityScore": {
     "percentage": <0-100>,
-    "rating": "<${langExamples.compatibility}>",
-    "description": "<AI-generated SIMPLE STRING summary of compatibility>",
-    "items": [<array of 3 SIMPLE STRING specific observations about compatibility>]
+    "rating": "<MUST be one of: ${compatibilityValues}>",
+    "description": "<AI-generated summary in ${languageName}>",
+    "items": [<array of 3 specific observations in ${languageName}>]
   },
   "relationshipTips": {
     "count": <number>,
-    "description": "<AI-generated SIMPLE STRING intro to the tips>",
-    "tips": [<array of 4 SIMPLE STRING actionable tips>]
+    "description": "<AI-generated intro in ${languageName}>",
+    "tips": [<array of 4 actionable tips in ${languageName}>]
   },
   "conflictResolution": {
-    "type": "<${langExamples.conflictType}>",
-    "description": "<AI-generated SIMPLE STRING explanation of how conflicts are handled>",
-    "items": [<array of 3 SIMPLE STRING specific examples of conflict resolution patterns>]
+    "type": "<MUST be one of: ${conflictTypeValues}>",
+    "description": "<AI-generated explanation in ${languageName}>",
+    "items": [<array of 3 specific examples in ${languageName}>]
   },
   "sharedInterests": {
     "count": <number of distinct shared interests>,
-    "description": "<AI-generated SIMPLE STRING summary of common interests and activities>",
-    "items": [<array of 3-5 SIMPLE STRING specific shared interests mentioned>]
+    "description": "<AI-generated summary in ${languageName}>",
+    "items": [<array of 3-5 specific shared interests in ${languageName}>]
   },
   "weVsIRatio": {
     "percentage": <0-100, percentage of "we" language vs "I" language>,
-    "rating": "<${langExamples.weVsI}>",
-    "description": "<AI-generated SIMPLE STRING summary of collective vs individual language usage>",
-    "items": [<array of 3 SIMPLE STRING observations about "we" vs "I" language patterns>]
+    "rating": "<MUST be one of: ${weVsIValues}>",
+    "description": "<AI-generated summary in ${languageName}>",
+    "items": [<array of 3 observations in ${languageName}>]
   },
   "loveLanguage": {
-    "primary": "<${langExamples.loveLanguage}>",
-    "secondary": "<${langExamples.loveLanguage}>",
-    "description": "<AI-generated SIMPLE STRING explanation of the dominant love language patterns>",
-    "items": [<array of 3 SIMPLE STRING specific examples showing the love language>]
+    "primary": "<MUST be one of: ${loveLanguageValues}>",
+    "secondary": "<MUST be one of: ${loveLanguageValues}>",
+    "description": "<AI-generated explanation in ${languageName}>",
+    "items": [<array of 3 specific examples in ${languageName}>]
   }
 }
 
-IMPORTANT: All "items", "tips" arrays must contain ONLY simple text strings, NOT objects. Each item should be a complete sentence or phrase as a string. Do NOT include direct quotes from the conversation - instead describe patterns and themes you observe.
+IMPORTANT:
+- All "items", "tips" arrays must contain ONLY simple text strings, NOT objects
+- Each item should be a complete sentence or phrase as a string
+- Do NOT include direct quotes from the conversation - instead describe patterns and themes
+- Focus on communication patterns, emotional dynamics, and relationship health indicators
 
-Focus on communication patterns, emotional dynamics, and relationship health indicators.
-
-FINAL LANGUAGE CHECK - BEFORE SUBMITTING YOUR RESPONSE:
-Review EVERY field value in your JSON response and verify it is 100% in ${targetLanguage.toUpperCase()}.
-
-Common mistakes to avoid:
-${
-  targetLanguage === 'Italian'
-    ? `- Writing "Secure" instead of "Sicuro"
-- Writing "High" instead of "Alto"
-- Writing "Excellent" instead of "Eccellente"
-- Writing "Acts of Service" instead of "Atti di Servizio"
-- Writing "Good" instead of "Buono"
-- Writing any English words at all`
-    : `- Writing "Sicuro" instead of "Secure"
-- Writing "Alto" instead of "High"
-- Writing "Eccellente" instead of "Excellent"
-- Writing "Atti di Servizio" instead of "Acts of Service"
-- Writing "Buono" instead of "Good"
-- Writing any Italian words at all`
-}
-
-Before you submit, check that attachmentStyle.type, reciprocityScore.rating, compatibilityScore.rating, conflictResolution.type, weVsIRatio.rating, and loveLanguage.primary/secondary are ALL in ${targetLanguage.toUpperCase()}.`
+FINAL CHECK BEFORE SUBMISSION:
+Review EVERY field value and verify:
+1. ALL text is in ${languageName}
+2. The "type" and "rating" fields use ONLY the values listed above
+3. NO words from forbidden languages (${exampleForbidden})
+4. Check: attachmentStyle.type, reciprocityScore.rating, compatibilityScore.rating, conflictResolution.type, weVsIRatio.rating, loveLanguage.primary, loveLanguage.secondary`
 
     const generatePromise = model.generateContent(prompt)
     const result = (await Promise.race([generatePromise, timeoutPromise])) as any
