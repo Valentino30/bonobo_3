@@ -53,7 +53,8 @@ export function LockedInsightCard({ title, icon, badge, onUnlock, isLoading, unl
 
           {/* Unlock Button with Icon */}
           <ThemedButton
-            title={isLoading ? 'UNLOCKING...' : 'UNLOCK WITH AI'}
+            title="UNLOCK WITH AI"
+            loadingTitle="UNLOCKING"
             onPress={onUnlock}
             variant="primary"
             size="medium"
