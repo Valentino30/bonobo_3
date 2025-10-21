@@ -2,7 +2,6 @@ import {
   Modal,
   ScrollView,
   StyleSheet,
-  Text,
   View,
   KeyboardAvoidingView,
   Platform,
@@ -86,11 +85,12 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
               subtitle="Create an account to access your insights from any device and keep your purchases safe"
             />
 
-            {/* Error Message */}
             {error && (
-              <View style={[styles.errorContainer, { backgroundColor: theme.colors.backgroundError }]}>
-                <Text style={[styles.errorText, { color: theme.colors.textDanger }]}>{error}</Text>
-              </View>
+              <InfoBanner
+                icon="alert-circle"
+                text={error}
+                variant="error"
+              />
             )}
 
             {/* Form */}
@@ -154,15 +154,7 @@ const styles = StyleSheet.create({
     paddingBottom: Platform.OS === 'ios' ? 60 : 80,
     paddingHorizontal: 20,
     flexGrow: 1,
-  },
-  errorContainer: {
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-  },
-  errorText: {
-    fontSize: 14,
-    textAlign: 'center',
+    gap: 16,
   },
   formContainer: {
     gap: 16,
