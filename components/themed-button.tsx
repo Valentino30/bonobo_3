@@ -1,6 +1,7 @@
 import { useTheme } from '@/contexts/theme-context'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { ActivityIndicator, StyleSheet, Text, TextStyle, TouchableOpacity, ViewStyle } from 'react-native'
+import { getButtonVariantStyles, getButtonSizeStyles, getButtonShadowStyles } from '@/utils/button-variants'
 
 export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'ghost' | 'outline'
 
@@ -46,160 +47,10 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
   // Determine if button is disabled or loading
   const isDisabled = disabled || loading
 
-  // Get variant styles
-  const getVariantStyles = (): { container: ViewStyle; text: TextStyle } => {
-    switch (variant) {
-      case 'primary':
-        return {
-          container: {
-            backgroundColor: isDisabled ? theme.colors.primaryLight : theme.colors.primary,
-            borderWidth: 0,
-          },
-          text: {
-            color: theme.colors.textWhite,
-            fontWeight: '600',
-          },
-        }
-
-      case 'secondary':
-        return {
-          container: {
-            backgroundColor: theme.colors.backgroundLight,
-            borderWidth: 1,
-            borderColor: theme.colors.border,
-          },
-          text: {
-            color: theme.colors.text,
-            fontWeight: '500',
-          },
-        }
-
-      case 'destructive':
-        return {
-          container: {
-            backgroundColor: isDisabled ? theme.colors.errorLight : theme.colors.error,
-            borderWidth: 0,
-          },
-          text: {
-            color: theme.colors.textWhite,
-            fontWeight: '600',
-          },
-        }
-
-      case 'ghost':
-        return {
-          container: {
-            backgroundColor: 'transparent',
-            borderWidth: 0,
-          },
-          text: {
-            color: theme.colors.primary,
-            fontWeight: '500',
-          },
-        }
-
-      case 'outline':
-        return {
-          container: {
-            backgroundColor: 'transparent',
-            borderWidth: 1,
-            borderColor: theme.colors.primary,
-          },
-          text: {
-            color: theme.colors.primary,
-            fontWeight: '500',
-          },
-        }
-
-      default:
-        return {
-          container: {
-            backgroundColor: theme.colors.primary,
-            borderWidth: 0,
-          },
-          text: {
-            color: theme.colors.textWhite,
-            fontWeight: '600',
-          },
-        }
-    }
-  }
-
-  // Get size styles
-  const getSizeStyles = (): { container: ViewStyle; text: TextStyle; iconSize: number } => {
-    switch (size) {
-      case 'small':
-        return {
-          container: {
-            paddingVertical: 8,
-            paddingHorizontal: 16,
-            borderRadius: 8,
-          },
-          text: {
-            fontSize: 14,
-          },
-          iconSize: 16,
-        }
-
-      case 'medium':
-        return {
-          container: {
-            paddingVertical: 12,
-            paddingHorizontal: 20,
-            borderRadius: 12,
-          },
-          text: {
-            fontSize: 16,
-          },
-          iconSize: 18,
-        }
-
-      case 'large':
-        return {
-          container: {
-            paddingVertical: 16,
-            paddingHorizontal: 24,
-            borderRadius: 12,
-          },
-          text: {
-            fontSize: 16,
-          },
-          iconSize: 20,
-        }
-
-      default:
-        return {
-          container: {
-            paddingVertical: 12,
-            paddingHorizontal: 20,
-            borderRadius: 12,
-          },
-          text: {
-            fontSize: 16,
-          },
-          iconSize: 18,
-        }
-    }
-  }
-
-  // Get shadow styles
-  const getShadowStyles = (): ViewStyle => {
-    if (!shadow || variant === 'ghost' || variant === 'outline') {
-      return {}
-    }
-
-    return {
-      shadowColor: theme.colors.shadow,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 3,
-    }
-  }
-
-  const variantStyles = getVariantStyles()
-  const sizeStyles = getSizeStyles()
-  const shadowStyles = getShadowStyles()
+  // Get styles from utility functions
+  const variantStyles = getButtonVariantStyles(theme, variant, isDisabled)
+  const sizeStyles = getButtonSizeStyles(size)
+  const shadowStyles = getButtonShadowStyles(theme, shadow, variant)
 
   // Icon color
   const iconColor = variantStyles.text.color
