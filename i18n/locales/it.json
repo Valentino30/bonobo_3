@@ -17,6 +17,10 @@
     "profile": "Il Mio Profilo",
     "importGuide": "Guida all'Importazione"
   },
+  "welcome": {
+    "title": "Benvenuto su Bonobo!",
+    "subtitle": "Siamo qui per aiutarti a migliorare le tue relazioni attraverso approfondimenti basati sull'intelligenza artificiale."
+  },
   "chats": {
     "title": "Le Tue Chat",
     "loading": "Caricamento Chat",

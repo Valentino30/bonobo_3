@@ -17,6 +17,10 @@
     "profile": "My Profile",
     "importGuide": "Import Guide"
   },
+  "welcome": {
+    "title": "Welcome to Bonobo!",
+    "subtitle": "We're here to help you improve your relationships through AI-powered insights."
+  },
   "chats": {
     "title": "Your Chats",
     "loading": "Loading Chats",

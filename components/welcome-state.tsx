@@ -1,11 +1,13 @@
+import { StyleSheet } from 'react-native'
 import { AnimatedIcon } from '@/components/animated-icon'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
-import { StyleSheet } from 'react-native'
+import { useTranslation } from '@/hooks/use-translation'
 
 export function WelcomeState() {
   const theme = useTheme()
+  const { t } = useTranslation()
 
   return (
     <ThemedView style={styles.welcomeState}>
@@ -17,10 +19,8 @@ export function WelcomeState() {
       >
         <ThemedText style={styles.icon}>🤗</ThemedText>
       </ThemedView>
-      <ThemedText style={[styles.title, { color: theme.colors.text }]}>Welcome to Bonobo!</ThemedText>
-      <ThemedText style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
-        We&apos;re here to help you improve your relationships through AI-powered insights.
-      </ThemedText>
+      <ThemedText style={[styles.title, { color: theme.colors.text }]}>{t('welcome.title')}</ThemedText>
+      <ThemedText style={[styles.subtitle, { color: theme.colors.textSecondary }]}>{t('welcome.subtitle')}</ThemedText>
 
       <AnimatedIcon
         icon="arrow-down"
