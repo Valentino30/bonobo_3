@@ -10,11 +10,13 @@ const i18n = new I18n({
 })
 
 // Get device locale (getLocales returns an array, we use the first one)
-const deviceLocale = getLocales()[0]?.languageCode ?? 'en'
+const deviceLanguageCode = getLocales()[0]?.languageCode
+
+// Determine locale: if Italian, use Italian; otherwise default to English
+const selectedLocale = deviceLanguageCode === 'it' ? 'it' : 'en'
 
 // Set the locale based on device settings
-// Falls back to 'en' if device locale is not supported
-i18n.locale = deviceLocale
+i18n.locale = selectedLocale
 i18n.enableFallback = true
 i18n.defaultLocale = 'en'
 
