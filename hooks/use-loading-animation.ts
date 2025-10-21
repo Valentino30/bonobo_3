@@ -39,13 +39,7 @@ export type LoadingAnimationResult = {
  * ```
  */
 export function useLoadingAnimation(config: LoadingAnimationConfig): LoadingAnimationResult {
-  const {
-    stepCount,
-    stepDuration = 1000,
-    pulseScale = 1.15,
-    pulseDuration = 900,
-    onComplete,
-  } = config
+  const { stepCount, stepDuration = 1000, pulseScale = 1.15, pulseDuration = 900, onComplete } = config
 
   const [currentStep, setCurrentStep] = useState(0)
   const [pulseAnim] = useState(new Animated.Value(1))

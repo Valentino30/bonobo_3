@@ -24,13 +24,7 @@ type UseShareImportOptions = {
  * Use this hook when you want the default alert behavior.
  * Use useShareDataProcessor directly if you need custom UI feedback.
  */
-export function useShareImport({
-  shareData,
-  hasShareData,
-  clearShareData,
-  addChat,
-  showAlert,
-}: UseShareImportOptions) {
+export function useShareImport({ shareData, hasShareData, clearShareData, addChat, showAlert }: UseShareImportOptions) {
   // Create alert configurations
   const alerts = useMemo(() => createShareImportAlerts(clearShareData), [clearShareData])
 

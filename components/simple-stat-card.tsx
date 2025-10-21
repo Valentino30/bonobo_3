@@ -15,7 +15,14 @@ export function SimpleStatCard({ title, icon, value, index }: SimpleStatCardProp
 
   return (
     <AnimatedCard
-      containerStyle={[styles.statCard, { backgroundColor: theme.colors.backgroundLight, borderColor: theme.colors.borderLight, shadowColor: theme.colors.shadow }]}
+      containerStyle={[
+        styles.statCard,
+        {
+          backgroundColor: theme.colors.backgroundLight,
+          borderColor: theme.colors.borderLight,
+          shadowColor: theme.colors.shadow,
+        },
+      ]}
       index={index}
     >
       <View style={styles.titleRow}>

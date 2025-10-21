@@ -75,7 +75,9 @@ export class PaymentService {
       console.log('📱 Retrieved device ID:', deviceId)
 
       // Get current user if authenticated
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
 
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
       console.log('🔐 ACCESS CHECK START')
@@ -113,7 +115,9 @@ export class PaymentService {
         return false
       }
 
-      console.log(`📋 Query returned ${entitlements?.length ?? 0} entitlements (filtered by active status + valid payment)`)
+      console.log(
+        `📋 Query returned ${entitlements?.length ?? 0} entitlements (filtered by active status + valid payment)`
+      )
 
       if (!entitlements || entitlements.length === 0) {
         console.log('❌ No valid entitlements found')
@@ -181,15 +185,14 @@ export class PaymentService {
           const now = new Date()
 
           if (now < expiryDate) {
-            console.log(`✅ Access granted: Active ${entitlement.plan_id} subscription (expires ${expiryDate.toISOString()})`)
+            console.log(
+              `✅ Access granted: Active ${entitlement.plan_id} subscription (expires ${expiryDate.toISOString()})`
+            )
             return true
           } else {
             console.log(`❌ Subscription expired at ${expiryDate.toISOString()}`)
             // Mark as expired
-            await supabase
-              .from('user_entitlements')
-              .update({ status: 'expired' })
-              .eq('id', entitlement.id)
+            await supabase.from('user_entitlements').update({ status: 'expired' }).eq('id', entitlement.id)
           }
         }
       }
@@ -210,7 +213,9 @@ export class PaymentService {
       const deviceId = await getDeviceId()
 
       // Get current user if authenticated
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
 
       console.log('🔗 Attempting to assign one-time entitlement to chat:', chatId)
 
@@ -233,9 +238,7 @@ export class PaymentService {
         query = query.eq('device_id', deviceId)
       }
 
-      const { data: entitlements, error } = await query
-        .order('created_at', { ascending: false })
-        .limit(1)
+      const { data: entitlements, error } = await query.order('created_at', { ascending: false }).limit(1)
 
       if (error) {
         console.error('❌ Error fetching entitlements:', error)
@@ -288,13 +291,11 @@ export class PaymentService {
       const deviceId = await getDeviceId()
 
       // Get current user if authenticated
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
 
-      let query = supabase
-        .from('user_entitlements')
-        .select('*')
-        .eq('status', 'active')
-        .neq('plan_id', 'one-time')
+      let query = supabase.from('user_entitlements').select('*').eq('status', 'active').neq('plan_id', 'one-time')
 
       // If user is authenticated, ONLY check by user_id
       // Otherwise, check by device_id only
@@ -334,12 +335,11 @@ export class PaymentService {
       const deviceId = await getDeviceId()
 
       // Get current user if authenticated
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
 
-      let query = supabase
-        .from('user_entitlements')
-        .select('*')
-        .eq('status', 'active')
+      let query = supabase.from('user_entitlements').select('*').eq('status', 'active')
 
       // If user is authenticated, ONLY check by user_id
       // Otherwise, check by device_id only
@@ -349,9 +349,7 @@ export class PaymentService {
         query = query.eq('device_id', deviceId)
       }
 
-      const { data: entitlements, error } = await query
-        .order('created_at', { ascending: false })
-        .limit(1)
+      const { data: entitlements, error } = await query.order('created_at', { ascending: false }).limit(1)
 
       if (error || !entitlements || entitlements.length === 0) {
         return null
@@ -399,22 +397,19 @@ export class PaymentService {
       const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || ''
       const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || ''
 
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/verify-payment`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${supabaseAnonKey}`,
-          },
-          body: JSON.stringify({
-            paymentIntentId,
-            deviceId,
-            planId,
-            chatId,
-          }),
-        }
-      )
+      const response = await fetch(`${supabaseUrl}/functions/v1/verify-payment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${supabaseAnonKey}`,
+        },
+        body: JSON.stringify({
+          paymentIntentId,
+          deviceId,
+          planId,
+          chatId,
+        }),
+      })
 
       const data = await response.json()
 
@@ -440,4 +435,3 @@ export class PaymentService {
     }
   }
 }
-

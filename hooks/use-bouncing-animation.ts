@@ -9,16 +9,9 @@ interface UseBouncingAnimationOptions {
 }
 
 export function useBouncingAnimation(options: UseBouncingAnimationOptions = {}) {
-  const {
-    dotCount = 3,
-    bounceHeight = -3,
-    bounceDuration = 300,
-    staggerDelay = 200,
-  } = options
+  const { dotCount = 3, bounceHeight = -3, bounceDuration = 300, staggerDelay = 200 } = options
 
-  const animatedValues = useRef(
-    Array.from({ length: dotCount }, () => new Animated.Value(0))
-  ).current
+  const animatedValues = useRef(Array.from({ length: dotCount }, () => new Animated.Value(0))).current
 
   useEffect(() => {
     const createBounceAnimation = (animatedValue: Animated.Value, delay: number) => {

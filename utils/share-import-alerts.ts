@@ -59,7 +59,8 @@ export function createShareImportAlerts(clearShareData: () => void) {
 
     noTextData: (): AlertConfig => ({
       title: 'Import Error',
-      message: 'No text data was found in the shared content. Please try exporting the chat again or use manual import.',
+      message:
+        'No text data was found in the shared content. Please try exporting the chat again or use manual import.',
       buttons: [
         {
           text: 'OK',

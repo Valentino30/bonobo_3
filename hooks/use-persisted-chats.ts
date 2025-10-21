@@ -12,7 +12,7 @@ export function usePersistedChats() {
       try {
         // Try to migrate old local storage data first
         await ChatStorage.migrateFromLocalStorage()
-        
+
         // Load from Supabase
         const storedChats = await ChatStorage.loadChats()
         setChats(storedChats)
@@ -90,14 +90,21 @@ export function usePersistedChats() {
     }
   }
 
-  const updateChatAnalysis = async (chatId: string, analysis: ChatAnalysisData, aiInsights?: AIInsights, unlockedInsights?: string[]) => {
+  const updateChatAnalysis = async (
+    chatId: string,
+    analysis: ChatAnalysisData,
+    aiInsights?: AIInsights,
+    unlockedInsights?: string[]
+  ) => {
     try {
       // Update local state immediately
-      setChats((prev) => prev.map((chat) => 
-        chat.id === chatId 
-          ? { ...chat, analysis, aiInsights, unlockedInsights: unlockedInsights ?? chat.unlockedInsights } 
-          : chat
-      ))
+      setChats((prev) =>
+        prev.map((chat) =>
+          chat.id === chatId
+            ? { ...chat, analysis, aiInsights, unlockedInsights: unlockedInsights ?? chat.unlockedInsights }
+            : chat
+        )
+      )
 
       // Persist to storage
       await ChatStorage.updateChatAnalysis(chatId, analysis, aiInsights, unlockedInsights)

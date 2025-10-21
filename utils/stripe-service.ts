@@ -28,7 +28,9 @@ export class StripeService {
       const deviceId = await getDeviceId()
 
       // Get user ID if authenticated
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
       const userId = user?.id
 
       console.log('📞 Calling create-payment-intent with:', {

@@ -34,7 +34,10 @@ function extractFirstName(fullName: string): string {
  * Splits by whitespace and filters out empty strings
  */
 function countWords(text: string): number {
-  return text.trim().split(/\s+/).filter((word) => word.length > 0).length
+  return text
+    .trim()
+    .split(/\s+/)
+    .filter((word) => word.length > 0).length
 }
 
 interface ParticipantStats {
@@ -224,7 +227,9 @@ function calculateParticipantStats(participantName: string, messages: MessageDat
 
   // Calculate average message length (words)
   const averageMessageLength =
-    messageCount > 0 ? Math.round(participantMessages.reduce((sum, m) => sum + countWords(m.content), 0) / messageCount) : 0
+    messageCount > 0
+      ? Math.round(participantMessages.reduce((sum, m) => sum + countWords(m.content), 0) / messageCount)
+      : 0
 
   return {
     name: participantName,

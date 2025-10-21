@@ -1,11 +1,4 @@
-import {
-  Modal,
-  ScrollView,
-  StyleSheet,
-  View,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native'
+import { Modal, ScrollView, StyleSheet, View, KeyboardAvoidingView, Platform } from 'react-native'
 import { ThemedView } from '@/components/themed-view'
 import { ThemedButton } from '@/components/themed-button'
 import { EmailPasswordForm } from '@/components/email-password-form'
@@ -79,52 +72,46 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
               bounces={true}
               keyboardShouldPersistTaps="handled"
             >
-            <ModalHeader
-              emoji="🔐"
-              title="Secure Your Purchase"
-              subtitle="Create an account to access your insights from any device and keep your purchases safe"
-            />
-
-            {error && (
-              <InfoBanner
-                icon="alert-circle"
-                text={error}
-                variant="error"
+              <ModalHeader
+                emoji="🔐"
+                title="Secure Your Purchase"
+                subtitle="Create an account to access your insights from any device and keep your purchases safe"
               />
-            )}
 
-            {/* Form */}
-            <View style={styles.formContainer}>
-              <EmailPasswordForm
-                email={email}
-                onEmailChange={(text) => createOnChangeHandler(setEmail)(text.trim())}
-                password={password}
-                onPasswordChange={createOnChangeHandler(setPassword)}
-                confirmPassword={confirmPassword}
-                onConfirmPasswordChange={createOnChangeHandler(setConfirmPassword)}
+              {error && <InfoBanner icon="alert-circle" text={error} variant="error" />}
+
+              {/* Form */}
+              <View style={styles.formContainer}>
+                <EmailPasswordForm
+                  email={email}
+                  onEmailChange={(text) => createOnChangeHandler(setEmail)(text.trim())}
+                  password={password}
+                  onPasswordChange={createOnChangeHandler(setPassword)}
+                  confirmPassword={confirmPassword}
+                  onConfirmPasswordChange={createOnChangeHandler(setConfirmPassword)}
+                  disabled={isLoading}
+                  variant="filled"
+                  showLabels
+                />
+
+                <InfoBanner
+                  icon="lock"
+                  text="Your data is private and secure. We only use your email to help you access your account."
+                  variant="success"
+                />
+              </View>
+
+              {/* Create Account Button */}
+              <ThemedButton
+                title="Create Account & Continue"
+                onPress={handleCreateAccount}
+                variant="primary"
+                size="large"
+                loading={isLoading}
                 disabled={isLoading}
-                variant="filled"
-                showLabels
+                fullWidth
               />
-
-              <InfoBanner
-                icon="lock"
-                text="Your data is private and secure. We only use your email to help you access your account."
-                variant="success"
-              />
-            </View>
-
-            {/* Create Account Button */}
-            <ThemedButton
-              title="Create Account & Continue"
-              onPress={handleCreateAccount}
-              variant="primary"
-              size="large"
-              loading={isLoading}
-              disabled={isLoading}
-              fullWidth
-            />
-          </ScrollView>
+            </ScrollView>
           </ThemedView>
         </KeyboardAvoidingView>
       </View>

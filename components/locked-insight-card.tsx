@@ -16,13 +16,28 @@ interface LockedInsightCardProps {
   index?: number
 }
 
-export function LockedInsightCard({ title, icon, badge, onUnlock, isLoading, unlockText, index }: LockedInsightCardProps) {
+export function LockedInsightCard({
+  title,
+  icon,
+  badge,
+  onUnlock,
+  isLoading,
+  unlockText,
+  index,
+}: LockedInsightCardProps) {
   const theme = useTheme()
 
   return (
     <AnimatedCard
       onPress={onUnlock}
-      containerStyle={[styles.card, { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow, borderColor: theme.colors.backgroundSecondary }]}
+      containerStyle={[
+        styles.card,
+        {
+          backgroundColor: theme.colors.backgroundLight,
+          shadowColor: theme.colors.shadow,
+          borderColor: theme.colors.backgroundSecondary,
+        },
+      ]}
       index={index}
     >
       {/* Header Section */}
@@ -31,7 +46,12 @@ export function LockedInsightCard({ title, icon, badge, onUnlock, isLoading, unl
           {icon && <Text style={styles.icon}>{icon}</Text>}
           <Text style={[styles.title, { color: theme.colors.text }]}>{title}</Text>
           {/* Show Premium badge when locked */}
-          <View style={[styles.premiumBadge, { backgroundColor: theme.colors.backgroundInfo, borderColor: theme.colors.primaryLighter }]}>
+          <View
+            style={[
+              styles.premiumBadge,
+              { backgroundColor: theme.colors.backgroundInfo, borderColor: theme.colors.primaryLighter },
+            ]}
+          >
             <Text style={[styles.premiumBadgeText, { color: theme.colors.primary }]}>PREMIUM</Text>
           </View>
         </View>

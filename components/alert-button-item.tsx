@@ -27,7 +27,7 @@ export function AlertButtonItem({ button, isLast, isSingle, onPress }: AlertButt
     },
   }
 
-  const styleKey = (button.style === 'cancel' || button.style === 'destructive') ? button.style : 'default'
+  const styleKey = button.style === 'cancel' || button.style === 'destructive' ? button.style : 'default'
   const buttonStyle = buttonStyles[styleKey]
 
   return (

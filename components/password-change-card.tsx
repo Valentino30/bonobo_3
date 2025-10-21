@@ -84,9 +84,7 @@ export function PasswordChangeCard({
       >
         <View style={[styles.passwordHeader, { borderBottomColor: theme.colors.borderLight }]}>
           <MaterialCommunityIcons name="lock-outline" size={18} color={theme.colors.primary} />
-          <ThemedText style={[styles.passwordHeaderText, { color: theme.colors.text }]}>
-            Update Password
-          </ThemedText>
+          <ThemedText style={[styles.passwordHeaderText, { color: theme.colors.text }]}>Update Password</ThemedText>
         </View>
 
         <View style={styles.passwordForm}>

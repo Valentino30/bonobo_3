@@ -3,7 +3,7 @@
  * All colors and design tokens used across the app
  */
 
-import { defaultPalette } from './color-palettes';
+import { defaultPalette } from './color-palettes'
 
 export const theme = {
   colors: defaultPalette.colors,

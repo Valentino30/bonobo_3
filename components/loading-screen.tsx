@@ -16,13 +16,17 @@ export function LoadingScreen({ icon = 'database-search', title, subtitle }: Loa
 
   return (
     <ThemedView style={styles.loadingContainer}>
-      <ThemedView style={[styles.loadingCard, { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow, borderColor: theme.colors.backgroundSecondary }]}>
-        <AnimatedIcon
-          icon={icon}
-          iconSize={48}
-          containerSize={80}
-          animation="pulsate"
-        />
+      <ThemedView
+        style={[
+          styles.loadingCard,
+          {
+            backgroundColor: theme.colors.backgroundLight,
+            shadowColor: theme.colors.shadow,
+            borderColor: theme.colors.backgroundSecondary,
+          },
+        ]}
+      >
+        <AnimatedIcon icon={icon} iconSize={48} containerSize={80} animation="pulsate" />
         <ThemedText style={[styles.loadingTitle, { color: theme.colors.text }]}>{title}</ThemedText>
         <ThemedText style={[styles.loadingSubtitle, { color: theme.colors.textTertiary }]}>{subtitle}</ThemedText>
       </ThemedView>

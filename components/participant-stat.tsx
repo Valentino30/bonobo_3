@@ -26,12 +26,8 @@ export function ParticipantStat({ participant }: ParticipantStatProps) {
 
       {parsedValue.hasUnit ? (
         <View style={styles.valueWithUnit}>
-          <ThemedText style={[styles.participantNumber, { color: theme.colors.text }]}>
-            {parsedValue.number}
-          </ThemedText>
-          <ThemedText style={[styles.unitText, { color: theme.colors.textSecondary }]}>
-            {parsedValue.unit}
-          </ThemedText>
+          <ThemedText style={[styles.participantNumber, { color: theme.colors.text }]}>{parsedValue.number}</ThemedText>
+          <ThemedText style={[styles.unitText, { color: theme.colors.textSecondary }]}>{parsedValue.unit}</ThemedText>
         </View>
       ) : (
         <ThemedText style={[styles.participantNumber, { color: theme.colors.text }]} numberOfLines={1}>

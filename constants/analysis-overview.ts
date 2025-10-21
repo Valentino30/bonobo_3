@@ -15,7 +15,10 @@ export type OverviewCardConfig = {
   /** Only for simple cards */
   getValue?: (analysis: ChatAnalysisData) => number | string
   /** Only for comparison cards */
-  getParticipants?: (analysis: ChatAnalysisData, colors: ThemeColors) => Array<{
+  getParticipants?: (
+    analysis: ChatAnalysisData,
+    colors: ThemeColors
+  ) => Array<{
     name: string
     value: number | string
     progressValue?: number

@@ -71,7 +71,9 @@ export function AnalysisInsights({
     )
   }
 
-  return <View style={styles.container}>{INSIGHT_CONFIGS.map((config, index) => renderInsightCard(config, index))}</View>
+  return (
+    <View style={styles.container}>{INSIGHT_CONFIGS.map((config, index) => renderInsightCard(config, index))}</View>
+  )
 }
 
 const styles = StyleSheet.create({

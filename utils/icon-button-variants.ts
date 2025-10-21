@@ -13,10 +13,7 @@ interface IconButtonSizeStyles {
   padding: number
 }
 
-export function getIconButtonVariantStyles(
-  theme: Theme,
-  variant: IconButtonVariant
-): IconButtonVariantStyles {
+export function getIconButtonVariantStyles(theme: Theme, variant: IconButtonVariant): IconButtonVariantStyles {
   const variants: Record<IconButtonVariant, IconButtonVariantStyles> = {
     primary: {
       iconColor: theme.colors.primary,

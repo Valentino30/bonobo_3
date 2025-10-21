@@ -1,17 +1,22 @@
-import { TouchableOpacity, StyleSheet, ViewStyle } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useTheme } from '@/contexts/theme-context';
-import { getIconButtonVariantStyles, getIconButtonSizeStyles, type IconButtonVariant, type IconButtonSize } from '@/utils/icon-button-variants';
+import { TouchableOpacity, StyleSheet, ViewStyle } from 'react-native'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { useTheme } from '@/contexts/theme-context'
+import {
+  getIconButtonVariantStyles,
+  getIconButtonSizeStyles,
+  type IconButtonVariant,
+  type IconButtonSize,
+} from '@/utils/icon-button-variants'
 
 export interface ThemedIconButtonProps {
-  icon: keyof typeof MaterialCommunityIcons.glyphMap;
-  onPress: (event?: any) => void;
-  variant?: IconButtonVariant;
-  size?: IconButtonSize;
-  disabled?: boolean;
-  style?: ViewStyle | ViewStyle[];
-  activeOpacity?: number;
-  hitSlop?: { top: number; bottom: number; left: number; right: number };
+  icon: keyof typeof MaterialCommunityIcons.glyphMap
+  onPress: (event?: any) => void
+  variant?: IconButtonVariant
+  size?: IconButtonSize
+  disabled?: boolean
+  style?: ViewStyle | ViewStyle[]
+  activeOpacity?: number
+  hitSlop?: { top: number; bottom: number; left: number; right: number }
 }
 
 export const ThemedIconButton: React.FC<ThemedIconButtonProps> = ({
@@ -24,14 +29,14 @@ export const ThemedIconButton: React.FC<ThemedIconButtonProps> = ({
   activeOpacity = 0.7,
   hitSlop = { top: 10, bottom: 10, left: 10, right: 10 },
 }) => {
-  const theme = useTheme();
+  const theme = useTheme()
 
   // Determine if button is disabled
-  const isDisabled = disabled;
+  const isDisabled = disabled
 
   // Get styles from utility functions
-  const variantStyles = getIconButtonVariantStyles(theme, variant);
-  const sizeValues = getIconButtonSizeStyles(size);
+  const variantStyles = getIconButtonVariantStyles(theme, variant)
+  const sizeValues = getIconButtonSizeStyles(size)
 
   return (
     <TouchableOpacity
@@ -55,8 +60,8 @@ export const ThemedIconButton: React.FC<ThemedIconButtonProps> = ({
         color={isDisabled ? theme.colors.textLight : variantStyles.iconColor}
       />
     </TouchableOpacity>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -66,4 +71,4 @@ const styles = StyleSheet.create({
   disabled: {
     opacity: 0.5,
   },
-});
+})

@@ -128,27 +128,27 @@ export function Paywall({ visible, onClose, onPurchase }: PaywallProps) {
               <ThemedText style={styles.featuresTitle}>What you&apos;ll get:</ThemedText>
               <View style={styles.feature}>
                 <Text style={styles.featureIcon}>✨</Text>
-                <ThemedText style={[styles.featureText, { color: theme.colors.textSecondary }]}>AI-powered relationship insights</ThemedText>
+                <ThemedText style={[styles.featureText, { color: theme.colors.textSecondary }]}>
+                  AI-powered relationship insights
+                </ThemedText>
               </View>
               <View style={styles.feature}>
                 <Text style={styles.featureIcon}>🎯</Text>
-                <ThemedText style={[styles.featureText, { color: theme.colors.textSecondary }]}>Personalized compatibility analysis</ThemedText>
+                <ThemedText style={[styles.featureText, { color: theme.colors.textSecondary }]}>
+                  Personalized compatibility analysis
+                </ThemedText>
               </View>
               <View style={styles.feature}>
                 <Text style={styles.featureIcon}>💡</Text>
-                <ThemedText style={[styles.featureText, { color: theme.colors.textSecondary }]}>Actionable relationship tips</ThemedText>
+                <ThemedText style={[styles.featureText, { color: theme.colors.textSecondary }]}>
+                  Actionable relationship tips
+                </ThemedText>
               </View>
             </View>
 
             {/* Close Button */}
             <View style={styles.closeButtonContainer}>
-              <ThemedButton
-                title="Maybe Later"
-                onPress={onClose}
-                variant="ghost"
-                size="medium"
-                fullWidth
-              />
+              <ThemedButton title="Maybe Later" onPress={onClose} variant="ghost" size="medium" fullWidth />
             </View>
           </ScrollView>
         </ThemedView>

@@ -22,11 +22,7 @@ export interface VariantStyle {
  * Get consistent variant styles for UI components (badges, banners, cards)
  * Supports custom overrides for each color property
  */
-export function getVariantStyles(
-  theme: Theme,
-  variant: VariantType,
-  overrides?: VariantStyleOverrides
-): VariantStyle {
+export function getVariantStyles(theme: Theme, variant: VariantType, overrides?: VariantStyleOverrides): VariantStyle {
   const baseStyles: Record<VariantType, VariantStyle> = {
     default: {
       backgroundColor: theme.colors.backgroundSecondary,

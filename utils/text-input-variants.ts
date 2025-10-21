@@ -10,11 +10,7 @@ interface TextInputSizeStyles {
   iconSize: number
 }
 
-export function getTextInputVariantStyles(
-  theme: Theme,
-  variant: TextInputVariant,
-  error: boolean
-): ViewStyle {
+export function getTextInputVariantStyles(theme: Theme, variant: TextInputVariant, error: boolean): ViewStyle {
   const baseStyle: ViewStyle = {
     backgroundColor: theme.colors.background,
     borderWidth: 1,

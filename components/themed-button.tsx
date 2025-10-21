@@ -1,7 +1,13 @@
 import { useTheme } from '@/contexts/theme-context'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { StyleSheet, Text, TextStyle, TouchableOpacity, ViewStyle } from 'react-native'
-import { getButtonVariantStyles, getButtonSizeStyles, getButtonShadowStyles, getButtonAlignmentStyles, type ButtonAlign } from '@/utils/button-variants'
+import {
+  getButtonVariantStyles,
+  getButtonSizeStyles,
+  getButtonShadowStyles,
+  getButtonAlignmentStyles,
+  type ButtonAlign,
+} from '@/utils/button-variants'
 import { LoadingText } from '@/components/loading-text'
 
 export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'ghost' | 'outline'
@@ -78,7 +84,13 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
       {loading ? (
         <LoadingText
           text={loadingTitle || title}
-          textStyle={StyleSheet.flatten([styles.text, variantStyles.text, sizeStyles.text, uppercase && styles.uppercase, textStyle])}
+          textStyle={StyleSheet.flatten([
+            styles.text,
+            variantStyles.text,
+            sizeStyles.text,
+            uppercase && styles.uppercase,
+            textStyle,
+          ])}
           color={String(variantStyles.text.color)}
         />
       ) : (

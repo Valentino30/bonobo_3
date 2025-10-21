@@ -18,7 +18,16 @@ export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       {/* Main Content Card */}
-      <View style={[styles.card, { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow, borderColor: theme.colors.backgroundSecondary }]}>
+      <View
+        style={[
+          styles.card,
+          {
+            backgroundColor: theme.colors.backgroundLight,
+            shadowColor: theme.colors.shadow,
+            borderColor: theme.colors.backgroundSecondary,
+          },
+        ]}
+      >
         {/* Animated Icon */}
         <View style={styles.iconWrapper}>
           <AnimatedIcon icon={ANALYSIS_LOADING_STEPS[currentStep].icon} animation="pulsate" />
@@ -35,7 +44,11 @@ export function AnalysisLoading({ onComplete }: { onComplete?: () => void }) {
         </View>
 
         {/* Progress Bar */}
-        <LoadingProgressBar currentStep={currentStep + 1} totalSteps={ANALYSIS_LOADING_STEPS.length} progressWidth={progressWidth} />
+        <LoadingProgressBar
+          currentStep={currentStep + 1}
+          totalSteps={ANALYSIS_LOADING_STEPS.length}
+          progressWidth={progressWidth}
+        />
       </View>
 
       {/* Bottom Tip */}

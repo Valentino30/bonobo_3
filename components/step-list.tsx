@@ -17,23 +17,15 @@ export function StepList({ title, steps }: StepListProps) {
 
   return (
     <View style={styles.stepsContainer}>
-      {title && (
-        <ThemedText style={[styles.sectionTitle, { color: theme.colors.darkOverlay }]}>
-          {title}
-        </ThemedText>
-      )}
+      {title && <ThemedText style={[styles.sectionTitle, { color: theme.colors.darkOverlay }]}>{title}</ThemedText>}
 
       {steps.map((step, index) => (
         <View key={index} style={styles.step}>
           <View style={[styles.stepNumber, { backgroundColor: theme.colors.primary }]}>
-            <ThemedText style={[styles.stepNumberText, { color: theme.colors.textWhite }]}>
-              {index + 1}
-            </ThemedText>
+            <ThemedText style={[styles.stepNumberText, { color: theme.colors.textWhite }]}>{index + 1}</ThemedText>
           </View>
           <View style={styles.stepContent}>
-            <ThemedText style={[styles.stepTitle, { color: theme.colors.darkOverlay }]}>
-              {step.title}
-            </ThemedText>
+            <ThemedText style={[styles.stepTitle, { color: theme.colors.darkOverlay }]}>{step.title}</ThemedText>
             <ThemedText style={[styles.stepDescription, { color: theme.colors.primaryDark }]}>
               {step.description}
             </ThemedText>

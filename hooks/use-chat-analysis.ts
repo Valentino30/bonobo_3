@@ -156,7 +156,10 @@ export function useChatAnalysis({ showAlert }: UseChatAnalysisOptions) {
             console.error('❌ Failed to assign entitlement:', assignError)
             setLoadingInsight(null)
             setShowPaywall(true)
-            showAlert('Payment Verification Failed', 'Could not verify your payment. Please try again or contact support.')
+            showAlert(
+              'Payment Verification Failed',
+              'Could not verify your payment. Please try again or contact support.'
+            )
             return
           }
         } else {

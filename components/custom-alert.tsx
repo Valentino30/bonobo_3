@@ -27,7 +27,12 @@ export function CustomAlert({ visible, title, message, buttons = [{ text: 'OK' }
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onDismiss}>
       <View style={[styles.overlay, { backgroundColor: theme.colors.backgroundOverlay }]}>
-        <View style={[styles.alertContainer, { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow }]}>
+        <View
+          style={[
+            styles.alertContainer,
+            { backgroundColor: theme.colors.backgroundLight, shadowColor: theme.colors.shadow },
+          ]}
+        >
           {/* Alert Content */}
           <View style={styles.content}>
             <Text style={[styles.title, { color: theme.colors.text }]}>{title}</Text>

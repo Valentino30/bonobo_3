@@ -1,10 +1,15 @@
 import { useTheme } from '@/contexts/theme-context'
+import {
+  getTextInputSizeStyles,
+  getTextInputVariantStyles,
+  type TextInputSize,
+  type TextInputVariant,
+} from '@/utils/text-input-variants'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useState } from 'react'
 import { StyleSheet, TextInput, TextInputProps, TextStyle, View, ViewStyle } from 'react-native'
-import { ThemedIconButton } from './themed-icon-button'
-import { getTextInputVariantStyles, getTextInputSizeStyles, type TextInputVariant, type TextInputSize } from '@/utils/text-input-variants'
 import { InfoBanner } from './info-banner'
+import { ThemedIconButton } from './themed-icon-button'
 
 export interface ThemedTextInputProps extends Omit<TextInputProps, 'style' | 'placeholderTextColor'> {
   variant?: TextInputVariant

@@ -28,9 +28,7 @@ export function ModalHeader({ emoji, title, subtitle }: ModalHeaderProps) {
       <ThemedText type="title" style={styles.title}>
         {title}
       </ThemedText>
-      <ThemedText style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
-        {subtitle}
-      </ThemedText>
+      <ThemedText style={[styles.subtitle, { color: theme.colors.textSecondary }]}>{subtitle}</ThemedText>
     </View>
   )
 }

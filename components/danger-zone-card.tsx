@@ -64,9 +64,7 @@ export function DangerZoneCard({
           <MaterialCommunityIcons name={icon} size={iconSize} color={theme.colors.textDanger} />
           <ThemedText style={[styles.dangerTitle, { color: theme.colors.textDanger }]}>{title}</ThemedText>
         </View>
-        <ThemedText style={[styles.dangerDescription, { color: theme.colors.textSecondary }]}>
-          {description}
-        </ThemedText>
+        <ThemedText style={[styles.dangerDescription, { color: theme.colors.textSecondary }]}>{description}</ThemedText>
         <ThemedButton
           title={buttonText}
           onPress={onPress}

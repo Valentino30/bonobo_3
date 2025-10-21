@@ -112,10 +112,7 @@ serve(async (req: Request) => {
 
       if (!planId || !deviceId) {
         console.error('❌ Missing metadata:', paymentIntent.metadata)
-        return new Response(
-          JSON.stringify({ error: 'Missing planId or deviceId in metadata' }),
-          { status: 400 }
-        )
+        return new Response(JSON.stringify({ error: 'Missing planId or deviceId in metadata' }), { status: 400 })
       }
 
       console.log('📝 Payment metadata:', { planId, deviceId, userId, chatId })
@@ -185,10 +182,9 @@ serve(async (req: Request) => {
 
       if (dbError) {
         console.error('❌ Database error:', dbError)
-        return new Response(
-          JSON.stringify({ error: `Failed to save entitlement: ${dbError.message}` }),
-          { status: 500 }
-        )
+        return new Response(JSON.stringify({ error: `Failed to save entitlement: ${dbError.message}` }), {
+          status: 500,
+        })
       }
 
       console.log('✅ Entitlement created:', entitlement?.id)

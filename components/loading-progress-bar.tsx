@@ -17,7 +17,9 @@ export function LoadingProgressBar({ currentStep, totalSteps, progressWidth }: L
   return (
     <View style={styles.container}>
       <View style={[styles.progressBarBackground, { backgroundColor: theme.colors.backgroundSecondary }]}>
-        <Animated.View style={[styles.progressBarFill, { backgroundColor: theme.colors.primary, width: progressWidth }]} />
+        <Animated.View
+          style={[styles.progressBarFill, { backgroundColor: theme.colors.primary, width: progressWidth }]}
+        />
       </View>
       <Text style={[styles.progressText, { color: theme.colors.primary }]}>
         {currentStep} of {totalSteps}

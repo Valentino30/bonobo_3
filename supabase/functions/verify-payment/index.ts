@@ -44,10 +44,10 @@ serve(async (req: Request) => {
 
     if (!paymentIntentId || !deviceId || !planId) {
       console.error('❌ Missing required parameters')
-      return new Response(
-        JSON.stringify({ error: 'Missing paymentIntentId, deviceId, or planId' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      )
+      return new Response(JSON.stringify({ error: 'Missing paymentIntentId, deviceId, or planId' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
     }
 
     console.log('📝 Verifying payment:', {
@@ -87,10 +87,10 @@ serve(async (req: Request) => {
       })
     } catch (error) {
       console.error('❌ Failed to retrieve payment intent from Stripe:', error)
-      return new Response(
-        JSON.stringify({ error: 'Failed to retrieve payment intent from Stripe' }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
-      )
+      return new Response(JSON.stringify({ error: 'Failed to retrieve payment intent from Stripe' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      })
     }
 
     // Verify payment succeeded
@@ -112,10 +112,10 @@ serve(async (req: Request) => {
         expected: { planId, deviceId },
         actual: paymentIntent.metadata,
       })
-      return new Response(
-        JSON.stringify({ error: 'Metadata mismatch' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      )
+      return new Response(JSON.stringify({ error: 'Metadata mismatch' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
     }
 
     console.log('✅ Payment verified - creating entitlement')
@@ -162,10 +162,10 @@ serve(async (req: Request) => {
 
     if (dbError) {
       console.error('❌ Database error:', dbError)
-      return new Response(
-        JSON.stringify({ error: `Failed to create entitlement: ${dbError.message}` }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
-      )
+      return new Response(JSON.stringify({ error: `Failed to create entitlement: ${dbError.message}` }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      })
     }
 
     console.log('✅ Entitlement created:', entitlement.id)
@@ -181,9 +181,9 @@ serve(async (req: Request) => {
   } catch (error) {
     console.error('❌ Verify payment error:', error)
     const errorMessage = error instanceof Error ? error.message : 'Verification failed'
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    )
+    return new Response(JSON.stringify({ error: errorMessage }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    })
   }
 })

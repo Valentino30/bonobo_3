@@ -30,12 +30,7 @@ export function FlippableCard({ front, back, onFlip, style }: FlippableCardProps
   return (
     <Pressable onPress={handleFlip} style={[styles.container, style]}>
       <Animated.View
-        style={[
-          styles.cardFace,
-          frontAnimatedStyle,
-          { opacity: frontOpacity },
-          isFlipped && styles.hiddenFace,
-        ]}
+        style={[styles.cardFace, frontAnimatedStyle, { opacity: frontOpacity }, isFlipped && styles.hiddenFace]}
       >
         {front}
       </Animated.View>

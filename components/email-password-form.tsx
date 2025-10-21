@@ -114,8 +114,9 @@ export function EmailPasswordForm({
         />
       )}
 
-      {confirmPassword !== undefined && onConfirmPasswordChange && (
-        showLabels ? (
+      {confirmPassword !== undefined &&
+        onConfirmPasswordChange &&
+        (showLabels ? (
           <View style={styles.inputGroup}>
             <ThemedText style={[styles.label, { color: theme.colors.textDark }]}>Confirm Password</ThemedText>
             <ThemedTextInput
@@ -136,8 +137,7 @@ export function EmailPasswordForm({
             password
             icon="lock-check-outline"
           />
-        )
-      )}
+        ))}
     </View>
   )
 }

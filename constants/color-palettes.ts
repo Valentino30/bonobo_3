@@ -4,68 +4,68 @@
  */
 
 export type ColorPalette = {
-  id: string;
-  name: string;
+  id: string
+  name: string
   colors: {
     // Primary Brand Colors
-    primary: string;
-    primaryDark: string;
-    primaryLight: string;
-    primaryLighter: string;
-    primaryAccent: string;
+    primary: string
+    primaryDark: string
+    primaryLight: string
+    primaryLighter: string
+    primaryAccent: string
 
     // Background Colors
-    background: string;
-    backgroundLight: string;
-    backgroundCard: string;
-    backgroundInput: string;
-    backgroundSecondary: string;
-    backgroundSuccess: string;
-    backgroundSuccessLight: string;
-    backgroundInfo: string;
-    backgroundDanger: string;
-    backgroundError: string;
-    backgroundOverlay: string;
-    backgroundLoading: string;
+    background: string
+    backgroundLight: string
+    backgroundCard: string
+    backgroundInput: string
+    backgroundSecondary: string
+    backgroundSuccess: string
+    backgroundSuccessLight: string
+    backgroundInfo: string
+    backgroundDanger: string
+    backgroundError: string
+    backgroundOverlay: string
+    backgroundLoading: string
 
     // Text Colors
-    text: string;
-    textSecondary: string;
-    textTertiary: string;
-    textLight: string;
-    textDark: string;
-    textWhite: string;
-    textPlaceholder: string;
-    textSuccess: string;
-    textDanger: string;
-    textError: string;
-    textInfo: string;
+    text: string
+    textSecondary: string
+    textTertiary: string
+    textLight: string
+    textDark: string
+    textWhite: string
+    textPlaceholder: string
+    textSuccess: string
+    textDanger: string
+    textError: string
+    textInfo: string
 
     // Border Colors
-    border: string;
-    borderLight: string;
-    borderSecondary: string;
-    borderFocus: string;
-    borderDanger: string;
-    borderInput: string;
-    borderDivider: string;
+    border: string
+    borderLight: string
+    borderSecondary: string
+    borderFocus: string
+    borderDanger: string
+    borderInput: string
+    borderDivider: string
 
     // Shadow Colors
-    shadow: string;
+    shadow: string
 
     // Status Colors
-    success: string;
-    successDark: string;
-    error: string;
-    errorLight: string;
-    warning: string;
-    info: string;
-    infoLight: string;
+    success: string
+    successDark: string
+    error: string
+    errorLight: string
+    warning: string
+    info: string
+    infoLight: string
 
     // Misc Colors
-    darkOverlay: string;
-  };
-};
+    darkOverlay: string
+  }
+}
 
 // Matcha Green (Original)
 export const matchaGreen: ColorPalette = {
@@ -130,7 +130,7 @@ export const matchaGreen: ColorPalette = {
     // Misc Colors
     darkOverlay: '#2C3E50',
   },
-};
+}
 
 // Deep Teal
 export const deepTeal: ColorPalette = {
@@ -195,7 +195,7 @@ export const deepTeal: ColorPalette = {
     // Misc Colors
     darkOverlay: '#2C4A54',
   },
-};
+}
 
 // Soft Lavender
 export const softLavender: ColorPalette = {
@@ -260,7 +260,7 @@ export const softLavender: ColorPalette = {
     // Misc Colors
     darkOverlay: '#4A3F5C',
   },
-};
+}
 
 // Sage Green
 export const sageGreen: ColorPalette = {
@@ -325,7 +325,7 @@ export const sageGreen: ColorPalette = {
     // Misc Colors
     darkOverlay: '#3A4D3F',
   },
-};
+}
 
 // Powder Blue
 export const powderBlue: ColorPalette = {
@@ -390,7 +390,7 @@ export const powderBlue: ColorPalette = {
     // Misc Colors
     darkOverlay: '#3F5460',
   },
-};
+}
 
 // Misty Blue
 export const mistyBlue: ColorPalette = {
@@ -455,17 +455,10 @@ export const mistyBlue: ColorPalette = {
     // Misc Colors
     darkOverlay: '#3F4D4D',
   },
-};
+}
 
 // Export all palettes
-export const colorPalettes: ColorPalette[] = [
-  matchaGreen,
-  deepTeal,
-  softLavender,
-  sageGreen,
-  powderBlue,
-  mistyBlue,
-];
+export const colorPalettes: ColorPalette[] = [matchaGreen, deepTeal, softLavender, sageGreen, powderBlue, mistyBlue]
 
 // Default palette
-export const defaultPalette = matchaGreen;
+export const defaultPalette = matchaGreen

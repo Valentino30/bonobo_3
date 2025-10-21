@@ -23,14 +23,7 @@ interface LabelValueCardProps {
  *   value="user@example.com"
  * />
  */
-export function LabelValueCard({
-  icon,
-  label,
-  value,
-  iconSize = 20,
-  iconColor,
-  style,
-}: LabelValueCardProps) {
+export function LabelValueCard({ icon, label, value, iconSize = 20, iconColor, style }: LabelValueCardProps) {
   const theme = useTheme()
 
   return (
@@ -46,14 +39,8 @@ export function LabelValueCard({
         ]}
       >
         <View style={styles.cardHeader}>
-          <MaterialCommunityIcons
-            name={icon}
-            size={iconSize}
-            color={iconColor || theme.colors.primary}
-          />
-          <ThemedText style={[styles.cardLabel, { color: theme.colors.textTertiary }]}>
-            {label}
-          </ThemedText>
+          <MaterialCommunityIcons name={icon} size={iconSize} color={iconColor || theme.colors.primary} />
+          <ThemedText style={[styles.cardLabel, { color: theme.colors.textTertiary }]}>{label}</ThemedText>
         </View>
         <ThemedText style={[styles.cardValue, { color: theme.colors.text }]}>{value}</ThemedText>
       </View>

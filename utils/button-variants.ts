@@ -15,11 +15,7 @@ interface ButtonSizeStyles {
   iconSize: number
 }
 
-export function getButtonVariantStyles(
-  theme: Theme,
-  variant: ButtonVariant,
-  isDisabled: boolean
-): ButtonVariantStyles {
+export function getButtonVariantStyles(theme: Theme, variant: ButtonVariant, isDisabled: boolean): ButtonVariantStyles {
   const variants: Record<ButtonVariant, ButtonVariantStyles> = {
     primary: {
       container: {
@@ -118,11 +114,7 @@ export function getButtonSizeStyles(size: ButtonSize): ButtonSizeStyles {
   return sizes[size]
 }
 
-export function getButtonShadowStyles(
-  theme: Theme,
-  shadow: boolean,
-  variant: ButtonVariant
-): ViewStyle {
+export function getButtonShadowStyles(theme: Theme, shadow: boolean, variant: ButtonVariant): ViewStyle {
   if (!shadow || variant === 'ghost' || variant === 'outline') {
     return {}
   }

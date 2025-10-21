@@ -210,7 +210,9 @@ export class AuthService {
    */
   static async deleteAccount(): Promise<AuthResult> {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
 
       if (!user) {
         return {
@@ -253,7 +255,9 @@ export class AuthService {
    */
   static async getCurrentUser(): Promise<UserProfile | null> {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
 
       if (!user) {
         return null
@@ -275,12 +279,14 @@ export class AuthService {
    */
   static async isAuthenticated(): Promise<boolean> {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
       console.log('🔐 isAuthenticated check:', {
         hasUser: !!user,
         hasEmail: !!user?.email,
         emailConfirmedAt: user?.email_confirmed_at,
-        userId: user?.id
+        userId: user?.id,
       })
       return !!user && !!user.email
     } catch (error) {

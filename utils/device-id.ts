@@ -18,14 +18,14 @@ export async function getDeviceId(): Promise<string> {
   try {
     // Try to get existing device ID
     let deviceId = await SecureStore.getItemAsync(DEVICE_ID_KEY)
-    
+
     if (!deviceId) {
       // Generate and save new device ID
       deviceId = generateDeviceId()
       await SecureStore.setItemAsync(DEVICE_ID_KEY, deviceId)
       console.log('Generated new device ID:', deviceId)
     }
-    
+
     return deviceId
   } catch (error) {
     console.error('Error getting device ID:', error)

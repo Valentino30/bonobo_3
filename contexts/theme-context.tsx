@@ -19,7 +19,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   const [currentPalette, setCurrentPalette] = useState<ColorPalette>(colorPalettes[1])
 
   const setColorPalette = (paletteId: string) => {
-    const palette = colorPalettes.find(p => p.id === paletteId)
+    const palette = colorPalettes.find((p) => p.id === paletteId)
     if (palette) {
       setCurrentPalette(palette)
     }

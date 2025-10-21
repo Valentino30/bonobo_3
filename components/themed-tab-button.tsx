@@ -1,28 +1,22 @@
-import { StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { ThemedText } from '@/components/themed-text';
-import { useTheme } from '@/contexts/theme-context';
+import { StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { ThemedText } from '@/components/themed-text'
+import { useTheme } from '@/contexts/theme-context'
 
 export interface ThemedTabButtonProps {
-  label: string;
-  icon: keyof typeof MaterialCommunityIcons.glyphMap;
-  isActive: boolean;
-  onPress: () => void;
-  style?: ViewStyle;
+  label: string
+  icon: keyof typeof MaterialCommunityIcons.glyphMap
+  isActive: boolean
+  onPress: () => void
+  style?: ViewStyle
 }
 
 /**
  * Reusable themed tab button component with icon and label
  * Automatically styles based on active state using theme colors
  */
-export const ThemedTabButton: React.FC<ThemedTabButtonProps> = ({
-  label,
-  icon,
-  isActive,
-  onPress,
-  style,
-}) => {
-  const theme = useTheme();
+export const ThemedTabButton: React.FC<ThemedTabButtonProps> = ({ label, icon, isActive, onPress, style }) => {
+  const theme = useTheme()
 
   return (
     <TouchableOpacity
@@ -56,8 +50,8 @@ export const ThemedTabButton: React.FC<ThemedTabButtonProps> = ({
         </ThemedText>
       </View>
     </TouchableOpacity>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   tab: {
@@ -80,4 +74,4 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     letterSpacing: 0.3,
   },
-});
+})

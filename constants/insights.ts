@@ -34,7 +34,7 @@ export const INSIGHT_CONFIGS: InsightConfig[] = [
     unlockText: 'What are the warning signs?',
     explanationTitle: 'Pattern Recognition',
     explanationText:
-      "We analyze subtle patterns in how conflicts start, how boundaries are respected, and whether concerns get dismissed or heard. What seems like small moments can reveal larger dynamics worth addressing early.",
+      'We analyze subtle patterns in how conflicts start, how boundaries are respected, and whether concerns get dismissed or heard. What seems like small moments can reveal larger dynamics worth addressing early.',
     getBadge: (insights) => ({
       text: `${insights.redFlags.count} Found`,
       colorKey: 'error',
@@ -48,7 +48,7 @@ export const INSIGHT_CONFIGS: InsightConfig[] = [
     unlockText: 'What are the positive signs?',
     explanationTitle: 'Strength Indicators',
     explanationText:
-      "Beyond obvious positivity, we look for signs of emotional safety, mutual support during stress, and how you handle vulnerability. These patterns predict long-term relationship satisfaction better than chemistry alone.",
+      'Beyond obvious positivity, we look for signs of emotional safety, mutual support during stress, and how you handle vulnerability. These patterns predict long-term relationship satisfaction better than chemistry alone.',
     getBadge: (insights) => ({
       text: `${insights.greenFlags.count} Found`,
       colorKey: 'success',
@@ -62,7 +62,7 @@ export const INSIGHT_CONFIGS: InsightConfig[] = [
     unlockText: 'How compatible are you?',
     explanationTitle: 'Beyond Surface Level',
     explanationText:
-      "This score weighs communication rhythm, conflict resolution styles, and emotional reciprocity - not just shared interests. High compatibility means less friction in daily interactions, though growth is always possible with awareness.",
+      'This score weighs communication rhythm, conflict resolution styles, and emotional reciprocity - not just shared interests. High compatibility means less friction in daily interactions, though growth is always possible with awareness.',
     getBadge: (insights) => ({
       text: `${insights.compatibilityScore.percentage}% ${insights.compatibilityScore.rating}`,
       colorKey: 'primary',
@@ -104,7 +104,7 @@ export const INSIGHT_CONFIGS: InsightConfig[] = [
     unlockText: 'What do you have in common?',
     explanationTitle: 'The Novelty Factor',
     explanationText:
-      "Shared interests matter less than you think - but shared curiosity matters more. Couples who explore new things together maintain attraction longer than those who just share existing hobbies. Growth > overlap.",
+      'Shared interests matter less than you think - but shared curiosity matters more. Couples who explore new things together maintain attraction longer than those who just share existing hobbies. Growth > overlap.',
     getBadge: (insights) => ({
       text: `${insights.sharedInterests.count} Found`,
       colorKey: 'success',
@@ -118,7 +118,7 @@ export const INSIGHT_CONFIGS: InsightConfig[] = [
     unlockText: 'How balanced is this relationship?',
     explanationTitle: 'The Effort Ratio',
     explanationText:
-      "We track who initiates, who asks questions, and who does emotional labor. Perfect 50/50 is rare - but imbalances over 70/30 often breed resentment. Awareness of patterns is the first step to rebalancing.",
+      'We track who initiates, who asks questions, and who does emotional labor. Perfect 50/50 is rare - but imbalances over 70/30 often breed resentment. Awareness of patterns is the first step to rebalancing.',
     getBadge: (insights) => ({
       text: `${insights.reciprocityScore.percentage}% ${insights.reciprocityScore.rating}`,
       colorKey: 'primary',
@@ -160,7 +160,7 @@ export const INSIGHT_CONFIGS: InsightConfig[] = [
     unlockText: 'Are there critical moments?',
     explanationTitle: 'The Four Horsemen',
     explanationText:
-      "Gottman identifies criticism (attacking character vs behavior) as a relationship killer. We detect patterns of contempt, defensiveness, and stonewalling - the warning signs before relationships end. Early detection allows course correction.",
+      'Gottman identifies criticism (attacking character vs behavior) as a relationship killer. We detect patterns of contempt, defensiveness, and stonewalling - the warning signs before relationships end. Early detection allows course correction.',
     getBadge: (insights, getFrequencyLabel) => ({
       text: getFrequencyLabel(insights.criticism.count),
       colorKey: 'warning',
@@ -188,7 +188,7 @@ export const INSIGHT_CONFIGS: InsightConfig[] = [
     unlockText: 'What can you improve?',
     explanationTitle: 'Targeted Interventions',
     explanationText:
-      "Based on your specific patterns, we suggest micro-adjustments with outsized impact. Small changes in how you respond during stress or ask questions can shift relationship trajectories significantly over time.",
+      'Based on your specific patterns, we suggest micro-adjustments with outsized impact. Small changes in how you respond during stress or ask questions can shift relationship trajectories significantly over time.',
     getBadge: (insights) => ({
       text: `${insights.relationshipTips.count} Tips`,
       colorKey: 'primary',

@@ -34,7 +34,10 @@ export const LoadingText: React.FC<LoadingTextProps> = ({
       <Text style={[styles.text, textStyle, { color }]}>{text}</Text>
       <View style={styles.dotsContainer}>
         {bounceValues.map((bounceValue, index) => (
-          <Animated.Text key={index} style={[styles.dot, dotStyle, { color, transform: [{ translateY: bounceValue }] }]}>
+          <Animated.Text
+            key={index}
+            style={[styles.dot, dotStyle, { color, transform: [{ translateY: bounceValue }] }]}
+          >
             .
           </Animated.Text>
         ))}

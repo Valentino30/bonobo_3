@@ -40,7 +40,9 @@ export class ChatStorage {
       const deviceId = await getDeviceId()
 
       // Get current user if authenticated
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
 
       console.log('📂 Loading chats:', {
         isAuthenticated: !!user,
@@ -48,9 +50,7 @@ export class ChatStorage {
         deviceId,
       })
 
-      let query = supabase
-        .from('chats')
-        .select('*')
+      let query = supabase.from('chats').select('*')
 
       // If user is authenticated, ONLY fetch chats linked to user_id
       // This prevents showing chats after logout (migrated chats have device_id = NULL)
@@ -108,7 +108,9 @@ export class ChatStorage {
       const deviceId = await getDeviceId()
 
       // Get current user if authenticated
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
 
       const insertData: any = {
         id: chat.id,
@@ -137,11 +139,9 @@ export class ChatStorage {
         chatId: chat.id,
         deviceId,
         userId: user?.id,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       })
-      const { error } = await supabase
-        .from('chats')
-        .insert(insertData)
+      const { error } = await supabase.from('chats').insert(insertData)
 
       if (error) {
         console.error('❌ Error adding chat to Supabase:', error)
@@ -150,7 +150,7 @@ export class ChatStorage {
 
       console.log('✅ Chat added to Supabase successfully:', {
         chatId: chat.id,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       })
     } catch (error) {
       console.error('❌ Error adding chat to Supabase:', error)
@@ -163,12 +163,11 @@ export class ChatStorage {
       const deviceId = await getDeviceId()
 
       // Get current user if authenticated
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
 
-      let query = supabase
-        .from('chats')
-        .delete()
-        .eq('id', chatId)
+      let query = supabase.from('chats').delete().eq('id', chatId)
 
       // If user is authenticated, ONLY delete chats linked to user_id
       // Otherwise, only delete chats matching device_id
@@ -197,11 +196,11 @@ export class ChatStorage {
       const deviceId = await getDeviceId()
 
       // Get current user if authenticated
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
 
-      let query = supabase
-        .from('chats')
-        .delete()
+      let query = supabase.from('chats').delete()
 
       // If user is authenticated, ONLY delete chats linked to user_id
       // Otherwise, only delete chats matching device_id
@@ -230,11 +229,11 @@ export class ChatStorage {
       const deviceId = await getDeviceId()
 
       // Get current user if authenticated
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
 
-      let query = supabase
-        .from('chats')
-        .select('*', { count: 'exact', head: true })
+      let query = supabase.from('chats').select('*', { count: 'exact', head: true })
 
       // If user is authenticated, ONLY count chats linked to user_id
       // Otherwise, only count chats matching device_id
@@ -258,12 +257,19 @@ export class ChatStorage {
     }
   }
 
-  static async updateChatAnalysis(chatId: string, analysis: ChatAnalysisData, aiInsights?: AIInsights, unlockedInsights?: string[]): Promise<void> {
+  static async updateChatAnalysis(
+    chatId: string,
+    analysis: ChatAnalysisData,
+    aiInsights?: AIInsights,
+    unlockedInsights?: string[]
+  ): Promise<void> {
     try {
       const deviceId = await getDeviceId()
 
       // Get current user if authenticated
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
 
       const updateData: any = {
         analysis,
@@ -278,10 +284,7 @@ export class ChatStorage {
         updateData.unlocked_insights = unlockedInsights
       }
 
-      let query = supabase
-        .from('chats')
-        .update(updateData)
-        .eq('id', chatId)
+      let query = supabase.from('chats').update(updateData).eq('id', chatId)
 
       // If user is authenticated, ONLY update chats linked to user_id
       // Otherwise, only update chats matching device_id
@@ -321,7 +324,7 @@ export class ChatStorage {
     try {
       const SecureStore = await import('expo-secure-store')
       const chatsJson = await SecureStore.getItemAsync('bonobo_chats')
-      
+
       if (!chatsJson) {
         console.log('No local storage data to migrate')
         return
@@ -350,4 +353,3 @@ export class ChatStorage {
     }
   }
 }
-

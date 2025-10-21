@@ -1,19 +1,19 @@
-import { StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
-import { ThemedText } from '@/components/themed-text';
-import { useTheme } from '@/contexts/theme-context';
-import { CurrencyService, type SupportedCurrency } from '@/utils/currency-service';
+import { StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native'
+import { ThemedText } from '@/components/themed-text'
+import { useTheme } from '@/contexts/theme-context'
+import { CurrencyService, type SupportedCurrency } from '@/utils/currency-service'
 
 export interface SubscriptionCardProps {
-  name: string;
-  price: number;
-  currency: SupportedCurrency;
-  description: string;
-  highlight?: string;
-  isPopular?: boolean;
-  popularBadgeText?: string;
-  onPress: () => void;
-  style?: ViewStyle;
-  disabled?: boolean;
+  name: string
+  price: number
+  currency: SupportedCurrency
+  description: string
+  highlight?: string
+  isPopular?: boolean
+  popularBadgeText?: string
+  onPress: () => void
+  style?: ViewStyle
+  disabled?: boolean
 }
 
 /**
@@ -32,10 +32,10 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
   style,
   disabled = false,
 }) => {
-  const theme = useTheme();
+  const theme = useTheme()
 
   // Format price with currency symbol
-  const formattedPrice = CurrencyService.formatPrice(price, currency);
+  const formattedPrice = CurrencyService.formatPrice(price, currency)
 
   return (
     <TouchableOpacity
@@ -56,34 +56,24 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
       {/* Popular Badge */}
       {isPopular && (
         <View style={[styles.popularBadge, { backgroundColor: theme.colors.primary }]}>
-          <Text style={[styles.popularText, { color: theme.colors.textWhite }]}>
-            {popularBadgeText}
-          </Text>
+          <Text style={[styles.popularText, { color: theme.colors.textWhite }]}>{popularBadgeText}</Text>
         </View>
       )}
 
       {/* Plan Header (Name & Price) */}
       <View style={styles.planHeader}>
         <ThemedText style={styles.planName}>{name}</ThemedText>
-        <Text style={[styles.planPrice, { color: theme.colors.primary }]}>
-          {formattedPrice}
-        </Text>
+        <Text style={[styles.planPrice, { color: theme.colors.primary }]}>{formattedPrice}</Text>
       </View>
 
       {/* Description */}
-      <ThemedText style={[styles.planDescription, { color: theme.colors.textSecondary }]}>
-        {description}
-      </ThemedText>
+      <ThemedText style={[styles.planDescription, { color: theme.colors.textSecondary }]}>{description}</ThemedText>
 
       {/* Optional Highlight */}
-      {highlight && (
-        <ThemedText style={[styles.planSavings, { color: theme.colors.primary }]}>
-          {highlight}
-        </ThemedText>
-      )}
+      {highlight && <ThemedText style={[styles.planSavings, { color: theme.colors.primary }]}>{highlight}</ThemedText>}
     </TouchableOpacity>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   planCard: {
@@ -130,4 +120,4 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
   },
-});
+})
