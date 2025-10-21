@@ -5,6 +5,7 @@ import { DefaultTheme, ThemeProvider as NavigationThemeProvider } from '@react-n
 import { StripeProvider } from '@stripe/stripe-react-native'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ThemeProvider } from '@/contexts/theme-context'
+import { TranslationProvider } from '@/contexts/translation-context'
 
 // Ignore Stripe keep awake warning (known development mode issue)
 LogBox.ignoreLogs(['No task registered for key StripeKeepJsAwakeTask', 'Unable to activate keep awake'])
@@ -25,20 +26,22 @@ const queryClient = new QueryClient({
 export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <StripeProvider publishableKey={STRIPE_PUBLISHABLE_KEY}>
-          <NavigationThemeProvider value={DefaultTheme}>
-            <Stack>
-              <Stack.Screen name="index" options={{ headerShown: false }} />
-              <Stack.Screen name="chats" options={{ headerShown: false }} />
-              <Stack.Screen name="import-guide" options={{ headerShown: false }} />
-              <Stack.Screen name="analysis/[chatId]" options={{ headerShown: false }} />
-              <Stack.Screen name="profile" options={{ headerShown: false }} />
-            </Stack>
-            <StatusBar style="dark" />
-          </NavigationThemeProvider>
-        </StripeProvider>
-      </ThemeProvider>
+      <TranslationProvider>
+        <ThemeProvider>
+          <StripeProvider publishableKey={STRIPE_PUBLISHABLE_KEY}>
+            <NavigationThemeProvider value={DefaultTheme}>
+              <Stack>
+                <Stack.Screen name="index" options={{ headerShown: false }} />
+                <Stack.Screen name="chats" options={{ headerShown: false }} />
+                <Stack.Screen name="import-guide" options={{ headerShown: false }} />
+                <Stack.Screen name="analysis/[chatId]" options={{ headerShown: false }} />
+                <Stack.Screen name="profile" options={{ headerShown: false }} />
+              </Stack>
+              <StatusBar style="dark" />
+            </NavigationThemeProvider>
+          </StripeProvider>
+        </ThemeProvider>
+      </TranslationProvider>
     </QueryClientProvider>
   )
 }
