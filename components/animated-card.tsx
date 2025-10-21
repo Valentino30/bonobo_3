@@ -1,7 +1,5 @@
 import { type ReactNode } from 'react'
-
 import { Animated, Pressable, type PressableProps, type ViewStyle } from 'react-native'
-
 import { type CardAnimationConfig, useCardAnimation } from '@/hooks/use-card-animation'
 
 interface AnimatedCardProps extends Omit<PressableProps, 'style' | 'onPressIn' | 'onPressOut'> {

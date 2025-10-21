@@ -1,5 +1,4 @@
 import { StyleSheet, View } from 'react-native'
-
 import { AnimatedIcon } from '@/components/animated-icon'
 import { InfoBanner } from '@/components/info-banner'
 import { LoadingProgressBar } from '@/components/loading-progress-bar'

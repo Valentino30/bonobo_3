@@ -1,7 +1,5 @@
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native'
-
 import { SafeAreaView } from 'react-native-safe-area-context'
-
 import { DangerZoneCard } from '@/components/danger-zone-card'
 import { LabelValueCard } from '@/components/label-value-card'
 import { LoadingScreen } from '@/components/loading-screen'

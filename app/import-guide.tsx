@@ -1,9 +1,6 @@
 import { Platform, ScrollView, StyleSheet, View } from 'react-native'
-
 import { useRouter } from 'expo-router'
-
 import { SafeAreaView } from 'react-native-safe-area-context'
-
 import { Badge } from '@/components/badge'
 import { InfoCard } from '@/components/info-card'
 import { StepList } from '@/components/step-list'

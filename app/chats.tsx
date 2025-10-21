@@ -1,7 +1,5 @@
 import { StyleSheet, View } from 'react-native'
-
 import { SafeAreaView } from 'react-native-safe-area-context'
-
 import { ChatList } from '@/components/chat-list'
 import { LoadingScreen } from '@/components/loading-screen'
 import { ThemedButton } from '@/components/themed-button'

@@ -1,11 +1,8 @@
 import { LogBox } from 'react-native'
-
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
-
 import { DefaultTheme, ThemeProvider as NavigationThemeProvider } from '@react-navigation/native'
 import { StripeProvider } from '@stripe/stripe-react-native'
-
 import { ThemeProvider } from '@/contexts/theme-context'
 
 // Ignore Stripe keep awake warning (known development mode issue)

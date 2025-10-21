@@ -1,7 +1,5 @@
 import { ScrollView, StyleSheet, View } from 'react-native'
-
 import { SafeAreaView } from 'react-native-safe-area-context'
-
 import { AnalysisInsights } from '@/components/analysis-insights'
 import { AnalysisLoading } from '@/components/analysis-loading'
 import { AnalysisOverview } from '@/components/analysis-overview'

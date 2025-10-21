@@ -1,5 +1,4 @@
 import { StyleSheet, View } from 'react-native'
-
 import { InsightCard } from '@/components/insight-card'
 import { LockedInsightCard } from '@/components/locked-insight-card'
 import { INSIGHT_CONFIGS, type InsightConfig } from '@/constants/insights'
