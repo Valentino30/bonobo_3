@@ -1,6 +1,6 @@
 import { ThemedButton } from '@/components/themed-button'
 import { ThemedText } from '@/components/themed-text'
-import { ThemedTextInput } from '@/components/themed-text-input'
+import { EmailPasswordForm } from '@/components/email-password-form'
 import { useTheme } from '@/contexts/theme-context'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native'
@@ -46,13 +46,6 @@ export function LoginCard({
 }: LoginCardProps) {
   const theme = useTheme()
 
-  const inputProps = {
-    autoCapitalize: 'none' as const,
-    autoCorrect: false,
-    size: 'large' as const,
-    fullWidth: true,
-  }
-
   return (
     <View style={styles.section}>
       <View
@@ -71,22 +64,13 @@ export function LoginCard({
         </View>
 
         <View style={styles.loginForm}>
-          <ThemedTextInput
-            {...inputProps}
-            placeholder="Email address"
-            value={email}
-            onChangeText={onEmailChange}
-            keyboardType="email-address"
-            icon="email-outline"
-          />
-
-          <ThemedTextInput
-            {...inputProps}
-            placeholder="Password"
-            value={password}
-            onChangeText={onPasswordChange}
-            password
-            icon="lock-outline"
+          <EmailPasswordForm
+            email={email}
+            onEmailChange={onEmailChange}
+            password={password}
+            onPasswordChange={onPasswordChange}
+            disabled={isLoading}
+            size="large"
           />
 
           <ThemedButton

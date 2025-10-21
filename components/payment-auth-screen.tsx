@@ -10,7 +10,7 @@ import {
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { ThemedButton } from '@/components/themed-button'
-import { ThemedTextInput } from '@/components/themed-text-input'
+import { EmailPasswordForm } from '@/components/email-password-form'
 import { useTheme } from '@/contexts/theme-context'
 import { useCustomAlert } from '@/hooks/use-custom-alert'
 import { useAccountCreation } from '@/hooks/use-account-creation'
@@ -53,15 +53,6 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
   } = useAccountCreation({
     onSuccess: handleSuccess,
   })
-
-  // Common input props
-  const inputProps = {
-    autoCapitalize: 'none' as const,
-    autoCorrect: false,
-    disabled: isLoading,
-    variant: 'filled' as const,
-    fullWidth: true,
-  }
 
   // Helper to create onChange handler that clears errors
   const createOnChangeHandler = (setter: (value: string) => void) => (text: string) => {
@@ -107,43 +98,17 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
             )}
 
             {/* Form */}
-            <View style={styles.formContainer}>
-              <View style={styles.inputGroup}>
-                <ThemedText style={[styles.label, { color: theme.colors.textDark }]}>Email Address</ThemedText>
-                <ThemedTextInput
-                  {...inputProps}
-                  placeholder="your@email.com"
-                  value={email}
-                  onChangeText={(text) => createOnChangeHandler(setEmail)(text.trim())}
-                  keyboardType="email-address"
-                  icon="email-outline"
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <ThemedText style={[styles.label, { color: theme.colors.textDark }]}>Password</ThemedText>
-                <ThemedTextInput
-                  {...inputProps}
-                  placeholder="Minimum 8 characters"
-                  value={password}
-                  onChangeText={createOnChangeHandler(setPassword)}
-                  password
-                  icon="lock-outline"
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <ThemedText style={[styles.label, { color: theme.colors.textDark }]}>Confirm Password</ThemedText>
-                <ThemedTextInput
-                  {...inputProps}
-                  placeholder="Re-enter your password"
-                  value={confirmPassword}
-                  onChangeText={createOnChangeHandler(setConfirmPassword)}
-                  password
-                  icon="lock-check-outline"
-                />
-              </View>
-            </View>
+            <EmailPasswordForm
+              email={email}
+              onEmailChange={(text) => createOnChangeHandler(setEmail)(text.trim())}
+              password={password}
+              onPasswordChange={createOnChangeHandler(setPassword)}
+              confirmPassword={confirmPassword}
+              onConfirmPasswordChange={createOnChangeHandler(setConfirmPassword)}
+              disabled={isLoading}
+              variant="filled"
+              showLabels
+            />
 
             {/* Privacy Notice */}
             <View style={[styles.privacyNotice, { backgroundColor: theme.colors.backgroundSuccess }]}>
@@ -222,17 +187,6 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 14,
     textAlign: 'center',
-  },
-  formContainer: {
-    gap: 16,
-    marginBottom: 16,
-  },
-  inputGroup: {
-    gap: 8,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
   },
   privacyNotice: {
     flexDirection: 'row',
