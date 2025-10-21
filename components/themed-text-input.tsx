@@ -11,6 +11,8 @@ import { StyleSheet, TextInput, TextInputProps, TextStyle, View, ViewStyle } fro
 import { InfoBanner } from './info-banner'
 import { ThemedIconButton } from './themed-icon-button'
 
+export type { TextInputSize, TextInputVariant }
+
 export interface ThemedTextInputProps extends Omit<TextInputProps, 'style' | 'placeholderTextColor'> {
   variant?: TextInputVariant
   size?: TextInputSize
