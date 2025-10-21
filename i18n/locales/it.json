@@ -153,6 +153,20 @@
     "success": "Successo",
     "error": "Errore",
     "warning": "Avviso",
-    "info": "Info"
+    "info": "Info",
+    "ok": "OK",
+    "great": "Fantastico!",
+    "tryAgain": "Riprova"
+  },
+  "import": {
+    "successTitle": "Chat Importata con Successo! 🥳",
+    "successMessage": "Chat tra {{participants}} con {{count}} messaggi è stata importata.",
+    "zipExtractionFailedTitle": "Estrazione ZIP Fallita",
+    "zipExtractionFailedMessage": "Impossibile estrarre il contenuto della chat dal file ZIP. Prova ad esportare la chat come \"Senza media\" o usa l'importazione manuale.",
+    "zipProcessingErrorTitle": "Errore di Elaborazione ZIP",
+    "zipProcessingErrorMessage": "Si è verificato un errore durante l'elaborazione del file ZIP. Riprova o usa l'importazione manuale.",
+    "noTextDataTitle": "Errore di Importazione",
+    "noTextDataMessage": "Nessun dato di testo trovato nel contenuto condiviso. Prova ad esportare nuovamente la chat o usa l'importazione manuale.",
+    "tryManualImport": "Prova Importazione Manuale"
   }
 }

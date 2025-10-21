@@ -2,6 +2,7 @@
  * Alert configurations for share import flows
  * Centralizes all import-related alert messages for consistency
  */
+import i18n from '@/i18n/config'
 
 type AlertButton = {
   text: string
@@ -20,50 +21,48 @@ export type AlertConfig = {
 export function createShareImportAlerts(clearShareData?: () => void) {
   return {
     success: (participantNames: string, messageCount: number): AlertConfig => ({
-      title: 'Chat Imported Successfully! 🥳',
-      message: `Chat between ${participantNames} with ${messageCount} messages has been imported.`,
+      title: i18n.t('import.successTitle'),
+      message: i18n.t('import.successMessage', { participants: participantNames, count: messageCount }),
       buttons: [
         {
-          text: 'Great!',
+          text: i18n.t('alerts.great'),
           onPress: clearShareData,
         },
       ],
     }),
 
     zipExtractionFailed: (): AlertConfig => ({
-      title: 'ZIP Extraction Failed',
-      message:
-        'Could not extract chat content from the ZIP file. Please try exporting the chat as "Without Media" or use manual import.',
+      title: i18n.t('import.zipExtractionFailedTitle'),
+      message: i18n.t('import.zipExtractionFailedMessage'),
       buttons: [
         {
-          text: 'OK',
+          text: i18n.t('alerts.ok'),
           onPress: clearShareData,
         },
         {
-          text: 'Try Manual Import',
+          text: i18n.t('import.tryManualImport'),
           onPress: clearShareData,
         },
       ],
     }),
 
     zipProcessingError: (): AlertConfig => ({
-      title: 'ZIP Processing Error',
-      message: 'An error occurred while processing the ZIP file. Please try again or use manual import.',
+      title: i18n.t('import.zipProcessingErrorTitle'),
+      message: i18n.t('import.zipProcessingErrorMessage'),
       buttons: [
         {
-          text: 'OK',
+          text: i18n.t('alerts.ok'),
           onPress: clearShareData,
         },
       ],
     }),
 
     noTextData: (): AlertConfig => ({
-      title: 'Import Error',
-      message:
-        'No text data was found in the shared content. Please try exporting the chat again or use manual import.',
+      title: i18n.t('import.noTextDataTitle'),
+      message: i18n.t('import.noTextDataMessage'),
       buttons: [
         {
-          text: 'OK',
+          text: i18n.t('alerts.ok'),
           onPress: clearShareData,
         },
       ],
