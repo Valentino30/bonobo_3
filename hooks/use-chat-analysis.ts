@@ -1,32 +1,27 @@
+import { useEffect, useRef, useState } from 'react'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { usePersistedChats } from '@/hooks/use-persisted-chats'
 import { type AIInsights, analyzeChat } from '@/utils/ai-service'
 import { AuthService } from '@/utils/auth-service'
 import { analyzeChatData } from '@/utils/chat-analyzer'
 import { PaymentService } from '@/utils/payment-service'
 import { StripeService } from '@/utils/stripe-service'
-import { useLocalSearchParams, useRouter } from 'expo-router'
-import { useEffect, useRef, useState } from 'react'
 
 type TabType = 'overview' | 'insights'
 
+type ParticipantData = {
+  name: string
+  messageCount: number
+  averageResponseTime: number
+  interestLevel: number
+  initiationRate?: number
+  averageMessageLength?: number
+}
+
 export interface ChatAnalysisData {
   totalMessages: number
-  participant1: {
-    name: string
-    messageCount: number
-    averageResponseTime: number
-    interestLevel: number
-    initiationRate?: number
-    averageMessageLength?: number
-  }
-  participant2: {
-    name: string
-    messageCount: number
-    averageResponseTime: number
-    interestLevel: number
-    initiationRate?: number
-    averageMessageLength?: number
-  }
+  participant1: ParticipantData
+  participant2: ParticipantData
   dateRange: { start: Date; end: Date }
   conversationHealth: {
     balanceScore: number
