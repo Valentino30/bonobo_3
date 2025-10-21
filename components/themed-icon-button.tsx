@@ -9,7 +9,7 @@ export interface ThemedIconButtonProps {
   variant?: IconButtonVariant;
   size?: IconButtonSize;
   disabled?: boolean;
-  style?: ViewStyle;
+  style?: ViewStyle | ViewStyle[];
   activeOpacity?: number;
   hitSlop?: { top: number; bottom: number; left: number; right: number };
 }
