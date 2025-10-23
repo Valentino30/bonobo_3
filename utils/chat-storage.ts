@@ -73,15 +73,15 @@ export class ChatStorage {
       console.log(`✅ Loaded ${data?.length || 0} chats from Supabase`)
 
       // Convert database format to StoredChat format
-      return (data || []).map((row: any) => ({
-        id: row.id,
-        text: row.chat_text,
-        timestamp: new Date(row.timestamp),
-        participants: row.participants || [],
-        messageCount: row.message_count,
-        analysis: row.analysis,
-        aiInsights: row.ai_insights,
-        unlockedInsights: row.unlocked_insights || [],
+      return (data || []).map((row) => ({
+        id: row.id as string,
+        text: row.chat_text as string,
+        timestamp: new Date(row.timestamp as string),
+        participants: (row.participants as string[]) || [],
+        messageCount: row.message_count as number | undefined,
+        analysis: row.analysis as ChatAnalysisData | undefined,
+        aiInsights: row.ai_insights as AIInsights | undefined,
+        unlockedInsights: (row.unlocked_insights as string[]) || [],
       }))
     } catch (error) {
       console.error('Error loading chats from Supabase:', error)
@@ -89,22 +89,9 @@ export class ChatStorage {
     }
   }
 
-  static async saveChats(chats: StoredChat[]): Promise<void> {
-    // This method is kept for backward compatibility but not used with Supabase
-    // Individual operations (addChat, updateChat, etc.) are used instead
-    console.warn('saveChats is deprecated with Supabase - use individual operations')
-  }
 
   static async addChat(chat: StoredChat): Promise<void> {
     try {
-      const callStack = new Error().stack
-      console.log('📥 ChatStorage.addChat called for chat:', {
-        chatId: chat.id,
-        timestamp: new Date().toISOString(),
-        participantsPreview: chat.participants?.join(' & '),
-      })
-      console.log('📍 ChatStorage call stack:', callStack?.split('\n').slice(0, 5).join('\n'))
-
       const deviceId = await getDeviceId()
 
       // Get current user if authenticated
@@ -112,7 +99,18 @@ export class ChatStorage {
         data: { user },
       } = await supabase.auth.getUser()
 
-      const insertData: any = {
+      const insertData: {
+        id: string
+        chat_text: string
+        timestamp: string
+        participants: string[]
+        message_count: number | undefined
+        analysis: ChatAnalysisData | null
+        ai_insights: AIInsights | null
+        unlocked_insights: string[]
+        user_id?: string | null
+        device_id?: string | null
+      } = {
         id: chat.id,
         chat_text: chat.text,
         timestamp: chat.timestamp.toISOString(),
@@ -128,32 +126,21 @@ export class ChatStorage {
       if (user) {
         insertData.user_id = user.id
         insertData.device_id = null
-        console.log('🔐 Authenticated user - setting user_id, device_id = NULL')
       } else {
         insertData.device_id = deviceId
         insertData.user_id = null
-        console.log('👤 Anonymous user - setting device_id, user_id = NULL')
       }
 
-      console.log('💾 Inserting chat into Supabase:', {
-        chatId: chat.id,
-        deviceId,
-        userId: user?.id,
-        timestamp: new Date().toISOString(),
-      })
       const { error } = await supabase.from('chats').insert(insertData)
 
       if (error) {
-        console.error('❌ Error adding chat to Supabase:', error)
+        console.error('Error adding chat to Supabase:', error)
         throw error
       }
 
-      console.log('✅ Chat added to Supabase successfully:', {
-        chatId: chat.id,
-        timestamp: new Date().toISOString(),
-      })
+      console.log('Chat added to Supabase successfully')
     } catch (error) {
-      console.error('❌ Error adding chat to Supabase:', error)
+      console.error('Error adding chat to Supabase:', error)
       throw error
     }
   }
@@ -238,7 +225,12 @@ export class ChatStorage {
         data: { user },
       } = await supabase.auth.getUser()
 
-      const updateData: any = {
+      const updateData: {
+        analysis: ChatAnalysisData
+        updated_at: string
+        ai_insights?: AIInsights
+        unlocked_insights?: string[]
+      } = {
         analysis,
         updated_at: new Date().toISOString(),
       }
