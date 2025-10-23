@@ -7,7 +7,7 @@ import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
 import { usePaywall } from '@/hooks/use-paywall'
 import { useTranslation } from '@/hooks/use-translation'
-import { CURRENCY_PRICING, type SupportedCurrency } from '@/utils/currency-service'
+import { getCurrencySymbol, getSupportedCurrencies, type SupportedCurrency } from '@/utils/currency-service'
 
 interface PaywallProps {
   visible: boolean
@@ -54,7 +54,7 @@ export function Paywall({ visible, onClose, onPurchase }: PaywallProps) {
               <ThemedText style={styles.currencyLabel}>{t('paywallFeatures.currency')}</ThemedText>
               <View style={styles.currencyValue}>
                 <ThemedText style={styles.currencyText}>
-                  {CURRENCY_PRICING[selectedCurrency].symbol} {selectedCurrency}
+                  {getCurrencySymbol(selectedCurrency)} {selectedCurrency}
                 </ThemedText>
                 <ThemedText style={styles.currencyArrow}>{showCurrencyPicker ? '▲' : '▼'}</ThemedText>
               </View>
@@ -63,7 +63,7 @@ export function Paywall({ visible, onClose, onPurchase }: PaywallProps) {
             {/* Currency Picker Dropdown */}
             {showCurrencyPicker && (
               <View style={[styles.currencyDropdown, { backgroundColor: theme.colors.backgroundInput }]}>
-                {(Object.keys(CURRENCY_PRICING) as SupportedCurrency[]).map((currency) => (
+                {getSupportedCurrencies().map((currency) => (
                   <TouchableOpacity
                     key={currency}
                     style={[
@@ -78,7 +78,7 @@ export function Paywall({ visible, onClose, onPurchase }: PaywallProps) {
                         selectedCurrency === currency && { color: theme.colors.primary, fontWeight: '600' },
                       ]}
                     >
-                      {CURRENCY_PRICING[currency].symbol} {currency}
+                      {getCurrencySymbol(currency)} {currency}
                     </ThemedText>
                   </TouchableOpacity>
                 ))}
