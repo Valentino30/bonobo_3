@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { type AIInsights, analyzeChat } from '@/services/analysis-service'
+import { analyzeChat } from '@/services/analysis-service'
+import type { AIInsights } from '@/types/chat-analysis'
 import { calculateOverviewStats } from '@/utils/chat-statistics'
 import { updateChatAnalysis, type StoredChat } from '@/services/chat-service'
 import { hasAccess, hasActiveSubscription, assignAnalysisToChat } from '@/services/entitlement-service'

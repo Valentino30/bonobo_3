@@ -1,5 +1,4 @@
-import type { AIInsights } from './analysis-service'
-import type { ChatAnalysisData } from '@/types/chat-analysis'
+import type { AIInsights, ChatAnalysisData } from '@/types/chat-analysis'
 import { getDeviceId } from '@/utils/device-id'
 import { supabase } from './supabase'
 

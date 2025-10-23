@@ -1,77 +1,11 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
-import i18n from '@/i18n/config'
 import { buildAnalysisPrompt } from '@/constants/ai-prompt'
+import i18n from '@/i18n/config'
+import type { AIInsights } from '@/types/chat-analysis'
 import { normalizeAIInsights, parseAIJsonResponse } from '@/utils/ai-response-normalizer'
 
 // Initialize Gemini client
 const genAI = new GoogleGenerativeAI(process.env.EXPO_PUBLIC_GEMINI_API_KEY || '')
-
-export interface AIInsights {
-  redFlags: {
-    count: number
-    description: string
-    items: string[]
-  }
-  greenFlags: {
-    count: number
-    description: string
-    items: string[]
-  }
-  attachmentStyle: {
-    type: string
-    description: string
-    items: string[]
-  }
-  reciprocityScore: {
-    percentage: number
-    rating: string
-    description: string
-    items: string[]
-  }
-  compliments: {
-    count: number
-    description: string
-    items: string[]
-  }
-  criticism: {
-    count: number
-    description: string
-    items: string[]
-  }
-  compatibilityScore: {
-    percentage: number
-    rating: string
-    description: string
-    items: string[]
-  }
-  relationshipTips: {
-    count: number
-    description: string
-    tips: string[]
-  }
-  conflictResolution: {
-    type: string
-    description: string
-    items: string[]
-  }
-  sharedInterests: {
-    count: number
-    description: string
-    items: string[]
-  }
-  weVsIRatio: {
-    percentage: number
-    rating: string
-    description: string
-    items: string[]
-  }
-  loveLanguage: {
-    primary: string
-    secondary: string
-    description: string
-    items: string[]
-  }
-}
 
 export async function analyzeChat(chatText: string): Promise<AIInsights> {
   console.log('🤖 Starting AI analysis...')

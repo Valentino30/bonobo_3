@@ -3,7 +3,7 @@ import { InsightCard } from '@/components/insight-card'
 import { LockedInsightCard } from '@/components/locked-insight-card'
 import { type InsightConfig, getInsightConfigs } from '@/constants/insights'
 import { useTheme } from '@/contexts/theme-context'
-import { type AIInsights } from '@/services/analysis-service'
+import { type AIInsights } from '@/types/chat-analysis'
 
 type AnalysisInsightsProps = {
   aiInsights: AIInsights | null
