@@ -28,6 +28,7 @@ const PRODUCT_IDS = {
 }
 
 interface PriceResponse {
+  currency: string
   oneTime: number
   weekly: number
   monthly: number
@@ -48,20 +49,26 @@ serve(async (req: Request) => {
       limit: 100,
     })
 
-    // Map prices by product ID
+    // Map prices by product ID and extract currency
     const priceMap: Record<string, number> = {}
+    let currency = 'EUR' // Default fallback
 
     for (const price of prices.data) {
       if (price.product && price.unit_amount) {
         const productId = typeof price.product === 'string' ? price.product : price.product.id
-        // Convert from cents to euros
+        // Convert from cents to base currency unit
         priceMap[productId] = price.unit_amount / 100
+        // Use currency from first valid price
+        if (price.currency && !currency) {
+          currency = price.currency.toUpperCase()
+        }
       }
     }
 
-    // Build response with EUR prices (single source of truth for EU company)
+    // Build response with prices and currency from Stripe
     const response: PriceResponse = {
-      oneTime: priceMap[PRODUCT_IDS.ONE_TIME] || 2.99, // Fallback EUR pricing
+      currency,
+      oneTime: priceMap[PRODUCT_IDS.ONE_TIME] || 2.99,
       weekly: priceMap[PRODUCT_IDS.WEEKLY] || 4.99,
       monthly: priceMap[PRODUCT_IDS.MONTHLY] || 9.99,
     }
@@ -78,6 +85,7 @@ serve(async (req: Request) => {
     // Return fallback prices on error
     return new Response(
       JSON.stringify({
+        currency: 'EUR',
         oneTime: 2.99,
         weekly: 4.99,
         monthly: 9.99,

@@ -1,12 +1,11 @@
 import { StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native'
 import { ThemedText } from '@/components/themed-text'
 import { useTheme } from '@/contexts/theme-context'
-import { formatPrice, type DisplayCurrency } from '@/services/currency-service'
 
 export interface SubscriptionCardProps {
   name: string
   price: number
-  currency: DisplayCurrency
+  currency: string
   description: string
   highlight?: string
   isPopular?: boolean
@@ -34,8 +33,11 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
 }) => {
   const theme = useTheme()
 
-  // Format price with EUR symbol
-  const formattedPrice = formatPrice(price)
+  // Format price with currency symbol
+  const formattedPrice = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currency.toUpperCase(),
+  }).format(price)
 
   return (
     <TouchableOpacity

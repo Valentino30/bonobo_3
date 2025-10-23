@@ -1,25 +1,23 @@
 import { supabase } from '@/services/supabase'
 
-// Base currency - Always charge in EUR (EU company)
-export const CHARGE_CURRENCY = 'EUR' as const
-export type DisplayCurrency = 'EUR'
-
-// Fallback prices if Stripe fetch fails
-const FALLBACK_PRICES = {
+// Fallback pricing if Stripe fetch fails
+const FALLBACK_PRICING = {
+  currency: 'EUR',
   oneTime: 2.99,
   weekly: 4.99,
   monthly: 9.99,
 }
 
-interface PricingData {
+export interface PricingData {
+  currency: string
   oneTime: number
   weekly: number
   monthly: number
 }
 
 /**
- * Fetches prices from Stripe via Supabase Edge Function
- * Returns live prices or fallback if fetch fails
+ * Fetches prices and currency from Stripe
+ * Falls back to hardcoded EUR pricing if fetch fails
  */
 export async function fetchPricesFromStripe(): Promise<PricingData> {
   try {
@@ -27,46 +25,23 @@ export async function fetchPricesFromStripe(): Promise<PricingData> {
 
     if (error) {
       console.error('Failed to fetch Stripe prices, using fallback:', error)
-      return FALLBACK_PRICES
+      return FALLBACK_PRICING
     }
 
     if (data && typeof data === 'object') {
-      const prices = {
-        oneTime: data.oneTime || FALLBACK_PRICES.oneTime,
-        weekly: data.weekly || FALLBACK_PRICES.weekly,
-        monthly: data.monthly || FALLBACK_PRICES.monthly,
+      const pricing: PricingData = {
+        currency: data.currency || FALLBACK_PRICING.currency,
+        oneTime: data.oneTime || FALLBACK_PRICING.oneTime,
+        weekly: data.weekly || FALLBACK_PRICING.weekly,
+        monthly: data.monthly || FALLBACK_PRICING.monthly,
       }
-      console.log('Prices fetched from Stripe (EUR):', prices)
-      return prices
+      console.log('Pricing fetched from Stripe:', pricing)
+      return pricing
     }
 
-    return FALLBACK_PRICES
+    return FALLBACK_PRICING
   } catch (error) {
     console.error('Error fetching Stripe prices, using fallback:', error)
-    return FALLBACK_PRICES
-  }
-}
-
-/**
- * Gets display currency (always EUR)
- */
-export function getDisplayCurrency(): DisplayCurrency {
-  return 'EUR'
-}
-
-/**
- * Formats price with EUR symbol
- */
-export function formatPrice(amount: number): string {
-  try {
-    const formatter = new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })
-    return formatter.format(amount)
-  } catch {
-    return `€${amount.toFixed(2)}`
+    return FALLBACK_PRICING
   }
 }
