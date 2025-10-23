@@ -2,56 +2,48 @@ import { getDeviceId } from '@/utils/device-id'
 import { supabase } from './supabase'
 import {
   fetchBasePricesFromStripe,
-  getCurrencyOverride,
-  getUserCurrency,
-  convertToDisplayPrice,
+  getDisplayPrice,
   getChargePrice,
-  CHARGE_CURRENCY,
-  type SupportedCurrency,
+  type DisplayCurrency,
 } from '@/services/currency-service'
 
 // Payment plan structure
 export interface PaymentPlan {
   id: string
   name: string
-  price: number // Display price in user's currency
-  currency: SupportedCurrency // Display currency
-  chargePrice: number // Actual price that will be charged
-  chargeCurrency: string // Actual currency that will be charged (always EUR)
+  price: number // Display price (EUR)
+  currency: DisplayCurrency // Display currency (always EUR)
+  chargePrice: number // Charge price (same as display, always EUR)
+  chargeCurrency: string // Charge currency (always EUR)
   description: string
   type: 'one-time' | 'subscription'
   duration?: number
 }
 
 /**
- * Get payment plans with pricing in user's currency
+ * Get payment plans with EUR pricing
  */
 export async function getPaymentPlans(): Promise<Record<string, PaymentPlan>> {
   // Fetch latest prices from Stripe
   await fetchBasePricesFromStripe()
 
-  // Check for manual currency override first
-  const override = await getCurrencyOverride()
-  const currency = override || getUserCurrency()
+  // Get prices (always in EUR)
+  const oneTimePrice = getDisplayPrice('oneTime')
+  const weeklyPrice = getDisplayPrice('weekly')
+  const monthlyPrice = getDisplayPrice('monthly')
 
-  // Get charge prices (always in EUR)
   const oneTimeCharge = getChargePrice('oneTime')
   const weeklyCharge = getChargePrice('weekly')
   const monthlyCharge = getChargePrice('monthly')
 
-  // Convert to display prices
-  const oneTimeDisplay = await convertToDisplayPrice(oneTimeCharge.amount, currency)
-  const weeklyDisplay = await convertToDisplayPrice(weeklyCharge.amount, currency)
-  const monthlyDisplay = await convertToDisplayPrice(monthlyCharge.amount, currency)
-
-  console.log(`💰 Display currency: ${currency}, Charge currency: ${CHARGE_CURRENCY}`)
+  console.log('💰 Prices (EUR):', { oneTime: oneTimePrice, weekly: weeklyPrice, monthly: monthlyPrice })
 
   return {
     ONE_TIME: {
       id: 'one-time',
       name: 'One-Time Analysis',
-      price: oneTimeDisplay,
-      currency,
+      price: oneTimePrice,
+      currency: 'EUR',
       chargePrice: oneTimeCharge.amount,
       chargeCurrency: oneTimeCharge.currency,
       description: 'Unlock AI insights for one chat analysis',
@@ -60,8 +52,8 @@ export async function getPaymentPlans(): Promise<Record<string, PaymentPlan>> {
     WEEKLY: {
       id: 'weekly',
       name: 'Weekly Pass',
-      price: weeklyDisplay,
-      currency,
+      price: weeklyPrice,
+      currency: 'EUR',
       chargePrice: weeklyCharge.amount,
       chargeCurrency: weeklyCharge.currency,
       description: 'Unlimited AI insights for 7 days',
@@ -71,8 +63,8 @@ export async function getPaymentPlans(): Promise<Record<string, PaymentPlan>> {
     MONTHLY: {
       id: 'monthly',
       name: 'Monthly Pass',
-      price: monthlyDisplay,
-      currency,
+      price: monthlyPrice,
+      currency: 'EUR',
       chargePrice: monthlyCharge.amount,
       chargeCurrency: monthlyCharge.currency,
       description: 'Unlimited AI insights for 30 days',

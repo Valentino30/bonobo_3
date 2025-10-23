@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { type SupportedCurrency } from '@/services/currency-service'
-import { useCurrencyChangeMutation, usePaymentPlansQuery } from './queries/use-purchase-mutation'
+import { usePaymentPlansQuery } from './queries/use-purchase-mutation'
 
 interface UsePaywallOptions {
   onPurchase: (planId: string) => Promise<void>
@@ -10,19 +9,9 @@ interface UsePaywallOptions {
 export function usePaywall({ onPurchase, onClose }: UsePaywallOptions) {
   // React Query hooks
   const { data: paymentPlans } = usePaymentPlansQuery()
-  const currencyChangeMutation = useCurrencyChangeMutation()
 
   // UI state
-  const [showCurrencyPicker, setShowCurrencyPicker] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
-
-  // Derived state
-  const selectedCurrency = paymentPlans?.ONE_TIME.currency || 'USD'
-
-  const handleCurrencyChange = async (currency: SupportedCurrency) => {
-    await currencyChangeMutation.mutateAsync(currency)
-    setShowCurrencyPicker(false)
-  }
 
   const handlePurchase = async (planId: string) => {
     // Prevent multiple payment sheets from opening
@@ -45,11 +34,7 @@ export function usePaywall({ onPurchase, onClose }: UsePaywallOptions) {
 
   return {
     paymentPlans,
-    selectedCurrency,
-    showCurrencyPicker,
-    setShowCurrencyPicker,
     isProcessing,
-    handleCurrencyChange,
     handlePurchase,
   }
 }

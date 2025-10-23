@@ -1,4 +1,4 @@
-import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Modal, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { ModalHeader } from '@/components/modal-header'
 import { SubscriptionCard } from '@/components/subscription-card'
 import { ThemedButton } from '@/components/themed-button'
@@ -7,7 +7,6 @@ import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
 import { usePaywall } from '@/hooks/use-paywall'
 import { useTranslation } from '@/hooks/use-translation'
-import { getCurrencySymbol, getSupportedCurrencies, type SupportedCurrency } from '@/services/currency-service'
 
 interface PaywallProps {
   visible: boolean
@@ -18,15 +17,7 @@ interface PaywallProps {
 export function Paywall({ visible, onClose, onPurchase }: PaywallProps) {
   const theme = useTheme()
   const { t } = useTranslation()
-  const {
-    paymentPlans,
-    selectedCurrency,
-    showCurrencyPicker,
-    setShowCurrencyPicker,
-    isProcessing,
-    handleCurrencyChange,
-    handlePurchase,
-  } = usePaywall({ onPurchase, onClose })
+  const { paymentPlans, isProcessing, handlePurchase } = usePaywall({ onPurchase, onClose })
 
   if (!paymentPlans) {
     return null
@@ -45,45 +36,6 @@ export function Paywall({ visible, onClose, onPurchase }: PaywallProps) {
             bounces={true}
           >
             <ModalHeader emoji="🔮" title={t('paywall.title')} subtitle={t('paywall.subtitle')} />
-
-            {/* Currency Selector */}
-            <TouchableOpacity
-              style={[styles.currencySelector, { backgroundColor: theme.colors.backgroundInput }]}
-              onPress={() => setShowCurrencyPicker(!showCurrencyPicker)}
-            >
-              <ThemedText style={styles.currencyLabel}>{t('paywallFeatures.currency')}</ThemedText>
-              <View style={styles.currencyValue}>
-                <ThemedText style={styles.currencyText}>
-                  {getCurrencySymbol(selectedCurrency)} {selectedCurrency}
-                </ThemedText>
-                <ThemedText style={styles.currencyArrow}>{showCurrencyPicker ? '▲' : '▼'}</ThemedText>
-              </View>
-            </TouchableOpacity>
-
-            {/* Currency Picker Dropdown */}
-            {showCurrencyPicker && (
-              <View style={[styles.currencyDropdown, { backgroundColor: theme.colors.backgroundInput }]}>
-                {getSupportedCurrencies().map((currency) => (
-                  <TouchableOpacity
-                    key={currency}
-                    style={[
-                      styles.currencyOption,
-                      selectedCurrency === currency && { backgroundColor: theme.colors.primary + '20' },
-                    ]}
-                    onPress={() => handleCurrencyChange(currency)}
-                  >
-                    <ThemedText
-                      style={[
-                        styles.currencyOptionText,
-                        selectedCurrency === currency && { color: theme.colors.primary, fontWeight: '600' },
-                      ]}
-                    >
-                      {getCurrencySymbol(currency)} {currency}
-                    </ThemedText>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
 
             {/* Plans */}
             <View style={styles.plansContainer}>
@@ -218,43 +170,5 @@ const styles = StyleSheet.create({
   },
   closeButtonContainer: {
     paddingTop: 8,
-  },
-  currencySelector: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-  currencyLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  currencyValue: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  currencyText: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  currencyArrow: {
-    fontSize: 12,
-    opacity: 0.6,
-  },
-  currencyDropdown: {
-    borderRadius: 8,
-    marginBottom: 16,
-    overflow: 'hidden',
-  },
-  currencyOption: {
-    padding: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.05)',
-  },
-  currencyOptionText: {
-    fontSize: 14,
   },
 })

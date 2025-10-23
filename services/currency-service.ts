@@ -1,81 +1,18 @@
-import { getLocales } from 'expo-localization'
-import * as SecureStore from 'expo-secure-store'
 import { supabase } from '@/services/supabase'
-
-// Storage key for user preference (only thing we persist)
-const CURRENCY_OVERRIDE_KEY = 'user_currency_override'
 
 // Base currency - Always charge in EUR (EU company)
 export const CHARGE_CURRENCY = 'EUR' as const
+export type DisplayCurrency = 'EUR'
 
 // Base pricing in EUR (fetched from Stripe, with fallback values)
-// NOTE: Users are ALWAYS charged in EUR regardless of display currency
 let BASE_PRICING_EUR = {
   oneTime: 2.99,
   weekly: 4.99,
   monthly: 9.99,
 }
 
-// Fallback exchange rates for DISPLAY purposes only (relative to EUR)
-// Used if live API fetch fails
-const FALLBACK_DISPLAY_RATES: Record<string, number> = {
-  EUR: 1,      // Base currency
-  USD: 1.08,   // 1 EUR = 1.08 USD
-  GBP: 0.85,   // 1 EUR = 0.85 GBP
-  CAD: 1.46,   // 1 EUR = 1.46 CAD
-  AUD: 1.63,   // 1 EUR = 1.63 AUD
-  JPY: 160.76, // 1 EUR = 160.76 JPY
-  INR: 89.36,  // 1 EUR = 89.36 INR
-  BRL: 5.38,   // 1 EUR = 5.38 BRL
-  MXN: 19.89,  // 1 EUR = 19.89 MXN
-}
-
-// Live exchange rates (cached in-memory for 1 hour)
-let cachedExchangeRates: Record<string, number> | null = null
-let lastFetchTime = 0
-const CACHE_DURATION_MS = 60 * 60 * 1000 // 1 hour
-
-// Types
-export type SupportedCurrency = keyof typeof FALLBACK_DISPLAY_RATES
-
-/**
- * Fetches live exchange rates from API (cached for 1 hour)
- * Returns live rates or fallback rates if fetch fails
- */
-async function getExchangeRates(): Promise<Record<string, number>> {
-  // Check cache first
-  const now = Date.now()
-  if (cachedExchangeRates && now - lastFetchTime < CACHE_DURATION_MS) {
-    return cachedExchangeRates
-  }
-
-  try {
-    const response = await fetch('https://api.exchangerate-api.com/v4/latest/EUR')
-    if (!response.ok) {
-      return FALLBACK_DISPLAY_RATES
-    }
-
-    const data = await response.json()
-    if (!data.rates) {
-      return FALLBACK_DISPLAY_RATES
-    }
-
-    // Update cache
-    cachedExchangeRates = data.rates
-    lastFetchTime = now
-
-    console.log('Exchange rates updated from API')
-    return data.rates
-  } catch (error) {
-    console.error('Failed to fetch exchange rates:', error)
-    return FALLBACK_DISPLAY_RATES
-  }
-}
-
 /**
  * Fetches base prices from Stripe via Supabase Edge Function
- * This ensures pricing comes from the single source of truth (Stripe)
- * Call this on app startup
  */
 export async function fetchBasePricesFromStripe(): Promise<void> {
   try {
@@ -87,7 +24,6 @@ export async function fetchBasePricesFromStripe(): Promise<void> {
     }
 
     if (data && typeof data === 'object') {
-      // Update base pricing with values from Stripe (in EUR)
       if (data.oneTime) BASE_PRICING_EUR.oneTime = data.oneTime
       if (data.weekly) BASE_PRICING_EUR.weekly = data.weekly
       if (data.monthly) BASE_PRICING_EUR.monthly = data.monthly
@@ -100,79 +36,21 @@ export async function fetchBasePricesFromStripe(): Promise<void> {
 }
 
 /**
- * Sets user's preferred currency
+ * Gets display currency (always EUR)
  */
-export async function setCurrencyOverride(currency: SupportedCurrency): Promise<void> {
-  try {
-    await SecureStore.setItemAsync(CURRENCY_OVERRIDE_KEY, currency)
-  } catch (error) {
-    console.error('Failed to save currency override:', error)
-  }
+export function getDisplayCurrency(): DisplayCurrency {
+  return 'EUR'
 }
 
 /**
- * Gets user's currency override preference
+ * Gets display price (same as charge price since we only use EUR)
  */
-export async function getCurrencyOverride(): Promise<SupportedCurrency | null> {
-  try {
-    const override = await SecureStore.getItemAsync(CURRENCY_OVERRIDE_KEY)
-    if (override && isCurrencySupported(override)) {
-      return override as SupportedCurrency
-    }
-    return null
-  } catch (error) {
-    console.error('Failed to get currency override:', error)
-    return null
-  }
+export function getDisplayPrice(planType: 'oneTime' | 'weekly' | 'monthly'): number {
+  return BASE_PRICING_EUR[planType]
 }
 
 /**
- * Clears currency override
- */
-export async function clearCurrencyOverride(): Promise<void> {
-  try {
-    await SecureStore.deleteItemAsync(CURRENCY_OVERRIDE_KEY)
-  } catch (error) {
-    console.error('Failed to clear currency override:', error)
-  }
-}
-
-/**
- * Gets user's currency based on device locale
- */
-export function getUserCurrency(): SupportedCurrency {
-  try {
-    const locales = getLocales()
-    const primaryLocale = locales[0]
-
-    // Try currency code from device
-    if (primaryLocale?.currencyCode && isCurrencySupported(primaryLocale.currencyCode)) {
-      return primaryLocale.currencyCode as SupportedCurrency
-    }
-
-    return 'USD'
-  } catch (error) {
-    console.error('Error detecting currency:', error)
-    return 'USD'
-  }
-}
-
-/**
- * Converts EUR price to display currency using live exchange rates
- * Returns the converted price for display purposes only
- */
-export async function convertToDisplayPrice(
-  eurPrice: number,
-  currency: SupportedCurrency
-): Promise<number> {
-  const rates = await getExchangeRates()
-  const rate = rates[currency] || FALLBACK_DISPLAY_RATES[currency]
-  return parseFloat((eurPrice * rate).toFixed(2))
-}
-
-/**
- * Gets the actual EUR price that will be charged (regardless of display currency)
- * Always use this when creating payment intents
+ * Gets the actual EUR price that will be charged
  */
 export function getChargePrice(planType: 'oneTime' | 'weekly' | 'monthly'): { amount: number; currency: string } {
   return {
@@ -182,51 +60,18 @@ export function getChargePrice(planType: 'oneTime' | 'weekly' | 'monthly'): { am
 }
 
 /**
- * Gets the currency symbol for a given currency code
+ * Formats price with EUR symbol
  */
-export function getCurrencySymbol(currency: SupportedCurrency): string {
+export function formatPrice(amount: number): string {
   try {
     const formatter = new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    })
-    // Format 0 and extract just the symbol by removing digits
-    return formatter.format(0).replace(/\d/g, '').trim()
-  } catch {
-    return currency
-  }
-}
-
-/**
- * Formats price with currency symbol using Intl.NumberFormat
- */
-export function formatPrice(amount: number, currency: SupportedCurrency): string {
-  try {
-    const formatter = new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: currency === 'JPY' || currency === 'INR' ? 0 : 2,
-      maximumFractionDigits: currency === 'JPY' || currency === 'INR' ? 0 : 2,
+      currency: 'EUR',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
     })
     return formatter.format(amount)
   } catch {
-    // Fallback if Intl fails
-    return `${amount.toFixed(2)} ${currency}`
+    return `€${amount.toFixed(2)}`
   }
-}
-
-/**
- * Gets all supported currencies
- */
-export function getSupportedCurrencies(): SupportedCurrency[] {
-  return Object.keys(FALLBACK_DISPLAY_RATES) as SupportedCurrency[]
-}
-
-/**
- * Checks if a currency is supported
- */
-export function isCurrencySupported(currency: string): currency is SupportedCurrency {
-  return currency in FALLBACK_DISPLAY_RATES
 }
