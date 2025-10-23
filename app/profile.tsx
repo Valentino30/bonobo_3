@@ -17,7 +17,7 @@ import { useTranslation } from '@/hooks/use-translation'
 export default function ProfileScreen() {
   const theme = useTheme()
   const { t } = useTranslation()
-  const { showAlert, AlertComponent } = useCustomAlert()
+  const { showAlert, alert } = useCustomAlert()
 
   const {
     email,
@@ -53,7 +53,7 @@ export default function ProfileScreen() {
     // Show login screen
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-        <AlertComponent />
+        {alert}
 
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -92,7 +92,7 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <AlertComponent />
+      {alert}
 
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.keyboardAvoidingView}>
         <ScrollView

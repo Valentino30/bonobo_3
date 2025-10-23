@@ -1,13 +1,13 @@
 import { useState } from 'react'
-import { CustomAlert, type AlertButton } from '@/components/custom-alert'
+import { type AlertButton, CustomAlert } from '@/components/custom-alert'
 
 /**
  * Hook for managing custom alert state
- * Provides showAlert, hideAlert functions and an AlertComponent to render
+ * Provides showAlert, hideAlert functions and JSX element to render
  *
  * @example
  * ```tsx
- * const { showAlert, AlertComponent } = useCustomAlert()
+ * const { showAlert, alert } = useCustomAlert()
  *
  * // Show alert
  * showAlert('Delete Chat', 'Are you sure?', [
@@ -15,11 +15,11 @@ import { CustomAlert, type AlertButton } from '@/components/custom-alert'
  *   { text: 'Delete', style: 'destructive', onPress: handleDelete }
  * ])
  *
- * // Render component
+ * // Render element
  * return (
  *   <>
  *     <YourContent />
- *     <AlertComponent />
+ *     {alert}
  *   </>
  * )
  * ```
@@ -50,7 +50,7 @@ export function useCustomAlert() {
     setAlertConfig((prev) => ({ ...prev, visible: false }))
   }
 
-  const AlertComponent = () => (
+  const alert = (
     <CustomAlert
       visible={alertConfig.visible}
       title={alertConfig.title}
@@ -60,5 +60,5 @@ export function useCustomAlert() {
     />
   )
 
-  return { showAlert, hideAlert, AlertComponent }
+  return { showAlert, hideAlert, alert }
 }

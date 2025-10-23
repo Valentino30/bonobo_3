@@ -18,7 +18,7 @@ interface PaymentAuthScreenProps {
 export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthScreenProps) {
   const theme = useTheme()
   const { t } = useTranslation()
-  const { showAlert, AlertComponent } = useCustomAlert()
+  const { showAlert, alert } = useCustomAlert()
 
   const handleSuccess = () => {
     // Close modal and navigate back
@@ -63,7 +63,7 @@ export function PaymentAuthScreen({ visible, onClose, onSuccess }: PaymentAuthSc
         >
           <ThemedView style={[styles.container, { backgroundColor: theme.colors.backgroundLight }]}>
             {/* Custom Alert */}
-            <AlertComponent />
+            {alert}
 
             <ScrollView
               style={styles.scrollView}

@@ -14,7 +14,7 @@ import { useTranslation } from '@/hooks/use-translation'
 export default function ChatsScreen() {
   const theme = useTheme()
   const { t } = useTranslation()
-  const { showAlert, AlertComponent } = useCustomAlert()
+  const { showAlert, alert } = useCustomAlert()
 
   // All business logic encapsulated in custom hook
   const { chats, isLoading, handleAnalyzeChat, handleNavigateToProfile, handleNavigateToImportGuide, deleteChat } =
@@ -49,7 +49,7 @@ export default function ChatsScreen() {
         </View>
 
         {/* Custom Alert */}
-        <AlertComponent />
+        {alert}
 
         <ChatList chats={chats} onAnalyzeChat={handleAnalyzeChat} onDeleteChat={deleteChat} />
 

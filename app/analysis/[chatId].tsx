@@ -18,7 +18,7 @@ import { useTranslation } from '@/hooks/use-translation'
 export default function ChatAnalysisScreen() {
   const theme = useTheme()
   const { t } = useTranslation()
-  const { showAlert, AlertComponent } = useCustomAlert()
+  const { showAlert, alert } = useCustomAlert()
 
   // All business logic encapsulated in custom hook (React Query version)
   const {
@@ -107,7 +107,7 @@ export default function ChatAnalysisScreen() {
       </ScreenHeader>
 
       {/* Custom Alert */}
-      <AlertComponent />
+      {alert}
 
       {/* Paywall Modal */}
       <Paywall visible={showPaywall} onClose={() => setShowPaywall(false)} onPurchase={handlePurchase} />
