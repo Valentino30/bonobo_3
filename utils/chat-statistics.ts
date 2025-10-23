@@ -13,15 +13,11 @@ import { parseWhatsAppMessages } from './whatsapp-parser'
  * - Interest levels (❤️ card)
  * - Conversation health scores (balance & engagement)
  */
-export async function calculateChatStatistics(chatText: string): Promise<ChatAnalysisData> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const messages = parseWhatsAppMessages(chatText)
-      const messagesWithResponseTimes = enrichMessagesWithResponseTimes(messages)
-      const analysis = buildOverviewStatistics(messagesWithResponseTimes)
-      resolve(analysis)
-    }, 1000)
-  })
+export function calculateChatStatistics(chatText: string): ChatAnalysisData {
+  const messages = parseWhatsAppMessages(chatText)
+  const messagesWithResponseTimes = enrichMessagesWithResponseTimes(messages)
+  const analysis = buildOverviewStatistics(messagesWithResponseTimes)
+  return analysis
 }
 
 /**

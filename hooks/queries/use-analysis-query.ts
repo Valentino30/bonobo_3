@@ -27,7 +27,7 @@ export function useAnalysisQuery(chatId: string, chatText: string, enabled: bool
       }
 
       // Calculate basic statistics
-      const analysis = await calculateChatStatistics(chatText)
+      const analysis = calculateChatStatistics(chatText)
       return analysis
     },
     enabled: enabled && !!chatId && !!chatText,
