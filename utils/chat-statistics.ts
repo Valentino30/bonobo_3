@@ -16,8 +16,8 @@ import { parseWhatsAppMessages } from './whatsapp-parser'
 export function calculateOverviewStats(chatText: string): ChatAnalysisData {
   const messages = parseWhatsAppMessages(chatText)
   const messagesWithResponseTimes = enrichMessagesWithResponseTimes(messages)
-  const analysis = buildOverviewStats(messagesWithResponseTimes)
-  return analysis
+  const overviewStats = buildOverviewStats(messagesWithResponseTimes)
+  return overviewStats
 }
 
 /**
@@ -26,11 +26,11 @@ export function calculateOverviewStats(chatText: string): ChatAnalysisData {
  * Calculates time elapsed between when someone receives a message and when they reply
  */
 function enrichMessagesWithResponseTimes(messages: MessageData[]): MessageData[] {
-  const enhancedMessages = [...messages]
+  const messagesWithResponseTimes = [...messages]
 
-  for (let i = 1; i < enhancedMessages.length; i++) {
-    const currentMessage = enhancedMessages[i]
-    const previousMessage = enhancedMessages[i - 1]
+  for (let i = 1; i < messagesWithResponseTimes.length; i++) {
+    const currentMessage = messagesWithResponseTimes[i]
+    const previousMessage = messagesWithResponseTimes[i - 1]
 
     if (currentMessage.sender !== previousMessage.sender) {
       const timeDiff = currentMessage.timestamp.getTime() - previousMessage.timestamp.getTime()
@@ -38,7 +38,7 @@ function enrichMessagesWithResponseTimes(messages: MessageData[]): MessageData[]
     }
   }
 
-  return enhancedMessages
+  return messagesWithResponseTimes
 }
 
 /**

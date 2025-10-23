@@ -27,8 +27,8 @@ export function useAnalysisQuery(chatId: string, chatText: string, enabled: bool
       }
 
       // Calculate basic stats
-      const analysis = calculateOverviewStats(chatText)
-      return analysis
+      const overviewStats = calculateOverviewStats(chatText)
+      return overviewStats
     },
     enabled: enabled && !!chatId && !!chatText,
     staleTime: Infinity, // Analysis never goes stale once computed
