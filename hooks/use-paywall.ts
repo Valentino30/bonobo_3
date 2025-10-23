@@ -3,12 +3,11 @@ import { type SupportedCurrency } from '@/utils/currency-service'
 import { useCurrencyChangeMutation, usePaymentPlansQuery } from './queries/use-purchase-mutation'
 
 interface UsePaywallOptions {
-  visible: boolean
   onPurchase: (planId: string) => Promise<void>
   onClose: () => void
 }
 
-export function usePaywall({ visible, onPurchase, onClose }: UsePaywallOptions) {
+export function usePaywall({ onPurchase, onClose }: UsePaywallOptions) {
   // React Query hooks
   const { data: paymentPlans } = usePaymentPlansQuery()
   const currencyChangeMutation = useCurrencyChangeMutation()

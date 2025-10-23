@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
+import { useRouter } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { AnalysisInsights } from '@/components/analysis-insights'
 import { AnalysisLoading } from '@/components/analysis-loading'
@@ -13,38 +15,61 @@ import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
 import { useCustomAlert } from '@/hooks/ui/use-custom-alert'
 import { useChatAnalysis } from '@/hooks/use-chat-analysis'
+import { useInsightUnlock } from '@/hooks/use-insight-unlock'
+import { usePaymentFlow } from '@/hooks/use-payment-flow'
 import { useTranslation } from '@/hooks/use-translation'
+import i18n from '@/i18n/config'
+import { getFrequencyLabel } from '@/utils/insight-helpers'
+
+type TabType = 'overview' | 'insights'
 
 export default function ChatAnalysisScreen() {
   const theme = useTheme()
   const { t } = useTranslation()
+  const router = useRouter()
   const { showAlert, alert } = useCustomAlert()
 
-  // All business logic encapsulated in custom hook (React Query version)
-  const {
-    chat,
+  // UI state
+  const [activeTab, setActiveTab] = useState<TabType>('overview')
+  const [showLoadingAnimation, setShowLoadingAnimation] = useState(true)
+
+  // Data fetching
+  const { chat, chatId, chatsLoading, analysis, aiInsights, error } = useChatAnalysis()
+
+  // Payment flow
+  const { showPaywall, setShowPaywall, showAuthScreen, setShowAuthScreen, handlePurchase } = usePaymentFlow({
     chatId,
-    chatsLoading,
-    analysis,
-    aiInsights,
-    showLoadingAnimation,
-    error,
-    activeTab,
-    showPaywall,
-    showAuthScreen,
-    loadingInsight,
-    isInsightUnlocked,
-    getFrequencyLabel,
-    handleTabChange,
-    handleUnlockInsight,
-    handlePurchase,
-    handleAuthSuccess,
-    handleLoadingComplete,
-    handleGoBack,
-    handleNavigateToChats,
-    setShowPaywall,
-    setShowAuthScreen,
-  } = useChatAnalysis({ showAlert })
+    showAlert,
+    onPurchaseSuccess: () => {
+      setActiveTab('insights')
+      // Retry unlocking the pending insight after successful purchase
+      if (pendingInsightToUnlock) {
+        setTimeout(() => handleUnlockInsight(pendingInsightToUnlock), 500)
+        setPendingInsightToUnlock(null)
+      }
+    },
+  })
+
+  // Insight unlocking
+  const { handleUnlockInsight, isInsightUnlocked, loadingInsight, pendingInsightToUnlock, setPendingInsightToUnlock } =
+    useInsightUnlock({
+      chatId,
+      chat: chat || null,
+      analysis: analysis || null,
+      showAlert,
+      onNoAccess: () => setShowPaywall(true),
+    })
+
+  // Handlers
+  const handleLoadingComplete = () => {
+    setShowLoadingAnimation(false)
+  }
+
+  const handleAuthSuccess = () => {
+    setShowAuthScreen(false)
+    setActiveTab('insights')
+    showAlert(i18n.t('analysisErrors.accountCreatedSuccess'), i18n.t('analysisErrors.accountCreatedSuccessMessage'))
+  }
 
   // Show loading animation
   if (chatsLoading || !analysis || showLoadingAnimation) {
@@ -66,7 +91,7 @@ export default function ChatAnalysisScreen() {
           </ThemedText>
           <ThemedButton
             title={t('analysisScreen.backToChats')}
-            onPress={handleNavigateToChats}
+            onPress={() => router.push('/chats' as any)}
             variant="primary"
             size="large"
           />
@@ -82,7 +107,12 @@ export default function ChatAnalysisScreen() {
         <ThemedView style={styles.content}>
           <ThemedText type="title">{t('analysisScreen.analysisErrorTitle')}</ThemedText>
           <ThemedText style={[styles.errorText, { color: theme.colors.warning }]}>{error}</ThemedText>
-          <ThemedButton title={t('analysisScreen.goBack')} onPress={handleGoBack} variant="primary" size="large" />
+          <ThemedButton
+            title={t('analysisScreen.goBack')}
+            onPress={() => router.back()}
+            variant="primary"
+            size="large"
+          />
         </ThemedView>
       </SafeAreaView>
     )
@@ -102,7 +132,7 @@ export default function ChatAnalysisScreen() {
             { id: 'insights', label: t('analysis.tabs.insights'), icon: 'auto-fix' },
           ]}
           activeTab={activeTab}
-          onTabChange={handleTabChange}
+          onTabChange={(tab) => setActiveTab(tab as TabType)}
         />
       </ScreenHeader>
 
@@ -110,7 +140,13 @@ export default function ChatAnalysisScreen() {
       {alert}
 
       {/* Paywall Modal */}
-      <Paywall visible={showPaywall} onClose={() => setShowPaywall(false)} onPurchase={handlePurchase} />
+      <Paywall
+        visible={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        onPurchase={async (planId) => {
+          await handlePurchase(planId)
+        }}
+      />
 
       {/* Auth Screen Modal */}
       <PaymentAuthScreen

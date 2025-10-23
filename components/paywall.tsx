@@ -26,7 +26,7 @@ export function Paywall({ visible, onClose, onPurchase }: PaywallProps) {
     isProcessing,
     handleCurrencyChange,
     handlePurchase,
-  } = usePaywall({ visible, onPurchase, onClose })
+  } = usePaywall({ onPurchase, onClose })
 
   if (!paymentPlans) {
     return null
