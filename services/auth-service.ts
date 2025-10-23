@@ -16,12 +16,60 @@ export interface UserProfile {
   isAnonymous: boolean
 }
 
-export class AuthService {
-  /**
-   * Sign up a new user with email and password
-   * This converts an anonymous session into a permanent account
-   */
-  static async signUpWithEmail(email: string, password: string): Promise<AuthResult> {
+/**
+ * Migrate device data to authenticated user
+ * This links all chats and entitlements from the device to the user account
+ * Returns true if migration succeeded, false otherwise
+ */
+async function migrateDeviceDataToUser(userId: string): Promise<boolean> {
+  try {
+    const deviceId = await getDeviceId()
+
+    console.log('🔄 Starting data migration:', { deviceId, userId })
+
+    // Call the Supabase RPC function to migrate data
+    const { data, error } = await supabase.rpc('migrate_device_data_to_user', {
+      p_device_id: deviceId,
+      p_user_id: userId,
+    })
+
+    if (error) {
+      console.error('❌ Data migration RPC error:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+      })
+
+      // Check if it's a function not found error
+      if (error.message?.includes('function') || error.code === '42883') {
+        console.error('⚠️ Migration function not found in database. Please run the migration SQL.')
+        console.error('Migration file: supabase/migrations/20241015000000_add_auth_support.sql')
+      }
+
+      return false
+    }
+
+    console.log('✅ Data migrated successfully:', data)
+    return true
+  } catch (error) {
+    console.error('❌ Data migration exception:', error)
+    if (error instanceof Error) {
+      console.error('Error details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+      })
+    }
+    return false
+  }
+}
+
+/**
+ * Sign up a new user with email and password
+ * This converts an anonymous session into a permanent account
+ */
+export async function signUpWithEmail(email: string, password: string): Promise<AuthResult> {
     try {
       console.log('Attempting to sign up with email:', email)
 
@@ -73,7 +121,7 @@ export class AuthService {
       }
 
       // Migrate device data to the new user
-      const migrationSuccess = await this.migrateDeviceDataToUser(data.user.id)
+      const migrationSuccess = await migrateDeviceDataToUser(data.user.id)
 
       // Note: Migration failure doesn't fail the signup since account is already created
       // User can still use the app, they just won't have their old data migrated
@@ -98,7 +146,7 @@ export class AuthService {
   /**
    * Sign in an existing user with email and password
    */
-  static async signInWithEmail(email: string, password: string): Promise<AuthResult> {
+export async function signInWithEmail(email: string, password: string): Promise<AuthResult> {
     try {
       console.log('Attempting to sign in with email:', email)
 
@@ -128,7 +176,7 @@ export class AuthService {
 
       // Migrate device data to the signed-in user
       // This ensures any chats/entitlements created while anonymous get linked to the account
-      await this.migrateDeviceDataToUser(data.user.id)
+      await migrateDeviceDataToUser(data.user.id)
 
       return {
         success: true,
@@ -147,7 +195,7 @@ export class AuthService {
   /**
    * Sign out the current user
    */
-  static async signOut(): Promise<AuthResult> {
+export async function signOut(): Promise<AuthResult> {
     try {
       const { error } = await supabase.auth.signOut()
 
@@ -176,7 +224,7 @@ export class AuthService {
   /**
    * Update the user's password
    */
-  static async updatePassword(newPassword: string): Promise<AuthResult> {
+export async function updatePassword(newPassword: string): Promise<AuthResult> {
     try {
       const { data, error } = await supabase.auth.updateUser({
         password: newPassword,
@@ -209,7 +257,7 @@ export class AuthService {
    * Delete the current user's account and all associated data
    * This calls the Supabase function to perform a cascading delete
    */
-  static async deleteAccount(): Promise<AuthResult> {
+export async function deleteAccount(): Promise<AuthResult> {
     try {
       const {
         data: { user },
@@ -254,7 +302,7 @@ export class AuthService {
   /**
    * Get the current authenticated user
    */
-  static async getCurrentUser(): Promise<UserProfile | null> {
+export async function getCurrentUser(): Promise<UserProfile | null> {
     try {
       const {
         data: { user },
@@ -278,7 +326,7 @@ export class AuthService {
   /**
    * Check if the user is authenticated with email/password
    */
-  static async isAuthenticated(): Promise<boolean> {
+export async function isAuthenticated(): Promise<boolean> {
     try {
       const {
         data: { user },
@@ -296,59 +344,10 @@ export class AuthService {
     }
   }
 
-  /**
-   * Migrate device data to authenticated user
-   * This links all chats and entitlements from the device to the user account
-   * Returns true if migration succeeded, false otherwise
-   */
-  private static async migrateDeviceDataToUser(userId: string): Promise<boolean> {
-    try {
-      const deviceId = await getDeviceId()
-
-      console.log('🔄 Starting data migration:', { deviceId, userId })
-
-      // Call the Supabase RPC function to migrate data
-      const { data, error } = await supabase.rpc('migrate_device_data_to_user', {
-        p_device_id: deviceId,
-        p_user_id: userId,
-      })
-
-      if (error) {
-        console.error('❌ Data migration RPC error:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code,
-        })
-
-        // Check if it's a function not found error
-        if (error.message?.includes('function') || error.code === '42883') {
-          console.error('⚠️ Migration function not found in database. Please run the migration SQL.')
-          console.error('Migration file: supabase/migrations/20241015000000_add_auth_support.sql')
-        }
-
-        return false
-      }
-
-      console.log('✅ Data migrated successfully:', data)
-      return true
-    } catch (error) {
-      console.error('❌ Data migration exception:', error)
-      if (error instanceof Error) {
-        console.error('Error details:', {
-          name: error.name,
-          message: error.message,
-          stack: error.stack,
-        })
-      }
-      return false
-    }
-  }
-
-  /**
-   * Check if email is available (not already registered)
-   */
-  static async isEmailAvailable(email: string): Promise<boolean> {
+/**
+ * Check if email is available (not already registered)
+ */
+export async function isEmailAvailable(email: string): Promise<boolean> {
     try {
       // Try to sign in with a dummy password
       // If it fails with "Invalid login credentials", email exists
@@ -370,8 +369,7 @@ export class AuthService {
       // Should never reach here, but if sign-in succeeds, email exists
       return false
     } catch (error) {
-      // On error, assume email is available
-      return true
-    }
+    // On error, assume email is available
+    return true
   }
 }

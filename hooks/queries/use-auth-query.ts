@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { AuthService } from '@/services/auth-service'
+import { getCurrentUser, signUpWithEmail, signInWithEmail, updatePassword, signOut, deleteAccount } from '@/services/auth-service'
 
 // Query keys
 export const authKeys = {
@@ -12,7 +12,7 @@ export function useProfileQuery() {
   return useQuery({
     queryKey: authKeys.profile(),
     queryFn: async () => {
-      const user = await AuthService.getCurrentUser()
+      const user = await getCurrentUser()
       return user
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -26,7 +26,7 @@ export function useSignupMutation() {
 
   return useMutation({
     mutationFn: async ({ email, password }: { email: string; password: string }) => {
-      const result = await AuthService.signUpWithEmail(email, password)
+      const result = await signUpWithEmail(email, password)
 
       if (!result.success) {
         throw new Error(result.error || 'Failed to create account')
@@ -61,7 +61,7 @@ export function useLoginMutation() {
 
   return useMutation({
     mutationFn: async ({ email, password }: { email: string; password: string }) => {
-      const result = await AuthService.signInWithEmail(email, password)
+      const result = await signInWithEmail(email, password)
       if (!result.success) {
         throw new Error(result.error || 'Failed to login')
       }
@@ -78,7 +78,7 @@ export function useLoginMutation() {
 export function useChangePasswordMutation() {
   return useMutation({
     mutationFn: async (newPassword: string) => {
-      const result = await AuthService.updatePassword(newPassword)
+      const result = await updatePassword(newPassword)
       if (!result.success) {
         throw new Error(result.error || 'Failed to update password')
       }
@@ -93,7 +93,7 @@ export function useLogoutMutation() {
 
   return useMutation({
     mutationFn: async () => {
-      const result = await AuthService.signOut()
+      const result = await signOut()
       if (!result.success) {
         throw new Error(result.error || 'Failed to logout')
       }
@@ -112,7 +112,7 @@ export function useDeleteAccountMutation() {
 
   return useMutation({
     mutationFn: async () => {
-      const result = await AuthService.deleteAccount()
+      const result = await deleteAccount()
       if (!result.success) {
         throw new Error(result.error || 'Failed to delete account')
       }

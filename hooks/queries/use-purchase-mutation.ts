@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { AuthService } from '@/services/auth-service'
+import { isAuthenticated } from '@/services/auth-service'
 import { getPaymentPlans, verifyPayment } from '@/services/payment-service'
 import { hasAccess } from '@/services/entitlement-service'
 import { initializePayment } from '@/services/stripe-service'
@@ -50,7 +50,7 @@ export function usePurchaseMutation() {
       }
 
       // Check authentication
-      const isAuthenticated = await AuthService.isAuthenticated()
+      const userIsAuthenticated = await isAuthenticated()
 
       // Poll for entitlement (max 10 attempts)
       const maxAttempts = 10
@@ -66,7 +66,7 @@ export function usePurchaseMutation() {
         const userHasAccess = await hasAccess(chatId)
 
         if (userHasAccess) {
-          return { success: true, isAuthenticated, requiresAuth: !isAuthenticated }
+          return { success: true, isAuthenticated: userIsAuthenticated, requiresAuth: !userIsAuthenticated }
         }
 
         // Manual verification fallback on last attempt
@@ -75,7 +75,7 @@ export function usePurchaseMutation() {
             const verified = await verifyPayment(result.paymentIntentId, planId, chatId)
 
             if (verified) {
-              return { success: true, isAuthenticated, requiresAuth: !isAuthenticated }
+              return { success: true, isAuthenticated: userIsAuthenticated, requiresAuth: !userIsAuthenticated }
             }
           }
 
