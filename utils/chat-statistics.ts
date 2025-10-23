@@ -84,7 +84,7 @@ function buildOverviewStats(messages: MessageData[]): ChatAnalysisData {
   const timestamps = messages.map((m) => m.timestamp).sort()
   const dateRange = { start: timestamps[0], end: timestamps[timestamps.length - 1] }
 
-  return {
+  const overviewStats: ChatAnalysisData = {
     totalMessages: messages.length,
     participant1: participant1Stats,
     participant2: participant2Stats,
@@ -94,6 +94,8 @@ function buildOverviewStats(messages: MessageData[]): ChatAnalysisData {
       engagementScore,
     },
   }
+
+  return overviewStats
 }
 
 /**
@@ -129,7 +131,7 @@ function calculateIndividualParticipantStats(participantName: string, messages: 
       ? Math.round(participantMessages.reduce((sum, m) => sum + countWords(m.content), 0) / messageCount)
       : 0
 
-  return {
+  const participantStats: ParticipantStats = {
     name: participantName,
     messageCount,
     averageResponseTime,
@@ -137,6 +139,8 @@ function calculateIndividualParticipantStats(participantName: string, messages: 
     initiationRate,
     averageMessageLength,
   }
+
+  return participantStats
 }
 
 /**
