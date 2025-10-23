@@ -38,13 +38,6 @@ const CACHE_DURATION_MS = 60 * 60 * 1000 // 1 hour
 // Types
 export type SupportedCurrency = keyof typeof FALLBACK_DISPLAY_RATES
 
-export interface CurrencyPricing {
-  code: string
-  oneTime: number
-  weekly: number
-  monthly: number
-}
-
 /**
  * Fetches live exchange rates from API (cached for 1 hour)
  * Returns live rates or fallback rates if fetch fails
@@ -165,19 +158,16 @@ export function getUserCurrency(): SupportedCurrency {
 }
 
 /**
- * Gets pricing for a currency (for display purposes)
- * Calculates prices on-the-fly by converting from EUR base pricing using live exchange rates
+ * Converts EUR price to display currency using live exchange rates
+ * Returns the converted price for display purposes only
  */
-export async function getPricing(currency: SupportedCurrency): Promise<CurrencyPricing> {
+export async function convertToDisplayPrice(
+  eurPrice: number,
+  currency: SupportedCurrency
+): Promise<number> {
   const rates = await getExchangeRates()
   const rate = rates[currency] || FALLBACK_DISPLAY_RATES[currency]
-
-  return {
-    code: currency,
-    oneTime: parseFloat((BASE_PRICING_EUR.oneTime * rate).toFixed(2)),
-    weekly: parseFloat((BASE_PRICING_EUR.weekly * rate).toFixed(2)),
-    monthly: parseFloat((BASE_PRICING_EUR.monthly * rate).toFixed(2)),
-  }
+  return parseFloat((eurPrice * rate).toFixed(2))
 }
 
 /**

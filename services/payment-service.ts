@@ -4,7 +4,7 @@ import {
   fetchBasePricesFromStripe,
   getCurrencyOverride,
   getUserCurrency,
-  getPricing,
+  convertToDisplayPrice,
   getChargePrice,
   CHARGE_CURRENCY,
   type SupportedCurrency,
@@ -33,12 +33,16 @@ export async function getPaymentPlans(): Promise<Record<string, PaymentPlan>> {
   // Check for manual currency override first
   const override = await getCurrencyOverride()
   const currency = override || getUserCurrency()
-  const pricing = await getPricing(currency)
 
   // Get charge prices (always in EUR)
   const oneTimeCharge = getChargePrice('oneTime')
   const weeklyCharge = getChargePrice('weekly')
   const monthlyCharge = getChargePrice('monthly')
+
+  // Convert to display prices
+  const oneTimeDisplay = await convertToDisplayPrice(oneTimeCharge.amount, currency)
+  const weeklyDisplay = await convertToDisplayPrice(weeklyCharge.amount, currency)
+  const monthlyDisplay = await convertToDisplayPrice(monthlyCharge.amount, currency)
 
   console.log(`💰 Display currency: ${currency}, Charge currency: ${CHARGE_CURRENCY}`)
 
@@ -46,7 +50,7 @@ export async function getPaymentPlans(): Promise<Record<string, PaymentPlan>> {
     ONE_TIME: {
       id: 'one-time',
       name: 'One-Time Analysis',
-      price: pricing.oneTime,
+      price: oneTimeDisplay,
       currency,
       chargePrice: oneTimeCharge.amount,
       chargeCurrency: oneTimeCharge.currency,
@@ -56,7 +60,7 @@ export async function getPaymentPlans(): Promise<Record<string, PaymentPlan>> {
     WEEKLY: {
       id: 'weekly',
       name: 'Weekly Pass',
-      price: pricing.weekly,
+      price: weeklyDisplay,
       currency,
       chargePrice: weeklyCharge.amount,
       chargeCurrency: weeklyCharge.currency,
@@ -67,7 +71,7 @@ export async function getPaymentPlans(): Promise<Record<string, PaymentPlan>> {
     MONTHLY: {
       id: 'monthly',
       name: 'Monthly Pass',
-      price: pricing.monthly,
+      price: monthlyDisplay,
       currency,
       chargePrice: monthlyCharge.amount,
       chargeCurrency: monthlyCharge.currency,
