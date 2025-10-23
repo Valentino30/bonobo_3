@@ -9,11 +9,10 @@ export interface StripePaymentResult {
   paymentIntentId?: string
 }
 
-export class StripeService {
-  /**
-   * Create a payment intent using Supabase Edge Function and initialize the payment sheet
-   */
-  static async initializePayment(planId: string, chatId?: string): Promise<StripePaymentResult> {
+/**
+ * Create a payment intent using Supabase Edge Function and initialize the payment sheet
+ */
+export async function initializePayment(planId: string, chatId?: string): Promise<StripePaymentResult> {
     try {
       // Get the plan details
       const PAYMENT_PLANS = await getPaymentPlans()
@@ -118,12 +117,11 @@ export class StripeService {
 
       console.log('✅ Payment successful!')
       return { success: true, paymentIntentId }
-    } catch (error) {
-      console.error('Payment error:', error)
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Payment failed',
-      }
+  } catch (error) {
+    console.error('Payment error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Payment failed',
     }
   }
 }

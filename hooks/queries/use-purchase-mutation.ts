@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { AuthService } from '@/services/auth-service'
 import { getPaymentPlans, verifyPayment } from '@/services/payment-service'
 import { hasAccess } from '@/services/entitlement-service'
-import { StripeService } from '@/services/stripe-service'
+import { initializePayment } from '@/services/stripe-service'
 import { analysisKeys } from './use-analysis-query'
 import { chatKeys } from './use-chats-query'
 
@@ -43,7 +43,7 @@ export function usePurchaseMutation() {
 
   return useMutation({
     mutationFn: async ({ planId, chatId }: PurchaseParams) => {
-      const result = await StripeService.initializePayment(planId, chatId)
+      const result = await initializePayment(planId, chatId)
 
       if (!result.success) {
         throw new Error(result.error || 'Payment failed')
