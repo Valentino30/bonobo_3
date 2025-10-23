@@ -4,34 +4,46 @@ import { supabase } from '@/services/supabase'
 export const CHARGE_CURRENCY = 'EUR' as const
 export type DisplayCurrency = 'EUR'
 
-// Base pricing in EUR (fetched from Stripe, with fallback values)
-let BASE_PRICING_EUR = {
+// Fallback prices if Stripe fetch fails
+const FALLBACK_PRICES = {
   oneTime: 2.99,
   weekly: 4.99,
   monthly: 9.99,
 }
 
+interface PricingData {
+  oneTime: number
+  weekly: number
+  monthly: number
+}
+
 /**
- * Fetches base prices from Stripe via Supabase Edge Function
+ * Fetches prices from Stripe via Supabase Edge Function
+ * Returns live prices or fallback if fetch fails
  */
-export async function fetchBasePricesFromStripe(): Promise<void> {
+export async function fetchPricesFromStripe(): Promise<PricingData> {
   try {
     const { data, error } = await supabase.functions.invoke('get-stripe-prices')
 
     if (error) {
-      console.error('Failed to fetch Stripe prices:', error)
-      return
+      console.error('Failed to fetch Stripe prices, using fallback:', error)
+      return FALLBACK_PRICES
     }
 
     if (data && typeof data === 'object') {
-      if (data.oneTime) BASE_PRICING_EUR.oneTime = data.oneTime
-      if (data.weekly) BASE_PRICING_EUR.weekly = data.weekly
-      if (data.monthly) BASE_PRICING_EUR.monthly = data.monthly
-
-      console.log('Base prices updated from Stripe (EUR):', BASE_PRICING_EUR)
+      const prices = {
+        oneTime: data.oneTime || FALLBACK_PRICES.oneTime,
+        weekly: data.weekly || FALLBACK_PRICES.weekly,
+        monthly: data.monthly || FALLBACK_PRICES.monthly,
+      }
+      console.log('Prices fetched from Stripe (EUR):', prices)
+      return prices
     }
+
+    return FALLBACK_PRICES
   } catch (error) {
-    console.error('Error fetching base prices from Stripe:', error)
+    console.error('Error fetching Stripe prices, using fallback:', error)
+    return FALLBACK_PRICES
   }
 }
 
@@ -40,23 +52,6 @@ export async function fetchBasePricesFromStripe(): Promise<void> {
  */
 export function getDisplayCurrency(): DisplayCurrency {
   return 'EUR'
-}
-
-/**
- * Gets display price (same as charge price since we only use EUR)
- */
-export function getDisplayPrice(planType: 'oneTime' | 'weekly' | 'monthly'): number {
-  return BASE_PRICING_EUR[planType]
-}
-
-/**
- * Gets the actual EUR price that will be charged
- */
-export function getChargePrice(planType: 'oneTime' | 'weekly' | 'monthly'): { amount: number; currency: string } {
-  return {
-    amount: BASE_PRICING_EUR[planType],
-    currency: CHARGE_CURRENCY,
-  }
 }
 
 /**

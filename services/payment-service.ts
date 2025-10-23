@@ -1,11 +1,6 @@
 import { getDeviceId } from '@/utils/device-id'
 import { supabase } from './supabase'
-import {
-  fetchBasePricesFromStripe,
-  getDisplayPrice,
-  getChargePrice,
-  type DisplayCurrency,
-} from '@/services/currency-service'
+import { fetchPricesFromStripe, CHARGE_CURRENCY, type DisplayCurrency } from '@/services/currency-service'
 
 // Payment plan structure
 export interface PaymentPlan {
@@ -21,41 +16,32 @@ export interface PaymentPlan {
 }
 
 /**
- * Get payment plans with EUR pricing
+ * Get payment plans with EUR pricing from Stripe
  */
 export async function getPaymentPlans(): Promise<Record<string, PaymentPlan>> {
-  // Fetch latest prices from Stripe
-  await fetchBasePricesFromStripe()
+  // Fetch prices from Stripe (returns fallback if fetch fails)
+  const prices = await fetchPricesFromStripe()
 
-  // Get prices (always in EUR)
-  const oneTimePrice = getDisplayPrice('oneTime')
-  const weeklyPrice = getDisplayPrice('weekly')
-  const monthlyPrice = getDisplayPrice('monthly')
-
-  const oneTimeCharge = getChargePrice('oneTime')
-  const weeklyCharge = getChargePrice('weekly')
-  const monthlyCharge = getChargePrice('monthly')
-
-  console.log('💰 Prices (EUR):', { oneTime: oneTimePrice, weekly: weeklyPrice, monthly: monthlyPrice })
+  console.log('💰 Prices (EUR):', prices)
 
   return {
     ONE_TIME: {
       id: 'one-time',
       name: 'One-Time Analysis',
-      price: oneTimePrice,
+      price: prices.oneTime,
       currency: 'EUR',
-      chargePrice: oneTimeCharge.amount,
-      chargeCurrency: oneTimeCharge.currency,
+      chargePrice: prices.oneTime,
+      chargeCurrency: CHARGE_CURRENCY,
       description: 'Unlock AI insights for one chat analysis',
       type: 'one-time' as const,
     },
     WEEKLY: {
       id: 'weekly',
       name: 'Weekly Pass',
-      price: weeklyPrice,
+      price: prices.weekly,
       currency: 'EUR',
-      chargePrice: weeklyCharge.amount,
-      chargeCurrency: weeklyCharge.currency,
+      chargePrice: prices.weekly,
+      chargeCurrency: CHARGE_CURRENCY,
       description: 'Unlimited AI insights for 7 days',
       duration: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
       type: 'subscription' as const,
@@ -63,10 +49,10 @@ export async function getPaymentPlans(): Promise<Record<string, PaymentPlan>> {
     MONTHLY: {
       id: 'monthly',
       name: 'Monthly Pass',
-      price: monthlyPrice,
+      price: prices.monthly,
       currency: 'EUR',
-      chargePrice: monthlyCharge.amount,
-      chargeCurrency: monthlyCharge.currency,
+      chargePrice: prices.monthly,
+      chargeCurrency: CHARGE_CURRENCY,
       description: 'Unlimited AI insights for 30 days',
       duration: 30 * 24 * 60 * 60 * 1000, // 30 days in milliseconds
       type: 'subscription' as const,
