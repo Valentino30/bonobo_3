@@ -77,17 +77,16 @@ export async function analyzeChat(chatText: string): Promise<AIInsights> {
   console.log('Chat text length:', chatText.length)
   console.log('📝 Using locale for AI analysis:', i18n.locale)
 
-  // Get all language-specific values from i18n
-  const languageName = i18n.t('aiPrompt.languageName')
-  const languageInstruction = i18n.t('aiPrompt.languageInstruction')
+  // Determine output language based on user's locale
+  const languageName = i18n.locale === 'it' ? 'Italian' : 'English'
 
-  // Get the actual tag values in the current language
-  const attachmentStyleValues = i18n.t('aiPrompt.attachmentStyleValues')
-  const reciprocityValues = i18n.t('aiPrompt.reciprocityValues')
-  const compatibilityValues = i18n.t('aiPrompt.compatibilityValues')
-  const conflictTypeValues = i18n.t('aiPrompt.conflictTypeValues')
-  const weVsIValues = i18n.t('aiPrompt.weVsIValues')
-  const loveLanguageValues = i18n.t('aiPrompt.loveLanguageValues')
+  // Tag values are always in English (internal to AI prompt)
+  const attachmentStyleValues = 'Secure/Anxious/Avoidant/Fearful'
+  const reciprocityValues = 'Poor/Fair/Good/Excellent'
+  const compatibilityValues = 'Low/Moderate/High/Very High/Excellent'
+  const conflictTypeValues = 'Collaborative/Competitive/Accommodating/Avoiding/Compromising'
+  const weVsIValues = 'Low/Moderate/High/Very High'
+  const loveLanguageValues = 'Words of Affirmation/Quality Time/Physical Touch/Acts of Service/Receiving Gifts'
 
   // Add timeout to prevent infinite hanging
   const timeoutPromise = new Promise((_, reject) => {
@@ -108,7 +107,7 @@ export async function analyzeChat(chatText: string): Promise<AIInsights> {
 
     const prompt = `You are an expert relationship counselor analyzing a WhatsApp chat conversation. Analyze the following chat and provide detailed insights in JSON format.
 
-${languageInstruction}
+CRITICAL: Your ENTIRE JSON response MUST be 100% in ${languageName}. Every single field, value, description, item, and tip must be written in ${languageName}. You must use ONLY the exact tag values specified below for "type" and "rating" fields.
 
 Chat content:
 ${chatText.substring(0, 10000)} ${chatText.length > 10000 ? '...(truncated)' : ''}

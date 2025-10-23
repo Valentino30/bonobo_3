@@ -342,15 +342,5 @@
     "accountCreatedSuccessMessage": "Your purchases are now secure and accessible from any device",
     "accountCreatedTitle": "Account Created Successfully!",
     "accountCreatedSubtitle": "Your account has been created and your purchases have been securely linked to it."
-  },
-  "aiPrompt": {
-    "languageName": "English",
-    "languageInstruction": "CRITICAL: Your ENTIRE JSON response MUST be 100% in English. Every single field, value, description, item, and tip must be written in English. You must use ONLY the exact tag values specified in the prompt.",
-    "attachmentStyleValues": "Secure/Anxious/Avoidant/Fearful",
-    "reciprocityValues": "Poor/Fair/Good/Excellent",
-    "compatibilityValues": "Low/Moderate/High/Very High/Excellent",
-    "conflictTypeValues": "Collaborative/Competitive/Accommodating/Avoiding/Compromising",
-    "weVsIValues": "Low/Moderate/High/Very High",
-    "loveLanguageValues": "Words of Affirmation/Quality Time/Physical Touch/Acts of Service/Receiving Gifts"
   }
 }
