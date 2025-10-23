@@ -93,3 +93,73 @@ export function parseAIJsonResponse(text: string): any {
     }
   }
 }
+
+/**
+ * Normalize the entire AIInsights response
+ * Ensures all descriptions are strings and all arrays contain only strings
+ */
+export function normalizeAIInsights(rawInsights: any): any {
+  return {
+    ...rawInsights,
+    redFlags: {
+      ...rawInsights.redFlags,
+      description: normalizeDescription(rawInsights.redFlags.description),
+      items: normalizeArray(rawInsights.redFlags.items),
+    },
+    greenFlags: {
+      ...rawInsights.greenFlags,
+      description: normalizeDescription(rawInsights.greenFlags.description),
+      items: normalizeArray(rawInsights.greenFlags.items),
+    },
+    attachmentStyle: {
+      ...rawInsights.attachmentStyle,
+      description: normalizeDescription(rawInsights.attachmentStyle.description),
+      items: normalizeArray(rawInsights.attachmentStyle.items),
+    },
+    reciprocityScore: {
+      ...rawInsights.reciprocityScore,
+      description: normalizeDescription(rawInsights.reciprocityScore.description),
+      items: normalizeArray(rawInsights.reciprocityScore.items),
+    },
+    compliments: {
+      ...rawInsights.compliments,
+      description: normalizeDescription(rawInsights.compliments.description),
+      items: normalizeArray((rawInsights.compliments as any).items || (rawInsights.compliments as any).breakdown),
+    },
+    criticism: {
+      ...rawInsights.criticism,
+      description: normalizeDescription(rawInsights.criticism.description),
+      items: normalizeArray((rawInsights.criticism as any).items || (rawInsights.criticism as any).breakdown),
+    },
+    compatibilityScore: {
+      ...rawInsights.compatibilityScore,
+      description: normalizeDescription(rawInsights.compatibilityScore.description),
+      items: normalizeArray(rawInsights.compatibilityScore.items),
+    },
+    relationshipTips: {
+      ...rawInsights.relationshipTips,
+      description: normalizeDescription(rawInsights.relationshipTips.description),
+      tips: normalizeArray(rawInsights.relationshipTips.tips),
+    },
+    conflictResolution: {
+      ...rawInsights.conflictResolution,
+      description: normalizeDescription(rawInsights.conflictResolution.description),
+      items: normalizeArray(rawInsights.conflictResolution.items),
+    },
+    sharedInterests: {
+      ...rawInsights.sharedInterests,
+      description: normalizeDescription(rawInsights.sharedInterests.description),
+      items: normalizeArray(rawInsights.sharedInterests.items),
+    },
+    weVsIRatio: {
+      ...rawInsights.weVsIRatio,
+      description: normalizeDescription(rawInsights.weVsIRatio.description),
+      items: normalizeArray(rawInsights.weVsIRatio.items),
+    },
+    loveLanguage: {
+      ...rawInsights.loveLanguage,
+      description: normalizeDescription(rawInsights.loveLanguage.description),
+      items: normalizeArray(rawInsights.loveLanguage.items),
+    },
+  }
+}
