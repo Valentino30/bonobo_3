@@ -1,4 +1,6 @@
+import { useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
+import { useRouter } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { ChatList } from '@/components/chat-list'
 import { LoadingScreen } from '@/components/loading-screen'
@@ -7,18 +9,41 @@ import { ThemedIconButton } from '@/components/themed-icon-button'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
-import { useCustomAlert } from '@/hooks/ui/use-custom-alert'
 import { useChats } from '@/hooks/use-chats'
+import { useShareImport } from '@/hooks/use-share-import'
+import { useShareIntent } from '@/hooks/use-share-intent'
 import { useTranslation } from '@/hooks/use-translation'
 
 export default function ChatsScreen() {
   const theme = useTheme()
   const { t } = useTranslation()
-  const { showAlert, alert } = useCustomAlert()
+  const router = useRouter()
 
-  // All business logic encapsulated in custom hook
-  const { chats, isLoading, handleAnalyzeChat, handleNavigateToProfile, handleNavigateToImportGuide, deleteChat } =
-    useChats({ showAlert })
+  // Share intent handling
+  const { shareData, hasShareData, clearShareData } = useShareIntent()
+
+  // Timeout for stale share intent - defensive workaround
+  useEffect(() => {
+    if (hasShareData && !shareData?.text) {
+      // If we have share intent but no text after 3 seconds, clear it
+      const timeout = setTimeout(() => {
+        console.log('Share intent timeout - clearing stale state')
+        clearShareData()
+      }, 3000)
+
+      return () => clearTimeout(timeout)
+    }
+  }, [hasShareData, shareData, clearShareData])
+
+  // Process shared WhatsApp data with integrated alert handling
+  const { alert: shareImportAlert } = useShareImport({
+    shareData,
+    hasShareData,
+    clearShareData,
+  })
+
+  // Data and business logic
+  const { chats, isLoading, deleteChat } = useChats()
 
   // Show loading screen while chats are being loaded
   if (isLoading) {
@@ -41,21 +66,25 @@ export default function ChatsScreen() {
           </ThemedText>
           <ThemedIconButton
             icon="account"
-            onPress={handleNavigateToProfile}
+            onPress={() => router.push('/profile')}
             variant="primary"
             size="large"
             style={styles.profileButton}
           />
         </View>
 
-        {/* Custom Alert */}
-        {alert}
+        {/* Share Import Alert */}
+        {shareImportAlert}
 
-        <ChatList chats={chats} onAnalyzeChat={handleAnalyzeChat} onDeleteChat={deleteChat} />
+        <ChatList
+          chats={chats}
+          onAnalyzeChat={(chatId) => router.push(`/analysis/${chatId}`)}
+          onDeleteChat={deleteChat}
+        />
 
         <ThemedButton
           title={t('chats.importButton')}
-          onPress={handleNavigateToImportGuide}
+          onPress={() => router.push('/import-guide')}
           variant="primary"
           size="large"
           icon="whatsapp"

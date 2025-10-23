@@ -1,7 +1,8 @@
-import { useShareDataProcessor } from '@/hooks/use-share-data-processor'
-import { type StoredChat } from '@/utils/chat-storage'
-import { createShareImportAlerts } from '@/utils/share-import-alerts'
 import { useMemo } from 'react'
+import { useAddChatMutation } from '@/hooks/queries/use-chats-query'
+import { useCustomAlert } from '@/hooks/ui/use-custom-alert'
+import { useShareDataProcessor } from '@/hooks/use-share-data-processor'
+import { createShareImportAlerts } from '@/utils/share-import-alerts'
 
 type ShareData = {
   text?: string
@@ -12,8 +13,6 @@ type UseShareImportOptions = {
   shareData: ShareData | null
   hasShareData: boolean
   clearShareData: () => void
-  addChat: (chat: StoredChat) => Promise<void>
-  showAlert: (title: string, message: string, buttons?: { text: string; onPress?: () => void }[]) => void
 }
 
 /**
@@ -24,13 +23,18 @@ type UseShareImportOptions = {
  * Use this hook when you want the default alert behavior.
  * Use useShareDataProcessor directly if you need custom UI feedback.
  */
-export function useShareImport({ shareData, hasShareData, clearShareData, addChat, showAlert }: UseShareImportOptions) {
+export function useShareImport({ shareData, hasShareData, clearShareData }: UseShareImportOptions) {
+  const { showAlert, alert } = useCustomAlert()
+  const addChatMutation = useAddChatMutation()
+
   // Create alert configurations
   const alerts = useMemo(() => createShareImportAlerts(clearShareData), [clearShareData])
 
   // Use the base processor hook with alert callbacks
   useShareDataProcessor(shareData, hasShareData, {
-    addChat,
+    addChat: async (chat) => {
+      await addChatMutation.mutateAsync(chat)
+    },
     clearShareData,
     onSuccess: (participantNames, messageCount) => {
       const config = alerts.success(participantNames, messageCount)
@@ -49,4 +53,6 @@ export function useShareImport({ shareData, hasShareData, clearShareData, addCha
       showAlert(config.title, config.message, config.buttons)
     },
   })
+
+  return { alert }
 }
