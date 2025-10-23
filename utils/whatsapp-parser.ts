@@ -1,3 +1,6 @@
+import type { MessageData } from '@/types/chat-analysis'
+import { extractFirstName } from './string-helpers'
+
 export interface ParsedChatData {
   participants: string[]
   messageCount: number
@@ -9,28 +12,72 @@ export interface ParsedChatData {
 }
 
 /**
- * Extract the first word from a participant name
- * Examples:
- * "Jasmine (Bali)" -> "Jasmine"
- * "Vale 🇮🇹" -> "Vale"
- * "John Smith" -> "John"
+ * Parse WhatsApp chat export into detailed message data with timestamps and types
+ * Used by chat statistics calculator
  */
-function extractFirstName(fullName: string): string {
-  // Remove emojis and special characters, then get first word
-  const cleaned = fullName
-    .replace(/[\u{1F600}-\u{1F64F}]/gu, '') // Emoticons
-    .replace(/[\u{1F300}-\u{1F5FF}]/gu, '') // Misc symbols
-    .replace(/[\u{1F680}-\u{1F6FF}]/gu, '') // Transport
-    .replace(/[\u{1F1E0}-\u{1F1FF}]/gu, '') // Flags
-    .replace(/[\u{2600}-\u{26FF}]/gu, '') // Misc symbols
-    .replace(/[\u{2700}-\u{27BF}]/gu, '') // Dingbats
-    .trim()
+export function parseWhatsAppMessages(chatText: string): MessageData[] {
+  const messages: MessageData[] = []
+  const lines = chatText.split('\n')
 
-  // Get first word (split by space or parenthesis)
-  const firstWord = cleaned.split(/[\s(]+/)[0]
-  return firstWord || fullName // Fallback to original if extraction fails
+  const patterns = [
+    /^(\d{1,2}\/\d{1,2}\/\d{2,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?\s*(?:AM|PM|am|pm)?)\s*-\s*([^:]+):\s*(.*)$/,
+    /^\[(\d{1,2}\/\d{1,2}\/\d{2,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?\s*(?:AM|PM|am|pm)?)\]\s*([^:]+):\s*(.*)$/,
+    /^(\d{1,2}\/\d{1,2}\/\d{2,4})\s+(\d{1,2}:\d{2}(?::\d{2})?)\s*-\s*([^:]+):\s*(.*)$/,
+  ]
+
+  for (const line of lines) {
+    if (line.trim() === '') continue
+
+    // Skip system messages
+    if (isSystemMessage(line)) {
+      continue
+    }
+
+    let matched = false
+    for (const pattern of patterns) {
+      const match = line.match(pattern)
+      if (match) {
+        const [, dateStr, timeStr, sender, content] = match
+        const cleanSender = sender.trim()
+
+        if (shouldSkipMessage(cleanSender, content)) {
+          matched = true
+          break
+        }
+
+        try {
+          const timestamp = parseTimestamp(dateStr, timeStr)
+          const messageType = getMessageType(content)
+          const firstName = extractFirstName(cleanSender)
+
+          messages.push({
+            timestamp,
+            sender: firstName,
+            content: content.trim(),
+            type: messageType,
+          })
+          matched = true
+          break
+        } catch {
+          console.warn('Failed to parse timestamp:', dateStr, timeStr)
+        }
+      }
+    }
+
+    // Append continuation lines to last message
+    if (!matched && messages.length > 0) {
+      const lastMessage = messages[messages.length - 1]
+      lastMessage.content += '\n' + line.trim()
+    }
+  }
+
+  return messages
 }
 
+/**
+ * Simple parser for basic chat info (participants and message count)
+ * Used by share data processor
+ */
 export function parseWhatsAppChat(chatText: string): ParsedChatData {
   const lines = chatText.split('\n').filter((line) => line.trim())
   const messages: { timestamp: string; sender: string; message: string }[] = []
@@ -90,4 +137,102 @@ export function parseWhatsAppChat(chatText: string): ParsedChatData {
     messageCount: messages.length,
     messages,
   }
+}
+
+// Helper functions for message parsing
+
+function isSystemMessage(line: string): boolean {
+  return (
+    line.includes('Messages and calls are end-to-end encrypted') ||
+    line.includes('changed the subject') ||
+    line.includes('left') ||
+    line.includes('joined') ||
+    line.includes('created group')
+  )
+}
+
+function shouldSkipMessage(sender: string, content: string): boolean {
+  return (
+    sender.includes('WhatsApp') ||
+    sender.includes('System') ||
+    content.includes('<Media omitted>') ||
+    content.includes('This message was deleted')
+  )
+}
+
+function parseTimestamp(dateStr: string, timeStr: string): Date {
+  const dateParts = dateStr.split('/')
+  let month: number, day: number, year: number
+
+  if (dateParts.length === 3) {
+    const part1 = parseInt(dateParts[0])
+    const part2 = parseInt(dateParts[1])
+    const part3 = parseInt(dateParts[2])
+
+    if (part1 > 12) {
+      day = part1
+      month = part2
+      year = part3
+    } else if (part2 > 12) {
+      month = part1
+      day = part2
+      year = part3
+    } else {
+      month = part1
+      day = part2
+      year = part3
+    }
+
+    if (year < 100) {
+      year += year < 50 ? 2000 : 1900
+    }
+  } else {
+    throw new Error('Invalid date format')
+  }
+
+  const timeMatch = timeStr.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM|am|pm)?/)
+  if (!timeMatch) {
+    throw new Error('Invalid time format')
+  }
+
+  let hours = parseInt(timeMatch[1])
+  const minutes = parseInt(timeMatch[2])
+  const seconds = timeMatch[3] ? parseInt(timeMatch[3]) : 0
+  const ampm = timeMatch[4]?.toLowerCase()
+
+  if (ampm) {
+    if (ampm === 'pm' && hours !== 12) {
+      hours += 12
+    } else if (ampm === 'am' && hours === 12) {
+      hours = 0
+    }
+  }
+
+  return new Date(year, month - 1, day, hours, minutes, seconds)
+}
+
+function getMessageType(content: string): 'text' | 'media' | 'deleted' {
+  const lowerContent = content.toLowerCase()
+
+  if (
+    lowerContent.includes('this message was deleted') ||
+    lowerContent.includes('you deleted this message') ||
+    lowerContent.includes('message deleted')
+  ) {
+    return 'deleted'
+  }
+
+  if (
+    lowerContent.includes('<media omitted>') ||
+    lowerContent.includes('image omitted') ||
+    lowerContent.includes('video omitted') ||
+    lowerContent.includes('audio omitted') ||
+    lowerContent.includes('document omitted') ||
+    lowerContent.includes('gif omitted') ||
+    lowerContent.includes('sticker omitted')
+  ) {
+    return 'media'
+  }
+
+  return 'text'
 }
