@@ -1,15 +1,19 @@
 import * as SecureStore from 'expo-secure-store'
 import { getLocales } from 'expo-localization'
+import { supabase } from '@/services/supabase'
 
 // Storage key for user preference (only thing we persist)
 const CURRENCY_OVERRIDE_KEY = 'user_currency_override'
 
-// Base pricing in USD
-const BASE_PRICING_USD = {
+// Fallback base pricing in USD (used if Stripe fetch fails)
+const FALLBACK_BASE_PRICING_USD = {
   oneTime: 2.99,
   weekly: 4.99,
   monthly: 9.99,
 }
+
+// Current base pricing (will be fetched from Stripe via Edge Function)
+let BASE_PRICING_USD = { ...FALLBACK_BASE_PRICING_USD }
 
 // Fallback exchange rates (used if API fails)
 const FALLBACK_RATES: Record<string, number> = {
@@ -51,6 +55,37 @@ function initializePricing() {
 initializePricing()
 
 /**
+ * Fetches base prices from Stripe via Supabase Edge Function
+ * This ensures pricing comes from the single source of truth (Stripe)
+ */
+export async function fetchBasePricesFromStripe(): Promise<void> {
+  try {
+    const { data, error } = await supabase.functions.invoke('get-stripe-prices')
+
+    if (error) {
+      console.error('Failed to fetch Stripe prices:', error)
+      return
+    }
+
+    if (data && typeof data === 'object') {
+      // Update base pricing with values from Stripe
+      BASE_PRICING_USD = {
+        oneTime: data.oneTime || FALLBACK_BASE_PRICING_USD.oneTime,
+        weekly: data.weekly || FALLBACK_BASE_PRICING_USD.weekly,
+        monthly: data.monthly || FALLBACK_BASE_PRICING_USD.monthly,
+      }
+
+      // Reinitialize all currency pricing with new base prices
+      initializePricing()
+
+      console.log('Base prices updated from Stripe:', BASE_PRICING_USD)
+    }
+  } catch (error) {
+    console.error('Error fetching base prices from Stripe:', error)
+  }
+}
+
+/**
  * Fetches live exchange rates from API
  */
 export async function fetchExchangeRates(): Promise<Record<string, number>> {
@@ -69,10 +104,15 @@ export async function fetchExchangeRates(): Promise<Record<string, number>> {
 }
 
 /**
- * Updates pricing with live exchange rates
+ * Updates pricing with live data from Stripe and exchange rates
+ * Call this on app startup to get fresh pricing from Stripe
  */
 export async function updatePricingWithLiveRates(): Promise<void> {
   try {
+    // Fetch base prices from Stripe first (single source of truth)
+    await fetchBasePricesFromStripe()
+
+    // Then fetch exchange rates to convert to other currencies
     const rates = await fetchExchangeRates()
 
     for (const currency of Object.keys(FALLBACK_RATES)) {
