@@ -2,25 +2,8 @@ import { useLocalSearchParams } from 'expo-router'
 import { useAnalysisQuery } from '@/hooks/queries/use-analysis-query'
 import { useChatQuery } from '@/hooks/queries/use-chats-query'
 
-type ParticipantData = {
-  name: string
-  messageCount: number
-  averageResponseTime: number
-  interestLevel: number
-  initiationRate?: number
-  averageMessageLength?: number
-}
-
-export interface ChatAnalysisData {
-  totalMessages: number
-  participant1: ParticipantData
-  participant2: ParticipantData
-  dateRange: { start: Date; end: Date }
-  conversationHealth: {
-    balanceScore: number
-    engagementScore: number
-  }
-}
+// Re-export shared types for backward compatibility
+export type { ChatAnalysisData, ParticipantStats } from '@/types/chat-analysis'
 
 /**
  * Hook for fetching and managing chat analysis data

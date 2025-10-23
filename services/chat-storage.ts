@@ -1,27 +1,7 @@
 import type { AIInsights } from './ai-service'
+import type { ChatAnalysisData } from '@/types/chat-analysis'
 import { getDeviceId } from '@/utils/device-id'
 import { supabase } from './supabase'
-
-export interface ChatAnalysisData {
-  totalMessages: number
-  participant1: {
-    name: string
-    messageCount: number
-    averageResponseTime: number
-    interestLevel: number
-  }
-  participant2: {
-    name: string
-    messageCount: number
-    averageResponseTime: number
-    interestLevel: number
-  }
-  dateRange: { start: Date; end: Date }
-  conversationHealth: {
-    balanceScore: number
-    engagementScore: number
-  }
-}
 
 export interface StoredChat {
   id: string

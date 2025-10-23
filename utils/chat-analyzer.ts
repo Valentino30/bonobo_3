@@ -1,10 +1,4 @@
-interface MessageData {
-  timestamp: Date
-  sender: string
-  content: string
-  type: 'text' | 'media' | 'deleted'
-  responseTime?: number
-}
+import type { ChatAnalysisData, MessageData, ParticipantStats } from '@/types/chat-analysis'
 
 /**
  * Extract the first word from a participant name and keep the first emoji if present
@@ -44,26 +38,6 @@ function countWords(text: string): number {
     .trim()
     .split(/\s+/)
     .filter((word) => word.length > 0).length
-}
-
-interface ParticipantStats {
-  name: string
-  messageCount: number
-  averageResponseTime: number
-  interestLevel: number
-  initiationRate: number // Percentage of conversations initiated by this participant
-  averageMessageLength: number // Average word count per message
-}
-
-interface ChatAnalysisData {
-  totalMessages: number
-  participant1: ParticipantStats
-  participant2: ParticipantStats
-  dateRange: { start: Date; end: Date }
-  conversationHealth: {
-    balanceScore: number
-    engagementScore: number
-  }
 }
 
 export async function analyzeChatData(chatText: string): Promise<ChatAnalysisData> {
