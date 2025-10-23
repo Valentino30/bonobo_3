@@ -2,18 +2,34 @@ import type { ChatAnalysisData, MessageData, ParticipantStats } from '@/types/ch
 import { countWords } from './string-helpers'
 import { parseWhatsAppMessages } from './whatsapp-parser'
 
+/**
+ * Main entry point for calculating chat statistics from WhatsApp export text
+ * This generates all the data displayed in the Analysis Overview screen:
+ * - Total messages count (💬 card)
+ * - Per-participant message counts (👥 card)
+ * - Average response times (⏱️ card)
+ * - Average message lengths (📝 card)
+ * - Conversation initiation rates (🚀 card)
+ * - Interest levels (❤️ card)
+ * - Conversation health scores (balance & engagement)
+ */
 export async function calculateChatStatistics(chatText: string): Promise<ChatAnalysisData> {
   return new Promise((resolve) => {
     setTimeout(() => {
       const messages = parseWhatsAppMessages(chatText)
-      const enhancedMessages = calculateResponseTimes(messages)
-      const analysis = formatAnalysisData(enhancedMessages)
+      const messagesWithResponseTimes = enrichMessagesWithResponseTimes(messages)
+      const analysis = buildOverviewStatistics(messagesWithResponseTimes)
       resolve(analysis)
     }, 1000)
   })
 }
 
-function calculateResponseTimes(messages: MessageData[]): MessageData[] {
+/**
+ * Enriches messages with response time data
+ * Used for "Average Response Time" (⏱️) card in Overview screen
+ * Calculates time elapsed between when someone receives a message and when they reply
+ */
+function enrichMessagesWithResponseTimes(messages: MessageData[]): MessageData[] {
   const enhancedMessages = [...messages]
 
   for (let i = 1; i < enhancedMessages.length; i++) {
@@ -29,7 +45,12 @@ function calculateResponseTimes(messages: MessageData[]): MessageData[] {
   return enhancedMessages
 }
 
-function formatAnalysisData(messages: MessageData[]): ChatAnalysisData {
+/**
+ * Builds the complete statistical analysis from parsed messages
+ * Aggregates all metrics displayed in the Overview screen
+ * Returns ChatAnalysisData with both per-participant stats and conversation health scores
+ */
+function buildOverviewStatistics(messages: MessageData[]): ChatAnalysisData {
   if (messages.length === 0) {
     return {
       totalMessages: 0,
@@ -58,8 +79,8 @@ function formatAnalysisData(messages: MessageData[]): ChatAnalysisData {
   const participant1Name = participants[0] || 'Participant 1'
   const participant2Name = participants[1] || 'Participant 2'
 
-  const participant1Stats = calculateParticipantStats(participant1Name, messages)
-  const participant2Stats = calculateParticipantStats(participant2Name, messages)
+  const participant1Stats = calculateIndividualParticipantMetrics(participant1Name, messages)
+  const participant2Stats = calculateIndividualParticipantMetrics(participant2Name, messages)
 
   const balanceScore = calculateBalanceScore(participant1Stats.messageCount, participant2Stats.messageCount)
   const engagementScore = calculateEngagementScore(participant1Stats, participant2Stats)
@@ -79,23 +100,34 @@ function formatAnalysisData(messages: MessageData[]): ChatAnalysisData {
   }
 }
 
-function calculateParticipantStats(participantName: string, messages: MessageData[]): ParticipantStats {
+/**
+ * Calculates all metrics for a single participant
+ * Generates data for multiple Overview cards:
+ * - Message count (👥 Messages per Participant card)
+ * - Average response time (⏱️ Average Response Time card)
+ * - Average message length (📝 Average Message Length card)
+ * - Initiation rate (🚀 Initiation Rate card - % of conversations started)
+ * - Interest level (❤️ Interest Level card - composite score based on response time, message length, frequency)
+ */
+function calculateIndividualParticipantMetrics(participantName: string, messages: MessageData[]): ParticipantStats {
   const participantMessages = messages.filter((m) => m.sender === participantName)
   const messageCount = participantMessages.length
 
   const responseTimes = participantMessages.filter((m) => m.responseTime !== undefined).map((m) => m.responseTime!)
 
+  // Convert response times from milliseconds to hours for ⏱️ card display
   const averageResponseTime =
     responseTimes.length > 0
       ? responseTimes.reduce((sum, time) => sum + time, 0) / responseTimes.length / (1000 * 60 * 60)
       : 0
 
-  const interestLevel = calculateInterestLevel(participantMessages, averageResponseTime)
+  // Interest level shown in ❤️ card (composite score)
+  const interestLevel = calculateInterestLevelScore(participantMessages, averageResponseTime)
 
-  // Calculate initiation rate (percentage of conversations started by this participant)
-  const initiationRate = calculateInitiationRate(participantName, messages)
+  // Percentage shown in 🚀 Initiation Rate card
+  const initiationRate = calculateConversationInitiationRate(participantName, messages)
 
-  // Calculate average message length (words)
+  // Word count shown in 📝 Average Message Length card
   const averageMessageLength =
     messageCount > 0
       ? Math.round(participantMessages.reduce((sum, m) => sum + countWords(m.content), 0) / messageCount)
@@ -111,7 +143,14 @@ function calculateParticipantStats(participantName: string, messages: MessageDat
   }
 }
 
-function calculateInterestLevel(messages: MessageData[], averageResponseTime: number): number {
+/**
+ * Calculates interest level score (0-100) for ❤️ Interest Level card
+ * Composite score based on:
+ * - Response time (faster = higher score, max 40 points)
+ * - Message length (longer messages = higher score, max 30 points)
+ * - Message frequency (more messages = higher score, max 30 points)
+ */
+function calculateInterestLevelScore(messages: MessageData[], averageResponseTime: number): number {
   if (messages.length === 0) return 0
 
   const responseTimeScore = Math.max(0, 40 - averageResponseTime * 2)
@@ -124,17 +163,33 @@ function calculateInterestLevel(messages: MessageData[], averageResponseTime: nu
   return Math.round(Math.min(100, responseTimeScore + lengthScore + frequencyScore))
 }
 
+/**
+ * Calculates how balanced the conversation is (0-100)
+ * Used internally for conversationHealth.balanceScore
+ * Higher score = more balanced (both participants send similar number of messages)
+ * 100 = perfectly balanced, lower scores indicate imbalance
+ */
 function calculateBalanceScore(count1: number, count2: number): number {
   if (count1 === 0 && count2 === 0) return 0
   const ratio = Math.min(count1, count2) / Math.max(count1, count2)
   return Math.round(ratio * 100)
 }
 
+/**
+ * Calculates overall conversation engagement score
+ * Used internally for conversationHealth.engagementScore
+ * Average of both participants' interest levels
+ */
 function calculateEngagementScore(participant1: ParticipantStats, participant2: ParticipantStats): number {
   return Math.round((participant1.interestLevel + participant2.interestLevel) / 2)
 }
 
-function calculateInitiationRate(participantName: string, messages: MessageData[]): number {
+/**
+ * Calculates what percentage of conversations this participant initiates
+ * Displayed in 🚀 Initiation Rate card
+ * A "new conversation" is defined as a message sent after 6+ hours of silence
+ */
+function calculateConversationInitiationRate(participantName: string, messages: MessageData[]): number {
   if (messages.length === 0) return 0
 
   // A conversation is "initiated" when someone sends a message after a gap of more than 6 hours
