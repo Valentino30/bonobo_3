@@ -1,6 +1,6 @@
-import { createContext, useContext, useState, type ReactNode } from 'react'
-import { theme, type Theme } from '@/constants/theme'
-import { colorPalettes, type ColorPalette } from '@/constants/color-palettes'
+import { type ReactNode, createContext, useContext, useState } from 'react'
+import { type ColorPalette, colorPalettes } from '@/constants/color-palettes'
+import { type Theme, theme } from '@/constants/theme'
 
 interface ThemeContextType {
   theme: Theme
@@ -50,12 +50,4 @@ export function useTheme() {
     throw new Error('useTheme must be used within a ThemeProvider')
   }
   return context.theme
-}
-
-export function useThemeContext() {
-  const context = useContext(ThemeContext)
-  if (context === undefined) {
-    throw new Error('useThemeContext must be used within a ThemeProvider')
-  }
-  return context
 }

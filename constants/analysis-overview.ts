@@ -135,9 +135,3 @@ export function getOverviewCards(): OverviewCardConfig[] {
     },
   ]
 }
-
-/**
- * Backwards-compatible export
- * @deprecated Use getOverviewCards() instead to ensure fresh translations
- */
-export const OVERVIEW_CARDS = getOverviewCards()

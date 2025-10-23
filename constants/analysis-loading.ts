@@ -29,7 +29,3 @@ export const getAnalysisLoadingSteps = (): LoadingStep[] => [
     icon: 'brain',
   },
 ]
-
-// Deprecated: Use getAnalysisLoadingSteps() instead
-// Keeping for backwards compatibility during migration
-export const ANALYSIS_LOADING_STEPS = getAnalysisLoadingSteps()

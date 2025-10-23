@@ -17,23 +17,3 @@ export function getParticipantInitial(participants?: string[]): string {
 
   return firstParticipant.trim()[0].toUpperCase()
 }
-
-/**
- * Gets initials from a full name (e.g., "John Doe" → "JD")
- * Returns '?' if no valid name is provided
- *
- * @param name Full name string
- * @returns Uppercase initials or '?'
- */
-export function getNameInitials(name?: string): string {
-  if (!name || name.trim().length === 0) {
-    return '?'
-  }
-
-  const words = name.trim().split(/\s+/)
-  if (words.length === 1) {
-    return words[0][0].toUpperCase()
-  }
-
-  return (words[0][0] + words[words.length - 1][0]).toUpperCase()
-}

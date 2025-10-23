@@ -192,9 +192,3 @@ export const getInsightConfigs = (): InsightConfig[] => [
     getItems: (insights) => insights.relationshipTips.tips,
   },
 ]
-
-/**
- * @deprecated Use getInsightConfigs() instead to get fresh translations
- * This constant is kept for backwards compatibility but won't update when language changes
- */
-export const INSIGHT_CONFIGS = getInsightConfigs()

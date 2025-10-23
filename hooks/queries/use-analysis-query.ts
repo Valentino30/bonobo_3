@@ -35,28 +35,6 @@ export function useAnalysisQuery(chatId: string, chatText: string, enabled: bool
   })
 }
 
-// Query: Get AI insights for a chat
-export function useAIInsightsQuery(chatId: string, chatText: string, enabled: boolean = false) {
-  const queryClient = useQueryClient()
-
-  return useQuery({
-    queryKey: analysisKeys.aiInsights(chatId),
-    queryFn: async () => {
-      // Check if already cached in chat
-      const chat = queryClient.getQueryData<StoredChat>(chatKeys.detail(chatId))
-      if (chat?.aiInsights) {
-        return chat.aiInsights
-      }
-
-      // Generate AI insights
-      const insights = await analyzeChat(chatText)
-      return insights
-    },
-    enabled: enabled && !!chatId && !!chatText,
-    staleTime: Infinity, // AI insights never go stale once generated
-  })
-}
-
 // Mutation parameters type
 export type UnlockInsightParams = {
   chatId: string

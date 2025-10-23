@@ -30,6 +30,3 @@ export const getImportGuideSteps = (): Step[] => {
     },
   ]
 }
-
-// Backwards compatibility constant
-export const IMPORT_GUIDE_STEPS = getImportGuideSteps()

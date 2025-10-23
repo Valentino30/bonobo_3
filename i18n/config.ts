@@ -32,11 +32,6 @@ const notifyLocaleChange = () => {
   localeChangeListeners.forEach((listener) => listener())
 }
 
-// Helper function to get current locale
-export const getCurrentLocale = (): string => {
-  return i18n.locale
-}
-
 // Helper function to change locale
 export const setLocale = (locale: string) => {
   i18n.locale = locale
