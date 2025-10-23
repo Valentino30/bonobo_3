@@ -14,10 +14,7 @@ export const chatKeys = {
 export function useChatsQuery() {
   return useQuery({
     queryKey: chatKeys.list(),
-    queryFn: async () => {
-      await ChatStorage.migrateFromLocalStorage()
-      return ChatStorage.loadChats()
-    },
+    queryFn: () => ChatStorage.loadChats(),
     staleTime: 30 * 1000, // 30 seconds
   })
 }

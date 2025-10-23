@@ -267,48 +267,4 @@ export class ChatStorage {
     }
   }
 
-  // Migration utility: Clear old SecureStore data
-  static async clearOldLocalStorage(): Promise<void> {
-    try {
-      const SecureStore = await import('expo-secure-store')
-      await SecureStore.deleteItemAsync('bonobo_chats')
-      console.log('Old local storage cleared')
-    } catch (error) {
-      console.error('Error clearing old local storage:', error)
-    }
-  }
-
-  // Migration utility: Load from old SecureStore format
-  static async migrateFromLocalStorage(): Promise<void> {
-    try {
-      const SecureStore = await import('expo-secure-store')
-      const chatsJson = await SecureStore.getItemAsync('bonobo_chats')
-
-      if (!chatsJson) {
-        console.log('No local storage data to migrate')
-        return
-      }
-
-      const oldChats = JSON.parse(chatsJson)
-      console.log(`Found ${oldChats.length} chats in local storage, migrating...`)
-
-      for (const chat of oldChats) {
-        try {
-          await this.addChat({
-            ...chat,
-            timestamp: new Date(chat.timestamp),
-          })
-          console.log(`Migrated chat ${chat.id}`)
-        } catch (error) {
-          console.error(`Error migrating chat ${chat.id}:`, error)
-        }
-      }
-
-      // Clear old storage after successful migration
-      await this.clearOldLocalStorage()
-      console.log('Migration complete!')
-    } catch (error) {
-      console.error('Error during migration:', error)
-    }
-  }
 }
