@@ -377,12 +377,6 @@ export class PaymentService {
     return plan || null
   }
 
-  // Legacy method - no longer needed but kept for backward compatibility
-  static async grantAccess(planId: string): Promise<void> {
-    // This is now handled by the Edge Function
-    console.log('⚠️ grantAccess() is deprecated - entitlement is created by Edge Function')
-  }
-
   /**
    * Manually verify payment and create entitlement (fallback if webhook fails)
    * @param paymentIntentId - The Stripe payment intent ID
