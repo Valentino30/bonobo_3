@@ -80,8 +80,8 @@ export function useProfile({ onShowAlert }: UseProfileOptions): UseProfileReturn
 
     try {
       await loginMutation.mutateAsync({ email: loginEmail, password: loginPassword })
-      // Successfully logged in - redirect to chats and force reload
-      router.replace('/chats?reload=true')
+      // Successfully logged in - redirect to chats (React Query will refetch automatically)
+      router.replace('/chats')
     } catch (error) {
       onShowAlert(i18n.t('auth.loginFailed'), error instanceof Error ? error.message : i18n.t('auth.loginFailed'), [
         { text: i18n.t('alerts.ok') },
@@ -134,8 +134,8 @@ export function useProfile({ onShowAlert }: UseProfileOptions): UseProfileReturn
         onPress: async () => {
           try {
             await logoutMutation.mutateAsync()
-            // Redirect to chats and force reload (will show empty state since user logged out)
-            router.replace('/chats?reload=true')
+            // Redirect to chats (React Query will refetch automatically)
+            router.replace('/chats')
           } catch (error) {
             onShowAlert(i18n.t('errors.error'), error instanceof Error ? error.message : i18n.t('errors.generic'), [
               { text: i18n.t('alerts.ok') },
@@ -162,7 +162,7 @@ export function useProfile({ onShowAlert }: UseProfileOptions): UseProfileReturn
                   try {
                     await deleteAccountMutation.mutateAsync()
                     onShowAlert(i18n.t('auth.accountDeleted'), i18n.t('auth.accountDeletedMessage'), [
-                      { text: i18n.t('alerts.ok'), onPress: () => router.replace('/chats?reload=true') },
+                      { text: i18n.t('alerts.ok'), onPress: () => router.replace('/chats') },
                     ])
                   } catch (error) {
                     onShowAlert(
