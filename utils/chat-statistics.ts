@@ -3,7 +3,7 @@ import { countWords } from './string-helpers'
 import { parseWhatsAppMessages } from './whatsapp-parser'
 
 /**
- * Main entry point for calculating chat statistics from WhatsApp export text
+ * Main entry point for calculating chat stats from WhatsApp export text
  * This generates all the data displayed in the Analysis Overview screen:
  * - Total messages count (💬 card)
  * - Per-participant message counts (👥 card)
@@ -13,10 +13,10 @@ import { parseWhatsAppMessages } from './whatsapp-parser'
  * - Interest levels (❤️ card)
  * - Conversation health scores (balance & engagement)
  */
-export function calculateChatStatistics(chatText: string): ChatAnalysisData {
+export function calculateOverviewStats(chatText: string): ChatAnalysisData {
   const messages = parseWhatsAppMessages(chatText)
   const messagesWithResponseTimes = enrichMessagesWithResponseTimes(messages)
-  const analysis = buildOverviewStatistics(messagesWithResponseTimes)
+  const analysis = buildOverviewStats(messagesWithResponseTimes)
   return analysis
 }
 
@@ -42,11 +42,11 @@ function enrichMessagesWithResponseTimes(messages: MessageData[]): MessageData[]
 }
 
 /**
- * Builds the complete statistical analysis from parsed messages
+ * Builds the complete stats analysis from parsed messages
  * Aggregates all metrics displayed in the Overview screen
  * Returns ChatAnalysisData with both per-participant stats and conversation health scores
  */
-function buildOverviewStatistics(messages: MessageData[]): ChatAnalysisData {
+function buildOverviewStats(messages: MessageData[]): ChatAnalysisData {
   if (messages.length === 0) {
     return {
       totalMessages: 0,
