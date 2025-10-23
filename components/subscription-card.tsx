@@ -1,7 +1,7 @@
 import { StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native'
 import { ThemedText } from '@/components/themed-text'
 import { useTheme } from '@/contexts/theme-context'
-import { CurrencyService, type SupportedCurrency } from '@/utils/currency-service'
+import { formatPrice, type SupportedCurrency } from '@/utils/currency-service'
 
 export interface SubscriptionCardProps {
   name: string
@@ -35,7 +35,7 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
   const theme = useTheme()
 
   // Format price with currency symbol
-  const formattedPrice = CurrencyService.formatPrice(price, currency)
+  const formattedPrice = formatPrice(price, currency)
 
   return (
     <TouchableOpacity

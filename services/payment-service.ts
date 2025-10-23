@@ -1,6 +1,12 @@
 import { getDeviceId } from '@/utils/device-id'
 import { supabase } from './supabase'
-import { CurrencyService, type SupportedCurrency } from '@/utils/currency-service'
+import {
+  updatePricingWithLiveRates,
+  getCurrencyOverride,
+  getUserCurrency,
+  getPricing,
+  type SupportedCurrency,
+} from '@/utils/currency-service'
 
 // Payment plan structure
 export interface PaymentPlan {
@@ -18,12 +24,12 @@ export interface PaymentPlan {
  */
 export async function getPaymentPlans(): Promise<Record<string, PaymentPlan>> {
   // Update pricing with live exchange rates
-  await CurrencyService.updatePricingWithLiveRates()
+  await updatePricingWithLiveRates()
 
   // Check for manual currency override first
-  const override = await CurrencyService.getCurrencyOverride()
-  const currency = override || CurrencyService.getUserCurrency()
-  const pricing = CurrencyService.getPricing(currency)
+  const override = await getCurrencyOverride()
+  const currency = override || getUserCurrency()
+  const pricing = getPricing(currency)
 
   console.log('💰 Payment plans currency:', currency, 'Pricing:', pricing)
 

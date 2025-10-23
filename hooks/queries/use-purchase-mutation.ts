@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { AuthService } from '@/services/auth-service'
-import { CurrencyService, type SupportedCurrency } from '@/utils/currency-service'
+import { setCurrencyOverride, type SupportedCurrency } from '@/utils/currency-service'
 import { PaymentService, getPaymentPlans } from '@/services/payment-service'
 import { StripeService } from '@/services/stripe-service'
 import { analysisKeys } from './use-analysis-query'
@@ -43,7 +43,7 @@ export function useCurrencyChangeMutation() {
 
   return useMutation({
     mutationFn: async (currency: SupportedCurrency) => {
-      await CurrencyService.setCurrencyOverride(currency)
+      await setCurrencyOverride(currency)
       return currency
     },
     onSuccess: () => {
