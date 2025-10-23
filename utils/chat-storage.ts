@@ -191,39 +191,6 @@ export class ChatStorage {
     }
   }
 
-  static async clearAllChats(): Promise<void> {
-    try {
-      const deviceId = await getDeviceId()
-
-      // Get current user if authenticated
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-
-      let query = supabase.from('chats').delete()
-
-      // If user is authenticated, ONLY delete chats linked to user_id
-      // Otherwise, only delete chats matching device_id
-      if (user) {
-        query = query.eq('user_id', user.id)
-      } else {
-        query = query.eq('device_id', deviceId)
-      }
-
-      const { error } = await query
-
-      if (error) {
-        console.error('Error clearing chats from Supabase:', error)
-        throw error
-      }
-
-      console.log('All chats cleared from Supabase')
-    } catch (error) {
-      console.error('Error clearing chats from Supabase:', error)
-      throw error
-    }
-  }
-
   static async getChatCount(): Promise<number> {
     try {
       const deviceId = await getDeviceId()
