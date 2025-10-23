@@ -1,44 +1,5 @@
 import type { ChatAnalysisData, MessageData, ParticipantStats } from '@/types/chat-analysis'
-
-/**
- * Extract the first word from a participant name and keep the first emoji if present
- * Examples:
- * "Jasmine (Bali)" -> "Jasmine"
- * "Vale 🇮🇹 🎉" -> "Vale 🇮🇹"
- * "🔥 John Smith" -> "🔥 John"
- * "John Smith 🎉" -> "John 🎉"
- */
-function extractFirstName(fullName: string): string {
-  // Regex to match emojis
-  const emojiRegex = /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu
-
-  // Extract first emoji if exists
-  const firstEmoji = fullName.match(emojiRegex)?.[0] || ''
-
-  // Remove all emojis to get clean text
-  const cleanText = fullName.replace(emojiRegex, '').trim()
-
-  // Get first word (split by space or parenthesis)
-  const firstWord = cleanText.split(/[\s(]+/)[0]
-
-  if (!firstWord) {
-    return fullName // Fallback to original if extraction fails
-  }
-
-  // Return first word with first emoji (if it exists)
-  return firstEmoji ? `${firstWord} ${firstEmoji}` : firstWord
-}
-
-/**
- * Count words in a message
- * Splits by whitespace and filters out empty strings
- */
-function countWords(text: string): number {
-  return text
-    .trim()
-    .split(/\s+/)
-    .filter((word) => word.length > 0).length
-}
+import { extractFirstName, countWords } from './string-helpers'
 
 export async function calculateChatStatistics(chatText: string): Promise<ChatAnalysisData> {
   return new Promise((resolve) => {
