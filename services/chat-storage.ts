@@ -157,39 +157,6 @@ export async function deleteChat(chatId: string): Promise<void> {
   }
   }
 
-export async function getChatCount(): Promise<number> {
-  try {
-    const deviceId = await getDeviceId()
-
-    // Get current user if authenticated
-    const {
-    data: { user },
-    } = await supabase.auth.getUser()
-
-    let query = supabase.from('chats').select('*', { count: 'exact', head: true })
-
-    // If user is authenticated, ONLY count chats linked to user_id
-    // Otherwise, only count chats matching device_id
-    if (user) {
-    query = query.eq('user_id', user.id)
-    } else {
-    query = query.eq('device_id', deviceId)
-    }
-
-    const { count, error } = await query
-
-    if (error) {
-    console.error('Error getting chat count from Supabase:', error)
-    return 0
-    }
-
-    return count || 0
-  } catch (error) {
-    console.error('Error getting chat count:', error)
-    return 0
-  }
-  }
-
 export async function updateChatAnalysis(
   chatId: string,
   analysis: ChatAnalysisData,
