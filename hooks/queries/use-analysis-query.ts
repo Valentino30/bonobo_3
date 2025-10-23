@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { type AIInsights, analyzeChat } from '@/services/ai-service'
 import { calculateOverviewStats } from '@/utils/chat-statistics'
-import type { StoredChat } from '@/services/chat-storage'
+import { updateChatAnalysis, type StoredChat } from '@/services/chat-storage'
 import { hasAccess, hasActiveSubscription, assignAnalysisToChat } from '@/services/entitlement-service'
 import { chatKeys } from './use-chats-query'
 
@@ -106,13 +106,12 @@ export function useUnlockInsightMutation() {
 
       if (chat && analysis) {
         // Persist to Supabase with updated unlocked insights and AI insights
-        const { ChatStorage } = await import('@/services/chat-storage')
         // Don't add insightId again if it's already in the array from optimistic update
         const updatedUnlockedInsights = chat.unlockedInsights?.includes(insightId)
           ? chat.unlockedInsights
           : [...(chat.unlockedInsights || []), insightId]
 
-        await ChatStorage.updateChatAnalysis(chatId, analysis, insights, updatedUnlockedInsights)
+        await updateChatAnalysis(chatId, analysis, insights, updatedUnlockedInsights)
 
         // Update cache with persisted data (no refetch needed)
         queryClient.setQueryData<StoredChat>(chatKeys.detail(chatId), {

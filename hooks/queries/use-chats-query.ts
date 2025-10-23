@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ChatStorage, type StoredChat } from '@/services/chat-storage'
+import { loadChats, addChat, deleteChat, getChatCount, updateChatAnalysis, type StoredChat } from '@/services/chat-storage'
 
 // Query keys
 export const chatKeys = {
@@ -14,7 +14,7 @@ export const chatKeys = {
 export function useChatsQuery() {
   return useQuery({
     queryKey: chatKeys.list(),
-    queryFn: () => ChatStorage.loadChats(),
+    queryFn: () => loadChats(),
     staleTime: 30 * 1000, // 30 seconds
   })
 }
@@ -24,7 +24,7 @@ export function useChatQuery(chatId: string) {
   return useQuery({
     queryKey: chatKeys.detail(chatId),
     queryFn: async () => {
-      const chats = await ChatStorage.loadChats()
+      const chats = await loadChats()
       return chats.find((chat) => chat.id === chatId) || null
     },
     enabled: !!chatId,
@@ -38,7 +38,7 @@ export function useAddChatMutation() {
 
   return useMutation({
     mutationFn: async (chat: StoredChat) => {
-      await ChatStorage.addChat(chat)
+      await addChat(chat)
       return chat
     },
     onMutate: async (newChat) => {
@@ -70,7 +70,7 @@ export function useDeleteChatMutation() {
 
   return useMutation({
     mutationFn: async (chatId: string) => {
-      await ChatStorage.deleteChat(chatId)
+      await deleteChat(chatId)
       return chatId
     },
     onMutate: async (chatId) => {
