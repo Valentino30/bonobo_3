@@ -7,26 +7,32 @@ interface MessageData {
 }
 
 /**
- * Extract the first word from a participant name
+ * Extract the first word from a participant name and keep the first emoji if present
  * Examples:
  * "Jasmine (Bali)" -> "Jasmine"
- * "Vale 🇮🇹" -> "Vale"
- * "John Smith" -> "John"
+ * "Vale 🇮🇹 🎉" -> "Vale 🇮🇹"
+ * "🔥 John Smith" -> "🔥 John"
+ * "John Smith 🎉" -> "John 🎉"
  */
 function extractFirstName(fullName: string): string {
-  // Remove emojis and special characters, then get first word
-  const cleaned = fullName
-    .replace(/[\u{1F600}-\u{1F64F}]/gu, '') // Emoticons
-    .replace(/[\u{1F300}-\u{1F5FF}]/gu, '') // Misc symbols
-    .replace(/[\u{1F680}-\u{1F6FF}]/gu, '') // Transport
-    .replace(/[\u{1F1E0}-\u{1F1FF}]/gu, '') // Flags
-    .replace(/[\u{2600}-\u{26FF}]/gu, '') // Misc symbols
-    .replace(/[\u{2700}-\u{27BF}]/gu, '') // Dingbats
-    .trim()
+  // Regex to match emojis
+  const emojiRegex = /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu
+
+  // Extract first emoji if exists
+  const firstEmoji = fullName.match(emojiRegex)?.[0] || ''
+
+  // Remove all emojis to get clean text
+  const cleanText = fullName.replace(emojiRegex, '').trim()
 
   // Get first word (split by space or parenthesis)
-  const firstWord = cleaned.split(/[\s(]+/)[0]
-  return firstWord || fullName // Fallback to original if extraction fails
+  const firstWord = cleanText.split(/[\s(]+/)[0]
+
+  if (!firstWord) {
+    return fullName // Fallback to original if extraction fails
+  }
+
+  // Return first word with first emoji (if it exists)
+  return firstEmoji ? `${firstWord} ${firstEmoji}` : firstWord
 }
 
 /**
