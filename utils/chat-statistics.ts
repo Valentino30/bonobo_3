@@ -43,7 +43,7 @@ function enrichMessagesWithResponseTimes(messages: MessageData[]): MessageData[]
 
 /**
  * Builds the complete stats analysis from parsed messages
- * Aggregates all metrics displayed in the Overview screen
+ * Aggregates all stats displayed in the Overview screen
  * Returns ChatAnalysisData with both per-participant stats and conversation health scores
  */
 function buildOverviewStats(messages: MessageData[]): ChatAnalysisData {
@@ -75,8 +75,8 @@ function buildOverviewStats(messages: MessageData[]): ChatAnalysisData {
   const participant1Name = participants[0] || 'Participant 1'
   const participant2Name = participants[1] || 'Participant 2'
 
-  const participant1Stats = calculateIndividualParticipantMetrics(participant1Name, messages)
-  const participant2Stats = calculateIndividualParticipantMetrics(participant2Name, messages)
+  const participant1Stats = calculateIndividualParticipantStats(participant1Name, messages)
+  const participant2Stats = calculateIndividualParticipantStats(participant2Name, messages)
 
   const balanceScore = calculateBalanceScore(participant1Stats.messageCount, participant2Stats.messageCount)
   const engagementScore = calculateEngagementScore(participant1Stats, participant2Stats)
@@ -97,7 +97,7 @@ function buildOverviewStats(messages: MessageData[]): ChatAnalysisData {
 }
 
 /**
- * Calculates all metrics for a single participant
+ * Calculates all stats for a single participant
  * Generates data for multiple Overview cards:
  * - Message count (👥 Messages per Participant card)
  * - Average response time (⏱️ Average Response Time card)
@@ -105,7 +105,7 @@ function buildOverviewStats(messages: MessageData[]): ChatAnalysisData {
  * - Initiation rate (🚀 Initiation Rate card - % of conversations started)
  * - Interest level (❤️ Interest Level card - composite score based on response time, message length, frequency)
  */
-function calculateIndividualParticipantMetrics(participantName: string, messages: MessageData[]): ParticipantStats {
+function calculateIndividualParticipantStats(participantName: string, messages: MessageData[]): ParticipantStats {
   const participantMessages = messages.filter((m) => m.sender === participantName)
   const messageCount = participantMessages.length
 
