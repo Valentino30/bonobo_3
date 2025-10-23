@@ -79,7 +79,6 @@ export const theme = {
 } as const
 
 export type Theme = typeof theme
-export type ThemeColors = typeof theme.colors
 
 // Legacy export for backward compatibility
 const tintColorLight = theme.colors.primary
@@ -102,11 +101,4 @@ export const Colors = {
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
   },
-}
-
-export const Fonts = {
-  regular: 'System',
-  medium: 'System',
-  semiBold: 'System',
-  bold: 'System',
 }

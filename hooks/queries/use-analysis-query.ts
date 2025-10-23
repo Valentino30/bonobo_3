@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { type AIInsights, analyzeChat } from '@/services/ai-service'
 import { calculateOverviewStats } from '@/utils/chat-statistics'
 import type { StoredChat } from '@/services/chat-storage'
-import { PaymentService } from '@/services/payment-service'
+import { hasAccess, hasActiveSubscription, assignAnalysisToChat } from '@/services/entitlement-service'
 import { chatKeys } from './use-chats-query'
 
 // Query keys
@@ -50,9 +50,9 @@ export function useUnlockInsightMutation() {
   return useMutation({
     mutationFn: async ({ chatId, insightId, chatText, analysis }: UnlockInsightParams) => {
       // Check access
-      const hasAccess = await PaymentService.hasAccess(chatId)
+      const userHasAccess = await hasAccess(chatId)
 
-      if (!hasAccess) {
+      if (!userHasAccess) {
         throw new Error('NO_ACCESS')
       }
 
@@ -64,10 +64,10 @@ export function useUnlockInsightMutation() {
         insights = chat?.aiInsights || (await analyzeChat(chatText))
 
         // Assign one-time purchase to chat if needed
-        const hasSubscription = await PaymentService.hasActiveSubscription()
+        const hasSubscription = await hasActiveSubscription()
 
         if (!hasSubscription) {
-          await PaymentService.assignAnalysisToChat(chatId)
+          await assignAnalysisToChat(chatId)
         }
       }
 

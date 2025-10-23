@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { AuthService } from '@/services/auth-service'
-import { PaymentService, getPaymentPlans } from '@/services/payment-service'
+import { getPaymentPlans, verifyPayment } from '@/services/payment-service'
+import { hasAccess } from '@/services/entitlement-service'
 import { StripeService } from '@/services/stripe-service'
 import { analysisKeys } from './use-analysis-query'
 import { chatKeys } from './use-chats-query'
@@ -62,16 +63,16 @@ export function usePurchaseMutation() {
           await new Promise((resolve) => setTimeout(resolve, 500))
         }
 
-        const hasAccess = await PaymentService.hasAccess(chatId)
+        const userHasAccess = await hasAccess(chatId)
 
-        if (hasAccess) {
+        if (userHasAccess) {
           return { success: true, isAuthenticated, requiresAuth: !isAuthenticated }
         }
 
         // Manual verification fallback on last attempt
         if (attempt === maxAttempts) {
           if (result.paymentIntentId) {
-            const verified = await PaymentService.verifyPayment(result.paymentIntentId, planId, chatId)
+            const verified = await verifyPayment(result.paymentIntentId, planId, chatId)
 
             if (verified) {
               return { success: true, isAuthenticated, requiresAuth: !isAuthenticated }

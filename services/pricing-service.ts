@@ -16,10 +16,10 @@ export interface PricingData {
 }
 
 /**
- * Fetches prices and currency from Stripe
+ * Fetches pricing data (currency and prices for all plans) from Stripe
  * Falls back to hardcoded EUR pricing if fetch fails
  */
-export async function fetchPricesFromStripe(): Promise<PricingData> {
+export async function fetchPricingData(): Promise<PricingData> {
   try {
     const { data, error } = await supabase.functions.invoke('get-stripe-prices')
 
