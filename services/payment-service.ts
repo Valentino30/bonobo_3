@@ -1,7 +1,7 @@
 import { getDeviceId } from '@/utils/device-id'
 import { supabase } from './supabase'
 import {
-  updatePricingWithLiveRates,
+  fetchBasePricesFromStripe,
   getCurrencyOverride,
   getUserCurrency,
   getPricing,
@@ -27,13 +27,13 @@ export interface PaymentPlan {
  * Get payment plans with pricing in user's currency
  */
 export async function getPaymentPlans(): Promise<Record<string, PaymentPlan>> {
-  // Update pricing with live exchange rates
-  await updatePricingWithLiveRates()
+  // Fetch latest prices from Stripe
+  await fetchBasePricesFromStripe()
 
   // Check for manual currency override first
   const override = await getCurrencyOverride()
   const currency = override || getUserCurrency()
-  const pricing = getPricing(currency)
+  const pricing = await getPricing(currency)
 
   // Get charge prices (always in EUR)
   const oneTimeCharge = getChargePrice('oneTime')

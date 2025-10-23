@@ -8,20 +8,17 @@ const CURRENCY_OVERRIDE_KEY = 'user_currency_override'
 // Base currency - Always charge in EUR (EU company)
 export const CHARGE_CURRENCY = 'EUR' as const
 
-// Fallback base pricing in EUR (used if Stripe fetch fails)
+// Base pricing in EUR (fetched from Stripe, with fallback values)
 // NOTE: Users are ALWAYS charged in EUR regardless of display currency
-const FALLBACK_BASE_PRICING_EUR = {
+let BASE_PRICING_EUR = {
   oneTime: 2.99,
   weekly: 4.99,
   monthly: 9.99,
 }
 
-// Current base pricing (will be fetched from Stripe via Edge Function)
-let BASE_PRICING_EUR = { ...FALLBACK_BASE_PRICING_EUR }
-
-// Exchange rates for DISPLAY purposes only (relative to EUR)
-// Users see converted prices but are always charged in EUR
-const FALLBACK_RATES: Record<string, number> = {
+// Fallback exchange rates for DISPLAY purposes only (relative to EUR)
+// Used if live API fetch fails
+const FALLBACK_DISPLAY_RATES: Record<string, number> = {
   EUR: 1,      // Base currency
   USD: 1.08,   // 1 EUR = 1.08 USD
   GBP: 0.85,   // 1 EUR = 0.85 GBP
@@ -33,8 +30,13 @@ const FALLBACK_RATES: Record<string, number> = {
   MXN: 19.89,  // 1 EUR = 19.89 MXN
 }
 
+// Live exchange rates (cached in-memory for 1 hour)
+let cachedExchangeRates: Record<string, number> | null = null
+let lastFetchTime = 0
+const CACHE_DURATION_MS = 60 * 60 * 1000 // 1 hour
+
 // Types
-export type SupportedCurrency = keyof typeof FALLBACK_RATES
+export type SupportedCurrency = keyof typeof FALLBACK_DISPLAY_RATES
 
 export interface CurrencyPricing {
   code: string
@@ -43,25 +45,44 @@ export interface CurrencyPricing {
   monthly: number
 }
 
-// Initialize pricing with fallback rates
-let CURRENCY_PRICING: Record<string, CurrencyPricing> = {}
+/**
+ * Fetches live exchange rates from API (cached for 1 hour)
+ * Returns live rates or fallback rates if fetch fails
+ */
+async function getExchangeRates(): Promise<Record<string, number>> {
+  // Check cache first
+  const now = Date.now()
+  if (cachedExchangeRates && now - lastFetchTime < CACHE_DURATION_MS) {
+    return cachedExchangeRates
+  }
 
-function initializePricing() {
-  for (const [currency, rate] of Object.entries(FALLBACK_RATES)) {
-    CURRENCY_PRICING[currency] = {
-      code: currency,
-      oneTime: parseFloat((BASE_PRICING_EUR.oneTime * rate).toFixed(2)),
-      weekly: parseFloat((BASE_PRICING_EUR.weekly * rate).toFixed(2)),
-      monthly: parseFloat((BASE_PRICING_EUR.monthly * rate).toFixed(2)),
+  try {
+    const response = await fetch('https://api.exchangerate-api.com/v4/latest/EUR')
+    if (!response.ok) {
+      return FALLBACK_DISPLAY_RATES
     }
+
+    const data = await response.json()
+    if (!data.rates) {
+      return FALLBACK_DISPLAY_RATES
+    }
+
+    // Update cache
+    cachedExchangeRates = data.rates
+    lastFetchTime = now
+
+    console.log('Exchange rates updated from API')
+    return data.rates
+  } catch (error) {
+    console.error('Failed to fetch exchange rates:', error)
+    return FALLBACK_DISPLAY_RATES
   }
 }
-
-initializePricing()
 
 /**
  * Fetches base prices from Stripe via Supabase Edge Function
  * This ensures pricing comes from the single source of truth (Stripe)
+ * Call this on app startup
  */
 export async function fetchBasePricesFromStripe(): Promise<void> {
   try {
@@ -74,63 +95,14 @@ export async function fetchBasePricesFromStripe(): Promise<void> {
 
     if (data && typeof data === 'object') {
       // Update base pricing with values from Stripe (in EUR)
-      BASE_PRICING_EUR = {
-        oneTime: data.oneTime || FALLBACK_BASE_PRICING_EUR.oneTime,
-        weekly: data.weekly || FALLBACK_BASE_PRICING_EUR.weekly,
-        monthly: data.monthly || FALLBACK_BASE_PRICING_EUR.monthly,
-      }
-
-      // Reinitialize all currency pricing with new base prices
-      initializePricing()
+      if (data.oneTime) BASE_PRICING_EUR.oneTime = data.oneTime
+      if (data.weekly) BASE_PRICING_EUR.weekly = data.weekly
+      if (data.monthly) BASE_PRICING_EUR.monthly = data.monthly
 
       console.log('Base prices updated from Stripe (EUR):', BASE_PRICING_EUR)
     }
   } catch (error) {
     console.error('Error fetching base prices from Stripe:', error)
-  }
-}
-
-/**
- * Fetches live exchange rates from API (based on EUR)
- */
-export async function fetchExchangeRates(): Promise<Record<string, number>> {
-  try {
-    const response = await fetch('https://api.exchangerate-api.com/v4/latest/EUR')
-    if (!response.ok) return FALLBACK_RATES
-
-    const data = await response.json()
-    if (!data.rates) return FALLBACK_RATES
-
-    return data.rates
-  } catch (error) {
-    console.error('Failed to fetch exchange rates:', error)
-    return FALLBACK_RATES
-  }
-}
-
-/**
- * Updates pricing with live data from Stripe and exchange rates
- * Call this on app startup to get fresh pricing from Stripe
- */
-export async function updatePricingWithLiveRates(): Promise<void> {
-  try {
-    // Fetch base prices from Stripe first (single source of truth)
-    await fetchBasePricesFromStripe()
-
-    // Then fetch exchange rates to convert to other currencies
-    const rates = await fetchExchangeRates()
-
-    for (const currency of Object.keys(FALLBACK_RATES)) {
-      const rate = rates[currency] || FALLBACK_RATES[currency]
-      CURRENCY_PRICING[currency] = {
-        code: currency,
-        oneTime: parseFloat((BASE_PRICING_EUR.oneTime * rate).toFixed(2)),
-        weekly: parseFloat((BASE_PRICING_EUR.weekly * rate).toFixed(2)),
-        monthly: parseFloat((BASE_PRICING_EUR.monthly * rate).toFixed(2)),
-      }
-    }
-  } catch (error) {
-    console.error('Failed to update pricing:', error)
   }
 }
 
@@ -194,9 +166,18 @@ export function getUserCurrency(): SupportedCurrency {
 
 /**
  * Gets pricing for a currency (for display purposes)
+ * Calculates prices on-the-fly by converting from EUR base pricing using live exchange rates
  */
-export function getPricing(currency: SupportedCurrency): CurrencyPricing {
-  return CURRENCY_PRICING[currency]
+export async function getPricing(currency: SupportedCurrency): Promise<CurrencyPricing> {
+  const rates = await getExchangeRates()
+  const rate = rates[currency] || FALLBACK_DISPLAY_RATES[currency]
+
+  return {
+    code: currency,
+    oneTime: parseFloat((BASE_PRICING_EUR.oneTime * rate).toFixed(2)),
+    weekly: parseFloat((BASE_PRICING_EUR.weekly * rate).toFixed(2)),
+    monthly: parseFloat((BASE_PRICING_EUR.monthly * rate).toFixed(2)),
+  }
 }
 
 /**
@@ -250,12 +231,12 @@ export function formatPrice(amount: number, currency: SupportedCurrency): string
  * Gets all supported currencies
  */
 export function getSupportedCurrencies(): SupportedCurrency[] {
-  return Object.keys(FALLBACK_RATES) as SupportedCurrency[]
+  return Object.keys(FALLBACK_DISPLAY_RATES) as SupportedCurrency[]
 }
 
 /**
  * Checks if a currency is supported
  */
 export function isCurrencySupported(currency: string): currency is SupportedCurrency {
-  return currency in FALLBACK_RATES
+  return currency in FALLBACK_DISPLAY_RATES
 }
