@@ -1,11 +1,8 @@
 import * as SecureStore from 'expo-secure-store'
 import { getLocales } from 'expo-localization'
 
-// Storage keys
+// Storage key for user preference (only thing we persist)
 const CURRENCY_OVERRIDE_KEY = 'user_currency_override'
-const EXCHANGE_RATES_KEY = 'exchange_rates_cache'
-const EXCHANGE_RATES_TIMESTAMP_KEY = 'exchange_rates_timestamp'
-const CACHE_DURATION_MS = 24 * 60 * 60 * 1000
 
 // Base pricing in USD
 const BASE_PRICING_USD = {
@@ -56,52 +53,19 @@ initializePricing()
 /**
  * Fetches live exchange rates from API
  */
-export async function fetchExchangeRates(): Promise<Record<string, number> | null> {
+export async function fetchExchangeRates(): Promise<Record<string, number>> {
   try {
     const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD')
-    if (!response.ok) return null
+    if (!response.ok) return FALLBACK_RATES
 
     const data = await response.json()
-    if (!data.rates) return null
-
-    await SecureStore.setItemAsync(EXCHANGE_RATES_KEY, JSON.stringify(data.rates))
-    await SecureStore.setItemAsync(EXCHANGE_RATES_TIMESTAMP_KEY, Date.now().toString())
+    if (!data.rates) return FALLBACK_RATES
 
     return data.rates
   } catch (error) {
     console.error('Failed to fetch exchange rates:', error)
-    return null
+    return FALLBACK_RATES
   }
-}
-
-/**
- * Gets cached exchange rates if still valid
- */
-export async function getCachedExchangeRates(): Promise<Record<string, number> | null> {
-  try {
-    const timestamp = await SecureStore.getItemAsync(EXCHANGE_RATES_TIMESTAMP_KEY)
-    if (!timestamp) return null
-
-    const cacheAge = Date.now() - parseInt(timestamp, 10)
-    if (cacheAge > CACHE_DURATION_MS) return null
-
-    const cachedRates = await SecureStore.getItemAsync(EXCHANGE_RATES_KEY)
-    if (!cachedRates) return null
-
-    return JSON.parse(cachedRates)
-  } catch (error) {
-    console.error('Failed to get cached rates:', error)
-    return null
-  }
-}
-
-/**
- * Gets exchange rates (from cache or fetch new ones)
- */
-export async function getExchangeRates(): Promise<Record<string, number>> {
-  let rates = await getCachedExchangeRates()
-  if (!rates) rates = await fetchExchangeRates()
-  return rates || FALLBACK_RATES
 }
 
 /**
@@ -109,7 +73,7 @@ export async function getExchangeRates(): Promise<Record<string, number>> {
  */
 export async function updatePricingWithLiveRates(): Promise<void> {
   try {
-    const rates = await getExchangeRates()
+    const rates = await fetchExchangeRates()
 
     for (const currency of Object.keys(FALLBACK_RATES)) {
       const rate = rates[currency] || FALLBACK_RATES[currency]
