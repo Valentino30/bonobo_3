@@ -89,7 +89,7 @@ Pure helper functions and utilities:
 - `device-id.ts` - Device identification using SecureStore
 - `whatsapp-parser.ts` - Parses WhatsApp export format
 - `zip-extractor.ts` - ZIP file extraction utilities
-- `chat-analyzer.ts` - Statistical analysis (message counts, response times, interest levels)
+- `chat-statistics.ts` - Frontend statistical analysis (message counts, response times, interest levels)
 - `string-helpers.ts` - String manipulation utilities
 - `validation.ts` - Input validation functions
 - `currency-service.ts` - Currency formatting utilities

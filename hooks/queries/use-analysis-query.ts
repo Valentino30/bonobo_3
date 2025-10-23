@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { type AIInsights, analyzeChat } from '@/services/ai-service'
-import { analyzeChatData } from '@/utils/chat-analyzer'
+import { calculateChatStatistics } from '@/utils/chat-statistics'
 import type { StoredChat } from '@/services/chat-storage'
 import { PaymentService } from '@/services/payment-service'
 import { chatKeys } from './use-chats-query'
@@ -26,8 +26,8 @@ export function useAnalysisQuery(chatId: string, chatText: string, enabled: bool
         return chat.analysis
       }
 
-      // Perform basic analysis
-      const analysis = await analyzeChatData(chatText)
+      // Calculate basic statistics
+      const analysis = await calculateChatStatistics(chatText)
       return analysis
     },
     enabled: enabled && !!chatId && !!chatText,

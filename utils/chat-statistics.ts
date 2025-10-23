@@ -40,7 +40,7 @@ function countWords(text: string): number {
     .filter((word) => word.length > 0).length
 }
 
-export async function analyzeChatData(chatText: string): Promise<ChatAnalysisData> {
+export async function calculateChatStatistics(chatText: string): Promise<ChatAnalysisData> {
   return new Promise((resolve) => {
     setTimeout(() => {
       const messages = parseMessages(chatText)
