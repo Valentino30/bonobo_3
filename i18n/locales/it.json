@@ -86,7 +86,15 @@
       "averageMessageLength": "Lunghezza Media Messaggio",
       "initiationRate": "Tasso di Iniziativa",
       "interestLevel": "Livello di Interesse",
-      "words": "parole"
+      "words": "parole",
+      "initiationDescription": {
+        "higher": "Questo indica che {{name1}} avvia le conversazioni più spesso di {{name2}}, il che può suggerire un livello di coinvolgimento più elevato.",
+        "equal": "Entrambi i partecipanti avviano le conversazioni in modo equilibrato, indicando un livello bilanciato di interesse e coinvolgimento da entrambe le parti."
+      },
+      "interestDescription": {
+        "higher": "{{name1}} mostra un punteggio di coinvolgimento più elevato ({{level1}}%) rispetto a {{name2}} ({{level2}}%), basato su tempo di risposta, lunghezza dei messaggi e frequenza, suggerendo un livello di interesse maggiore.",
+        "equal": "Entrambi i partecipanti mostrano livelli di coinvolgimento uguali ({{level}}%), indicando un investimento equilibrato nella conversazione da entrambe le parti."
+      }
     },
     "insights": {
       "title": "Approfondimenti AI",

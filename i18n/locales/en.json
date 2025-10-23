@@ -86,7 +86,15 @@
       "averageMessageLength": "Average Message Length",
       "initiationRate": "Initiation Rate",
       "interestLevel": "Interest Level",
-      "words": "words"
+      "words": "words",
+      "initiationDescription": {
+        "higher": "This indicates that {{name1}} starts conversations more often than {{name2}}, which may suggest a higher level of interest or eagerness to engage.",
+        "equal": "Both participants initiate conversations equally, indicating a balanced level of interest and engagement from both sides."
+      },
+      "interestDescription": {
+        "higher": "{{name1}} shows a higher overall engagement score ({{level1}}%) compared to {{name2}} ({{level2}}%), based on response time, message length, and frequency. This suggests {{name1}} may be more invested in the conversation.",
+        "equal": "Both participants show equal engagement levels ({{level}}%), indicating a balanced investment in the conversation from both sides."
+      }
     },
     "insights": {
       "title": "AI Insights",
