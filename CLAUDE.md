@@ -102,8 +102,25 @@ The app uses Expo Router with file-based routing:
 
 ### Hooks (hooks/)
 
-- `use-persisted-chats.ts` - Manages chat CRUD operations with Supabase
+**Core Data Hooks**:
+- `use-chats.ts` - Manages chat data fetching and deletion via React Query
+- `use-chat-analysis.ts` - Handles chat analysis operations
+- `use-insight-unlock.ts` - Manages AI insight unlock flow
+
+**Share Intent Hooks**:
 - `use-share-intent.ts` - Handles Android/iOS share intents for chat imports
+- `use-share-import.ts` - Processes shared WhatsApp data with alert UI integration
+- `use-share-data-processor.ts` - Core share data processing logic
+
+**Payment & Auth Hooks**:
+- `use-payment-flow.ts` - Manages payment flow and entitlements
+- `use-paywall.ts` - Controls paywall modal state
+- `use-profile.ts` - User authentication and profile management
+- `use-account-creation.ts` - Account creation flow
+
+**UI Hooks**:
+- `use-custom-alert.ts` - Custom alert system (returns JSX directly)
+- `use-translation.ts` - i18n translation utilities
 
 ## Data Models
 
@@ -142,6 +159,13 @@ The app uses Expo Router with file-based routing:
 
 ## Important Patterns
 
+**Hook Architecture**:
+- Hooks manage data and business logic, components handle orchestration
+- Custom hooks return JSX directly when they own UI (e.g., `useCustomAlert` returns `alert` JSX)
+- Avoid prop drilling - hooks call other hooks internally when needed
+- Keep hooks focused - separate data fetching, processing, and UI concerns
+- React Query hooks in `hooks/queries/` for all data operations
+
 **Caching Strategy**:
 - Basic analysis is run once and cached in Supabase (`analysis` field)
 - AI insights are generated only when user unlocks first insight and cached (`aiInsights` field)
@@ -150,8 +174,10 @@ The app uses Expo Router with file-based routing:
 
 **Share Intent Handling**:
 - App accepts WhatsApp text exports and ZIP files via share sheet
-- Share data processed in `app/chats.tsx:40-175`
-- Includes timeout handling for stale share intents (3s)
+- Share intent orchestration at component level in `app/chats.tsx`
+- `useShareIntent` retrieves share data from native intent
+- `useShareImport` processes data and displays alerts
+- Includes timeout handling for stale share intents (3s defensive workaround)
 - ZIP files extracted via JSZip to find `_chat.txt` file
 
 **Environment Variables**:
