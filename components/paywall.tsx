@@ -121,6 +121,13 @@ export function Paywall({ visible, onClose, onPurchase }: PaywallProps) {
               />
             </View>
 
+            {/* EUR Charge Disclaimer */}
+            <View style={[styles.disclaimerContainer, { backgroundColor: theme.colors.backgroundInput }]}>
+              <ThemedText style={[styles.disclaimerText, { color: theme.colors.textSecondary }]}>
+                💳 All payments are processed in EUR (€). Your bank may apply currency conversion fees.
+              </ThemedText>
+            </View>
+
             {/* Features */}
             <View style={[styles.featuresContainer, { backgroundColor: theme.colors.backgroundInput }]}>
               <ThemedText style={styles.featuresTitle}>{t('paywallFeatures.title')}</ThemedText>
@@ -176,6 +183,16 @@ const styles = StyleSheet.create({
   plansContainer: {
     gap: 12,
     marginBottom: 24,
+  },
+  disclaimerContainer: {
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 16,
+  },
+  disclaimerText: {
+    fontSize: 12,
+    lineHeight: 18,
+    textAlign: 'center',
   },
   featuresContainer: {
     borderRadius: 12,

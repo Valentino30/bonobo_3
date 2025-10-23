@@ -22,7 +22,11 @@ export class StripeService {
         throw new Error('Invalid plan ID')
       }
 
-      console.log('Creating payment intent for plan:', plan.name, plan.price, plan.currency)
+      console.log(
+        `Creating payment intent for plan: ${plan.name}`,
+        `Display: ${plan.price} ${plan.currency}`,
+        `Charge: ${plan.chargePrice} ${plan.chargeCurrency}`
+      )
 
       // Get device ID for user identification
       const deviceId = await getDeviceId()
@@ -34,8 +38,8 @@ export class StripeService {
       const userId = user?.id
 
       console.log('📞 Calling create-payment-intent with:', {
-        amount: Math.round(plan.price * 100),
-        currency: plan.currency.toLowerCase(),
+        amount: Math.round(plan.chargePrice * 100), // Always charge in EUR
+        currency: plan.chargeCurrency.toLowerCase(),
         planId: plan.id,
         deviceId,
         userId: userId || 'none (anonymous)',
@@ -45,8 +49,8 @@ export class StripeService {
       // Call Supabase Edge Function to create payment intent
       const { data, error } = await supabase.functions.invoke('create-payment-intent', {
         body: {
-          amount: Math.round(plan.price * 100), // Convert to cents
-          currency: plan.currency.toLowerCase(),
+          amount: Math.round(plan.chargePrice * 100), // Convert to cents (EUR)
+          currency: plan.chargeCurrency.toLowerCase(), // Always EUR
           planId: plan.id,
           deviceId,
           userId, // Include userId if authenticated

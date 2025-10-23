@@ -5,6 +5,8 @@ import {
   getCurrencyOverride,
   getUserCurrency,
   getPricing,
+  getChargePrice,
+  CHARGE_CURRENCY,
   type SupportedCurrency,
 } from '@/services/currency-service'
 
@@ -12,8 +14,10 @@ import {
 export interface PaymentPlan {
   id: string
   name: string
-  price: number
-  currency: SupportedCurrency
+  price: number // Display price in user's currency
+  currency: SupportedCurrency // Display currency
+  chargePrice: number // Actual price that will be charged
+  chargeCurrency: string // Actual currency that will be charged (always EUR)
   description: string
   type: 'one-time' | 'subscription'
   duration?: number
@@ -31,7 +35,12 @@ export async function getPaymentPlans(): Promise<Record<string, PaymentPlan>> {
   const currency = override || getUserCurrency()
   const pricing = getPricing(currency)
 
-  console.log('💰 Payment plans currency:', currency, 'Pricing:', pricing)
+  // Get charge prices (always in EUR)
+  const oneTimeCharge = getChargePrice('oneTime')
+  const weeklyCharge = getChargePrice('weekly')
+  const monthlyCharge = getChargePrice('monthly')
+
+  console.log(`💰 Display currency: ${currency}, Charge currency: ${CHARGE_CURRENCY}`)
 
   return {
     ONE_TIME: {
@@ -39,6 +48,8 @@ export async function getPaymentPlans(): Promise<Record<string, PaymentPlan>> {
       name: 'One-Time Analysis',
       price: pricing.oneTime,
       currency,
+      chargePrice: oneTimeCharge.amount,
+      chargeCurrency: oneTimeCharge.currency,
       description: 'Unlock AI insights for one chat analysis',
       type: 'one-time' as const,
     },
@@ -47,6 +58,8 @@ export async function getPaymentPlans(): Promise<Record<string, PaymentPlan>> {
       name: 'Weekly Pass',
       price: pricing.weekly,
       currency,
+      chargePrice: weeklyCharge.amount,
+      chargeCurrency: weeklyCharge.currency,
       description: 'Unlimited AI insights for 7 days',
       duration: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
       type: 'subscription' as const,
@@ -56,6 +69,8 @@ export async function getPaymentPlans(): Promise<Record<string, PaymentPlan>> {
       name: 'Monthly Pass',
       price: pricing.monthly,
       currency,
+      chargePrice: monthlyCharge.amount,
+      chargeCurrency: monthlyCharge.currency,
       description: 'Unlimited AI insights for 30 days',
       duration: 30 * 24 * 60 * 60 * 1000, // 30 days in milliseconds
       type: 'subscription' as const,

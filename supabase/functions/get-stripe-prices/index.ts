@@ -54,14 +54,14 @@ serve(async (req: Request) => {
     for (const price of prices.data) {
       if (price.product && price.unit_amount) {
         const productId = typeof price.product === 'string' ? price.product : price.product.id
-        // Convert from cents to dollars
+        // Convert from cents to euros
         priceMap[productId] = price.unit_amount / 100
       }
     }
 
-    // Build response with USD prices
+    // Build response with EUR prices (single source of truth for EU company)
     const response: PriceResponse = {
-      oneTime: priceMap[PRODUCT_IDS.ONE_TIME] || 2.99, // Fallback
+      oneTime: priceMap[PRODUCT_IDS.ONE_TIME] || 2.99, // Fallback EUR pricing
       weekly: priceMap[PRODUCT_IDS.WEEKLY] || 4.99,
       monthly: priceMap[PRODUCT_IDS.MONTHLY] || 9.99,
     }

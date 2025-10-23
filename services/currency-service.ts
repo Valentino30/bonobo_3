@@ -1,31 +1,36 @@
-import * as SecureStore from 'expo-secure-store'
 import { getLocales } from 'expo-localization'
+import * as SecureStore from 'expo-secure-store'
 import { supabase } from '@/services/supabase'
 
 // Storage key for user preference (only thing we persist)
 const CURRENCY_OVERRIDE_KEY = 'user_currency_override'
 
-// Fallback base pricing in USD (used if Stripe fetch fails)
-const FALLBACK_BASE_PRICING_USD = {
+// Base currency - Always charge in EUR (EU company)
+export const CHARGE_CURRENCY = 'EUR' as const
+
+// Fallback base pricing in EUR (used if Stripe fetch fails)
+// NOTE: Users are ALWAYS charged in EUR regardless of display currency
+const FALLBACK_BASE_PRICING_EUR = {
   oneTime: 2.99,
   weekly: 4.99,
   monthly: 9.99,
 }
 
 // Current base pricing (will be fetched from Stripe via Edge Function)
-let BASE_PRICING_USD = { ...FALLBACK_BASE_PRICING_USD }
+let BASE_PRICING_EUR = { ...FALLBACK_BASE_PRICING_EUR }
 
-// Fallback exchange rates (used if API fails)
+// Exchange rates for DISPLAY purposes only (relative to EUR)
+// Users see converted prices but are always charged in EUR
 const FALLBACK_RATES: Record<string, number> = {
-  USD: 1,
-  EUR: 0.93,
-  GBP: 0.79,
-  CAD: 1.36,
-  AUD: 1.52,
-  JPY: 149.5,
-  INR: 83.12,
-  BRL: 5.0,
-  MXN: 18.5,
+  EUR: 1,      // Base currency
+  USD: 1.08,   // 1 EUR = 1.08 USD
+  GBP: 0.85,   // 1 EUR = 0.85 GBP
+  CAD: 1.46,   // 1 EUR = 1.46 CAD
+  AUD: 1.63,   // 1 EUR = 1.63 AUD
+  JPY: 160.76, // 1 EUR = 160.76 JPY
+  INR: 89.36,  // 1 EUR = 89.36 INR
+  BRL: 5.38,   // 1 EUR = 5.38 BRL
+  MXN: 19.89,  // 1 EUR = 19.89 MXN
 }
 
 // Types
@@ -45,9 +50,9 @@ function initializePricing() {
   for (const [currency, rate] of Object.entries(FALLBACK_RATES)) {
     CURRENCY_PRICING[currency] = {
       code: currency,
-      oneTime: parseFloat((BASE_PRICING_USD.oneTime * rate).toFixed(2)),
-      weekly: parseFloat((BASE_PRICING_USD.weekly * rate).toFixed(2)),
-      monthly: parseFloat((BASE_PRICING_USD.monthly * rate).toFixed(2)),
+      oneTime: parseFloat((BASE_PRICING_EUR.oneTime * rate).toFixed(2)),
+      weekly: parseFloat((BASE_PRICING_EUR.weekly * rate).toFixed(2)),
+      monthly: parseFloat((BASE_PRICING_EUR.monthly * rate).toFixed(2)),
     }
   }
 }
@@ -68,17 +73,17 @@ export async function fetchBasePricesFromStripe(): Promise<void> {
     }
 
     if (data && typeof data === 'object') {
-      // Update base pricing with values from Stripe
-      BASE_PRICING_USD = {
-        oneTime: data.oneTime || FALLBACK_BASE_PRICING_USD.oneTime,
-        weekly: data.weekly || FALLBACK_BASE_PRICING_USD.weekly,
-        monthly: data.monthly || FALLBACK_BASE_PRICING_USD.monthly,
+      // Update base pricing with values from Stripe (in EUR)
+      BASE_PRICING_EUR = {
+        oneTime: data.oneTime || FALLBACK_BASE_PRICING_EUR.oneTime,
+        weekly: data.weekly || FALLBACK_BASE_PRICING_EUR.weekly,
+        monthly: data.monthly || FALLBACK_BASE_PRICING_EUR.monthly,
       }
 
       // Reinitialize all currency pricing with new base prices
       initializePricing()
 
-      console.log('Base prices updated from Stripe:', BASE_PRICING_USD)
+      console.log('Base prices updated from Stripe (EUR):', BASE_PRICING_EUR)
     }
   } catch (error) {
     console.error('Error fetching base prices from Stripe:', error)
@@ -86,11 +91,11 @@ export async function fetchBasePricesFromStripe(): Promise<void> {
 }
 
 /**
- * Fetches live exchange rates from API
+ * Fetches live exchange rates from API (based on EUR)
  */
 export async function fetchExchangeRates(): Promise<Record<string, number>> {
   try {
-    const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD')
+    const response = await fetch('https://api.exchangerate-api.com/v4/latest/EUR')
     if (!response.ok) return FALLBACK_RATES
 
     const data = await response.json()
@@ -119,9 +124,9 @@ export async function updatePricingWithLiveRates(): Promise<void> {
       const rate = rates[currency] || FALLBACK_RATES[currency]
       CURRENCY_PRICING[currency] = {
         code: currency,
-        oneTime: parseFloat((BASE_PRICING_USD.oneTime * rate).toFixed(2)),
-        weekly: parseFloat((BASE_PRICING_USD.weekly * rate).toFixed(2)),
-        monthly: parseFloat((BASE_PRICING_USD.monthly * rate).toFixed(2)),
+        oneTime: parseFloat((BASE_PRICING_EUR.oneTime * rate).toFixed(2)),
+        weekly: parseFloat((BASE_PRICING_EUR.weekly * rate).toFixed(2)),
+        monthly: parseFloat((BASE_PRICING_EUR.monthly * rate).toFixed(2)),
       }
     }
   } catch (error) {
@@ -188,10 +193,21 @@ export function getUserCurrency(): SupportedCurrency {
 }
 
 /**
- * Gets pricing for a currency
+ * Gets pricing for a currency (for display purposes)
  */
 export function getPricing(currency: SupportedCurrency): CurrencyPricing {
   return CURRENCY_PRICING[currency]
+}
+
+/**
+ * Gets the actual EUR price that will be charged (regardless of display currency)
+ * Always use this when creating payment intents
+ */
+export function getChargePrice(planType: 'oneTime' | 'weekly' | 'monthly'): { amount: number; currency: string } {
+  return {
+    amount: BASE_PRICING_EUR[planType],
+    currency: CHARGE_CURRENCY,
+  }
 }
 
 /**
