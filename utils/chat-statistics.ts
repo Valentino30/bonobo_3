@@ -160,7 +160,8 @@ function calculateInterestLevelScore(messages: MessageData[], averageResponseTim
   const lengthScore = Math.min(30, averageWordCount * 2)
   const frequencyScore = Math.min(30, messages.length / 10)
 
-  return Math.round(Math.min(100, responseTimeScore + lengthScore + frequencyScore))
+  const interestLevelScore = Math.round(Math.min(100, responseTimeScore + lengthScore + frequencyScore))
+  return interestLevelScore
 }
 
 /**
@@ -172,7 +173,8 @@ function calculateInterestLevelScore(messages: MessageData[], averageResponseTim
 function calculateBalanceScore(count1: number, count2: number): number {
   if (count1 === 0 && count2 === 0) return 0
   const ratio = Math.min(count1, count2) / Math.max(count1, count2)
-  return Math.round(ratio * 100)
+  const balanceScore = Math.round(ratio * 100)
+  return balanceScore
 }
 
 /**
@@ -181,7 +183,8 @@ function calculateBalanceScore(count1: number, count2: number): number {
  * Average of both participants' interest levels
  */
 function calculateEngagementScore(participant1: ParticipantStats, participant2: ParticipantStats): number {
-  return Math.round((participant1.interestLevel + participant2.interestLevel) / 2)
+  const engagementScore = Math.round((participant1.interestLevel + participant2.interestLevel) / 2)
+  return engagementScore
 }
 
 /**
@@ -218,5 +221,6 @@ function calculateConversationInitiationRate(participantName: string, messages: 
     }
   }
 
-  return totalInitiations > 0 ? Math.round((initiationsByParticipant / totalInitiations) * 100) : 0
+  const initiationRate = totalInitiations > 0 ? Math.round((initiationsByParticipant / totalInitiations) * 100) : 0
+  return initiationRate
 }
