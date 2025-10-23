@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { AuthService } from '@/services/auth-service'
-import { setCurrencyOverride, type SupportedCurrency } from '@/utils/currency-service'
+import { setCurrencyOverride, type SupportedCurrency } from '@/services/currency-service'
 import { PaymentService, getPaymentPlans } from '@/services/payment-service'
 import { StripeService } from '@/services/stripe-service'
 import { analysisKeys } from './use-analysis-query'

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { type SupportedCurrency } from '@/utils/currency-service'
+import { type SupportedCurrency } from '@/services/currency-service'
 import { useCurrencyChangeMutation, usePaymentPlansQuery } from './queries/use-purchase-mutation'
 
 interface UsePaywallOptions {

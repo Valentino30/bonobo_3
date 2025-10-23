@@ -6,7 +6,7 @@ import {
   getUserCurrency,
   getPricing,
   type SupportedCurrency,
-} from '@/utils/currency-service'
+} from '@/services/currency-service'
 
 // Payment plan structure
 export interface PaymentPlan {

@@ -7,7 +7,7 @@ import { ThemedView } from '@/components/themed-view'
 import { useTheme } from '@/contexts/theme-context'
 import { usePaywall } from '@/hooks/use-paywall'
 import { useTranslation } from '@/hooks/use-translation'
-import { getCurrencySymbol, getSupportedCurrencies, type SupportedCurrency } from '@/utils/currency-service'
+import { getCurrencySymbol, getSupportedCurrencies, type SupportedCurrency } from '@/services/currency-service'
 
 interface PaywallProps {
   visible: boolean

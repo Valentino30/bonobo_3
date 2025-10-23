@@ -1,7 +1,7 @@
 import { StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native'
 import { ThemedText } from '@/components/themed-text'
 import { useTheme } from '@/contexts/theme-context'
-import { formatPrice, type SupportedCurrency } from '@/utils/currency-service'
+import { formatPrice, type SupportedCurrency } from '@/services/currency-service'
 
 export interface SubscriptionCardProps {
   name: string
