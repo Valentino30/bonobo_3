@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { loadChats, addChat, deleteChat, updateChatAnalysis, type StoredChat } from '@/services/chat-storage'
+import { loadChats, addChat, deleteChat, updateChatAnalysis, type StoredChat } from '@/services/chat-service'
 
 // Query keys
 export const chatKeys = {

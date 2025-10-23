@@ -1,6 +1,6 @@
 import { ChatCard } from '@/components/chat-card'
 import { WelcomeState } from '@/components/welcome-state'
-import { type StoredChat } from '@/services/chat-storage'
+import { type StoredChat } from '@/services/chat-service'
 import { ScrollView, StyleSheet } from 'react-native'
 
 interface ChatListProps {

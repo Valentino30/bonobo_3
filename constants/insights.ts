@@ -1,5 +1,5 @@
 import i18n from '@/i18n/config'
-import { type AIInsights } from '@/services/ai-service'
+import { type AIInsights } from '@/services/analysis-service'
 
 export type InsightBadge = {
   text: string
