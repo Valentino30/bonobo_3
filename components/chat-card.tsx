@@ -6,7 +6,7 @@ import { ThemedIconButton } from '@/components/themed-icon-button'
 import { ThemedText } from '@/components/themed-text'
 import { useTheme } from '@/contexts/theme-context'
 import { useTranslation } from '@/hooks/use-translation'
-import { type StoredChat } from '@/utils/chat-storage'
+import { type StoredChat } from '@/services/chat-storage'
 import { getParticipantInitial } from '@/utils/string-helpers'
 
 interface ChatCardProps {

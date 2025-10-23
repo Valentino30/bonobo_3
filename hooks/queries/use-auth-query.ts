@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { AuthService } from '@/utils/auth-service'
+import { AuthService } from '@/services/auth-service'
 
 // Query keys
 export const authKeys = {

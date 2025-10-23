@@ -1,4 +1,4 @@
-import { type StoredChat } from '@/utils/chat-storage'
+import { type StoredChat } from '@/services/chat-storage'
 import { extractWhatsAppZip } from '@/utils/zip-extractor'
 import { parseWhatsAppChat } from '@/utils/whatsapp-parser'
 import { useEffect } from 'react'

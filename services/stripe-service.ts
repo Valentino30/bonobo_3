@@ -1,7 +1,7 @@
 import { initPaymentSheet, presentPaymentSheet } from '@stripe/stripe-react-native'
 import { getPaymentPlans } from './payment-service'
 import { supabase } from './supabase'
-import { getDeviceId } from './device-id'
+import { getDeviceId } from '@/utils/device-id'
 
 export interface StripePaymentResult {
   success: boolean

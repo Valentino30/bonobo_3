@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { type AIInsights, analyzeChat } from '@/utils/ai-service'
+import { type AIInsights, analyzeChat } from '@/services/ai-service'
 import { analyzeChatData } from '@/utils/chat-analyzer'
-import type { StoredChat } from '@/utils/chat-storage'
-import { PaymentService } from '@/utils/payment-service'
+import type { StoredChat } from '@/services/chat-storage'
+import { PaymentService } from '@/services/payment-service'
 import { chatKeys } from './use-chats-query'
 
 // Query keys
@@ -106,7 +106,7 @@ export function useUnlockInsightMutation() {
 
       if (chat && analysis) {
         // Persist to Supabase with updated unlocked insights and AI insights
-        const { ChatStorage } = await import('@/utils/chat-storage')
+        const { ChatStorage } = await import('@/services/chat-storage')
         // Don't add insightId again if it's already in the array from optimistic update
         const updatedUnlockedInsights = chat.unlockedInsights?.includes(insightId)
           ? chat.unlockedInsights

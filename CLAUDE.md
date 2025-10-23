@@ -71,22 +71,28 @@ The app uses Expo Router with file-based routing:
 - `app/import-guide.tsx` - Instructions for importing WhatsApp chats
 - `app/analysis/[chatId].tsx` - Dynamic route for chat analysis with tabs (Overview/Insights)
 
-### Core Services (utils/)
+### Services (services/)
 
-**Storage & Data Flow**:
-- `chat-storage.ts` - Supabase-based chat persistence (migrated from SecureStore)
-- `device-id.ts` - Anonymous device identification for Supabase queries
+Business logic layer that interacts with external services (Supabase, Stripe, AI):
+
 - `supabase.ts` - Supabase client initialization
+- `chat-storage.ts` - Chat CRUD operations with Supabase
+- `auth-service.ts` - User authentication and account management
+- `payment-service.ts` - User entitlements and access control
+- `stripe-service.ts` - Stripe payment integration
+- `ai-service.ts` - Gemini AI integration for relationship insights
 
-**Chat Processing**:
-- `whatsapp-parser.ts` - Parses WhatsApp export format to extract participants and message count
-- `zip-extractor.ts` - Handles ZIP file extraction (WhatsApp exports with media)
-- `chat-analyzer.ts` - Basic statistical analysis (message counts, response times, interest levels)
+### Utilities (utils/)
 
-**AI & Payments**:
-- `ai-service.ts` - Gemini AI integration for relationship insights with structured JSON responses
-- `payment-service.ts` - Manages user entitlements (one-time purchases, subscriptions)
-- `stripe-service.ts` - Stripe payment sheet integration
+Pure helper functions and utilities:
+
+- `device-id.ts` - Device identification using SecureStore
+- `whatsapp-parser.ts` - Parses WhatsApp export format
+- `zip-extractor.ts` - ZIP file extraction utilities
+- `chat-analyzer.ts` - Statistical analysis (message counts, response times, interest levels)
+- `string-helpers.ts` - String manipulation utilities
+- `validation.ts` - Input validation functions
+- `currency-service.ts` - Currency formatting utilities
 
 ### Key Components (components/)
 
@@ -124,7 +130,7 @@ The app uses Expo Router with file-based routing:
 
 ## Data Models
 
-**StoredChat** (`utils/chat-storage.ts:26-35`):
+**StoredChat** (`services/chat-storage.ts:26-35`):
 ```typescript
 {
   id: string
@@ -138,7 +144,7 @@ The app uses Expo Router with file-based routing:
 }
 ```
 
-**AIInsights** (`utils/ai-service.ts:6-49`):
+**AIInsights** (`services/ai-service.ts:6-49`):
 8 insight categories: redFlags, greenFlags, attachmentStyle, reciprocityScore, compliments, criticism, compatibilityScore, relationshipTips
 
 ## Payment & Access Control
@@ -152,10 +158,10 @@ The app uses Expo Router with file-based routing:
 
 **Access Flow**:
 1. User taps "Unlock" on locked insight → `handleUnlockInsight()` in `app/analysis/[chatId].tsx:100`
-2. Check access via `PaymentService.hasAccess(chatId)` → `utils/payment-service.ts:45`
+2. Check access via `PaymentService.hasAccess(chatId)` → `services/payment-service.ts:45`
 3. If no access → show paywall
 4. If has access → generate AI insights (if not cached) and unlock specific insight
-5. For one-time purchases, assign to chat via `PaymentService.assignAnalysisToChat()` → `utils/payment-service.ts:126`
+5. For one-time purchases, assign to chat via `PaymentService.assignAnalysisToChat()` → `services/payment-service.ts:126`
 
 ## Important Patterns
 
@@ -182,13 +188,13 @@ The app uses Expo Router with file-based routing:
 
 **Environment Variables**:
 - `EXPO_PUBLIC_GEMINI_API_KEY` - Required for AI analysis
-- Supabase credentials configured in `utils/supabase.ts`
+- Supabase credentials configured in `services/supabase.ts`
 - Use `.env.example` as template for local `.env` file
 
 ## Path Aliases
 
 - `@/*` - Root directory (configured in `tsconfig.json:6`)
-- Example: `import { ChatStorage } from '@/utils/chat-storage'`
+- Example: `import { ChatStorage } from '@/services/chat-storage'`
 
 ## Supabase Schema
 

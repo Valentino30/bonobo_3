@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ChatStorage, type StoredChat } from '@/utils/chat-storage'
+import { ChatStorage, type StoredChat } from '@/services/chat-storage'
 
 // Query keys
 export const chatKeys = {

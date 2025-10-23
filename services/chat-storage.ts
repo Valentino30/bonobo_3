@@ -1,5 +1,5 @@
 import type { AIInsights } from './ai-service'
-import { getDeviceId } from './device-id'
+import { getDeviceId } from '@/utils/device-id'
 import { supabase } from './supabase'
 
 export interface ChatAnalysisData {

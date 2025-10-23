@@ -1,6 +1,6 @@
-import { getDeviceId } from './device-id'
+import { getDeviceId } from '@/utils/device-id'
 import { supabase } from './supabase'
-import { CurrencyService, type SupportedCurrency } from './currency-service'
+import { CurrencyService, type SupportedCurrency } from '@/utils/currency-service'
 
 // Payment plan structure
 export interface PaymentPlan {
