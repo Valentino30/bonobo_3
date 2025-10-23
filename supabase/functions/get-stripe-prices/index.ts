@@ -1,6 +1,5 @@
 // Supabase Edge Function to fetch product prices from Stripe
 // This ensures pricing is fetched from the single source of truth (Stripe)
-
 // @ts-ignore: Deno-specific imports
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 // @ts-ignore: Deno-specific imports
@@ -18,9 +17,13 @@ const corsHeaders = {
 }
 
 // Product IDs for your payment plans
+// @ts-ignore: Deno global
 const PRODUCT_IDS = {
+  // @ts-ignore: Deno global
   ONE_TIME: Deno.env.get('STRIPE_PRODUCT_ONE_TIME') || '',
+  // @ts-ignore: Deno global
   WEEKLY: Deno.env.get('STRIPE_PRODUCT_WEEKLY') || '',
+  // @ts-ignore: Deno global
   MONTHLY: Deno.env.get('STRIPE_PRODUCT_MONTHLY') || '',
 }
 
