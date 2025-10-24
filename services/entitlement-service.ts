@@ -1,4 +1,4 @@
-import { supabase } from '@/services/supabase'
+import { supabase } from '@/supabase/client'
 import { getDeviceId } from '@/utils/device-id'
 
 /**

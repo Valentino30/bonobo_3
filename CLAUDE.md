@@ -75,12 +75,20 @@ The app uses Expo Router with file-based routing:
 
 Business logic layer that interacts with external services (Supabase, Stripe, AI):
 
-- `supabase.ts` - Supabase client initialization
-- `chat-storage.ts` - Chat CRUD operations with Supabase
+- `chat-service.ts` - Chat CRUD operations with Supabase
 - `auth-service.ts` - User authentication and account management
-- `payment-service.ts` - User entitlements and access control
+- `entitlement-service.ts` - User entitlements and access control
+- `pricing-service.ts` - Fetches pricing data from Stripe
 - `stripe-service.ts` - Stripe payment integration
 - `ai-service.ts` - Gemini AI integration for relationship insights
+
+### Supabase Infrastructure (supabase/)
+
+Supabase configuration and database infrastructure:
+
+- `client.ts` - Supabase client initialization with SecureStore adapter
+- `migrations/` - Database schema migrations
+- `functions/` - Supabase Edge Functions for payment processing
 
 ### Utilities (utils/)
 
@@ -130,7 +138,7 @@ Pure helper functions and utilities:
 
 ## Data Models
 
-**StoredChat** (`services/chat-storage.ts:26-35`):
+**StoredChat** (`services/chat-service.ts:5-14`):
 ```typescript
 {
   id: string
@@ -157,11 +165,11 @@ Pure helper functions and utilities:
 - Subscriptions grant unlimited access during validity period
 
 **Access Flow**:
-1. User taps "Unlock" on locked insight → `handleUnlockInsight()` in `app/analysis/[chatId].tsx:100`
-2. Check access via `PaymentService.hasAccess(chatId)` → `services/payment-service.ts:45`
+1. User taps "Unlock" on locked insight → `handleUnlockInsight()` in `app/analysis/[chatId].tsx`
+2. Check access via `hasAccess(chatId)` → `services/entitlement-service.ts`
 3. If no access → show paywall
 4. If has access → generate AI insights (if not cached) and unlock specific insight
-5. For one-time purchases, assign to chat via `PaymentService.assignAnalysisToChat()` → `services/payment-service.ts:126`
+5. For one-time purchases, assign to chat via entitlement service
 
 ## Important Patterns
 
@@ -188,7 +196,7 @@ Pure helper functions and utilities:
 
 **Environment Variables**:
 - `EXPO_PUBLIC_GEMINI_API_KEY` - Required for AI analysis
-- Supabase credentials configured in `services/supabase.ts`
+- Supabase credentials configured in `supabase/client.ts`
 - Use `.env.example` as template for local `.env` file
 
 ## Path Aliases
@@ -198,10 +206,12 @@ Pure helper functions and utilities:
 
 ## Supabase Schema
 
-Located in `supabase/migrations/`:
-- `chats` table: stores chat data per device
-- `user_entitlements` table: tracks purchases and subscriptions
-- Includes Edge Functions in `supabase/functions/` for payment processing
+Database schema and infrastructure located in `supabase/`:
+- `client.ts` - Supabase client with custom SecureStore adapter
+- `migrations/` - Database schema definitions
+  - `chats` table: stores chat data per device
+  - `user_entitlements` table: tracks purchases and subscriptions
+- `functions/` - Edge Functions for payment processing
 
 ## Testing & Debugging
 

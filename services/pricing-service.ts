@@ -1,4 +1,4 @@
-import { supabase } from '@/services/supabase'
+import { supabase } from '@/supabase/client'
 
 // Fallback pricing if Stripe fetch fails
 const FALLBACK_PRICING = {

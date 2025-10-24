@@ -1,6 +1,6 @@
 import type { AIInsights, ChatAnalysisData } from '@/types/chat-analysis'
 import { getDeviceId } from '@/utils/device-id'
-import { supabase } from './supabase'
+import { supabase } from '@/supabase/client'
 
 export interface StoredChat {
   id: string

@@ -1,7 +1,7 @@
 import type { Session, User } from '@supabase/supabase-js'
 import i18n from '@/i18n/config'
 import { getDeviceId } from '@/utils/device-id'
-import { supabase } from './supabase'
+import { supabase } from '@/supabase/client'
 
 export interface AuthResult {
   success: boolean
