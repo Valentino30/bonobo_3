@@ -5,7 +5,9 @@ import { Platform } from 'react-native'
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || ''
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || ''
 
-// Custom storage adapter using Expo SecureStore for React Native
+// Custom storage adapter that securely persists Supabase auth tokens using encrypted storage.
+// Uses SecureStore (iOS Keychain/Android Keystore) on mobile, localStorage on web.
+// Without this, users would be logged out on every app restart.
 const ExpoSecureStoreAdapter = {
   getItem: async (key: string) => {
     if (Platform.OS === 'web') {
