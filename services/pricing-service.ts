@@ -21,12 +21,20 @@ export interface PricingData {
  */
 export async function fetchPricingData(): Promise<PricingData> {
   try {
+    console.log('🔄 Fetching pricing from Stripe Edge Function...')
     const { data, error } = await supabase.functions.invoke('get-stripe-prices')
 
     if (error) {
-      console.error('Failed to fetch Stripe prices, using fallback:', error)
+      console.error('❌ Stripe Edge Function error:', {
+        name: error.name,
+        message: error.message,
+        context: error.context,
+      })
+      console.log('📋 Using fallback pricing')
       return FALLBACK_PRICING
     }
+
+    console.log('✅ Edge Function response:', data)
 
     if (data && typeof data === 'object') {
       const pricing: PricingData = {
@@ -35,13 +43,15 @@ export async function fetchPricingData(): Promise<PricingData> {
         weekly: data.weekly || FALLBACK_PRICING.weekly,
         monthly: data.monthly || FALLBACK_PRICING.monthly,
       }
-      console.log('Pricing fetched from Stripe:', pricing)
+      console.log('💰 Pricing fetched from Stripe successfully:', pricing)
       return pricing
     }
 
+    console.warn('⚠️ Invalid data format from Edge Function, using fallback')
     return FALLBACK_PRICING
   } catch (error) {
-    console.error('Error fetching Stripe prices, using fallback:', error)
+    console.error('❌ Exception fetching Stripe prices:', error)
+    console.log('📋 Using fallback pricing')
     return FALLBACK_PRICING
   }
 }

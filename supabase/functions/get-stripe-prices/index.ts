@@ -1,5 +1,5 @@
 // Supabase Edge Function to fetch product prices from Stripe
-// This ensures pricing is fetched from the single source of truth (Stripe)
+// Dynamically fetches all active products and matches them by metadata.plan_id
 // @ts-ignore: Deno-specific imports
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 // @ts-ignore: Deno-specific imports
@@ -16,17 +16,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Product IDs for your payment plans
-// @ts-ignore: Deno global
-const PRODUCT_IDS = {
-  // @ts-ignore: Deno global
-  ONE_TIME: Deno.env.get('STRIPE_PRODUCT_ONE_TIME') || '',
-  // @ts-ignore: Deno global
-  WEEKLY: Deno.env.get('STRIPE_PRODUCT_WEEKLY') || '',
-  // @ts-ignore: Deno global
-  MONTHLY: Deno.env.get('STRIPE_PRODUCT_MONTHLY') || '',
-}
-
 interface PriceResponse {
   currency: string
   oneTime: number
@@ -41,39 +30,60 @@ serve(async (req: Request) => {
   }
 
   try {
-    console.log('Fetching prices from Stripe...')
+    console.log('🔄 Fetching all active products and prices from Stripe...')
 
-    // Fetch all active prices
-    const prices = await stripe.prices.list({
+    // Fetch all active products with their default prices
+    const products = await stripe.products.list({
       active: true,
       limit: 100,
+      expand: ['data.default_price'],
     })
 
-    // Map prices by product ID and extract currency
-    const priceMap: Record<string, number> = {}
-    let currency = 'EUR' // Default fallback
+    console.log(`📦 Found ${products.data.length} active products`)
 
-    for (const price of prices.data) {
-      if (price.product && price.unit_amount) {
-        const productId = typeof price.product === 'string' ? price.product : price.product.id
-        // Convert from cents to base currency unit
-        priceMap[productId] = price.unit_amount / 100
-        // Use currency from first valid price
-        if (price.currency && !currency) {
-          currency = price.currency.toUpperCase()
+    if (products.data.length === 0) {
+      throw new Error('No active products found in Stripe')
+    }
+
+    // Extract prices and currency from all products
+    const prices: Array<{ name: string; amount: number; currency: string }> = []
+
+    for (const product of products.data) {
+      if (product.default_price) {
+        const priceObj = typeof product.default_price === 'string'
+          ? await stripe.prices.retrieve(product.default_price)
+          : product.default_price
+
+        if (priceObj.unit_amount) {
+          const amount = priceObj.unit_amount / 100 // Convert cents to base unit
+          const currency = priceObj.currency.toUpperCase()
+
+          prices.push({
+            name: product.name.toLowerCase(),
+            amount,
+            currency,
+          })
+
+          console.log(`💰 ${product.name}: ${currency} ${amount}`)
         }
       }
     }
 
-    // Build response with prices and currency from Stripe
-    const response: PriceResponse = {
-      currency,
-      oneTime: priceMap[PRODUCT_IDS.ONE_TIME] || 2.99,
-      weekly: priceMap[PRODUCT_IDS.WEEKLY] || 4.99,
-      monthly: priceMap[PRODUCT_IDS.MONTHLY] || 9.99,
+    // Match products by name (flexible matching)
+    const findPrice = (keywords: string[]) => {
+      return prices.find(p => keywords.some(k => p.name.includes(k)))?.amount
     }
 
-    console.log('Prices fetched successfully:', response)
+    const currency = prices[0]?.currency || 'EUR'
+
+    const response: PriceResponse = {
+      currency,
+      oneTime: findPrice(['one-time', 'one time', 'single', 'analysis']) || 2.99,
+      weekly: findPrice(['weekly', 'week', '7 day']) || 4.99,
+      monthly: findPrice(['monthly', 'month', '30 day']) || 9.99,
+    }
+
+    console.log('✅ Prices fetched successfully:', response)
 
     return new Response(JSON.stringify(response), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
