@@ -27,25 +27,42 @@ export function getParticipantInitial(participants?: string[]): string {
  * "John Smith 🎉" -> "John 🎉"
  */
 export function extractFirstName(fullName: string): string {
-  // Comprehensive regex to match all emojis including:
-  // - Basic emojis (😀-🙏)
-  // - Miscellaneous symbols (☀-⛿)
-  // - Dingbats (✀-➿)
-  // - Transport and map (🚀-🛿)
-  // - Regional indicator symbols (🇦-🇿)
-  // - Supplemental symbols (🤀-🫿)
-  // - Extended pictographs
-  // - Emoji modifiers and sequences
-  const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}][\p{Emoji_Modifier}]?(?:\u{200D}[\p{Emoji_Presentation}\p{Extended_Pictographic}][\p{Emoji_Modifier}]?)*/gu
+  // Regex patterns for different emoji types
+  // Flag emojis: Two regional indicator symbols (e.g., 🇮🇹)
+  const flagEmojiRegex = /\p{Regional_Indicator}{2}/gu
 
-  // Find all emojis in the name
-  const emojis = fullName.match(emojiRegex) || []
+  // All other emojis including:
+  // - Basic emojis, symbols, pictographs
+  // - Emoji with skin tone modifiers
+  // - Multi-person emojis with zero-width joiners
+  // - Emoji with variation selectors
+  const otherEmojiRegex = /(?:\p{Emoji_Presentation}|\p{Emoji}\uFE0F?)(?:\p{Emoji_Modifier}|\u200D\p{Emoji}|\uFE0F)*/gu
 
-  // Get first emoji (if exists)
-  const firstEmoji = emojis[0] || ''
+  // Find all emojis (flags first, then others)
+  const flags = fullName.match(flagEmojiRegex) || []
+  const otherEmojis = fullName.match(otherEmojiRegex) || []
+
+  // Combine and deduplicate (flags might be caught by both regexes)
+  const allEmojis = [...new Set([...flags, ...otherEmojis])]
+
+  // Get the first emoji as it appears in the original string
+  let firstEmoji = ''
+  let earliestIndex = fullName.length
+
+  for (const emoji of allEmojis) {
+    const index = fullName.indexOf(emoji)
+    if (index !== -1 && index < earliestIndex) {
+      earliestIndex = index
+      firstEmoji = emoji
+    }
+  }
 
   // Remove all emojis to get clean text
-  const cleanText = fullName.replace(emojiRegex, '').trim()
+  let cleanText = fullName
+  for (const emoji of allEmojis) {
+    cleanText = cleanText.replace(emoji, '')
+  }
+  cleanText = cleanText.trim()
 
   // Get first word (split by space or parenthesis)
   const firstWord = cleanText.split(/[\s(]+/)[0]
