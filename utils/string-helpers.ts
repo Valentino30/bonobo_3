@@ -27,11 +27,22 @@ export function getParticipantInitial(participants?: string[]): string {
  * "John Smith 🎉" -> "John 🎉"
  */
 export function extractFirstName(fullName: string): string {
-  // Regex to match emojis
-  const emojiRegex = /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu
+  // Comprehensive regex to match all emojis including:
+  // - Basic emojis (😀-🙏)
+  // - Miscellaneous symbols (☀-⛿)
+  // - Dingbats (✀-➿)
+  // - Transport and map (🚀-🛿)
+  // - Regional indicator symbols (🇦-🇿)
+  // - Supplemental symbols (🤀-🫿)
+  // - Extended pictographs
+  // - Emoji modifiers and sequences
+  const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}][\p{Emoji_Modifier}]?(?:\u{200D}[\p{Emoji_Presentation}\p{Extended_Pictographic}][\p{Emoji_Modifier}]?)*/gu
 
-  // Extract first emoji if exists
-  const firstEmoji = fullName.match(emojiRegex)?.[0] || ''
+  // Find all emojis in the name
+  const emojis = fullName.match(emojiRegex) || []
+
+  // Get first emoji (if exists)
+  const firstEmoji = emojis[0] || ''
 
   // Remove all emojis to get clean text
   const cleanText = fullName.replace(emojiRegex, '').trim()
