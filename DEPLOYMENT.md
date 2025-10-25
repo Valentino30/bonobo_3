@@ -8,7 +8,7 @@ This guide explains how to deploy Bonobo Chat to production with proper environm
 Development                      Production
 ├── Supabase Dev Project        ├── Supabase Prod Project
 │   └── Test Stripe Keys        │   └── Live Stripe Keys
-├── .env.development            ├── .env.production
+├── .env.dev            ├── .env.prod
 └── Local testing               └── Live app
 ```
 
@@ -18,7 +18,7 @@ Development                      Production
 
 **Supabase Project:** `eozthwbsbkpdkbdvcgyi`
 
-**Client-side (.env.development):**
+**Client-side (.env.dev):**
 ```bash
 EXPO_PUBLIC_SUPABASE_URL=https://eozthwbsbkpdkbdvcgyi.supabase.co
 EXPO_PUBLIC_SUPABASE_ANON_KEY=your_dev_anon_key
@@ -48,7 +48,7 @@ supabase secrets set ALLOWED_ORIGINS="http://localhost:*,http://192.168.*:*" --p
 supabase db push --project-ref [PROD_PROJECT_REF]
 ```
 
-**Step 3: Configure production client (.env.production):**
+**Step 3: Configure production client (.env.prod):**
 ```bash
 EXPO_PUBLIC_SUPABASE_URL=https://[PROD_PROJECT_REF].supabase.co
 EXPO_PUBLIC_SUPABASE_ANON_KEY=your_prod_anon_key
@@ -87,7 +87,7 @@ This copies the appropriate `.env.{environment}` file to `.env`.
 ### Development (Test Mode)
 1. Go to https://dashboard.stripe.com/test/apikeys
 2. Copy your **test** keys:
-   - Publishable key: `pk_test_...` → `.env.development`
+   - Publishable key: `pk_test_...` → `.env.dev`
    - Secret key: `sk_test_...` → Supabase dev secrets
 3. Set up test webhook:
    - URL: `https://eozthwbsbkpdkbdvcgyi.supabase.co/functions/v1/stripe-webhook`
@@ -97,7 +97,7 @@ This copies the appropriate `.env.{environment}` file to `.env`.
 ### Production (Live Mode)
 1. Go to https://dashboard.stripe.com/apikeys
 2. Copy your **live** keys:
-   - Publishable key: `pk_live_...` → `.env.production`
+   - Publishable key: `pk_live_...` → `.env.prod`
    - Secret key: `sk_live_...` → Supabase prod secrets
 3. Set up production webhook:
    - URL: `https://[PROD_PROJECT_REF].supabase.co/functions/v1/stripe-webhook`
@@ -150,7 +150,7 @@ Before going to production:
 - [ ] Edge Functions deployed to production project
 - [ ] Tested payment flow end-to-end in test mode
 - [ ] All secrets set in Supabase Dashboard (never in .env files)
-- [ ] `.env.development` and `.env.production` added to `.gitignore`
+- [ ] `.env.dev` and `.env.prod` added to `.gitignore`
 
 ## Troubleshooting
 

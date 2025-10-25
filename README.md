@@ -15,10 +15,10 @@ npm install
 Copy the example file and fill in your values:
 
 ```bash
-cp .env.example .env.development
+cp .env.example .env.dev
 ```
 
-Edit `.env.development` with your actual API keys:
+Edit `.env.dev` with your actual API keys:
 - `EXPO_PUBLIC_GEMINI_API_KEY` - Get from https://makersuite.google.com/app/apikey
 - `EXPO_PUBLIC_SUPABASE_URL` - From your Supabase project
 - `EXPO_PUBLIC_SUPABASE_ANON_KEY` - From your Supabase project
@@ -82,8 +82,8 @@ npm run format:check   # Check code formatting
 │   └── migrations/          # Database schema
 ├── utils/                    # Utility functions
 ├── scripts/                  # Helper scripts
-├── .env.development         # Development environment (gitignored)
-├── .env.production          # Production environment (gitignored)
+├── .env.dev                 # Development environment (gitignored)
+├── .env.prod                # Production environment (gitignored)
 └── .env.example             # Environment template
 ```
 
