@@ -75,7 +75,6 @@ npm run format:check   # Check code formatting
 │   ├── functions/           # Edge Functions (server-side)
 │   └── migrations/          # Database schema
 ├── utils/                    # Utility functions
-├── scripts/                  # Helper scripts
 ├── .env.dev                 # Development environment (gitignored)
 ├── .env.prod                # Production environment (gitignored)
 └── .env.example             # Environment template

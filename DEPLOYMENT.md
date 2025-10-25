@@ -70,17 +70,17 @@ supabase functions deploy --project-ref [PROD_PROJECT_REF]
 
 ## Switching Environments Locally
 
-Use the helper script to switch between dev and prod environments:
+Use npm scripts to switch between dev and prod environments:
 
 ```bash
-# Switch to development
-bash scripts/switch-env.sh development
+# Start in development mode
+npm run start:dev
 
-# Switch to production (for testing production builds locally)
-bash scripts/switch-env.sh production
+# Start in production mode (for testing production builds locally)
+npm run start:prod
 ```
 
-This copies the appropriate `.env.{environment}` file to `.env`.
+These commands automatically copy the appropriate `.env.dev` or `.env.prod` file to `.env` and start Expo.
 
 ## Stripe Configuration
 
@@ -108,8 +108,8 @@ This copies the appropriate `.env.{environment}` file to `.env`.
 
 ### iOS
 ```bash
-# Switch to production environment
-bash scripts/switch-env.sh production
+# Copy production environment (builds read from .env file)
+cp .env.prod .env
 
 # Build production app
 eas build --platform ios --profile production
@@ -117,8 +117,8 @@ eas build --platform ios --profile production
 
 ### Android
 ```bash
-# Switch to production environment
-bash scripts/switch-env.sh production
+# Copy production environment (builds read from .env file)
+cp .env.prod .env
 
 # Build production app
 eas build --platform android --profile production
