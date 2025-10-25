@@ -1,3 +1,4 @@
+// @ts-nocheck - Deno project with .ts imports
 // Supabase Edge Function: Create Payment Intent
 // Creates a Stripe payment intent for in-app purchases with proper security and validation
 
@@ -5,45 +6,29 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 // @ts-ignore: Deno-specific imports
 import Stripe from 'https://esm.sh/stripe@14.21.0?target=deno'
-// @ts-ignore: Deno-specific imports
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3'
 
-// Environment variables
-// @ts-ignore: Deno global
-const STRIPE_SECRET_KEY = Deno.env.get('STRIPE_SECRET_KEY')
-// @ts-ignore: Deno global
-const SUPABASE_URL = Deno.env.get('SUPABASE_URL')
-// @ts-ignore: Deno global
-const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
-// @ts-ignore: Deno global
-const ALLOWED_ORIGINS = Deno.env.get('ALLOWED_ORIGINS') || 'http://localhost:*'
+// Shared utilities
+import { loadEnvironment } from '../_shared/env.ts'
+import { initializeClients } from '../_shared/clients.ts'
+import { getCorsHeaders, handlePreFlight } from '../_shared/cors.ts'
+import { createErrorResponse, validationError, rateLimitError } from '../_shared/error-handler.ts'
+import { createLogger } from '../_shared/logger.ts'
+import { parseJSON, validateMethod } from '../_shared/request.ts'
+import { getGlobalRateLimiter, createRateLimitHeaders } from '../_shared/rate-limit.ts'
+import {
+  validatePaymentAmount,
+  validatePlanId,
+  validateCurrency,
+  validateUUID,
+  type PlanId,
+  type Currency,
+} from '../_shared/validation.ts'
 
-// Validate environment variables
-if (!STRIPE_SECRET_KEY || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-  throw new Error('Missing required environment variables')
-}
+// Initialize logger
+const logger = createLogger('create-payment-intent')
 
-// Initialize clients
-const stripe = new Stripe(STRIPE_SECRET_KEY, {
-  apiVersion: '2024-11-20.acacia',
-  httpClient: Stripe.createFetchHttpClient(),
-})
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
-
-// Constants for validation
-const VALID_PLANS = ['one-time', 'weekly', 'monthly'] as const
-const VALID_CURRENCIES = ['eur'] as const // Your app only supports EUR
-const MIN_AMOUNT = 50 // 50 cents minimum (Stripe requirement)
-const MAX_AMOUNT = 100000 // €1000 maximum (reasonable limit)
-
-// UUID validation regex
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-
-// Rate limiting map (in production, use Redis or similar)
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>()
-const RATE_LIMIT_WINDOW = 60 * 1000 // 1 minute
-const RATE_LIMIT_MAX = 5 // Max 5 requests per minute per device
+// Initialize rate limiter (5 requests per minute)
+const rateLimiter = getGlobalRateLimiter({ windowMs: 60 * 1000, maxRequests: 5 })
 
 interface RequestBody {
   amount: number
@@ -55,229 +40,152 @@ interface RequestBody {
   idempotencyKey?: string
 }
 
-// Helper function to validate CORS origin
-function isAllowedOrigin(origin: string | null): boolean {
-  if (!origin) return false
-
-  const allowedPatterns = ALLOWED_ORIGINS.split(',').map(p => p.trim())
-  return allowedPatterns.some(pattern => {
-    // Convert wildcard pattern to regex
-    const regexPattern = pattern.replace(/\*/g, '.*').replace(/:/g, '\\:')
-    return new RegExp(`^${regexPattern}$`).test(origin)
-  })
-}
-
-// Helper function to get CORS headers
-function getCorsHeaders(origin: string | null): HeadersInit {
-  const headers: HeadersInit = {
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  }
-
-  // Only set origin if it's allowed
-  if (isAllowedOrigin(origin)) {
-    headers['Access-Control-Allow-Origin'] = origin!
-    headers['Access-Control-Allow-Credentials'] = 'true'
-  }
-
-  return headers
-}
-
-// Rate limiting function
-function checkRateLimit(identifier: string): boolean {
-  const now = Date.now()
-  const limit = rateLimitMap.get(identifier)
-
-  if (!limit || limit.resetTime < now) {
-    rateLimitMap.set(identifier, { count: 1, resetTime: now + RATE_LIMIT_WINDOW })
-    return true
-  }
-
-  if (limit.count >= RATE_LIMIT_MAX) {
-    return false
-  }
-
-  limit.count++
-  return true
-}
-
-// Input validation function
-function validateInput(body: RequestBody): string | null {
-  // Required fields
+/**
+ * Validate request body fields
+ */
+function validateRequestBody(body: RequestBody): void {
+  // Validate required fields
   if (!body.amount || !body.currency || !body.planId || !body.deviceId) {
-    return 'Missing required fields: amount, currency, planId, deviceId'
+    throw validationError('Missing required fields: amount, currency, planId, deviceId')
   }
 
-  // Type validation
+  // Validate types
   if (typeof body.amount !== 'number' || typeof body.currency !== 'string' ||
       typeof body.planId !== 'string' || typeof body.deviceId !== 'string') {
-    return 'Invalid field types'
+    throw validationError('Invalid field types')
   }
 
-  // Amount validation
-  if (!Number.isInteger(body.amount)) {
-    return 'Amount must be an integer (in cents)'
+  // Validate specific fields
+  validatePaymentAmount(body.amount)
+  validateCurrency(body.currency)
+  validatePlanId(body.planId)
+  validateUUID(body.deviceId, 'deviceId')
+
+  // Validate optional fields
+  if (body.userId) {
+    validateUUID(body.userId, 'userId')
   }
 
-  if (body.amount < MIN_AMOUNT) {
-    return `Amount must be at least ${MIN_AMOUNT} cents`
-  }
-
-  if (body.amount > MAX_AMOUNT) {
-    return `Amount cannot exceed ${MAX_AMOUNT} cents (€${MAX_AMOUNT / 100})`
-  }
-
-  // Currency validation
-  if (!VALID_CURRENCIES.includes(body.currency.toLowerCase() as any)) {
-    return `Invalid currency. Supported currencies: ${VALID_CURRENCIES.join(', ')}`
-  }
-
-  // Plan validation
-  if (!VALID_PLANS.includes(body.planId as any)) {
-    return `Invalid plan. Valid plans: ${VALID_PLANS.join(', ')}`
-  }
-
-  // Device ID validation (should be UUID)
-  if (!UUID_REGEX.test(body.deviceId)) {
-    return 'Invalid deviceId format (must be UUID)'
-  }
-
-  // User ID validation (if provided)
-  if (body.userId && !UUID_REGEX.test(body.userId)) {
-    return 'Invalid userId format (must be UUID)'
-  }
-
-  // Chat ID validation (if provided)
   if (body.chatId && typeof body.chatId !== 'string') {
-    return 'Invalid chatId format'
+    throw validationError('Invalid chatId format')
+  }
+}
+
+/**
+ * Get or create Stripe customer
+ */
+async function getOrCreateCustomer(
+  stripe: Stripe,
+  supabase: ReturnType<typeof initializeClients>['supabase'],
+  deviceId: string,
+  planId: string
+): Promise<Stripe.Customer> {
+  // Try to retrieve existing Stripe customer ID
+  const { data: existingEntitlements, error: dbError } = await supabase
+    .from('user_entitlements')
+    .select('stripe_customer_id')
+    .eq('device_id', deviceId)
+    .not('stripe_customer_id', 'is', null)
+    .order('created_at', { ascending: false })
+    .limit(1)
+
+  if (dbError) {
+    logger.error('Database error', dbError)
+    throw new Error('Service temporarily unavailable')
   }
 
-  return null // No validation errors
+  let customerId = existingEntitlements?.[0]?.stripe_customer_id
+
+  // Verify existing customer in Stripe
+  if (customerId) {
+    try {
+      const existingCustomer = await stripe.customers.retrieve(customerId)
+      // Check if customer is not deleted
+      if ('deleted' in existingCustomer && existingCustomer.deleted) {
+        logger.info('Customer was deleted in Stripe, creating new one')
+        customerId = null
+      }
+    } catch (error) {
+      logger.info('Customer not found in Stripe, creating new one')
+      customerId = null
+    }
+  }
+
+  // Create or retrieve customer
+  if (!customerId) {
+    const customer = await stripe.customers.create({
+      metadata: {
+        deviceId,
+        planId,
+        environment: 'production',
+      },
+    })
+    logger.info('New customer created', { customerId: customer.id.substring(0, 10) + '...' })
+    return customer
+  } else {
+    const customer = await stripe.customers.retrieve(customerId) as Stripe.Customer
+    logger.info('Using existing customer', { customerId: customerId.substring(0, 10) + '...' })
+    return customer
+  }
 }
 
 serve(async (req: Request) => {
-  const origin = req.headers.get('origin')
-  const corsHeaders = getCorsHeaders(origin)
-
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
-  }
-
-  // Only allow POST requests
-  if (req.method !== 'POST') {
-    return new Response(
-      JSON.stringify({ error: 'Method not allowed' }),
-      {
-        status: 405,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
-    )
-  }
+  const startTime = Date.now()
 
   try {
-    // Parse request body
-    let body: RequestBody
-    try {
-      body = await req.json() as RequestBody
-    } catch {
-      return new Response(
-        JSON.stringify({ error: 'Invalid JSON in request body' }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      )
-    }
+    // Load environment
+    const env = loadEnvironment(['stripeSecretKey', 'supabaseUrl', 'supabaseServiceKey'])
 
+    // Initialize clients
+    const { stripe, supabase } = initializeClients(env)
+
+    // Handle CORS
+    const origin = req.headers.get('origin')
+    const corsHeaders = getCorsHeaders(origin, {
+      allowedOrigins: env.allowedOrigins,
+      methods: ['POST', 'OPTIONS'],
+    })
+
+    // Handle preflight
+    const preflight = handlePreFlight(req, corsHeaders)
+    if (preflight) return preflight
+
+    // Validate method
+    validateMethod(req, ['POST'])
+
+    // Parse request body
+    const body = await parseJSON<RequestBody>(req)
     const { amount, currency, planId, deviceId, userId, chatId, idempotencyKey } = body
 
+    logger.info('Request received', {
+      planId,
+      deviceId: deviceId.substring(0, 8) + '...',
+      userId: userId ? userId.substring(0, 8) + '...' : undefined,
+      chatId: chatId ? chatId.substring(0, 8) + '...' : undefined,
+    })
+
     // Validate input
-    const validationError = validateInput(body)
-    if (validationError) {
-      return new Response(
-        JSON.stringify({ error: validationError }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      )
-    }
+    validateRequestBody(body)
 
     // Check rate limit
     const rateLimitKey = userId || deviceId
-    if (!checkRateLimit(rateLimitKey)) {
+    const rateLimitResult = rateLimiter.check(rateLimitKey)
+
+    if (!rateLimitResult.allowed) {
+      logger.warn('Rate limit exceeded', { identifier: rateLimitKey })
+      const rateLimitHeaders = createRateLimitHeaders(rateLimitResult, { windowMs: 60000, maxRequests: 5 })
+
       return new Response(
         JSON.stringify({ error: 'Too many requests. Please try again later.' }),
         {
           status: 429,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json' },
         }
       )
     }
 
-    console.log('Creating payment intent:', {
-      amount,
-      currency: currency.toLowerCase(),
-      planId,
-      deviceId: deviceId.substring(0, 8) + '...', // Log partial ID for privacy
-      userId: userId ? userId.substring(0, 8) + '...' : undefined,
-      chatId: chatId ? chatId.substring(0, 8) + '...' : undefined
-    })
-
-    // Try to retrieve existing Stripe customer ID
-    const { data: existingEntitlements, error: dbError } = await supabase
-      .from('user_entitlements')
-      .select('stripe_customer_id')
-      .eq('device_id', deviceId)
-      .not('stripe_customer_id', 'is', null)
-      .order('created_at', { ascending: false })
-      .limit(1)
-
-    if (dbError) {
-      console.error('Database error:', dbError)
-      return new Response(
-        JSON.stringify({ error: 'Service temporarily unavailable' }),
-        {
-          status: 503,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      )
-    }
-
-    let customerId = existingEntitlements?.[0]?.stripe_customer_id
-
-    // Verify existing customer in Stripe
-    if (customerId) {
-      try {
-        const existingCustomer = await stripe.customers.retrieve(customerId)
-        // Check if customer is not deleted
-        if ('deleted' in existingCustomer && existingCustomer.deleted) {
-          console.log('Customer was deleted in Stripe, creating new one')
-          customerId = null
-        }
-      } catch (error) {
-        console.log('Customer not found in Stripe, creating new one')
-        customerId = null
-      }
-    }
-
-    // Create or retrieve customer
-    let customer: Stripe.Customer
-    if (!customerId) {
-      customer = await stripe.customers.create({
-        metadata: {
-          deviceId,
-          planId,
-          environment: 'production',
-        },
-      })
-      customerId = customer.id
-      console.log('New customer created:', customerId.substring(0, 10) + '...')
-    } else {
-      customer = await stripe.customers.retrieve(customerId) as Stripe.Customer
-      console.log('Using existing customer:', customerId.substring(0, 10) + '...')
-    }
+    // Get or create customer
+    const customer = await getOrCreateCustomer(stripe, supabase, deviceId, planId)
 
     // Create ephemeral key for customer
     const ephemeralKey = await stripe.ephemeralKeys.create(
@@ -304,7 +212,7 @@ serve(async (req: Request) => {
     const paymentIntentOptions: Stripe.PaymentIntentCreateParams = {
       amount,
       currency: currency.toLowerCase(),
-      customer: customerId,
+      customer: customer.id,
       metadata,
       automatic_payment_methods: {
         enabled: true,
@@ -325,7 +233,11 @@ serve(async (req: Request) => {
       requestOptions
     )
 
-    console.log('Payment intent created:', paymentIntent.id)
+    const duration = Date.now() - startTime
+    logger.info('Payment intent created', {
+      paymentIntentId: paymentIntent.id,
+      duration,
+    })
 
     // Return success response
     return new Response(
@@ -342,44 +254,13 @@ serve(async (req: Request) => {
     )
 
   } catch (error) {
-    // Log full error for debugging
-    console.error('Unexpected error:', error)
-
-    // Determine error type and status code
-    let statusCode = 500
-    let errorMessage = 'An unexpected error occurred'
-
-    if (error instanceof Stripe.errors.StripeError) {
-      // Handle Stripe-specific errors
-      switch (error.type) {
-        case 'StripeCardError':
-          statusCode = 400
-          errorMessage = 'Card error'
-          break
-        case 'RateLimitError':
-          statusCode = 429
-          errorMessage = 'Too many requests to payment provider'
-          break
-        case 'StripeInvalidRequestError':
-          statusCode = 400
-          errorMessage = 'Invalid payment request'
-          break
-        default:
-          statusCode = 502
-          errorMessage = 'Payment service error'
-      }
-    }
-
-    // Return sanitized error response
-    return new Response(
-      JSON.stringify({
-        error: errorMessage,
-        code: statusCode === 500 ? 'INTERNAL_ERROR' : 'PAYMENT_ERROR'
+    const duration = Date.now() - startTime
+    logger.error('Request failed', { error, duration })
+    return createErrorResponse(error, {
+      corsHeaders: getCorsHeaders(req.headers.get('origin'), {
+        allowedOrigins: loadEnvironment([]).allowedOrigins,
       }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: statusCode,
-      }
-    )
+      includeCode: true,
+    })
   }
 })

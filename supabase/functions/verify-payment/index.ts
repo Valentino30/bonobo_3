@@ -1,25 +1,25 @@
+// @ts-nocheck - Deno project with .ts imports
 // Verify Payment and Create Entitlement
 // Fallback endpoint to manually verify payment and create entitlement if webhook failed
 
 // @ts-ignore: Deno-specific imports
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-// @ts-ignore: Deno-specific imports
-import Stripe from 'https://esm.sh/stripe@14.21.0?target=deno'
-// @ts-ignore: Deno-specific imports
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3'
 
-// @ts-ignore: Deno global
-const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
-  apiVersion: '2024-11-20.acacia',
-  httpClient: Stripe.createFetchHttpClient(),
-})
+// Shared utilities
+import { loadEnvironment } from '../_shared/env.ts'
+import { initializeClients } from '../_shared/clients.ts'
+import { createErrorResponse, validationError } from '../_shared/error-handler.ts'
+import { createLogger } from '../_shared/logger.ts'
+import { parseJSON, validateMethod } from '../_shared/request.ts'
+import { validatePaymentIntentId, validateUUID, validatePlanId, type PlanId } from '../_shared/validation.ts'
+import {
+  calculatePlanExpiration,
+  createEntitlement,
+  findExistingEntitlement,
+  type EntitlementData,
+} from '../_shared/entitlement.ts'
 
-// Initialize Supabase client
-// @ts-ignore: Deno global
-const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-// @ts-ignore: Deno global
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
+const logger = createLogger('verify-payment')
 
 interface VerifyPaymentRequest {
   paymentIntentId: string
@@ -28,44 +28,53 @@ interface VerifyPaymentRequest {
   chatId?: string
 }
 
-serve(async (req: Request) => {
-  // Only allow POST requests
-  if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers: { 'Content-Type': 'application/json' },
-    })
+/**
+ * Validate request body
+ */
+function validateRequest(body: VerifyPaymentRequest): void {
+  if (!body.paymentIntentId || !body.deviceId || !body.planId) {
+    throw validationError('Missing paymentIntentId, deviceId, or planId')
   }
 
+  validatePaymentIntentId(body.paymentIntentId)
+  validateUUID(body.deviceId, 'deviceId')
+  validatePlanId(body.planId)
+
+  if (body.chatId && typeof body.chatId !== 'string') {
+    throw validationError('Invalid chatId format')
+  }
+}
+
+serve(async (req: Request) => {
   try {
-    console.log('🔍 Verify payment request received')
+    // Load environment
+    const env = loadEnvironment(['stripeSecretKey', 'supabaseUrl', 'supabaseServiceKey'])
 
-    const { paymentIntentId, deviceId, planId, chatId }: VerifyPaymentRequest = await req.json()
+    // Initialize clients
+    const { stripe, supabase } = initializeClients(env)
 
-    if (!paymentIntentId || !deviceId || !planId) {
-      console.error('❌ Missing required parameters')
-      return new Response(JSON.stringify({ error: 'Missing paymentIntentId, deviceId, or planId' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      })
-    }
+    // Validate method
+    validateMethod(req, ['POST'])
 
-    console.log('📝 Verifying payment:', {
+    // Parse request
+    const body = await parseJSON<VerifyPaymentRequest>(req)
+    const { paymentIntentId, deviceId, planId, chatId } = body
+
+    logger.info('Verification request received', {
       paymentIntentId,
-      deviceId,
+      deviceId: deviceId.substring(0, 8) + '...',
       planId,
-      chatId,
+      chatId: chatId ? chatId.substring(0, 8) + '...' : undefined,
     })
 
+    // Validate input
+    validateRequest(body)
+
     // Check if entitlement already exists
-    const { data: existingEntitlement } = await supabase
-      .from('user_entitlements')
-      .select('id, status')
-      .eq('stripe_payment_intent_id', paymentIntentId)
-      .single()
+    const existingEntitlement = await findExistingEntitlement(supabase, paymentIntentId)
 
     if (existingEntitlement) {
-      console.log('✅ Entitlement already exists:', existingEntitlement.id)
+      logger.info('Entitlement already exists', { entitlementId: existingEntitlement.id })
       return new Response(
         JSON.stringify({
           success: true,
@@ -77,25 +86,22 @@ serve(async (req: Request) => {
     }
 
     // Fetch payment intent from Stripe to verify it succeeded
-    let paymentIntent: Stripe.PaymentIntent
+    let paymentIntent
     try {
       paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId)
-      console.log('✅ Retrieved payment intent from Stripe:', {
+      logger.info('Retrieved payment intent from Stripe', {
         id: paymentIntent.id,
         status: paymentIntent.status,
         amount: paymentIntent.amount,
       })
     } catch (error) {
-      console.error('❌ Failed to retrieve payment intent from Stripe:', error)
-      return new Response(JSON.stringify({ error: 'Failed to retrieve payment intent from Stripe' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      })
+      logger.error('Failed to retrieve payment intent from Stripe', error)
+      throw new Error('Failed to retrieve payment intent from Stripe')
     }
 
     // Verify payment succeeded
     if (paymentIntent.status !== 'succeeded') {
-      console.log('⚠️ Payment intent status is not "succeeded":', paymentIntent.status)
+      logger.warn('Payment intent status is not "succeeded"', { status: paymentIntent.status })
       return new Response(
         JSON.stringify({
           success: false,
@@ -108,38 +114,22 @@ serve(async (req: Request) => {
 
     // Verify metadata matches
     if (paymentIntent.metadata.planId !== planId || paymentIntent.metadata.deviceId !== deviceId) {
-      console.error('❌ Metadata mismatch:', {
+      logger.error('Metadata mismatch', {
         expected: { planId, deviceId },
         actual: paymentIntent.metadata,
       })
-      return new Response(JSON.stringify({ error: 'Metadata mismatch' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      })
+      throw validationError('Metadata mismatch')
     }
 
-    console.log('✅ Payment verified - creating entitlement')
+    logger.info('Payment verified - creating entitlement')
 
-    // Calculate expiration date based on plan
-    let expiresAt = null
-    let remainingAnalyses = 0
+    // Calculate expiration based on plan
+    const { expiresAt, remainingAnalyses } = calculatePlanExpiration(planId as PlanId)
 
-    if (planId === 'one-time') {
-      remainingAnalyses = 1
-    } else if (planId === 'weekly') {
-      const weekFromNow = new Date()
-      weekFromNow.setDate(weekFromNow.getDate() + 7)
-      expiresAt = weekFromNow.toISOString()
-    } else if (planId === 'monthly') {
-      const monthFromNow = new Date()
-      monthFromNow.setMonth(monthFromNow.getMonth() + 1)
-      expiresAt = monthFromNow.toISOString()
-    }
-
-    // Create entitlement
-    const insertData: any = {
+    // Prepare entitlement data
+    const entitlementData: EntitlementData = {
       device_id: deviceId,
-      plan_id: planId,
+      plan_id: planId as PlanId,
       stripe_payment_intent_id: paymentIntent.id,
       stripe_customer_id: paymentIntent.customer as string,
       status: 'active',
@@ -150,25 +140,14 @@ serve(async (req: Request) => {
 
     // For one-time purchases, assign to specific chat if provided
     if (planId === 'one-time' && chatId) {
-      insertData.chat_id = chatId
-      console.log('✅ Assigning one-time purchase to chat:', chatId)
+      entitlementData.chat_id = chatId
+      logger.info('Assigning one-time purchase to chat', { chatId })
     }
 
-    const { data: entitlement, error: dbError } = await supabase
-      .from('user_entitlements')
-      .insert(insertData)
-      .select()
-      .single()
+    // Create entitlement
+    const entitlement = await createEntitlement(supabase, entitlementData)
 
-    if (dbError) {
-      console.error('❌ Database error:', dbError)
-      return new Response(JSON.stringify({ error: `Failed to create entitlement: ${dbError.message}` }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      })
-    }
-
-    console.log('✅ Entitlement created:', entitlement.id)
+    logger.info('Entitlement created', { entitlementId: entitlement.id })
 
     return new Response(
       JSON.stringify({
@@ -179,11 +158,10 @@ serve(async (req: Request) => {
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     )
   } catch (error) {
-    console.error('❌ Verify payment error:', error)
-    const errorMessage = error instanceof Error ? error.message : 'Verification failed'
-    return new Response(JSON.stringify({ error: errorMessage }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
+    logger.error('Verification failed', error)
+    return createErrorResponse(error, {
+      corsHeaders: { 'Content-Type': 'application/json' },
+      includeCode: true,
     })
   }
 })

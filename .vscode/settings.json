@@ -6,8 +6,13 @@
   "editor.formatOnSave": true,
   "deno.enable": true,
   "deno.enablePaths": ["supabase/functions"],
+  "deno.lint": true,
+  "deno.unstable": false,
+  "deno.config": "./supabase/functions/deno.json",
+  "typescript.tsdk": "",
+  "typescript.enablePromptUseWorkspaceTsdk": false,
   "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "denoland.vscode-deno"
   },
   "[typescriptreact]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
@@ -17,5 +22,8 @@
   },
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "files.associations": {
+    "**/supabase/functions/**/*.ts": "typescript"
   }
 }
