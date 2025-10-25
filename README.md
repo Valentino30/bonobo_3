@@ -29,18 +29,17 @@ Edit `.env.dev` with your actual API keys:
 **Development mode (default):**
 ```bash
 npm run start:dev
-# or for specific platform:
-npm run android:dev
-npm run ios:dev
 ```
 
 **Production mode (for testing production builds):**
 ```bash
 npm run start:prod
-# or for specific platform:
-npm run android:prod
-npm run ios:prod
 ```
+
+Once Expo dev server starts, press:
+- `a` for Android
+- `i` for iOS
+- `w` for web
 
 ## Environment Management
 
@@ -54,17 +53,12 @@ This project uses separate environments for development and production:
 ### Available Scripts
 
 ```bash
-# Development
+# Start app
+npm start              # Start in current environment (.env file)
 npm run start:dev      # Start in development mode
-npm run android:dev    # Start Android in dev mode
-npm run ios:dev        # Start iOS in dev mode
-
-# Production
 npm run start:prod     # Start in production mode
-npm run android:prod   # Start Android in prod mode
-npm run ios:prod       # Start iOS in prod mode
 
-# Other commands
+# Code quality
 npm run lint           # Run linter
 npm run format         # Format code with Prettier
 npm run format:check   # Check code formatting
